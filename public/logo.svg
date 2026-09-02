@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2000" height="2000" viewBox="0 0 2000 2000">
+  <!-- White background for transparent-safe -->
+  <rect width="2000" height="2000" fill="#FFFFFF"/>
+  
+  <!-- Scale: unit=90, total design width=19*90=1710, height=11*90=990, centered -->
+  <!-- offsetX = (2000-1710)/2 = 145, offsetY=(2000-990)/2=505 -->
+  <g transform="translate(145, 505) scale(90)">
+    
+    <!-- Colors -->
+    <!-- Near-black #16181D, green #63A967 -->
+    
+    <!-- LINE 1: S O ' Z   at y=0 to 5 -->
+    <!-- S at x=0 -->
+    <g fill="#16181D">
+      <!-- S: top bar, left mid-upper, middle bar, right mid-lower, bottom bar -->
+      <rect x="0" y="0" width="5" height="1"/>
+      <rect x="0" y="1" width="1" height="1"/>
+      <rect x="0" y="2" width="5" height="1"/>
+      <rect x="4" y="3" width="1" height="1"/>
+      <rect x="0" y="4" width="5" height="1"/>
+    </g>
+    
+    <!-- O at x=6 -->
+    <g>
+      <!-- O body black -->
+      <rect x="6" y="0" width="5" height="1" fill="#16181D"/> <!-- top -->
+      <rect x="6" y="4" width="5" height="1" fill="#16181D"/> <!-- bottom -->
+      <rect x="6" y="1" width="1" height="3" fill="#16181D"/> <!-- left -->
+      <rect x="10" y="1" width="1" height="3" fill="#16181D"/> <!-- right -->
+      <!-- counter green 3x3 -->
+      <rect x="7" y="1" width="3" height="3" fill="#63A967"/>
+    </g>
+    
+    <!-- Apostrophe 1x1 at x=12, y=0 (cap height) -->
+    <rect x="12" y="0" width="1" height="1" fill="#63A967"/>
+    
+    <!-- Z at x=14 -->
+    <g fill="#16181D">
+      <!-- Z: top, right upper, middle, left lower, bottom -->
+      <rect x="14" y="0" width="5" height="1"/>
+      <rect x="18" y="1" width="1" height="1"/>
+      <rect x="14" y="2" width="5" height="1"/>
+      <rect x="14" y="3" width="1" height="1"/>
+      <rect x="14" y="4" width="5" height="1"/>
+    </g>
+    
+    <!-- LINE 2: G I R  at y=6 to 11, gaps adjusted to total width 19 -->
+    <!-- G at x=0 -->
+    <g fill="#16181D">
+      <!-- G: blocky, square counter open on right mid, with inward spur -->
+      <!-- top -->
+      <rect x="0" y="6" width="5" height="1"/>
+      <!-- left full -->
+      <rect x="0" y="7" width="1" height="3"/>
+      <!-- bottom -->
+      <rect x="0" y="10" width="5" height="1"/>
+      <!-- right upper -->
+      <rect x="4" y="7" width="1" height="1"/>
+      <!-- right lower -->
+      <rect x="4" y="9" width="1" height="1"/>
+      <!-- mid spur from right inward (square counter feel) -->
+      <rect x="2" y="8" width="3" height="1"/>
+    </g>
+    
+    <!-- I at x=7 (gap of 2: after G ends at 5, +2=7) -->
+    <g fill="#16181D">
+      <!-- I: centered stem with top and bottom serifs for presence in 5-wide -->
+      <rect x="7" y="6" width="5" height="1"/> <!-- top serif -->
+      <rect x="9" y="7" width="1" height="3"/> <!-- stem -->
+      <rect x="7" y="10" width="5" height="1"/> <!-- bottom serif -->
+    </g>
+    
+    <!-- R at x=14 (after I ends 7+5=12, +2=14) -->
+    <g fill="#16181D">
+      <!-- R: top, left full, right upper, mid, stepped leg to bottom-right -->
+      <rect x="14" y="6" width="5" height="1"/> <!-- top -->
+      <rect x="14" y="7" width="1" height="4"/> <!-- left -->
+      <rect x="18" y="7" width="1" height="1"/> <!-- right upper -->
+      <rect x="14" y="8" width="5" height="1"/> <!-- mid -->
+      <!-- leg: 1-thick stepped from mid-right down-right -->
+      <rect x="17" y="9" width="1" height="1"/>
+      <rect x="18" y="9" width="1" height="1"/>
+      <rect x="18" y="10" width="1" height="1"/>
+    </g>
+    
+  </g>
+</svg>

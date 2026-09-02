@@ -1,0 +1,266 @@
+/* So'zgir landing — dizayn tizimi.
+   Ranglar ilovaning app_palette.dart faylidan olingan, shunda sayt, ilova va
+   admin panel bir ko'rinishda bo'ladi. */
+
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+:root {
+  --bg: #ffffff;
+  --surface: #f7f9fc;
+  --surface-2: #eef2f7;
+  --text: #16181d;
+  --text-2: #7a8290;
+  --divider: #eceef2;
+  --tile-border: #c3c9d6;
+  --tile-border-filled: #97a0b0;
+  --key-bg: #edf2f7;
+  --key-action: #e2e8f0;
+  --green: #63a967;
+  --green-soft: rgba(99, 169, 103, 0.14);
+  --yellow: #d3af4e;
+  --yellow-soft: rgba(211, 175, 78, 0.16);
+  --grey: #979ea9;
+  --accent: #2f6fed;
+  --accent-soft: rgba(47, 111, 237, 0.12);
+  --violet: #7c5cd6;
+  --violet-soft: rgba(124, 92, 214, 0.14);
+  --orange: #e08447;
+  --orange-soft: rgba(224, 132, 71, 0.14);
+  --teal: #3fa8a0;
+  --teal-soft: rgba(63, 168, 160, 0.14);
+  --danger: #d1544f;
+
+  --radius: 18px;
+  --radius-lg: 26px;
+  --radius-sm: 12px;
+  --shadow: 0 1px 2px rgba(22, 24, 29, 0.04), 0 8px 24px rgba(22, 24, 29, 0.06);
+  --shadow-lg: 0 2px 6px rgba(22, 24, 29, 0.05), 0 24px 60px rgba(22, 24, 29, 0.12);
+  --page: 1120px;
+  --header-h: 64px;
+}
+
+:root[data-theme='dark'] {
+  --bg: #121317;
+  --surface: #1b1d23;
+  --surface-2: #22252c;
+  --text: #f3f4f6;
+  --text-2: #9aa1ae;
+  --divider: #262a31;
+  --tile-border: #3b404a;
+  --tile-border-filled: #636b78;
+  --key-bg: #2a2e36;
+  --key-action: #343943;
+  --green: #5e9e63;
+  --green-soft: rgba(94, 158, 99, 0.2);
+  --yellow: #c3a044;
+  --yellow-soft: rgba(195, 160, 68, 0.2);
+  --grey: #4c525c;
+  --accent: #6c97f5;
+  --accent-soft: rgba(108, 151, 245, 0.18);
+  --violet: #9b81e8;
+  --violet-soft: rgba(155, 129, 232, 0.18);
+  --orange: #e79a67;
+  --orange-soft: rgba(231, 154, 103, 0.18);
+  --teal: #55bdb5;
+  --teal-soft: rgba(85, 189, 181, 0.18);
+  --danger: #d9605b;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 2px 6px rgba(0, 0, 0, 0.4), 0 24px 60px rgba(0, 0, 0, 0.5);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-h) + 16px);
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Nunito, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+
+h1 {
+  font-size: clamp(34px, 6vw, 60px);
+  font-weight: 900;
+}
+h2 {
+  font-size: clamp(26px, 4vw, 38px);
+}
+h3 {
+  font-size: 19px;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+::selection {
+  background: var(--green);
+  color: #fff;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* ── Tarkib kengligi ──────────────────────────────────────────────────── */
+
+.wrap {
+  width: 100%;
+  max-width: var(--page);
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.section {
+  padding: clamp(64px, 9vw, 112px) 0;
+}
+
+.section__head {
+  max-width: 620px;
+  margin-bottom: 44px;
+}
+
+.section__kicker {
+  display: inline-block;
+  margin-bottom: 12px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.section__lead {
+  margin-top: 14px;
+  color: var(--text-2);
+  font-size: 17px;
+}
+
+/* ── Tugmalar ─────────────────────────────────────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border: none;
+  border-radius: 15px;
+  padding: 13px 22px;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  background: var(--green);
+  color: #fff;
+  transition: transform 0.14s ease, filter 0.14s ease, background 0.14s ease;
+}
+
+.btn:hover {
+  filter: brightness(1.06);
+}
+.btn:active {
+  transform: scale(0.97);
+}
+.btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.btn--ghost {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.btn--outline {
+  background: transparent;
+  color: var(--text);
+  box-shadow: inset 0 0 0 1.5px var(--divider);
+}
+
+.btn--sm {
+  padding: 8px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+
+.btn--lg {
+  padding: 16px 26px;
+  border-radius: 17px;
+  font-size: 17px;
+}
+
+/* ── Kartochka ────────────────────────────────────────────────────────── */
+
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 22px;
+}
+
+/* ── Ko'rinishda paydo bo'lish ────────────────────────────────────────── */
+
+/* Yashirish faqat JS ishlaganda — aks holda sahifa bo'sh ko'rinib qolardi. */
+.js .reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
