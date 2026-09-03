@@ -1,0 +1,156 @@
+<!doctype html>
+<!-- X (Twitter) header — 1500×500.
+     `?theme=dark` bilan tungi variant chiqadi.
+     Render: brand/render.sh -->
+<html lang="uz">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #ffffff;
+        --text: #16181d;
+        --text-2: #7a8290;
+        --green: #63a967;
+        --tile-border: #c3c9d6;
+        --glow: rgba(99, 169, 103, 0.2);
+        --grid: rgba(22, 24, 29, 0.045);
+      }
+
+      html[data-theme='dark'] {
+        --bg: #121317;
+        --text: #f3f4f6;
+        --text-2: #9aa1ae;
+        --green: #5e9e63;
+        --tile-border: #3b404a;
+        --glow: rgba(94, 158, 99, 0.28);
+        --grid: rgba(255, 255, 255, 0.05);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+
+      body {
+        width: 1500px;
+        height: 500px;
+        overflow: hidden;
+        position: relative;
+        background: var(--bg);
+        color: var(--text);
+        font-family: Nunito, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* Fon: yumshoq yashil nur + zaif katak to'ri. */
+      .glow {
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(620px 420px at 82% 8%, var(--glow), transparent 62%),
+          radial-gradient(520px 380px at 12% 96%, var(--glow), transparent 66%);
+      }
+
+      .grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(var(--grid) 1.5px, transparent 1.5px),
+          linear-gradient(90deg, var(--grid) 1.5px, transparent 1.5px);
+        background-size: 50px 50px;
+        mask-image: radial-gradient(900px 460px at 50% 50%, #000 20%, transparent 78%);
+      }
+
+      /* Markazlashtirilgan tarkib: X'da chap-past burchakni avatar,
+         o'ng-yuqorini tugmalar egallaydi — shuning uchun hammasi o'rtada. */
+      .stage {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 32px;
+        padding-bottom: 16px;
+      }
+
+      .tiles {
+        display: flex;
+        gap: 13px;
+      }
+
+      .tile {
+        width: 106px;
+        height: 106px;
+        border-radius: 22px;
+        display: grid;
+        place-items: center;
+        font-size: 51px;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+        background: var(--green);
+        color: #fff;
+        box-shadow: 0 10px 26px rgba(99, 169, 103, 0.28);
+      }
+
+      /* O‘ katagi — qo'sh belgi bitta katakda turishini ko'rsatadi. */
+      .tile--wide {
+        font-size: 45px;
+      }
+
+      .copy {
+        text-align: center;
+      }
+
+      .copy h1 {
+        font-size: 38px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+
+      .copy p {
+        margin-top: 13px;
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+        color: var(--text-2);
+      }
+
+      .copy b {
+        color: var(--green);
+        font-weight: 900;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="glow"></div>
+    <div class="grid"></div>
+
+    <div class="stage">
+      <div class="tiles">
+        <span class="tile">S</span>
+        <span class="tile tile--wide">O‘</span>
+        <span class="tile">Z</span>
+        <span class="tile">G</span>
+        <span class="tile">I</span>
+        <span class="tile">R</span>
+      </div>
+
+      <div class="copy">
+        <h1>O‘zbek tilidagi so‘z o‘yinlari platformasi</h1>
+        <p>SH · CH · O‘ · G‘ — <b>bitta harf</b></p>
+      </div>
+    </div>
+
+    <script>
+      const theme = new URLSearchParams(location.search).get('theme');
+      if (theme === 'dark') document.documentElement.dataset.theme = 'dark';
+    </script>
+  </body>
+</html>
