@@ -1,12 +1,15 @@
 /** Sahifadagi barcha matn va havolalar shu yerda — dizaynga tegmasdan
  *  tahrirlash uchun. Store havolalari chiqqanda faqat `links` yangilanadi. */
 
+export const email = 'uzmobdev@gmail.com';
+
 export const links = {
   appStore: '',
   playStore: '',
   telegram: 'https://t.me/sozgir_uz',
-  support: 'mailto:samandar.ahadjonov@alif.uz',
+  support: `mailto:${email}`,
   privacy: '/privacy',
+  contact: '/contact',
 };
 
 export const stats = [

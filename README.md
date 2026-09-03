@@ -20,6 +20,9 @@ ko‘radi.
 | Savollar | Akkordeon FAQ |
 | Yuklab olish | Store havolalari (hozircha «Tez orada») |
 
+Alohida sahifalar: `/privacy` (maxfiylik siyosati, o‘zbekcha + inglizcha) va
+`/contact` (aloqa ma’lumotlari + so‘rov formasi).
+
 ## O‘zbek alifbosi
 
 `src/lib/uz.ts` — ilovadagi `lib/core/utils/uz_alphabet.dart` ning aniq porti.
@@ -51,15 +54,19 @@ Node 22+ kerak.
 ## Tuzilma
 
 ```
+api/
+  contact.ts    aloqa formasini Telegramga uzatuvchi Edge Function
 src/
   components/   bo‘limlar (Hero, Rules, Alphabet, Modules, …)
   data/
     site.ts     barcha matn va havolalar — dizaynga tegmasdan tahrirlash uchun
     words.ts    demo so‘zlar (ta’rif va kategoriya bilan)
+    privacy.ts  maxfiylik siyosati matni (uz + en)
   lib/
     uz.ts       alifbo, normalize/split, Wordle baholash
     useWordGame.ts  o‘yin holati
     useReveal.ts    scroll animatsiyasi va mavzu almashtirish
+    useRoute.ts     kichik router (`/`, `/privacy`, `/contact`)
   styles/
     theme.css   dizayn tokenlari (yorug‘ + tungi)
     landing.css bo‘lim uslublari
@@ -77,10 +84,28 @@ dan olingan — sayt, ilova va admin panel bir ko‘rinishda. Tungi rejim tanlov
 Logotip `public/logo.svg` dan ko‘chirilgan, lekin `Logo.tsx` da `currentColor`
 bilan qayta chizilgan — shunda u tungi rejimda ham to‘g‘ri ko‘rinadi.
 
+## Aloqa formasi va Telegram
+
+`/contact` dagi forma `api/contact.ts` (Vercel Edge Function) ga yuboriladi, u
+esa xabarni Telegram guruhiga tashlaydi. Xabar formati soztop ilovasidagi
+`Reporter` bilan bir xil, shunda ikki oqim bitta guruhda bir ko‘rinishda bo‘ladi.
+
+Vercel muhit o‘zgaruvchilari (Project → Settings → Environment Variables):
+
+| Kalit | Nima |
+| --- | --- |
+| `TELEGRAM_BOT_TOKEN` | bot tokeni |
+| `TELEGRAM_CHAT_ID` | guruh yoki kanal ID (masalan `-1001234567890`) |
+| `TELEGRAM_CONTACT_THREAD` | mavzu (topic) raqami, ixtiyoriy |
+
+Token yoki chat berilmasa funksiya `503` qaytaradi, forma esa foydalanuvchiga
+pochta manzilini ko‘rsatadi. Lokalda `npm run dev` bilan faqat sahifalar
+ishlaydi — funksiyani sinash uchun `vercel dev` kerak.
+
 ## Deploy
 
-Vercel: `vercel.json` tayyor (framework `vite`, chiqish `dist`). Repo ulansa
-qo‘shimcha sozlash kerak emas.
+Vercel: `vercel.json` tayyor (framework `vite`, chiqish `dist`, SPA uchun
+rewrite). Repo ulansa qo‘shimcha sozlash kerak emas.
 
 ## Stack
 

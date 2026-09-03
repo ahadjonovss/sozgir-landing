@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
+import { links } from '../data/site';
 import { toggleTheme } from '../lib/useReveal';
+import type { Route } from '../lib/useRoute';
 import Logo from './Logo';
 
-const nav = [
-  { href: '#qoida', label: 'Qoida' },
-  { href: '#alifbo', label: 'Alifbo' },
-  { href: '#modullar', label: 'Modullar' },
-  { href: '#savollar', label: 'Savollar' },
+const sections = [
+  { hash: '#qoida', label: 'Qoida' },
+  { hash: '#alifbo', label: 'Alifbo' },
+  { hash: '#modullar', label: 'Modullar' },
+  { hash: '#savollar', label: 'Savollar' },
 ];
 
-export default function Header() {
+export default function Header({ route }: { route: Route }) {
   const [dark, setDark] = useState(
     () => document.documentElement.dataset.theme === 'dark',
   );
@@ -25,16 +27,20 @@ export default function Header() {
   return (
     <header className={`header${stuck ? ' header--stuck' : ''}`}>
       <div className="wrap header__inner">
-        <a className="brand" href="#top" aria-label="So‘zgir — bosh sahifa">
+        {/* Langarlar `/` bilan boshlanadi — ichki sahifalardan ham ishlaydi. */}
+        <a className="brand" href="/#top" aria-label="So‘zgir — bosh sahifa">
           <Logo height={30} />
         </a>
 
         <nav className="header__nav">
-          {nav.map((item) => (
-            <a key={item.href} href={item.href}>
+          {sections.map((item) => (
+            <a key={item.hash} href={`/${item.hash}`}>
               {item.label}
             </a>
           ))}
+          <a href={links.contact} aria-current={route === '/contact' ? 'page' : undefined}>
+            Aloqa
+          </a>
         </nav>
 
         <div className="header__actions">
@@ -46,7 +52,7 @@ export default function Header() {
           >
             {dark ? '☀' : '☾'}
           </button>
-          <a className="btn btn--sm header__cta" href="#yuklab-olish">
+          <a className="btn btn--sm header__cta" href="/#yuklab-olish">
             Yuklab olish
           </a>
         </div>

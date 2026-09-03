@@ -1207,6 +1207,289 @@
   font-weight: 800;
 }
 
+/* ── Hujjat sahifasi (maxfiylik siyosati) ─────────────────────────────── */
+
+.doc__wrap {
+  max-width: 800px;
+}
+
+.doc__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--divider);
+}
+
+.doc__title {
+  margin-top: 4px;
+  font-size: clamp(30px, 5vw, 44px);
+}
+
+.doc__updated {
+  margin-top: 10px;
+  color: var(--text-2);
+  font-size: 14.5px;
+  font-weight: 700;
+}
+
+.doc__langs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.doc__lang {
+  border: none;
+  border-radius: 11px;
+  padding: 8px 14px;
+  background: transparent;
+  color: var(--text-2);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.doc__lang--on {
+  background: var(--bg);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+
+.doc__body {
+  margin-top: 34px;
+}
+
+.doc__intro {
+  color: var(--text-2);
+  font-size: 17px;
+}
+
+.doc__meta {
+  display: grid;
+  gap: 4px;
+  margin-top: 22px;
+  padding: 18px 20px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.doc__section {
+  margin-top: 40px;
+}
+
+.doc__section h2 {
+  font-size: clamp(19px, 2.4vw, 23px);
+}
+
+.doc__section p,
+.doc__list {
+  margin-top: 14px;
+  color: var(--text-2);
+  font-size: 15.5px;
+}
+
+.doc__list {
+  display: grid;
+  gap: 9px;
+}
+
+.doc__list li {
+  position: relative;
+  padding-left: 20px;
+}
+
+.doc__list li::before {
+  content: '';
+  position: absolute;
+  top: 9px;
+  left: 4px;
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+  background: var(--green);
+}
+
+.doc__body a {
+  color: var(--accent);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 2px;
+  overflow-wrap: anywhere;
+}
+
+/* ── Aloqa ────────────────────────────────────────────────────────────── */
+
+.contact__grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.contact__side {
+  display: grid;
+  gap: 12px;
+}
+
+.contact__card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.contact__card:not(.contact__card--plain):hover {
+  transform: translateY(-2px);
+  background: var(--surface-2);
+}
+
+.contact__icon {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  background: var(--bg);
+  font-size: 19px;
+}
+
+.contact__card small {
+  display: block;
+  color: var(--text-2);
+  font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.contact__card b {
+  display: block;
+  font-size: 15.5px;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.contact__note {
+  margin-top: 6px;
+  color: var(--text-2);
+  font-size: 14px;
+}
+
+.contact__note a {
+  color: var(--accent);
+  font-weight: 800;
+}
+
+.contact__form {
+  display: grid;
+  gap: 16px;
+  padding: clamp(22px, 3vw, 32px);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.field {
+  display: grid;
+  gap: 7px;
+}
+
+.field > span {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  border: 1.5px solid var(--divider);
+  border-radius: 14px;
+  padding: 13px 15px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 15.5px;
+  transition: border-color 0.15s ease;
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 130px;
+}
+
+.field input:hover,
+.field select:hover,
+.field textarea:hover {
+  border-color: var(--tile-border);
+}
+
+.field input:focus-visible,
+.field select:focus-visible,
+.field textarea:focus-visible {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: var(--text-2);
+  opacity: 0.7;
+}
+
+.contact__actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.contact__counter {
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.contact__status:empty {
+  display: none;
+}
+
+.contact__status {
+  font-size: 14.5px;
+  font-weight: 700;
+}
+
+.contact__ok {
+  color: var(--green);
+}
+
+.contact__err {
+  color: var(--danger);
+}
+
+.contact__err a {
+  text-decoration: underline;
+}
+
+@media (max-width: 860px) {
+  .contact__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ── Footer ───────────────────────────────────────────────────────────── */
 
 .footer {
