@@ -1,0 +1,55 @@
+<!doctype html>
+<!-- X profil rasmi — 400×400. X uni aylana qilib kesadi va lentada 40–48px
+     gacha kichraytiradi, shuning uchun tarkib bitta blokli harf.
+
+     Belgi — ilova logotipidagi (SozgirMark) birinchi glif, 5×5 katak.
+     ?v=dark | ?v=light — fon varianti. Render: brand/render.sh -->
+<html lang="uz">
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      * { margin: 0; box-sizing: border-box; }
+
+      /* Fon to'liq to'shaladi — aylana kesuvida burchaklar yo'qoladi,
+         shuning uchun ramka ham, chekka ham kerak emas. */
+      body {
+        width: 400px;
+        height: 400px;
+        overflow: hidden;
+        display: grid;
+        place-items: center;
+        background: #63a967;
+      }
+      body[data-v='dark'] { background: #121317; }
+      body[data-v='light'] { background: #ffffff; }
+
+      /* Aylana kesuvi burchaklarni oladi: belgi diametrning ~49% ida
+         tursa, hech qachon kesilmaydi va nafas oladi. */
+      svg {
+        display: block;
+        width: 196px;
+        height: 196px;
+      }
+
+      .ink { fill: #ffffff; }
+      body[data-v='dark'] .ink { fill: #f3f4f6; }
+      body[data-v='light'] .ink { fill: #16181d; }
+    </style>
+  </head>
+  <body>
+    <svg viewBox="0 0 5 5" shape-rendering="crispEdges">
+      <g class="ink">
+        <rect x="0" y="0" width="5" height="1" />
+        <rect x="0" y="1" width="1" height="1" />
+        <rect x="0" y="2" width="5" height="1" />
+        <rect x="4" y="3" width="1" height="1" />
+        <rect x="0" y="4" width="5" height="1" />
+      </g>
+    </svg>
+
+    <script>
+      const v = new URLSearchParams(location.search).get('v');
+      if (v) document.body.dataset.v = v;
+    </script>
+  </body>
+</html>
