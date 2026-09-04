@@ -16,7 +16,7 @@ import { useRoute } from './lib/useRoute';
 
 const titles = {
   '/': 'So‘zgir — o‘zbekcha so‘z o‘yinlari',
-  '/oyin': 'So‘ztop — bugungi so‘zni toping | So‘zgir',
+  '/oyin': 'So‘zgir — bugungi so‘zni toping',
   '/privacy': 'Maxfiylik siyosati — So‘zgir',
   '/contact': 'Aloqa — So‘zgir',
 };

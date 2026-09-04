@@ -8,6 +8,7 @@
  *  Boshlangan o'yin brauzerda saqlanadi: sahifa yangilanganda taxta
  *  o'sha holatda qaytadi va kunlik so'z ikki marta o'ynalmaydi. */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { links } from '../data/site';
 import { useAuth } from './auth';
 import { dailyKey, dailyNumber, selectDailyWord } from './daily';
 import { fetchDailyAnswer, loadDictionary, type Dictionary } from './dictionary';
@@ -58,8 +59,6 @@ export interface Result {
   points: number;
   stats: GameStats;
   total: FoundSummary;
-  /** Natija cloud'ga yozildimi — kirmagan holatda `false`. */
-  saved: boolean;
   /** Nechanchi urinishda topilgan (yutqazilganda 0). */
   attempts: number;
   /** O'yin shu yerda emas, ilovada yoki boshqa qurilmada o'ynalgan.
@@ -309,7 +308,6 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
               points: stored.points ?? 0,
               stats: readStats(mode, length),
               total: foundSummary(),
-              saved: Boolean(accountRef.current),
               attempts: stored.attempts ?? rows.length,
               ...(stored.elsewhere ? { elsewhere: true } : {}),
             });
@@ -381,7 +379,6 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
         points: entry.points,
         stats: readStats(mode, length),
         total: foundSummary(),
-        saved: true,
         attempts: entry.won ? entry.attempts : 0,
         elsewhere: true,
       });
@@ -543,7 +540,7 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
     const grid = past
       .map((row) => row.verdicts?.map((verdict) => EMOJI[verdict]).join('') ?? '')
       .join('\n');
-    return `${header} · ${puzzle.length} harf · ${score}\n\n${grid}\n\nhttps://sozgir.uz`;
+    return `${header} · ${puzzle.length} harf · ${score}\n\n${grid}\n\n${links.share}`;
   }, [past, phase, puzzle]);
 
   return {

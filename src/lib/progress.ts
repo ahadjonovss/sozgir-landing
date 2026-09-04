@@ -58,8 +58,6 @@ export interface Recorded {
   points: number;
   stats: GameStats;
   total: FoundSummary;
-  /** Natija cloud'ga ham yozildimi (ya'ni reytingga tushdimi). */
-  saved: boolean;
 }
 
 export const EMPTY_STATS: GameStats = {
@@ -208,7 +206,7 @@ export async function recordOutcome(
     queuePending({ outcome, points });
   }
 
-  return { points, stats, total, saved: Boolean(account) };
+  return { points, stats, total };
 }
 
 async function pushToCloud({

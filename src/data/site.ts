@@ -3,12 +3,20 @@
 
 export const email = 'uzmobdev@gmail.com';
 
+export const site = 'https://sozgir.uz';
+
 export const links = {
-  appStore: '',
+  /** Do'kon manzili joy (storefront) ko'rsatilmasdan beriladi: Apple uni
+   *  foydalanuvchining hisobiga qarab o'zi tanlaydi, aks holda `/us/`
+   *  bilan o'zbek foydalanuvchi Amerika do'koniga tushib qolardi. */
+  appStore: 'https://apps.apple.com/app/id6807138456',
   playStore: '',
   telegram: 'https://t.me/sozgir_uz',
   support: `mailto:${email}`,
   play: '/oyin',
+  /** Ulashilgan natija bosilganda odam darhol o'ynay olishi kerak —
+   *  tanishtiruv sahifasi emas, o'yinning o'zi ochiladi. */
+  share: `${site}/oyin`,
   privacy: '/privacy',
   contact: '/contact',
 };

@@ -19,7 +19,7 @@ bilan aynan bir xil. Hisob ochilsa natija reytingga tushadi.
 | Modullar | So‘ztop, So‘zjang, Yangso‘z, O‘rganish, Reyting, Qo‘llab-quvvatlash |
 | Kategoriyalar | 10 mavzu + ilova afzalliklari |
 | Savollar | Akkordeon FAQ |
-| Yuklab olish | Store havolalari (hozircha «Tez orada») |
+| Yuklab olish | App Store havolasi (Google Play hozircha «Tez orada») |
 
 Alohida sahifalar: `/oyin` (o‘yin moduli — pastda), `/privacy` (maxfiylik
 siyosati, o‘zbekcha + inglizcha) va `/contact` (aloqa ma’lumotlari + so‘rov
@@ -231,8 +231,16 @@ src/
 | `sozgir.pending` | kirilmagan holda o‘ynalgan, hali yozilmagan natijalar |
 | `sozgir.length` | cheksiz rejimdagi so‘z uzunligi |
 
-Store havolalari chiqqanda faqat `src/data/site.ts` dagi `links.appStore` va
-`links.playStore` to‘ldiriladi — tugmalar o‘zi «Tez orada» holatidan chiqadi.
+Store havolalari `src/data/site.ts` dagi `links.appStore` va
+`links.playStore` da — to‘ldirilgani tugma bo‘lib chiqadi, bo‘shi «Tez
+orada» holatida qoladi. App Store havolasi joy (storefront) ko‘rsatilmasdan
+beriladi (`apps.apple.com/app/id…`): Apple uni foydalanuvchining hisobiga
+qarab o‘zi tanlaydi, `/us/` bilan esa o‘zbek foydalanuvchi Amerika
+do‘koniga tushib qolardi.
+
+Natija ulashilganda havola `links.share` — ya‘ni `/oyin`. Ulashilgan
+natijani bosgan odam tanishtiruv sahifasiga emas, o‘yinning o‘ziga
+tushishi kerak.
 
 ## Dizayn
 
