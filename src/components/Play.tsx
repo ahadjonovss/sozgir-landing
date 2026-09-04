@@ -10,21 +10,11 @@
 import { useEffect, useState } from 'react';
 import { untilNextWord } from '../lib/daily';
 import { useAuth } from '../lib/auth';
-import { DAILY_LENGTH, DEFAULT_LENGTH, LENGTHS, type Mode } from '../lib/modes';
-import { useSozTop } from '../lib/useSozTop';
+import { LENGTHS, type Mode } from '../lib/modes';
+import type { GameChoice } from '../lib/useGameChoice';
+import type { Game } from '../lib/useSozTop';
 import { pretty } from '../lib/uz';
 import { Board, Keyboard } from './Board';
-
-const LENGTH_KEY = 'sozgir.length';
-
-function storedLength(): number {
-  try {
-    const raw = Number(localStorage.getItem(LENGTH_KEY));
-    return LENGTHS.includes(raw as (typeof LENGTHS)[number]) ? raw : DEFAULT_LENGTH;
-  } catch {
-    return DEFAULT_LENGTH;
-  }
-}
 
 /** Keyingi kunlik so'zgacha qolgan vaqt. */
 function useCountdown(active: boolean): string {
@@ -41,28 +31,15 @@ function useCountdown(active: boolean): string {
   return `${pad(Math.floor(total / 3600))}:${pad(Math.floor((total % 3600) / 60))}:${pad(total % 60)}`;
 }
 
-export default function Play() {
+export default function Play({ choice, game }: { choice: GameChoice; game: Game }) {
   const auth = useAuth();
-  const [mode, setMode] = useState<Mode>('daily');
-  const [endlessLength, setEndlessLength] = useState(storedLength);
-  const length = mode === 'daily' ? DAILY_LENGTH : endlessLength;
-
-  const game = useSozTop({ mode, length });
+  const { mode, setMode, endlessLength, pickLength, length } = choice;
   const finished = game.phase === 'won' || game.phase === 'lost';
   const countdown = useCountdown(finished && mode === 'daily');
   const [copied, setCopied] = useState(false);
 
   const { stats } = game;
   const winRate = stats.played === 0 ? 0 : Math.round((stats.wins / stats.played) * 100);
-
-  function pickLength(next: number) {
-    setEndlessLength(next);
-    try {
-      localStorage.setItem(LENGTH_KEY, String(next));
-    } catch {
-      // Tanlov saqlanmasa — keyingi tashrifda standart uzunlik bo'ladi.
-    }
-  }
 
   async function share() {
     const text = game.shareText();

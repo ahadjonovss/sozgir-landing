@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
 
-export type Route = '/' | '/privacy' | '/contact';
+export type Route = '/' | '/oyin' | '/privacy' | '/contact';
 
-const routes: Route[] = ['/', '/privacy', '/contact'];
+const routes: Route[] = ['/', '/oyin', '/privacy', '/contact'];
 
 function read(): Route {
   const path = window.location.pathname.replace(/\/+$/, '') || '/';
   return routes.includes(path as Route) ? (path as Route) : '/';
 }
 
-/** Uch sahifa uchun kichik router — paket qo'shmasdan.
+/** Bir necha sahifa uchun kichik router — paket qo'shmasdan.
  *  Langar (`#`) va boshqa domenga havolalarni brauzerning o'ziga qoldiradi,
  *  shuning uchun `/#qoida` ko'rinishidagi havolalar ham ishlaydi. */
 export function useRoute(): Route {

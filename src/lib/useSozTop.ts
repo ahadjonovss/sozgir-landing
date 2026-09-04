@@ -154,6 +154,9 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
   const [message, setMessage] = useState<string | null>(null);
   const [result, setResult] = useState<Result | null>(null);
   const [stats, setStats] = useState<GameStats>(() => readStats(mode, length));
+  /** Barcha rejimlar bo'yicha jamlangan ball — statistika panelida
+   *  ko'rsatiladi, shuning uchun holatda turadi. */
+  const [total, setTotal] = useState<FoundSummary>(foundSummary);
   const [round, setRound] = useState(0);
 
   const accountRef = useRef(account);
@@ -185,7 +188,10 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
     if (!account) return;
     void ensureRestored(account)
       .then(() => flushPending(account))
-      .then(() => setStats(readStats(mode, length)));
+      .then(() => {
+        setStats(readStats(mode, length));
+        setTotal(foundSummary());
+      });
   }, [account, length, mode]);
 
   /** Natijani yozadi: ball, statistika, topilgan so'z va reyting. */
@@ -206,6 +212,7 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
       );
       setResult(recorded);
       setStats(recorded.stats);
+      setTotal(recorded.total);
 
       const session = readSession(target.mode, target.length);
       if (session) {
@@ -284,6 +291,7 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
         setFlipRow(-1);
         setResult(null);
         setStats(readStats(mode, length));
+        setTotal(foundSummary());
         setPhase(won ? 'won' : lost ? 'lost' : 'playing');
         if (won || lost) {
           if (stored?.done) {
@@ -484,6 +492,7 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
     keyState,
     result,
     stats,
+    total,
     answerWord: puzzle ? display(puzzle.answer) : '',
     press,
     playAgain,
@@ -491,3 +500,5 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
     shareText,
   };
 }
+
+export type Game = ReturnType<typeof useSozTop>;

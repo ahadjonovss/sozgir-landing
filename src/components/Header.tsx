@@ -45,6 +45,15 @@ export default function Header({ route }: { route: Route }) {
         </nav>
 
         <div className="header__actions">
+          {/* Nav mobilda yashiriladi, o'yin sahifasi esa har doim bir
+              bosishda bo'lishi kerak — shuning uchun u shu yerda. */}
+          <a
+            className="header__play"
+            href={links.play}
+            aria-current={route === '/oyin' ? 'page' : undefined}
+          >
+            O‘ynash
+          </a>
           <button
             className="icon-btn"
             onClick={() => setDark(toggleTheme() === 'dark')}

@@ -35,6 +35,11 @@ function decode(value: TypedValue): unknown {
   return undefined;
 }
 
+export interface RestDoc {
+  id: string;
+  fields: Record<string, unknown>;
+}
+
 function decodeFields(fields: Record<string, TypedValue>): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(fields)) out[key] = decode(value);
@@ -63,6 +68,47 @@ export async function readDoc(
     return decodeFields(body.fields ?? {});
   } catch {
     return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/** Kolleksiyani o'qiydi — saralash va chegara bilan.
+ *
+ *  Reyting uchun: `scores` va `daily_results/.../entries` qoidalarda
+ *  hammaga ochiq, shuning uchun jadval ham SDK'siz tuziladi. Bitta
+ *  maydon bo'yicha saralanadi, ya'ni qo'shimcha indeks kerak emas. */
+export async function listDocs(
+  path: string,
+  {
+    orderBy,
+    pageSize = 20,
+    timeout = 8000,
+  }: { orderBy?: string; pageSize?: number; timeout?: number } = {},
+): Promise<RestDoc[]> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+  try {
+    const query = new URLSearchParams({
+      key: firebaseConfig.apiKey,
+      pageSize: String(pageSize),
+    });
+    if (orderBy) query.set('orderBy', orderBy);
+
+    const response = await fetch(`${BASE}/${path}?${query}`, {
+      signal: controller.signal,
+    });
+    if (!response.ok) return [];
+
+    const body = (await response.json()) as {
+      documents?: { name: string; fields?: Record<string, TypedValue> }[];
+    };
+    return (body.documents ?? []).map((document) => ({
+      id: document.name.split('/').pop() ?? '',
+      fields: decodeFields(document.fields ?? {}),
+    }));
+  } catch {
+    return [];
   } finally {
     clearTimeout(timer);
   }

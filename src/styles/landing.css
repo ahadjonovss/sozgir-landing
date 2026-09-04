@@ -94,7 +94,10 @@
   }
 }
 
-@media (max-width: 380px) {
+/* Tor ekranda «Yuklab olish» sarlavhadan ketadi: «O'ynash» qolishi
+   muhimroq, chunki nav yashiringan va o'yin sahifasiga boshqa yo'l yo'q.
+   Yuklab olish tugmasi hero'da, «Yuklab olish» bo'limida va footerda bor. */
+@media (max-width: 440px) {
   .header__cta {
     display: none;
   }

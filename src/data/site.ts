@@ -8,6 +8,7 @@ export const links = {
   playStore: '',
   telegram: 'https://t.me/sozgir_uz',
   support: `mailto:${email}`,
+  play: '/oyin',
   privacy: '/privacy',
   contact: '/contact',
 };

@@ -21,10 +21,27 @@ bilan aynan bir xil. Hisob ochilsa natija reytingga tushadi.
 | Savollar | Akkordeon FAQ |
 | Yuklab olish | Store havolalari (hozircha «Tez orada») |
 
-Alohida sahifalar: `/privacy` (maxfiylik siyosati, o‘zbekcha + inglizcha) va
-`/contact` (aloqa ma’lumotlari + so‘rov formasi).
+Alohida sahifalar: `/oyin` (o‘yin moduli — pastda), `/privacy` (maxfiylik
+siyosati, o‘zbekcha + inglizcha) va `/contact` (aloqa ma’lumotlari + so‘rov
+formasi).
 
 ## O‘yin
+
+O‘yin ikki joyda ko‘rinadi va ikkisi bitta `Play` komponentini ishlatadi:
+
+* **hero** — yangi mehmonni ushlab qolish uchun, telefon ramkasi ichida;
+* **`/oyin`** — qaytib keladiganlar uchun barqaror manzil: taxta,
+  statistika va reyting bir joyda, tanishtiruv bloklarini aylanib
+  o‘tirmasdan.
+
+Holat brauzerda bir joyda saqlanadi, ya’ni hero’da boshlangan o‘yin `/oyin`
+da davom etadi va aksincha. Rejim tanlovi `useGameChoice` da — taxta va
+uning yonidagi statistika paneli bir xil rejimni ko‘rsatishi kerak.
+
+Sarlavhadagi «O‘ynash» havolasi har doim ko‘rinadi: nav mobilda
+yashiringan, o‘yin sahifasiga boshqa yo‘l qolmasligi kerak. Shu sabab tor
+ekranda (≤440px) sarlavhadagi «Yuklab olish» tugmasi olib tashlanadi — u
+hero’da, «Yuklab olish» bo‘limida va footerda ham bor.
 
 Ikki rejim, ilovadagi qoidalar bilan:
 
@@ -54,6 +71,21 @@ Kunlik so‘z avval `daily/{sana}_5` dan olinadi; u bo‘lmasa ilovadagi
 deterministik tanlov (`src/lib/daily.ts` — `DailyWordSelector` ning porti)
 ishlaydi. Ikki yo‘l ham bir xil natija berishi shart, aks holda kunlik
 reyting bo‘linib ketadi.
+
+### Reyting va statistika
+
+`/oyin` yonidagi ustunda ikki jadval bor va ikkisi ham **ochiq
+hujjatlardan** o‘qiladi, ya’ni ularni ko‘rish uchun kirish shart emas va
+SDK yuklanmaydi:
+
+| Jadval | Manba |
+| --- | --- |
+| Kunlik | `daily_results/{sana}_5/entries`, `points desc` |
+| Umumiy | `scores`, `totalScore desc` |
+
+Saralash bitta maydon bo‘yicha — qo‘shimcha indeks kerak emas, ilova ham
+xuddi shunday qiladi. Statistika paneli esa brauzerdagi ma’lumotdan
+tuziladi: g‘alaba foizi, ketma-ketlik va urinishlar taqsimoti.
 
 ## Hisob
 
@@ -137,9 +169,12 @@ api/
   contact.ts    aloqa formasini Telegramga uzatuvchi Edge Function
 src/
   components/   bo‘limlar (Hero, Rules, Alphabet, Modules, …)
-    Play.tsx    o‘yin bo‘limi: rejim, natija, statistika
-    Board.tsx   taxta va o‘zbek klaviaturasi
-    Account.tsx hisob tugmasi va kirish oynasi
+    GamePage.tsx  `/oyin` sahifasi: taxta + statistika + reyting
+    Play.tsx      o‘yin bo‘limi: rejim, natija, qisqa statistika
+    Board.tsx     taxta va o‘zbek klaviaturasi
+    StatsPanel.tsx  statistika va urinishlar taqsimoti
+    Leaderboard.tsx kunlik va umumiy reyting
+    Account.tsx   hisob tugmasi va kirish oynasi
   data/
     site.ts     barcha matn va havolalar — dizaynga tegmasdan tahrirlash uchun
     privacy.ts  maxfiylik siyosati matni (uz + en)
@@ -158,14 +193,16 @@ src/
     score.ts    ball formulasi (ScoreCalculator porti)
     progress.ts statistika, topilgan so‘zlar, cloud yozuv va tiklash
     nickname.ts taxallus filtri (nickname_filter.dart porti)
+    leaderboard.ts  kunlik va umumiy reyting jadvallari
     auth.tsx    hisob holati va amallari
+    useGameChoice.ts  rejim va uzunlik tanlovi
     useSozTop.ts  o‘yin holati (kunlik + cheksiz)
     useReveal.ts  scroll animatsiyasi va mavzu almashtirish
-    useRoute.ts   kichik router (`/`, `/privacy`, `/contact`)
+    useRoute.ts   kichik router (`/`, `/oyin`, `/privacy`, `/contact`)
   styles/
     theme.css   dizayn tokenlari (yorug‘ + tungi)
     landing.css bo‘lim uslublari
-    play.css    hisob oynasi va o‘yin bo‘limi
+    play.css    hisob oynasi, o‘yin bo‘limi va `/oyin` sahifasi
 ```
 
 ### Brauzerda saqlanadigan kalitlar

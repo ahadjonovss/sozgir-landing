@@ -1,7 +1,12 @@
 import Play from './Play';
+import { useGameChoice } from '../lib/useGameChoice';
+import { useSozTop } from '../lib/useSozTop';
 import { stats } from '../data/site';
 
 export default function Hero() {
+  const choice = useGameChoice();
+  const game = useSozTop(choice);
+
   return (
     <section className="hero" id="top">
       <div className="hero__glow" aria-hidden="true" />
@@ -47,12 +52,16 @@ export default function Hero() {
           <div className="phone">
             <div className="phone__notch" aria-hidden="true" />
             <div className="phone__screen">
-              <Play />
+              <Play choice={choice} game={game} />
             </div>
           </div>
           <p className="hero__playnote">
             Haqiqiy o‘yin — shu yerda o‘ynang. Bugungi so‘z ilovadagi bilan
             bir xil, natija esa reytingga tushadi.
+            <br />
+            <a className="link" href="/oyin">
+              Reyting va statistika bilan to‘liq o‘yin sahifasi →
+            </a>
           </p>
         </div>
       </div>
