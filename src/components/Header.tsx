@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { links } from '../data/site';
 import { toggleTheme } from '../lib/useReveal';
 import type { Route } from '../lib/useRoute';
+import Account from './Account';
 import Logo from './Logo';
 
 const sections = [
@@ -52,6 +53,7 @@ export default function Header({ route }: { route: Route }) {
           >
             {dark ? '☀' : '☾'}
           </button>
+          <Account />
           <a className="btn btn--sm header__cta" href="/#yuklab-olish">
             Yuklab olish
           </a>

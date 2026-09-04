@@ -1,0 +1,384 @@
+/* So'zgir landing — hisob va o'yin bo'limi uslublari.
+   Tanishtiruv bloklari `landing.css` da; bu yerda faqat o'ynaladigan
+   qism: hisob oynasi, rejim tanlovi, statistika va natija. */
+
+/* ── Hisob tugmasi ────────────────────────────────────────────────────── */
+
+.account {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 190px;
+  padding: 5px 12px 5px 5px;
+  border: none;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  font-weight: 800;
+  font-size: 14px;
+  cursor: pointer;
+  transition: filter 0.14s ease, transform 0.08s ease;
+}
+
+.account:hover {
+  filter: brightness(0.96);
+}
+.account:active {
+  transform: scale(0.97);
+}
+
+.account__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account__avatar {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--green);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.account__avatar--lg {
+  width: 46px;
+  height: 46px;
+  font-size: 20px;
+}
+
+/* Tor ekranda faqat avatar qoladi — sarlavha bir qatorga sig'ishi kerak. */
+@media (max-width: 620px) {
+  .account {
+    max-width: none;
+    padding: 5px;
+  }
+  .account__name {
+    display: none;
+  }
+}
+
+/* ── Oyna ─────────────────────────────────────────────────────────────── */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.modal__veil {
+  position: absolute;
+  inset: 0;
+  border: none;
+  padding: 0;
+  background: rgba(9, 10, 13, 0.55);
+  backdrop-filter: blur(3px);
+  cursor: pointer;
+  animation: veil 0.2s ease;
+}
+
+@keyframes veil {
+  from {
+    opacity: 0;
+  }
+}
+
+.modal__card {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  padding: 22px;
+  border-radius: var(--radius-lg);
+  background: var(--bg);
+  box-shadow: var(--shadow-lg);
+  animation: rise 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.modal__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.modal__lead {
+  margin-top: 5px;
+  color: var(--text-2);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.modal__row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+  padding: 14px;
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.modal__row strong {
+  font-size: 17px;
+}
+
+.modal__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin-top: 16px;
+}
+
+.modal__hint {
+  margin-top: 14px;
+  color: var(--text-2);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.modal__foot {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--divider);
+}
+
+/* ── Shakl ────────────────────────────────────────────────────────────── */
+
+.form {
+  display: grid;
+  gap: 14px;
+}
+
+.form__err,
+.form__ok {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.form__err {
+  color: var(--danger);
+}
+.form__ok {
+  color: var(--green);
+}
+
+.link {
+  border: none;
+  padding: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  text-align: left;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+/* ── O'yin bo'limi ────────────────────────────────────────────────────── */
+
+.play {
+  display: grid;
+}
+
+.play__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 0 2px;
+}
+
+/* Rejim tanlovi — segmentli tugma. Ikki rejim bir joyda turadi, chunki
+   ular bitta taxtani almashtiradi. */
+.play__modes {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--surface-2);
+}
+
+.play__mode {
+  border: none;
+  border-radius: 999px;
+  padding: 5px 13px;
+  background: none;
+  color: var(--text-2);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.play__mode:hover {
+  color: var(--text);
+}
+
+.play__mode--on {
+  background: var(--bg);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+
+.play__lengths {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 12px;
+}
+
+.play__lengths .chip {
+  flex: 1 1 0;
+  padding: 6px 0;
+  font-size: 12px;
+}
+
+/* Xabar taxta ustida chiqadi — u kelganda taxta joyidan siljimasligi
+   kerak, shuning uchun `absolute`. */
+.play__area {
+  position: relative;
+}
+
+.play__msg {
+  position: absolute;
+  top: 34%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 13.5px;
+  font-weight: 800;
+  white-space: nowrap;
+  box-shadow: var(--shadow);
+  animation: rise 0.2s ease;
+}
+
+/* ── Kutish va xato holati ────────────────────────────────────────────── */
+
+.play__wait {
+  display: grid;
+  gap: 16px;
+  justify-items: center;
+  padding: 44px 16px;
+  text-align: center;
+  color: var(--text-2);
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.play__wait--err {
+  color: var(--danger);
+}
+
+.play__skeleton {
+  display: flex;
+  gap: 6px;
+}
+
+.play__skeleton span {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  animation: breathe 1.4s ease-in-out infinite;
+}
+
+.play__skeleton span:nth-child(2) {
+  animation-delay: 0.12s;
+}
+.play__skeleton span:nth-child(3) {
+  animation-delay: 0.24s;
+}
+.play__skeleton span:nth-child(4) {
+  animation-delay: 0.36s;
+}
+.play__skeleton span:nth-child(5) {
+  animation-delay: 0.48s;
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ── Natija qo'shimchalari ────────────────────────────────────────────── */
+
+.result__points {
+  margin-top: 10px;
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--green-soft);
+  color: var(--green);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.result__save,
+.result__next {
+  margin-top: 12px;
+  color: var(--text-2);
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.result__save .link {
+  font-size: 12.5px;
+}
+
+.result__next strong {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Statistika chizig'i ──────────────────────────────────────────────── */
+
+.play__stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--divider);
+  text-align: center;
+}
+
+.play__stats strong {
+  display: block;
+  font-size: 19px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.play__stats span {
+  color: var(--text-2);
+  font-size: 11.5px;
+  font-weight: 700;
+}

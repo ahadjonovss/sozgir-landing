@@ -1,8 +1,10 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
+import { AuthProvider } from './lib/auth';
 import './styles/theme.css';
 import './styles/landing.css';
+import './styles/play.css';
 
 // Mavzu birinchi chizishdan oldin qo'yiladi — ekran "sakramaydi".
 // Kalit admin panel bilan bir xil: sozgir.theme.
@@ -19,6 +21,8 @@ if ('IntersectionObserver' in window) {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <AuthProvider>
+      <App />
+    </AuthProvider>
   </StrictMode>,
 );
