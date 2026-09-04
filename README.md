@@ -51,7 +51,18 @@ Ikki rejim, ilovadagi qoidalar bilan:
 | **Cheksiz** | 4–7 harf, xohlagancha. Ball so‘z uzunligiga bog‘liq, avval topilgan so‘z uchun 40 % kamayadi. |
 
 Boshlangan o‘yin brauzerda saqlanadi (`sozgir.game.*`): sahifa yangilanganda
-taxta o‘sha holatda qaytadi va kunlik so‘z ikki marta o‘ynalmaydi.
+taxta o‘sha holatda qaytadi.
+
+**Kunlik o‘yin kuniga bitta — qurilmadan qat‘i nazar.** Brauzerdagi yozuv
+faqat shu brauzerni biladi, telefonda o‘ynalgan o‘yinni esa bilmaydi.
+Shuning uchun kirilgan bo‘lsa `daily_results/{sana}_5/entries/{uid}`
+tekshiriladi: yozuv bor bo‘lsa taxta yopiladi va natija ko‘rsatiladi
+(taxminlar bizda yo‘q, shu sabab taxta emas, natija kartochkasi).
+
+Bu shunchaki qoida emas, himoya ham: yozuv `merge` bilan bitta hujjatga
+tushadi, ya‘ni saytdagi ikkinchi o‘yin ilovada olingan yaxshiroq natijani
+bosib ketardi. Shu sababli navbatdagi (mehmon holatida o‘ynalgan) natija
+ham yozilishidan oldin xuddi shu tekshiruvdan o‘tadi.
 
 ### Ma’lumot qayerdan keladi
 

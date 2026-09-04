@@ -635,3 +635,10 @@
   background: var(--green-soft);
   color: var(--green);
 }
+
+.result__where {
+  margin-top: 6px;
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 700;
+}

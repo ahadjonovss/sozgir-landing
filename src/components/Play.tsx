@@ -35,6 +35,9 @@ export default function Play({ choice, game }: { choice: GameChoice; game: Game 
   const auth = useAuth();
   const { mode, setMode, endlessLength, pickLength, length } = choice;
   const finished = game.phase === 'won' || game.phase === 'lost';
+  /** O'yin shu yerda emas, ilovada o'ynalgan: taxminlar bizda yo'q,
+   *  shuning uchun taxta ham, ulashish ham ko'rsatilmaydi. */
+  const elsewhere = game.result?.elsewhere === true;
   const countdown = useCountdown(finished && mode === 'daily');
   const [copied, setCopied] = useState(false);
 
@@ -118,27 +121,40 @@ export default function Play({ choice, game }: { choice: GameChoice; game: Game 
 
       {game.puzzle && game.phase !== 'loading' && game.phase !== 'error' && (
         <>
-          <div className="play__area">
-            <Board
-              rows={game.rows}
-              length={game.puzzle.length}
-              flipRow={game.flipRow}
-              shakeRow={game.shake ? game.activeRow : -1}
-            />
-            {game.message && (
-              <p className="play__msg" role="status">
-                {game.message}
-              </p>
-            )}
-          </div>
+          {!elsewhere && (
+            <div className="play__area">
+              <Board
+                rows={game.rows}
+                length={game.puzzle.length}
+                flipRow={game.flipRow}
+                shakeRow={game.shake ? game.activeRow : -1}
+              />
+              {game.message && (
+                <p className="play__msg" role="status">
+                  {game.message}
+                </p>
+              )}
+            </div>
+          )}
 
           {finished ? (
             <div className={`result result--${game.phase}`} role="status">
               <p className="result__title">
-                {game.phase === 'won'
-                  ? `Topdingiz — ${game.activeRow} urinishda!`
-                  : 'Urinishlar tugadi'}
+                {elsewhere
+                  ? 'Bugungi so‘z allaqachon o‘ynalgan'
+                  : game.phase === 'won'
+                    ? `Topdingiz — ${game.result?.attempts ?? game.activeRow} urinishda!`
+                    : 'Urinishlar tugadi'}
               </p>
+              {elsewhere && (
+                <p className="result__where">
+                  Ilovada yoki boshqa qurilmada —{' '}
+                  {game.phase === 'won'
+                    ? `${game.result?.attempts} urinishda topgansiz`
+                    : 'topa olmagansiz'}
+                  .
+                </p>
+              )}
               <p className="result__word">{game.answerWord}</p>
               {game.puzzle.description && (
                 <p className="result__def">{pretty(game.puzzle.description)}</p>
@@ -154,13 +170,22 @@ export default function Play({ choice, game }: { choice: GameChoice; game: Game 
                     Yana bir so‘z
                   </button>
                 )}
-                <button
-                  className={`btn btn--sm${mode === 'endless' ? ' btn--ghost' : ''}`}
-                  onClick={share}
-                >
-                  {copied ? 'Nusxa olindi' : 'Ulashish'}
-                </button>
-                {mode === 'daily' && (
+                {/* Ulashishda taxminlar to'ri bo'ladi — ilovada o'ynalgan
+                    o'yinda u bizda yo'q. */}
+                {!elsewhere && (
+                  <button
+                    className={`btn btn--sm${mode === 'endless' ? ' btn--ghost' : ''}`}
+                    onClick={share}
+                  >
+                    {copied ? 'Nusxa olindi' : 'Ulashish'}
+                  </button>
+                )}
+                {elsewhere && (
+                  <button className="btn btn--sm" onClick={() => setMode('endless')}>
+                    Cheksiz rejimda mashq qilish
+                  </button>
+                )}
+                {mode === 'daily' && !elsewhere && (
                   <a className="btn btn--sm btn--ghost" href="#yuklab-olish">
                     Ilovada davom etish
                   </a>

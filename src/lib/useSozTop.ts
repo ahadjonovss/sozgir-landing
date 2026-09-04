@@ -14,6 +14,7 @@ import { fetchDailyAnswer, loadDictionary, type Dictionary } from './dictionary'
 import { attemptsFor, type Mode } from './modes';
 import {
   ensureRestored,
+  fetchDailyEntry,
   flushPending,
   foundSummary,
   nextEndlessNumber,
@@ -59,6 +60,11 @@ export interface Result {
   total: FoundSummary;
   /** Natija cloud'ga yozildimi — kirmagan holatda `false`. */
   saved: boolean;
+  /** Nechanchi urinishda topilgan (yutqazilganda 0). */
+  attempts: number;
+  /** O'yin shu yerda emas, ilovada yoki boshqa qurilmada o'ynalgan.
+   *  Bunda taxta ko'rsatilmaydi — bizda taxminlar yo'q. */
+  elsewhere?: boolean;
 }
 
 interface StoredSession {
@@ -68,6 +74,9 @@ interface StoredSession {
   guesses: string[];
   points?: number;
   done?: boolean;
+  /** Natija boshqa joyda (ilovada) yozilgan — taxminlar bizda yo'q. */
+  elsewhere?: boolean;
+  attempts?: number;
 }
 
 const sessionKey = (mode: Mode, length: number) => `sozgir.game.${mode}.${length}`;
@@ -210,7 +219,7 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
         },
         account,
       );
-      setResult(recorded);
+      setResult({ ...recorded, attempts: won ? attempts : 0 });
       setStats(recorded.stats);
       setTotal(recorded.total);
 
@@ -220,6 +229,7 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
           ...session,
           done: true,
           points: recorded.points,
+          attempts,
         });
       }
     },
@@ -300,6 +310,8 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
               stats: readStats(mode, length),
               total: foundSummary(),
               saved: Boolean(accountRef.current),
+              attempts: stored.attempts ?? rows.length,
+              ...(stored.elsewhere ? { elsewhere: true } : {}),
             });
           } else {
             // Oxirgi taxmindan keyin sahifa darhol yopilgan bo'lsa natija
@@ -326,6 +338,59 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
     // `account` ataylab kuzatilmaydi: o'yin o'rtasida kirilsa taxta
     // qaytadan yuklanmasligi kerak.
   }, [length, mode, round]);
+
+  /** Kunlik o'yin kuniga bitta — qurilmadan qat'i nazar.
+   *
+   *  Brauzerdagi yozuv faqat shu brauzerni biladi, telefonda o'ynalgan
+   *  o'yinni esa bilmaydi. Shuning uchun kirilgan bo'lsa, kunlik
+   *  reytingdagi bugungi yozuv tekshiriladi: u bor bo'lsa taxta yopiladi
+   *  va natija ko'rsatiladi.
+   *
+   *  Bu shunchaki qoida emas, himoya ham: aks holda saytdagi o'yin
+   *  `daily_results` dagi yozuvni qayta yozib, ilovada olingan yaxshiroq
+   *  natijani yo'qotib yuborardi. */
+  useEffect(() => {
+    if (mode !== 'daily' || !account || !puzzle) return;
+    if (phase !== 'playing') return;
+    if (readSession(mode, length)?.done) return;
+
+    let alive = true;
+    (async () => {
+      const entry = await fetchDailyEntry({
+        uid: account.uid,
+        dateKey: puzzle.dateKey,
+        length: puzzle.length,
+      });
+      if (!alive || !entry || entry.number !== puzzle.number) return;
+
+      writeSession(mode, length, {
+        answer: puzzle.answer,
+        number: puzzle.number,
+        dateKey: puzzle.dateKey,
+        guesses: [],
+        done: true,
+        elsewhere: true,
+        points: entry.points,
+        attempts: entry.attempts,
+      });
+
+      setPast([]);
+      setCurrent([]);
+      setPhase(entry.won ? 'won' : 'lost');
+      setResult({
+        points: entry.points,
+        stats: readStats(mode, length),
+        total: foundSummary(),
+        saved: true,
+        attempts: entry.won ? entry.attempts : 0,
+        elsewhere: true,
+      });
+    })();
+
+    return () => {
+      alive = false;
+    };
+  }, [account, length, mode, phase, puzzle]);
 
   const bump = useCallback(
     (text: string) => {

@@ -11,6 +11,7 @@
  *   * `daily_results/{sana}_{n}/entries/{uid}` — kunlik reyting. */
 import { client } from '../firebase/client';
 import { PATHS, statsDoc } from '../firebase/paths';
+import { readDoc } from '../firebase/rest';
 import type { Account } from './auth';
 import { attemptsFor, DAILY_LENGTH, LENGTHS, type Mode } from './modes';
 import { readStoredNickname } from './nickname';
@@ -273,7 +274,11 @@ async function pushToCloud({
 
     // Reyting — faqat kunlik o'yin uchun. Maydonlar qoidalarda qat'iy
     // tekshiriladi, shuning uchun aynan shu ro'yxat yoziladi.
-    if (mode === 'daily') {
+    //
+    // Yozuv bor bo'lsa tegmaymiz: kunlik o'yin kuniga bitta, ya'ni
+    // o'sha yozuv ilovada olingan natija. Mehmon holatida o'ynab keyin
+    // kirilganda navbatdagi natija uni bosib ketardi.
+    if (mode === 'daily' && !(await fetchDailyEntry({ uid, dateKey, length }))) {
       writes.push(
         setDoc(
           doc(
@@ -300,6 +305,46 @@ async function pushToCloud({
   } catch {
     // Zaxira nusxa yiqilsa ham o'yin davom etadi — natija qurilmada bor.
   }
+}
+
+/** Shu foydalanuvchining kunlik reytingdagi bugungi yozuvi. */
+export interface DailyEntry {
+  attempts: number;
+  won: boolean;
+  points: number;
+  number: number;
+}
+
+/** Bugungi kunlik o'yin allaqachon o'ynalganmi — ilovada yoki boshqa
+ *  qurilmada.
+ *
+ *  Kunlik o'yin kuniga bitta: telefonda o'ynab bo'lgan odam saytda uni
+ *  qaytadan o'ynay olmasligi kerak. Buning ustiga saytdagi yozuv
+ *  ilovanikini bosib ketardi — yozuv `merge` bilan bitta hujjatga
+ *  tushadi, ya'ni yomonroq natija yaxshisining o'rniga yozilardi.
+ *
+ *  Hujjat qoidalarda hammaga ochiq, shuning uchun SDK'siz, REST bilan
+ *  o'qiladi. */
+export async function fetchDailyEntry({
+  uid,
+  dateKey,
+  length,
+}: {
+  uid: string;
+  dateKey: string;
+  length: number;
+}): Promise<DailyEntry | null> {
+  const data = await readDoc(
+    `${PATHS.dailyResults}/${dateKey}_${length}/${PATHS.entries}/${uid}`,
+  );
+  if (!data || typeof data.number !== 'number') return null;
+
+  return {
+    attempts: typeof data.attempts === 'number' ? data.attempts : 0,
+    won: data.won === true,
+    points: typeof data.points === 'number' ? data.points : 0,
+    number: data.number,
+  };
 }
 
 /** Kirmasdan o'ynalgan va hali cloud'ga yozilmagan natijalar. */
