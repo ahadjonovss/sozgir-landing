@@ -1,4 +1,4 @@
-import Game from './Game';
+import Play from './Play';
 import { stats } from '../data/site';
 
 export default function Hero() {
@@ -47,18 +47,12 @@ export default function Hero() {
           <div className="phone">
             <div className="phone__notch" aria-hidden="true" />
             <div className="phone__screen">
-              <div className="phone__bar">
-                <span className="phone__title">So‘ztop · kunlik</span>
-                <span className="phone__live">
-                  <i />
-                  jonli demo
-                </span>
-              </div>
-              <Game />
+              <Play />
             </div>
           </div>
           <p className="hero__playnote">
-            Haqiqiy o‘yin — shu yerda o‘ynang. Bugungi so‘z hamma uchun bir xil.
+            Haqiqiy o‘yin — shu yerda o‘ynang. Bugungi so‘z ilovadagi bilan
+            bir xil, natija esa reytingga tushadi.
           </p>
         </div>
       </div>

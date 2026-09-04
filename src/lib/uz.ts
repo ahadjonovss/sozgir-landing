@@ -56,6 +56,12 @@ export const pretty = (text: string) =>
 
 export const display = (unit: string) => pretty(unit.toUpperCase());
 
+/** So'z o'yinda ishlatilishi mumkinmi — barcha harflari alifboda bormi. */
+export const isPlayable = (word: string) => {
+  const units = split(word);
+  return units.length > 0 && units.every((unit) => LETTERS.includes(unit));
+};
+
 export type Verdict = 'correct' | 'present' | 'absent';
 
 /** Taxminni javob bilan solishtiradi. Takror harflar: avval aniq mosliklar
@@ -83,3 +89,10 @@ export function evaluate(guess: string[], answer: string[]): Verdict[] {
 
   return result;
 }
+
+/** Ulashish uchun spoylersiz qator. */
+export const EMOJI: Record<Verdict, string> = {
+  correct: '\u{1F7E9}',
+  present: '\u{1F7E8}',
+  absent: '\u{2B1C}',
+};
