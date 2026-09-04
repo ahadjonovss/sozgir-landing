@@ -1,0 +1,207 @@
+<!doctype html>
+<!-- Donat to'lovidan qaytish sahifasi (inPAY `return_url`).
+
+     `public/` ichida turadi — React ilovaga tegmaydi, `/donat` manzilida
+     mustaqil ochiladi. Ranglar va shrift landing dizayn tizimidan.
+
+     inPAY qaytishda `order_id`, `status`, `amount` va `signature` beradi.
+     Sahifa ularni faqat **ko'rsatadi**: brauzer qaytishi ishonchsiz, donat
+     esa webhook orqali server tomonda tasdiqlanadi. Shuning uchun bu yerda
+     imzo tekshirilmaydi va hech narsa yozilmaydi. -->
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121317" media="(prefers-color-scheme: dark)">
+<title>Rahmat! — So‘zgir</title>
+<link rel="icon" type="image/png" href="/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  /* Landing dizayn tizimidagi tokenlarning shu sahifaga kerakli qismi. */
+  :root {
+    --bg: #ffffff;
+    --surface: #f7f9fc;
+    --text: #16181d;
+    --text-2: #7a8290;
+    --divider: #eceef2;
+    --green: #63a967;
+    --green-soft: rgba(99, 169, 103, 0.14);
+    --grey-soft: rgba(151, 158, 169, 0.16);
+    --radius-lg: 26px;
+    --shadow: 0 1px 2px rgba(22, 24, 29, 0.04), 0 8px 24px rgba(22, 24, 29, 0.06);
+  }
+  :root[data-theme='dark'] {
+    --bg: #121317;
+    --surface: #1b1d23;
+    --text: #f3f4f6;
+    --text-2: #9aa1ae;
+    --divider: #262a31;
+    --green: #5e9e63;
+    --green-soft: rgba(94, 158, 99, 0.2);
+    --grey-soft: rgba(76, 82, 92, 0.3);
+    --shadow: none;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Nunito, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+                 Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+  }
+  .card {
+    width: 100%;
+    max-width: 440px;
+    padding: 36px 26px 28px;
+    background: var(--surface);
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    text-align: center;
+  }
+  .mark {
+    width: 76px;
+    height: 76px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--green-soft);
+    font-size: 34px;
+    animation: pop 520ms cubic-bezier(.2, 1.3, .4, 1) both;
+  }
+  .mark--muted { background: var(--grey-soft); }
+  @keyframes pop {
+    from { transform: scale(.4); opacity: 0; }
+    to   { transform: scale(1);  opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) { .mark { animation: none; } }
+  h1 { margin: 0 0 10px; font-size: 26px; font-weight: 900; letter-spacing: -0.4px; }
+  p { margin: 0; color: var(--text-2); }
+  .sum {
+    margin: 16px 0 2px;
+    font-size: 29px;
+    font-weight: 900;
+    color: var(--green);
+  }
+  .wish { margin-top: 14px; font-size: 17px; font-weight: 600; color: var(--text); }
+  .note {
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid var(--divider);
+    font-size: 13px;
+  }
+  .order { margin-top: 8px; font-size: 12px; }
+  .home {
+    display: inline-block;
+    margin-top: 18px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--green);
+    text-decoration: none;
+  }
+  .home:hover { text-decoration: underline; }
+</style>
+<script>
+  // Mavzu birinchi chizishdan oldin — landing bilan bir kalit.
+  (function () {
+    var saved = null;
+    try { saved = localStorage.getItem('sozgir.theme'); } catch (error) { saved = null; }
+    var dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.dataset.theme = saved || (dark ? 'dark' : 'light');
+  })();
+</script>
+</head>
+<body>
+  <main class="card">
+    <div class="mark" id="mark">❤️</div>
+    <h1 id="title">Katta rahmat!</h1>
+    <p id="text">Siz bugun bir loyihani oldinga surdingiz.</p>
+    <p class="sum" id="sum" hidden></p>
+    <p class="wish" id="wish"></p>
+    <p class="note" id="note">
+      Ismingiz ilovadagi «Qo‘llab-quvvatlaganlar» ro‘yxatida chiqadi — uni
+      hamma ko‘radi. Ro‘yxatga tushishi bir necha soniya olishi mumkin.
+    </p>
+    <p class="order" id="order" hidden></p>
+    <a class="home" href="/">So‘zgir bosh sahifasi →</a>
+  </main>
+
+<script>
+  (function () {
+    var query = new URLSearchParams(location.search);
+    var status = (query.get('status') || '').toLowerCase();
+    var orderId = query.get('order_id') || '';
+
+    // inPAY summani tiyinda qaytaradi: 25 000 so'm → `amount=2500000`.
+    // To'lov so'mda yaratiladi (donationCreate), shuning uchun yuzga
+    // bo'linadi — aks holda ekranda ikkita ortiqcha nol chiqadi.
+    // Bo'shliq va valyuta belgisi tashlanadi, nuqta qoldiriladi: inPAY
+    // summani `2500000` yoki `2500000.00` ko'rinishida berishi mumkin.
+    var tiyin = parseFloat((query.get('amount') || '').replace(/[^\d.]/g, ''));
+    var amount = Number.isFinite(tiyin) && tiyin > 0 ? Math.round(tiyin / 100) : 0;
+    var paid = status === 'success' || status === 'paid';
+
+    // Uch xonaga ajratilgan summa: 25 000.
+    function grouped(value) {
+      return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    }
+
+    // Tilaklar har safar boshqacha — sahifa quruq chek kabi ko'rinmasin.
+    var wishes = [
+      'Siz bergan har bir so‘m sizga ming karra bo‘lib qaytsin.',
+      'Donat qilganlarning kelajagi buyuk bo‘ladi — bu bejiz aytilmagan.',
+      'Yaxshilik qaytadi deydilar. Siz uni bugun qildingiz — endi navbat unga.',
+      'Qo‘llab-quvvatlagan qo‘l hech qachon bo‘sh qolmaydi. Rizqingiz keng bo‘lsin!',
+      'Bu hissa ilovani yashatadi, sizga esa barakasi bilan qaytadi.',
+      'Siz bir loyihaga ishondingiz — hayot ham sizning orzularingizga ishonsin.'
+    ];
+
+    if (!paid) {
+      var mark = document.getElementById('mark');
+      mark.textContent = '↺';
+      mark.classList.add('mark--muted');
+      document.getElementById('title').textContent = 'To‘lov yakunlanmadi';
+      document.getElementById('text').textContent =
+        status === 'cancelled'
+          ? 'To‘lov bekor qilindi — hisobingizdan pul yechilmadi.'
+          : 'To‘lov o‘tmadi yoki hali tasdiqlanmagan.';
+      document.getElementById('wish').textContent =
+        'Baribir rahmat — shu yergacha kelganingizning o‘zi ko‘p narsa.';
+      document.getElementById('note').textContent =
+        'Xohlasangiz ilovadan qayta urinib ko‘ring.';
+    } else {
+      if (amount > 0) {
+        var sum = document.getElementById('sum');
+        sum.textContent = grouped(amount) + ' so‘m';
+        sum.hidden = false;
+
+        document.getElementById('text').textContent =
+          'Siz bizga ' + grouped(amount) + ' so‘m berdingiz — sizga ' +
+          grouped(amount * 1000) + ' bo‘lib qaytsin!';
+      }
+      document.getElementById('wish').textContent =
+        wishes[Math.floor(Math.random() * wishes.length)];
+    }
+
+    if (orderId) {
+      var order = document.getElementById('order');
+      order.textContent = 'Buyurtma: ' + orderId;
+      order.hidden = false;
+    }
+  })();
+</script>
+</body>
+</html>
