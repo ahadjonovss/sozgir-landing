@@ -636,6 +636,25 @@
   color: var(--green);
 }
 
+/* Juda tor ekranda sarlavhadagi tugmalar sig'ishi uchun. Qoida shu
+   yerda: `play.css` `landing.css` dan keyin yuklanadi, ya'ni u yerdagi
+   bir xil kuchdagi override bosilib qolardi. */
+@media (max-width: 340px) {
+  .header__play {
+    padding: 6px 7px;
+    font-size: 13.5px;
+  }
+  .account,
+  .header__actions .btn--sm {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+  .icon-btn {
+    width: 32px;
+    height: 32px;
+  }
+}
+
 .result__where {
   margin-top: 6px;
   color: var(--text-2);

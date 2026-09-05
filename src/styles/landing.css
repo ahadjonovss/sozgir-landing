@@ -103,6 +103,20 @@
   }
 }
 
+/* Juda tor ekran (buklanadigan telefonning tashqi ekrani, kichik oyna):
+   qolgan tugmalar sig'ishi uchun bo'shliqlar qisqaradi. */
+@media (max-width: 340px) {
+  .wrap {
+    padding: 0 14px;
+  }
+  .header__inner {
+    gap: 10px;
+  }
+  .header__actions {
+    gap: 8px;
+  }
+}
+
 /* ── Hero ─────────────────────────────────────────────────────────────── */
 
 .hero {
