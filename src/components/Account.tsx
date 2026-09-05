@@ -1,15 +1,15 @@
 /** Sarlavhadagi hisob tugmasi va hisob oynasi.
  *
- *  Uch yo'l taklif qiladi: mehmon (anonim hisob), yangi hisob va kirish.
- *  Mehmon yo'li ham hisob yaratadi — shuning uchun ball reytingga tushadi;
- *  farqi shundaki, email so'ralmaydi va keyin xohlasa bog'lab qo'yadi.
+ *  Ikki yo'l: kirish va yangi hisob. Kirish tugmasi to'g'ridan-to'g'ri
+ *  kirish shaklini ochadi — oldin oldida taxallus so'raydigan «mehmon»
+ *  qadami bor edi, u olib tashlandi.
  *
  *  Oynaning ochiq/yopiq holati `AuthProvider` da turadi: uni sarlavhadagi
  *  tugma ham, o'yin natijasidagi «Natijani saqlash» ham chaqiradi. */
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useAuth, type AuthPrompt } from '../lib/auth';
-import { GUEST, nicknameError } from '../lib/nickname';
+import { nicknameError } from '../lib/nickname';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -67,9 +67,7 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
   const auth = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState(
-    () => auth.nickname || (mode === 'guest' ? GUEST : ''),
-  );
+  const [name, setName] = useState(() => auth.nickname);
   const [note, setNote] = useState<string | null>(null);
   const [invalid, setInvalid] = useState<string | null>(null);
   const first = useRef<HTMLInputElement | null>(null);
@@ -92,11 +90,6 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
     const passProblem =
       password.length >= 6 ? null : 'Parol kamida 6 belgidan iborat bo‘lsin';
 
-    if (mode === 'guest') {
-      if (nameProblem) return setInvalid(nameProblem);
-      if (await auth.continueAsGuest(name)) close();
-      return;
-    }
     if (mode === 'register') {
       if (nameProblem) return setInvalid(nameProblem);
       if (mailProblem) return setInvalid(mailProblem);
@@ -177,7 +170,7 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
             Mehmon hisobi shu brauzerga bog‘langan. Email qo‘shsangiz
             natijalaringiz boshqa qurilmadan ham ko‘rinadi —{' '}
             <button className="link" onClick={() => open('register')}>
-              hisob ochish
+              email qo‘shish
             </button>
             .
           </p>
@@ -198,42 +191,11 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
     );
   }
 
-  if (mode === 'guest') {
-    return (
-      <Modal
-        title="O‘yinga kirish"
-        lead="Natijalaringiz saqlanadi va reytingda ko‘rinadi."
-        onClose={close}
-      >
-        <form className="form" onSubmit={submit}>
-          {nameField('Reytingda shu nom ko‘rinadi', true)}
-          {status}
-          <button className="btn" disabled={auth.busy}>
-            {auth.busy ? 'Ulanmoqda…' : 'Mehmon sifatida davom etish'}
-          </button>
-        </form>
-
-        <div className="modal__tabs">
-          <button className="link" onClick={() => open('register')}>
-            Email bilan hisob ochish
-          </button>
-          <button className="link" onClick={() => open('signIn')}>
-            Hisobim bor
-          </button>
-        </div>
-        <p className="modal__hint">
-          Kirmasdan ham o‘ynash mumkin — u holda natija faqat shu brauzerda
-          qoladi va reytingga tushmaydi.
-        </p>
-      </Modal>
-    );
-  }
-
   if (mode === 'register') {
     return (
       <Modal
         title="Yangi hisob"
-        lead="Mehmon sifatida o‘ynagan bo‘lsangiz, ballaringiz shu hisobga o‘tadi."
+        lead="Natijalaringiz saqlanadi, reytingda ko‘rinadi va boshqa qurilmadan ham ochiladi."
         onClose={close}
       >
         <form className="form" onSubmit={submit}>
@@ -267,9 +229,6 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
         <div className="modal__tabs">
           <button className="link" onClick={() => open('signIn')}>
             Hisobim bor
-          </button>
-          <button className="link" onClick={() => open('guest')}>
-            Mehmon sifatida
           </button>
         </div>
       </Modal>
@@ -338,7 +297,7 @@ export default function Account() {
       ) : (
         <button
           className="btn btn--sm btn--ghost"
-          onClick={() => auth.openPrompt('guest')}
+          onClick={() => auth.openPrompt('signIn')}
         >
           Kirish
         </button>

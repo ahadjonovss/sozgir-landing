@@ -57,7 +57,7 @@ interface Credentials {
 
 /** Hisob oynasining ko'rinishi. Holat provayderda turadi, chunki oynani
  *  sarlavhadagi tugma ham, o'yin natijasi ham chaqiradi. */
-export type AuthPrompt = 'guest' | 'register' | 'signIn' | 'profile';
+export type AuthPrompt = 'register' | 'signIn' | 'profile';
 
 export interface AuthValue {
   account: Account | null;
@@ -69,7 +69,6 @@ export interface AuthValue {
   nickname: string;
   register: (input: Credentials & { nickname: string }) => Promise<boolean>;
   signIn: (input: Credentials) => Promise<boolean>;
-  continueAsGuest: (nickname: string) => Promise<boolean>;
   resetPassword: (email: string) => Promise<boolean>;
   saveNickname: (nickname: string) => Promise<boolean>;
   signOut: () => Promise<void>;
@@ -153,23 +152,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     },
     [watch],
-  );
-
-  const continueAsGuest = useCallback(
-    (name: string) =>
-      run(async () => {
-        const { auth } = await client();
-        const { signInAnonymously, updateProfile } = await import('firebase/auth');
-        const clean = sanitizeNickname(name);
-        // Nom kirishdan oldin saqlanadi: `onAuthStateChanged` darhol
-        // ishga tushadi va natija yozuvi shu nomni olishi kerak.
-        writeStoredNickname(clean);
-        setNickname(clean);
-        const credential = await signInAnonymously(auth);
-        await updateProfile(credential.user, { displayName: clean });
-        await saveProfile({ uid: credential.user.uid, nickname: clean });
-      }),
-    [run],
   );
 
   /** Ro'yxatdan o'tish.
@@ -292,7 +274,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       nickname,
       register,
       signIn,
-      continueAsGuest,
       resetPassword,
       saveNickname,
       signOut,
@@ -310,7 +291,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [
       account,
       busy,
-      continueAsGuest,
       error,
       nickname,
       prompt,

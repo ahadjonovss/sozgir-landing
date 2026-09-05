@@ -96,3 +96,35 @@ export const EMOJI: Record<Verdict, string> = {
   present: '\u{1F7E8}',
   absent: '\u{2B1C}',
 };
+
+/** Fizik klaviatura bosilishi — o'yin tugmasiga aylantirilgan.
+ *
+ *  Ikki taxta (So'ztop va So'zjang) shu bitta qoidaga tayanadi: `sh`,
+ *  `ch`, `oʻ`, `gʻ` oldingi harf bilan birikadi, apostrof esa `o`/`g`
+ *  dan keyin tovush belgisi, qolgan joyda tutuq belgisi bo'ladi.
+ *
+ *  `null` — bosilgan tugma o'yinga tegishli emas. */
+export type KeyAction =
+  | { kind: 'enter' }
+  | { kind: 'back' }
+  | { kind: 'letter'; unit: string }
+  /** Oldingi katak bilan qo'shiladi (`s` + `h` → `sh`). */
+  | { kind: 'combine'; unit: string };
+
+export function keyAction(key: string, last: string | undefined): KeyAction | null {
+  if (key === 'Enter') return { kind: 'enter' };
+  if (key === 'Backspace') return { kind: 'back' };
+
+  const char = key.toLowerCase();
+  if (char.length !== 1) return null;
+
+  if (char === 'h' && (last === 's' || last === 'c')) {
+    return { kind: 'combine', unit: `${last}h` };
+  }
+  if (`'\`‘’${TOVUSH}${TUTUQ}`.includes(char)) {
+    return last === 'o' || last === 'g'
+      ? { kind: 'combine', unit: `${last}${TOVUSH}` }
+      : { kind: 'letter', unit: TUTUQ };
+  }
+  return LETTERS.includes(char) ? { kind: 'letter', unit: char } : null;
+}

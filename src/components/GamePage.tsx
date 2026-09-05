@@ -47,7 +47,7 @@ export default function GamePage() {
                 qoladi. Kirsangiz ball reytingga tushadi va boshqa
                 qurilmadan ham ko‘rinadi.
               </p>
-              <button className="btn btn--sm" onClick={() => openPrompt('guest')}>
+              <button className="btn btn--sm" onClick={() => openPrompt('signIn')}>
                 Kirish
               </button>
             </div>
@@ -57,10 +57,22 @@ export default function GamePage() {
           <Leaderboard />
 
           <div className="panel panel--call">
+            <h3>Do‘st bilan bellashing</h3>
+            <p className="panel__note">
+              So‘zjangda bir so‘z ikki o‘yinchiga beriladi: kim kamroq
+              urinishda topsa — o‘sha yutadi. Do‘stingizni kod bilan
+              chaqiring yoki tasodifiy raqib toping.
+            </p>
+            <a className="btn btn--sm" href="/sozjang">
+              So‘zjangga o‘tish
+            </a>
+          </div>
+
+          <div className="panel panel--call">
             <h3>Ilovada ko‘proq</h3>
             <p className="panel__note">
-              So‘zjang, Yangso‘z, kategoriyalar va bildirishnomalar — bularning
-              hammasi ilovada. Internetsiz ham ishlaydi.
+              Yangso‘z, kategoriyalar, o‘rganish bo‘limi va bildirishnomalar
+              — bularning hammasi ilovada. Internetsiz ham ishlaydi.
             </p>
             <a className="btn btn--sm btn--ghost" href="/#yuklab-olish">
               Ilovani yuklab olish

@@ -14,6 +14,7 @@ export default function Footer() {
 
         <nav className="footer__links">
           <a href={links.play}>O‘ynash</a>
+          <a href={links.battle}>So‘zjang</a>
           <a href="/#qoida">Qoida</a>
           <a href="/#modullar">Modullar</a>
           <a href="/#savollar">Savollar</a>

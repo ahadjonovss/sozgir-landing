@@ -5,6 +5,7 @@ import Contact from './components/Contact';
 import Download from './components/Download';
 import Faq from './components/Faq';
 import Footer from './components/Footer';
+import BattlePage from './components/BattlePage';
 import GamePage from './components/GamePage';
 import Header from './components/Header';
 import Hero from './components/Hero';
@@ -17,6 +18,7 @@ import { useRoute } from './lib/useRoute';
 const titles = {
   '/': 'So‘zgir — o‘zbekcha so‘z o‘yinlari',
   '/oyin': 'So‘zgir — bugungi so‘zni toping',
+  '/sozjang': 'So‘zjang — do‘st bilan so‘z jangi | So‘zgir',
   '/privacy': 'Maxfiylik siyosati — So‘zgir',
   '/contact': 'Aloqa — So‘zgir',
 };
@@ -45,6 +47,7 @@ export default function App() {
           </>
         )}
         {route === '/oyin' && <GamePage />}
+        {route === '/sozjang' && <BattlePage />}
         {route === '/privacy' && <Privacy />}
         {route === '/contact' && <Contact />}
       </main>

@@ -8,7 +8,7 @@
  *  `firestore/lite` tanlandi: bizga faqat hujjat o'qish-yozish kerak,
  *  jonli tinglash (`onSnapshot`) va offline kesh kerak emas — lite variant
  *  esa to'liq SDK'dan ancha kichik. */
-import { firebaseConfig } from './config';
+import { EMULATOR, firebaseConfig, useEmulator } from './config';
 import type { FirebaseApp } from 'firebase/app';
 import type { Auth } from 'firebase/auth';
 import type { Firestore } from 'firebase/firestore/lite';
@@ -30,7 +30,22 @@ export function client(): Promise<Client> {
     ]);
 
     const app = initializeApp(firebaseConfig);
-    return { app, auth: getAuth(app), db: getFirestore(app) };
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    if (useEmulator) {
+      const [{ connectAuthEmulator }, { connectFirestoreEmulator }] =
+        await Promise.all([
+          import('firebase/auth'),
+          import('firebase/firestore/lite'),
+        ]);
+      connectAuthEmulator(auth, `http://${EMULATOR.host}:${EMULATOR.auth}`, {
+        disableWarnings: true,
+      });
+      connectFirestoreEmulator(db, EMULATOR.host, EMULATOR.firestore);
+    }
+
+    return { app, auth, db };
   })();
   return pending;
 }

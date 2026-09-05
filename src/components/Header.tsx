@@ -39,6 +39,12 @@ export default function Header({ route }: { route: Route }) {
               {item.label}
             </a>
           ))}
+          <a
+            href={links.battle}
+            aria-current={route === '/sozjang' ? 'page' : undefined}
+          >
+            So‘zjang
+          </a>
           <a href={links.contact} aria-current={route === '/contact' ? 'page' : undefined}>
             Aloqa
           </a>

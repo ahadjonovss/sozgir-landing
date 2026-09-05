@@ -14,6 +14,7 @@ bilan aynan bir xil. Hisob ochilsa natija reytingga tushadi.
 | Bo‘lim | Nima qiladi |
 | --- | --- |
 | Hero | Haqiqiy So‘ztop: kunlik va cheksiz rejim, hisob, ball, statistika |
+| So‘zjang | Do‘st bilan (kod orqali) va tezkor jang — `/sozjang` |
 | Qoida | Ikki bosqichli avto-demo, rang legendasi ustiga kursor kelganda ajratiladi |
 | Alifbo | Yozilgan so‘zni jonli ravishda harf-kataklarga ajratadi |
 | Modullar | So‘ztop, So‘zjang, Yangso‘z, O‘rganish, Reyting, Qo‘llab-quvvatlash |
@@ -21,7 +22,7 @@ bilan aynan bir xil. Hisob ochilsa natija reytingga tushadi.
 | Savollar | Akkordeon FAQ |
 | Yuklab olish | App Store havolasi (Google Play hozircha «Tez orada») |
 
-Alohida sahifalar: `/oyin` (o‘yin moduli — pastda), `/privacy` (maxfiylik
+Alohida sahifalar: `/oyin` (So‘ztop), `/sozjang` (bellashuv), `/privacy` (maxfiylik
 siyosati, o‘zbekcha + inglizcha) va `/contact` (aloqa ma’lumotlari + so‘rov
 formasi).
 
@@ -132,6 +133,62 @@ tiklanadi (`ensureRestored`) va faqat cloud oldinda bo‘lganda qabul qilinadi.
 Aks holda telefonda 40 kun yig‘ilgan streak sayt yozgan «1» bilan almashib
 ketardi.
 
+## So‘zjang
+
+`/sozjang` — ilovadagi bellashuv rejimi. Ikki yo‘l:
+
+| Rejim | Qanday ishlaydi |
+| --- | --- |
+| **Do‘st bilan** | Chaqiruv yaratiladi, 6 belgili kod va havola chiqadi. Do‘st kod bilan qo‘shiladi (yoki havolani bosadi — `?kod=` o‘zi qo‘shadi). |
+| **Tezkor jang** | Navbatga turiladi, server reytingi yaqin raqibni topadi. Navbatda turganda so‘rov har 10 soniyada takrorlanadi — ikki odam bir vaqtda qidirsa, bir-birini ko‘rmay qolmasin. |
+
+Ikkalasi ham **hisob talab qiladi**: raqib taxallusni ko‘radi va natija
+reytingga yoziladi.
+
+Butun mantiq **Cloud Functions**da (`europe-west1`), ilova ishlatadigan
+funksiyalarning aynan o‘zi: `battleCreate`, `battleJoin`, `battleQuick`,
+`battleGuess`, `battleForfeit`. Javob so‘zi mijozga hech qachon
+yuborilmaydi — taxminni server tekshiradi va faqat ranglar qatorini
+(`srryy`) qaytaradi. Shu sabab saytda yaratilgan chaqiruvga telefondan
+qo‘shilish mumkin va aksincha.
+
+Raqibning kataklarida harflar yo‘q: rang naqshi u qancha yaqinlashganini
+bildiradi, javobni esa oshkor qilmaydi. Jang tugagach server ikki tomonning
+so‘zlarini va javobni ochadi — natija ekranida yo‘llar solishtiriladi.
+
+O‘qish uchun `onSnapshot` kerak (raqibning qatori darhol ko‘rinishi kerak),
+u esa `firestore/lite` da yo‘q — shuning uchun bu sahifa to‘liq Firestore
+SDK sini alohida chunk sifatida yuklaydi. Qolgan sahifalar yengil variantda
+qoladi.
+
+Boshlangan jang brauzerda eslab qolinadi (`sozgir.battle`), o‘z
+taxminlarim ham (`sozgir.battle.words.{id}`) — server ularni jang
+tugamaguncha yashiradi, shuning uchun sahifa yangilanganda harflar
+brauzerdan tiklanadi.
+
+### Lokal sinash
+
+Funksiyalar faqat prodga joylashtirilgan, ya‘ni jangni sinash uchun
+prodda hisob ochib real yozuv qoldirish kerak bo‘lardi. Emulyator shu
+ehtiyojni yopadi:
+
+```bash
+cd ../soztop/functions && npm ci && npm run build
+cd ../soztop && firebase emulators:start --only auth,functions,firestore \
+  --project soztop-dev
+```
+
+Emulyator Firestore‘iga `dictionaries/uz_5` ni yozib qo‘yish kerak
+(funksiya so‘zni shundan oladi), so‘ng:
+
+```bash
+VITE_EMULATOR=1 npm run dev
+```
+
+`src/firebase/config.ts` dagi `projectId` emulyator loyihasi bilan mos
+bo‘lishi shart. Ishlab chiqarish paketida emulyator shoxi butunlay yo‘q —
+`import.meta.env.DEV` uni olib tashlaydi.
+
 ## Firebase sozlamalari
 
 `src/firebase/config.ts` — prod muhitining ochiq web konfiguratsiyasi
@@ -181,6 +238,8 @@ api/
 src/
   components/   bo‘limlar (Hero, Rules, Alphabet, Modules, …)
     GamePage.tsx  `/oyin` sahifasi: taxta + statistika + reyting
+    BattlePage.tsx  `/sozjang`: chaqiruv, tezkor jang va jangning o‘zi
+    OpponentBoard.tsx  raqib yo‘li — faqat ranglar
     Play.tsx      o‘yin bo‘limi: rejim, natija, qisqa statistika
     Board.tsx     taxta va o‘zbek klaviaturasi
     StatsPanel.tsx  statistika va urinishlar taqsimoti
@@ -205,15 +264,17 @@ src/
     progress.ts statistika, topilgan so‘zlar, cloud yozuv va tiklash
     nickname.ts taxallus filtri (nickname_filter.dart porti)
     leaderboard.ts  kunlik va umumiy reyting jadvallari
+    battle.ts   So‘zjang chaqiruvlari va turlari
+    useSozjang.ts  So‘zjang holati (chaqiruv, navbat, jang)
     auth.tsx    hisob holati va amallari
     useGameChoice.ts  rejim va uzunlik tanlovi
     useSozTop.ts  o‘yin holati (kunlik + cheksiz)
     useReveal.ts  scroll animatsiyasi va mavzu almashtirish
-    useRoute.ts   kichik router (`/`, `/oyin`, `/privacy`, `/contact`)
+    useRoute.ts   kichik router (`/`, `/oyin`, `/sozjang`, `/privacy`, `/contact`)
   styles/
     theme.css   dizayn tokenlari (yorug‘ + tungi)
     landing.css bo‘lim uslublari
-    play.css    hisob oynasi, o‘yin bo‘limi va `/oyin` sahifasi
+    play.css    hisob oynasi, o‘yin bo‘limlari va `/oyin`, `/sozjang`
 ```
 
 ### Brauzerda saqlanadigan kalitlar
@@ -230,6 +291,9 @@ src/
 | `sozgir.endless.{length}` | cheksiz rejim o‘yin raqami |
 | `sozgir.pending` | kirilmagan holda o‘ynalgan, hali yozilmagan natijalar |
 | `sozgir.length` | cheksiz rejimdagi so‘z uzunligi |
+| `sozgir.battle` | boshlangan jang |
+| `sozgir.battle.words.{id}` | o‘sha jangdagi taxminlarim |
+| `sozgir.battle.length` | So‘zjangdagi so‘z uzunligi |
 
 Store havolalari `src/data/site.ts` dagi `links.appStore` va
 `links.playStore` da — to‘ldirilgani tugma bo‘lib chiqadi, bo‘shi «Tez

@@ -14,6 +14,7 @@ export const links = {
   telegram: 'https://t.me/sozgir_uz',
   support: `mailto:${email}`,
   play: '/oyin',
+  battle: '/sozjang',
   /** Ulashilgan natija bosilganda odam darhol o'ynay olishi kerak —
    *  tanishtiruv sahifasi emas, o'yinning o'zi ochiladi. */
   share: `${site}/oyin`,
@@ -57,7 +58,7 @@ export const modules: Module[] = [
     name: 'So‘zjang',
     tagline: 'Bir so‘z, ikki o‘yinchi. Kim kamroq urinishda topadi?',
     points: [
-      'Do‘stga havola yuboring — u 24 soat ichida o‘ynaydi',
+      'Saytda ham o‘ynaladi: do‘stga kod yuboring yoki tasodifiy raqib toping',
       'Tezkor jang: tasodifiy raqib, 90 soniya',
       'Raqibning kataklari harfsiz — faqat ranglar ko‘rinadi',
       'Elo reytingi bilan kuchingiz o‘lchanadi',

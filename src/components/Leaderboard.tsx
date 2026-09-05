@@ -93,7 +93,7 @@ export default function Leaderboard() {
 
       {!account ? (
         <p className="panel__note">
-          <button className="link" onClick={() => openPrompt('guest')}>
+          <button className="link" onClick={() => openPrompt('signIn')}>
             Kirsangiz
           </button>{' '}
           natijangiz shu jadvalga tushadi.

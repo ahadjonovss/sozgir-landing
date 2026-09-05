@@ -29,11 +29,10 @@ import {
   EMOJI,
   evaluate,
   isPlayable,
-  LETTERS,
+  keyAction,
   lengthOf,
   normalize,
   split,
-  TUTUQ,
   type Verdict,
 } from './uz';
 
@@ -457,7 +456,7 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
     [bump, current, later, past.length, phase, puzzle],
   );
 
-  /** Fizik klaviatura: `sh`, `ch`, `oʻ`, `gʻ` oldingi harf bilan birikadi. */
+  /** Fizik klaviatura — qoida `uz.ts` dagi `keyAction` da. */
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.metaKey || event.ctrlKey || event.altKey) return;
@@ -466,33 +465,14 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
         return;
       }
 
-      if (event.key === 'Enter') return press('enter');
-      if (event.key === 'Backspace') return press('back');
+      const action = keyAction(event.key, current.at(-1));
+      if (!action) return;
+      event.preventDefault();
 
-      const char = event.key.toLowerCase();
-      if (char.length !== 1) return;
-      const last = current.at(-1);
-
-      if (char === 'h' && (last === 's' || last === 'c')) {
-        event.preventDefault();
-        setCurrent((units) => [...units.slice(0, -1), `${last}h`]);
-        return;
-      }
-      if ("'`‘’\u02bb\u02bc".includes(char)) {
-        event.preventDefault();
-        // `o` yoki `g` dan keyingi apostrof — tovush belgisi (`oʻ`, `gʻ`),
-        // qolgan holatda tutuq belgisi (`maʼno`).
-        if (last === 'o' || last === 'g') {
-          setCurrent((units) => [...units.slice(0, -1), `${last}\u02bb`]);
-        } else {
-          press(TUTUQ);
-        }
-        return;
-      }
-      if (LETTERS.includes(char)) {
-        event.preventDefault();
-        press(char);
-      }
+      if (action.kind === 'enter') press('enter');
+      else if (action.kind === 'back') press('back');
+      else if (action.kind === 'letter') press(action.unit);
+      else setCurrent((units) => [...units.slice(0, -1), action.unit]);
     };
 
     window.addEventListener('keydown', onKey);

@@ -198,7 +198,7 @@ export default function Play({ choice, game }: { choice: GameChoice; game: Game 
               {game.result && !auth.account && (
                 <p className="result__save">
                   Natija faqat shu brauzerda saqlandi.{' '}
-                  <button className="link" onClick={() => auth.openPrompt('guest')}>
+                  <button className="link" onClick={() => auth.openPrompt('signIn')}>
                     Kirsangiz reytingga tushadi
                   </button>
                   .

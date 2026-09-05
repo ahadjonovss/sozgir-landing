@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 
-export type Route = '/' | '/oyin' | '/privacy' | '/contact';
+export type Route = '/' | '/oyin' | '/sozjang' | '/privacy' | '/contact';
 
-const routes: Route[] = ['/', '/oyin', '/privacy', '/contact'];
+const routes: Route[] = ['/', '/oyin', '/sozjang', '/privacy', '/contact'];
 
 function read(): Route {
   const path = window.location.pathname.replace(/\/+$/, '') || '/';
