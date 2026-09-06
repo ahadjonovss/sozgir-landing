@@ -232,6 +232,15 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
   );
 }
 
+/** Hisob oynasi — sahifada bir marta chizilishi kerak.
+ *
+ *  Tugma bir necha joyda turadi (yon menyu, telefondagi sarlavha), oyna
+ *  esa bitta: shuning uchun u tugmadan ajratilgan. */
+export function AccountDialog() {
+  const auth = useAuth();
+  return auth.prompt ? <AuthDialog key={auth.prompt} mode={auth.prompt} /> : null;
+}
+
 export default function Account() {
   const auth = useAuth();
 
@@ -254,8 +263,6 @@ export default function Account() {
           Kirish
         </button>
       )}
-
-      {auth.prompt && <AuthDialog key={auth.prompt} mode={auth.prompt} />}
     </>
   );
 }

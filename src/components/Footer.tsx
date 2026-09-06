@@ -18,6 +18,7 @@ export default function Footer() {
           <a href="/#qoida">Qoida</a>
           <a href="/#modullar">Modullar</a>
           <a href="/#savollar">Savollar</a>
+          <a href={links.donate}>Qo‘llab-quvvatlash</a>
           <a href={links.privacy}>Maxfiylik siyosati</a>
           <a href={links.contact}>Aloqa</a>
           <a href={links.support}>Yordam</a>

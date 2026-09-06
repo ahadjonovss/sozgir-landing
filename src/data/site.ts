@@ -20,6 +20,8 @@ export const links = {
   share: `${site}/oyin`,
   privacy: '/privacy',
   contact: '/contact',
+  /** Donat bo'limi: hisob, qo'llab-quvvatlaganlar va to'lov. */
+  donate: '/qollab',
 };
 
 export const stats = [

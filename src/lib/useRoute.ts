@@ -1,8 +1,21 @@
 import { useEffect, useState } from 'react';
 
-export type Route = '/' | '/oyin' | '/sozjang' | '/privacy' | '/contact';
+export type Route =
+  | '/'
+  | '/oyin'
+  | '/sozjang'
+  | '/qollab'
+  | '/privacy'
+  | '/contact';
 
-const routes: Route[] = ['/', '/oyin', '/sozjang', '/privacy', '/contact'];
+const routes: Route[] = [
+  '/',
+  '/oyin',
+  '/sozjang',
+  '/qollab',
+  '/privacy',
+  '/contact',
+];
 
 /** Ilova ulashadigan kunlik havola — o'sha o'yin sahifasi.
  *

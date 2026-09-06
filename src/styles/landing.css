@@ -1558,3 +1558,135 @@
   font-size: 13px;
   font-weight: 600;
 }
+
+/* ── Qo'llab-quvvatlash ──────────────────────────────────────────────
+   Ikki ustun: chapda loyiha hisobi va tugma, o'ngda qo'shganlar ro'yxati.
+   Tor ekranda ustunlar birin-ketin tushadi. */
+
+.support__grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 860px) {
+  .support__grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    align-items: start;
+  }
+}
+
+.support__card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.support__balance {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.support__label {
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.support__sum {
+  font-size: clamp(28px, 5vw, 40px);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--green);
+}
+
+.support__sum small {
+  font-size: 0.45em;
+  font-weight: 800;
+  color: var(--text-2);
+}
+
+.support__hint {
+  color: var(--text-2);
+  font-size: 14px;
+}
+
+.support__count {
+  margin-top: 6px;
+  align-self: flex-start;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--green-soft);
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* Ro'yxat — «kim qancha qo'shdi». Har yozuv bir gap: matn variantlari
+   `support.ts` da, shuning uchun bir xil jumla takrorlanmaydi. */
+.donors {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.donor {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 12px;
+  font-size: 14.5px;
+  line-height: 1.4;
+}
+
+.donor:nth-child(odd) {
+  background: var(--bg);
+}
+
+.donor--me {
+  background: var(--green-soft);
+}
+
+.donor__mark {
+  color: var(--danger);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.donor__text {
+  min-width: 0;
+}
+
+.donor__me {
+  margin-inline-start: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--green);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.support__presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.support__error {
+  color: var(--danger);
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+/* Alohida sahifada sarlavha ramkadan keladi — bo'lim faqat mazmunni
+   ko'rsatadi. */
+.support--page {
+  padding-top: 8px;
+}
