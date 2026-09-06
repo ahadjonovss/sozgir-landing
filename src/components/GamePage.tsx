@@ -4,6 +4,11 @@
  *  esa qaytib keladiganlar uchun barqaror manzil: taxta, statistika va
  *  reyting bir joyda, tanishtiruv bloklarini aylanib o'tirmasdan.
  *
+ *  Taxta **eng yuqorida** turadi: sahifa o'ynash uchun ochiladi, shuning
+ *  uchun ochilishi bilan o'ynash mumkin bo'lishi kerak. Sarlavha va izoh
+ *  pastga tushgan — ular ilk marta kirganlar uchun, har safar emas.
+ *  Ilgari telefonda taxtagacha ekran bo'yi surish kerak bo'lardi.
+ *
  *  Ikkisi bir xil `Play` komponentini ishlatadi va holat brauzerda bir
  *  joyda saqlanadi — hero'da boshlangan o'yin shu yerda davom etadi. */
 import { useAuth } from '../lib/auth';
@@ -21,18 +26,6 @@ export default function GamePage() {
 
   return (
     <section className="oyin">
-      <div className="wrap oyin__head">
-        <div>
-          <span className="section__kicker">So‘ztop №{dailyNumber()}</span>
-          <h1>Bugungi so‘zni toping</h1>
-          <p className="section__lead">
-            Kunlik so‘z butun O‘zbekistonda bir xil va ilovadagi bilan aynan
-            bitta. Cheksiz rejimda esa 4 dan 7 harfgacha xohlagancha mashq
-            qilasiz.
-          </p>
-        </div>
-      </div>
-
       <div className="wrap oyin__grid">
         <div className="oyin__board">
           <Play choice={choice} game={game} />
@@ -79,6 +72,18 @@ export default function GamePage() {
             </a>
           </div>
         </aside>
+      </div>
+
+      {/* Sarlavha va izoh taxtadan keyin: sahifa nima ekanini tushuntiradi
+          va `h1` ni ham shu yerda qoldiradi. */}
+      <div className="wrap oyin__about">
+        <span className="section__kicker">So‘ztop №{dailyNumber()}</span>
+        <h1>Bugungi so‘zni toping</h1>
+        <p className="section__lead">
+          Kunlik so‘z butun O‘zbekistonda bir xil va ilovadagi bilan aynan
+          bitta. Cheksiz rejimda esa 4 dan 7 harfgacha xohlagancha mashq
+          qilasiz.
+        </p>
       </div>
     </section>
   );

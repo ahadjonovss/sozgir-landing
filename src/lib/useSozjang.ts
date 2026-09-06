@@ -35,6 +35,15 @@ export interface BoardRow {
 }
 
 const ACTIVE_KEY = 'sozgir.battle';
+
+/** Chaqiruv qabul qilinganda jangni ochish hodisasi.
+ *
+ *  Chaqiruv xabari ilova darajasida turadi va `useSozjang` ga
+ *  to'g'ridan-to'g'ri yeta olmaydi. Shuning uchun jang identifikatori
+ *  saqlanadi va hodisa yuboriladi: So'zjang sahifasi ochiq bo'lsa darrov
+ *  o'tadi, ochiq bo'lmasa sahifa ochilganda saqlangan jangdan davom
+ *  etadi. */
+const OPEN_EVENT = 'sozgir:battle-open';
 const LENGTH_KEY = 'sozgir.battle.length';
 const wordsKey = (battleId: string) => `sozgir.battle.words.${battleId}`;
 
@@ -73,6 +82,12 @@ function drop(key: string): void {
 function storedLength(): number {
   const raw = read<number>(LENGTH_KEY, DEFAULT_LENGTH);
   return LENGTHS.includes(raw as (typeof LENGTHS)[number]) ? raw : DEFAULT_LENGTH;
+}
+
+/** Chaqiruvdan kelgan jangni ochadi — xabar shu funksiyani chaqiradi. */
+export function openBattleById(id: string) {
+  write(ACTIVE_KEY, id);
+  window.dispatchEvent(new CustomEvent(OPEN_EVENT, { detail: id }));
 }
 
 export function useSozjang() {
@@ -122,6 +137,16 @@ export function useSozjang() {
     setMessage(null);
     setError(null);
   }, []);
+
+  // Chaqiruv qabul qilindi: sahifa ochiq bo'lsa jang shu zahoti ochiladi.
+  useEffect(() => {
+    const onOpen = (event: Event) => {
+      const id = (event as CustomEvent<string>).detail;
+      if (id) open(id);
+    };
+    window.addEventListener(OPEN_EVENT, onOpen);
+    return () => window.removeEventListener(OPEN_EVENT, onOpen);
+  }, [open]);
 
   const close = useCallback(() => {
     setBattleId(null);

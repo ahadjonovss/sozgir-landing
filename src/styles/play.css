@@ -206,6 +206,38 @@
   padding: 0 2px;
 }
 
+.play__top-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Reyting tugmasi taxtaning o'zida: telefonda jadval ancha pastda
+   qolardi va uni ko'rish uchun o'yindan chiqish kerak bo'lardi. */
+.play__ranks {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 11px;
+  background: var(--surface-2);
+  color: var(--text-2);
+  cursor: pointer;
+  transition: background 0.16s ease, color 0.16s ease;
+}
+
+.play__ranks svg {
+  width: 18px;
+  height: 18px;
+}
+
+.play__ranks:hover {
+  background: var(--green-soft);
+  color: var(--green);
+}
+
 /* Rejim tanlovi — segmentli tugma. Ikki rejim bir joyda turadi, chunki
    ular bitta taxtani almashtiradi. */
 .play__modes {
@@ -386,12 +418,17 @@
 /* ── O'yin sahifasi (/oyin) ───────────────────────────────────────────── */
 
 .oyin {
-  padding: calc(var(--header-h) + 36px) 0 clamp(56px, 8vw, 96px);
+  /* Taxta sarlavhaning ostidan darrov boshlanadi: sahifa o'ynash uchun,
+     shuning uchun tepadagi bo'sh joy eng kamida. */
+  padding: calc(var(--header-h) + 16px) 0 clamp(56px, 8vw, 96px);
 }
 
-.oyin__head {
+/* Sarlavha va izoh taxtadan keyin turadi. */
+.oyin__about {
   max-width: 720px;
-  margin-bottom: 34px;
+  margin-top: 40px;
+  padding-top: 28px;
+  border-top: 1px solid var(--divider);
 }
 
 .oyin__grid {
@@ -906,4 +943,236 @@
     height: 18px;
     font-size: 9px;
   }
+}
+
+/* ── Kutish izohi: jumlalar navbat bilan almashadi ─────────────────────── */
+
+.rotating {
+  /* Balandlik qotirilgan: jumlalar turli uzunlikda, aks holda almashganda
+     ostidagi tugmalar sakrab ketardi. */
+  min-height: 42px;
+  margin: 14px 0;
+  color: var(--text-2);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.rotating__line {
+  display: block;
+  animation: rotating-in 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes rotating-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/* ── Jang afishasi: «falonchi VS falonchi» ────────────────────────────── */
+
+.versus {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 22px 12px;
+  text-align: center;
+}
+
+.versus__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 380px;
+}
+
+.versus__side {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  min-width: 0;
+  animation: versus-in 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes versus-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.versus__avatar {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: var(--green-soft);
+  color: var(--green);
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.versus__avatar--wait {
+  background: var(--surface-2);
+  color: var(--text-2);
+}
+
+.versus__name {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 15px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.versus__side--me .versus__name {
+  color: var(--green);
+}
+
+.versus__vs {
+  color: var(--text-2);
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.versus__motto {
+  color: var(--green);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.versus__count {
+  display: block;
+  color: var(--green);
+  font-size: 46px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* ── Jang natijasi: ikki ustunli hisob ────────────────────────────────── */
+
+.score {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0 4px;
+}
+
+.score__side {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  min-width: 0;
+}
+
+.score__who,
+.score__meta {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--text-2);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.score__points {
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.score__dash {
+  color: var(--text-2);
+}
+
+/* ── Kelgan chaqiruv: ekran pastidan chiqadigan xabar ─────────────────── */
+
+.invite {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 70;
+  display: grid;
+  justify-items: center;
+  /* Ekranning qolgan qismi bosilaveradi — xabar yo'lni to'smaydi. */
+  pointer-events: none;
+  padding: 12px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
+
+.invite__card {
+  width: 100%;
+  max-width: 420px;
+  padding: 14px;
+  border-radius: var(--radius-lg);
+  background: var(--bg);
+  /* Soya yuqoriga: kartochka pastda turadi, ekran uning tepasida. */
+  box-shadow: 0 -10px 34px rgba(9, 10, 13, 0.24);
+  pointer-events: auto;
+  animation: invite-up 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes invite-up {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+}
+
+.invite__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.invite__avatar {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--green-soft);
+  color: var(--green);
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.invite__who {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.invite__who strong {
+  overflow: hidden;
+  font-size: 15px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.invite__who span {
+  color: var(--text-2);
+  font-size: 13px;
+}
+
+.invite__left {
+  margin-left: auto;
+  color: var(--text-2);
+  font-size: 13px;
+}
+
+.invite__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.invite__actions .btn {
+  flex: 1;
 }

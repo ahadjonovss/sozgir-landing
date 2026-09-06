@@ -30,3 +30,59 @@ export async function watchDoc<T>(
     () => onData(null),
   );
 }
+
+/** Menga kelgan, javob kutayotgan chaqiruv. */
+export interface LiveInvite {
+  id: string;
+  fromNickname: string;
+  /** `nearby` yoki `rematch` — qayerdan kelgani. */
+  kind: string;
+  /** Muddati tugaydigan payt (millisekundda). Noma'lum bo'lsa `0`. */
+  expiresAt: number;
+}
+
+/** Menga kelgan chaqiruvlarni kuzatadi.
+ *
+ *  Ilovada bu ish `WatchIncomingInvites` da bajariladi — saytda ham xuddi
+ *  shu hujjatlar o'qiladi, shuning uchun telefondan yuborilgan chaqiruv
+ *  brauzerda ham darrov ko'rinadi. */
+export async function watchInvites(
+  uid: string,
+  onData: (invites: LiveInvite[]) => void,
+): Promise<Unsubscribe> {
+  const { app } = await client();
+  const {
+    connectFirestoreEmulator,
+    getFirestore,
+    collection,
+    onSnapshot,
+    query,
+    where,
+  } = await import('firebase/firestore');
+
+  const db = getFirestore(app);
+  if (useEmulator) connectFirestoreEmulator(db, EMULATOR.host, EMULATOR.firestore);
+
+  return onSnapshot(
+    query(
+      collection(db, 'battle_invites'),
+      where('toUid', '==', uid),
+      where('status', '==', 'pending'),
+    ),
+    (snapshot) =>
+      onData(
+        snapshot.docs.map((item) => {
+          const data = item.data() as Record<string, unknown>;
+          const expires = data.expiresAt as { seconds?: number } | undefined;
+          return {
+            id: item.id,
+            fromNickname: String(data.fromNickname ?? 'Raqib'),
+            kind: String(data.kind ?? 'rematch'),
+            expiresAt: expires?.seconds ? expires.seconds * 1000 : 0,
+          };
+        }),
+      ),
+    // Ulanish uzilsa jim o'tamiz: xabar chiqmaydi, xolos.
+    () => onData([]),
+  );
+}

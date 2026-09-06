@@ -13,6 +13,8 @@ import { LENGTHS } from '../lib/modes';
 import { useSozjang, type Sozjang } from '../lib/useSozjang';
 import { display, pretty } from '../lib/uz';
 import { Board, Keyboard } from './Board';
+import RotatingLine from './RotatingLine';
+import Versus from './Versus';
 import OpponentBoard from './OpponentBoard';
 
 /** Havoladagi `?kod=ABC123` — chaqiruvni bosib kelgan odam uchun. */
@@ -140,6 +142,18 @@ function Lobby({ game }: { game: Sozjang }) {
   );
 }
 
+/** Qidiruv davomida almashadigan izohlar.
+ *
+ *  Qidiruv **to'xtamaydi**, shuning uchun «hech kim yo'q» degan xabar
+ *  yo'q: jumlalar navbat bilan almashadi va kutish tirik ko'rinadi. */
+const SEARCH_LINES = [
+  'Onlayn o‘yinchilar ko‘rib chiqilmoqda…',
+  'Reytingi sizga yaqin raqib tanlanmoqda',
+  'Hali ham qidiryapmiz…',
+  'Navbatdasiz — raqib chiqishi bilan boshlanadi',
+  'Do‘stingizni kod bilan chaqirsangiz tezroq bo‘ladi',
+];
+
 function Searching({ game }: { game: Sozjang }) {
   return (
     <div className="panel">
@@ -152,17 +166,19 @@ function Searching({ game }: { game: Sozjang }) {
         <span />
         <span />
       </div>
-      <p className="panel__note">
-        Navbatdasiz. Kimdir shu uzunlikda jang izlasa, darhol
-        juftlashtirasiz. Hozircha kam o‘yinchi bo‘lsa, do‘stingizni
-        chaqiruv kodi bilan taklif qilish tezroq.
-      </p>
+      <RotatingLine lines={SEARCH_LINES} />
       <button className="btn btn--sm btn--outline" onClick={game.cancelSearch}>
         Bekor qilish
       </button>
     </div>
   );
 }
+
+const WAIT_LINES = [
+  'Do‘stingiz shu kodni kiritsa jang boshlanadi',
+  'Havolani yuborsangiz, kodni terib ham o‘tirmaydi',
+  'Do‘stingiz kirmaguncha kutib turamiz…',
+];
 
 function Waiting({ game }: { game: Sozjang }) {
   const [copied, setCopied] = useState(false);
@@ -190,16 +206,17 @@ function Waiting({ game }: { game: Sozjang }) {
         <span className="panel__tag">{game.boardLength} harf</span>
       </div>
 
+      {/* Raqib hali noma'lum — o'ng tomonda so'roq belgisi turadi va
+          do'st qo'shilganda uning ismiga aylanadi. */}
+      <Versus me={pretty(game.account?.nickname ?? 'Siz')} opponent="Raqib" waiting />
+
       <div className="code" aria-label="Chaqiruv kodi">
         {[...code].map((char, index) => (
           <span key={index}>{char}</span>
         ))}
       </div>
 
-      <p className="panel__note">
-        Do‘stingiz shu kodni kiritsa jang boshlanadi. Havolani yuborsangiz,
-        u kodni terib ham o‘tirmaydi.
-      </p>
+      <RotatingLine lines={WAIT_LINES} />
 
       <div className="result__actions">
         <button className="btn btn--sm" onClick={share}>
@@ -211,6 +228,43 @@ function Waiting({ game }: { game: Sozjang }) {
       </div>
     </div>
   );
+}
+
+/** Jang boshlanishidagi uch soniyalik afisha.
+ *
+ *  Ilgari jang birdan taxta bilan ochilardi — kim bilan o'ynayotganini
+ *  bilish uchun yon ustunga qarash kerak edi. Afisha bir marta, faqat
+ *  jang boshlanganda ko'rinadi. */
+function useIntro(phase: string): boolean {
+  const [show, setShow] = useState(false);
+  const seen = useRef(false);
+
+  useEffect(() => {
+    if (phase !== 'playing' || seen.current) return;
+    seen.current = true;
+    setShow(true);
+    const timer = window.setTimeout(() => setShow(false), INTRO_MS);
+    return () => window.clearTimeout(timer);
+  }, [phase]);
+
+  return show;
+}
+
+const INTRO_MS = 3000;
+
+/** Afisha ostidagi sanoq: 3 → 1. */
+function IntroCountdown() {
+  const [left, setLeft] = useState(Math.round(INTRO_MS / 1000));
+
+  useEffect(() => {
+    const timer = window.setInterval(
+      () => setLeft((value) => Math.max(1, value - 1)),
+      1000,
+    );
+    return () => window.clearInterval(timer);
+  }, []);
+
+  return <span className="versus__count">{left}</span>;
 }
 
 function Playing({ game }: { game: Sozjang }) {
@@ -282,11 +336,27 @@ function Result({ game }: { game: Sozjang }) {
         {game.battle?.answer && (
           <p className="result__word">{display(game.battle.answer)}</p>
         )}
-        <p className="result__where">
-          Siz — {game.me?.attempts ?? 0} urinish, {game.me?.score ?? 0} ball ·{' '}
-          {pretty(game.opponent?.nickname ?? 'Raqib')} —{' '}
-          {game.opponent?.attempts ?? 0} urinish, {game.opponent?.score ?? 0} ball
-        </p>
+        {/* Bitta uzun qator o'rniga ikki ustun: kim nechada topgani va
+            necha ball olgani bir qarashda solishtiriladi. */}
+        <div className="score">
+          <div className="score__side">
+            <span className="score__who">Siz</span>
+            <strong className="score__points">{game.me?.score ?? 0}</strong>
+            <span className="score__meta">{game.me?.attempts ?? 0} urinish</span>
+          </div>
+          <span className="score__dash" aria-hidden="true">
+            —
+          </span>
+          <div className="score__side">
+            <span className="score__who">
+              {pretty(game.opponent?.nickname ?? 'Raqib')}
+            </span>
+            <strong className="score__points">{game.opponent?.score ?? 0}</strong>
+            <span className="score__meta">
+              {game.opponent?.attempts ?? 0} urinish
+            </span>
+          </div>
+        </div>
         <div className="result__actions">
           <button className="btn btn--sm" onClick={game.leave}>
             Yangi jang
@@ -324,18 +394,10 @@ function Result({ game }: { game: Sozjang }) {
 
 export default function BattlePage() {
   const game = useSozjang();
+  const intro = useIntro(game.phase);
 
   return (
     <section className="oyin">
-      <div className="wrap oyin__head">
-        <span className="section__kicker">So‘zjang</span>
-        <h1>Bir so‘z, ikki o‘yinchi</h1>
-        <p className="section__lead">
-          Do‘stingizni kod bilan chaqiring yoki tasodifiy raqib bilan
-          bellashing. Kim kamroq urinishda topsa — o‘sha yutadi.
-        </p>
-      </div>
-
       <div className="wrap jang">
         {!game.account ? (
           <Gate />
@@ -350,7 +412,14 @@ export default function BattlePage() {
             {game.phase === 'lobby' && <Lobby game={game} />}
             {game.phase === 'searching' && <Searching game={game} />}
             {game.phase === 'waiting' && <Waiting game={game} />}
-            {game.phase === 'playing' && (
+            {game.phase === 'playing' && intro && (
+              <Versus
+                me={pretty(game.account?.nickname ?? 'Siz')}
+                opponent={pretty(game.opponent?.nickname ?? 'Raqib')}
+                note={<IntroCountdown />}
+              />
+            )}
+            {game.phase === 'playing' && !intro && (
               <>
                 <Playing game={game} />
                 {game.me?.finished ? (
@@ -370,6 +439,17 @@ export default function BattlePage() {
             {game.phase === 'finished' && <Result game={game} />}
           </>
         )}
+      </div>
+
+      {/* Sarlavha o'yindan keyin: sahifa o'ynash uchun ochiladi, izoh esa
+          ilk marta kirganlar uchun. */}
+      <div className="wrap oyin__about">
+        <span className="section__kicker">So‘zjang</span>
+        <h1>Bir so‘z, ikki o‘yinchi</h1>
+        <p className="section__lead">
+          Do‘stingizni kod bilan chaqiring yoki tasodifiy raqib bilan
+          bellashing. Kim kamroq urinishda topsa — o‘sha yutadi.
+        </p>
       </div>
     </section>
   );

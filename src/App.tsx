@@ -9,6 +9,7 @@ import BattlePage from './components/BattlePage';
 import GamePage from './components/GamePage';
 import Header from './components/Header';
 import Hero from './components/Hero';
+import InviteOverlay from './components/InviteOverlay';
 import Modules from './components/Modules';
 import Privacy from './components/Privacy';
 import Rules from './components/Rules';
@@ -52,6 +53,8 @@ export default function App() {
         {route === '/contact' && <Contact />}
       </main>
       <Footer />
+      {/* Kelgan jang chaqiruvi qaysi sahifada bo'lsangiz ham ko'rinadi. */}
+      <InviteOverlay />
     </>
   );
 }

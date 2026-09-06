@@ -15,6 +15,8 @@ import type { GameChoice } from '../lib/useGameChoice';
 import type { Game } from '../lib/useSozTop';
 import { pretty } from '../lib/uz';
 import { Board, Keyboard } from './Board';
+import Leaderboard from './Leaderboard';
+import Modal from './Modal';
 
 /** Keyingi kunlik so'zgacha qolgan vaqt. */
 function useCountdown(active: boolean): string {
@@ -40,6 +42,9 @@ export default function Play({ choice, game }: { choice: GameChoice; game: Game 
   const elsewhere = game.result?.elsewhere === true;
   const countdown = useCountdown(finished && mode === 'daily');
   const [copied, setCopied] = useState(false);
+  /** Reyting oynasi. Telefonda jadval taxtadan ancha pastda qolardi —
+   *  endi taxtaning o'zidan bir bosishda ochiladi. */
+  const [ranksOpen, setRanksOpen] = useState(false);
 
   const { stats } = game;
   const winRate = stats.played === 0 ? 0 : Math.round((stats.wins / stats.played) * 100);
@@ -75,15 +80,37 @@ export default function Play({ choice, game }: { choice: GameChoice; game: Game 
             </button>
           ))}
         </div>
-        <span className="phone__live">
-          <i />
-          {game.puzzle
-            ? mode === 'daily'
-              ? `№${game.puzzle.number}`
-              : `${game.puzzle.number}-o‘yin`
-            : 'jonli'}
-        </span>
+        <div className="play__top-right">
+          <span className="phone__live">
+            <i />
+            {game.puzzle
+              ? mode === 'daily'
+                ? `№${game.puzzle.number}`
+                : `${game.puzzle.number}-o‘yin`
+              : 'jonli'}
+          </span>
+          <button
+            type="button"
+            className="play__ranks"
+            onClick={() => setRanksOpen(true)}
+            aria-label="Reyting"
+            title="Reyting"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path
+                fill="currentColor"
+                d="M18 4h2a1 1 0 0 1 1 1v2a4 4 0 0 1-3.6 3.98A6 6 0 0 1 13 14.92V18h3a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2h3v-3.08a6 6 0 0 1-4.4-3.94A4 4 0 0 1 3 7V5a1 1 0 0 1 1-1h2V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1ZM6 6H5v1a2 2 0 0 0 1 1.73V6Zm12 2.73A2 2 0 0 0 19 7V6h-1v2.73Z"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
+
+      {ranksOpen && (
+        <Modal title="Reyting" onClose={() => setRanksOpen(false)}>
+          <Leaderboard />
+        </Modal>
+      )}
 
       {mode === 'endless' && (
         <div className="play__lengths" aria-label="So‘z uzunligi">
