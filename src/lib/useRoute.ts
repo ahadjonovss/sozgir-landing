@@ -4,8 +4,18 @@ export type Route = '/' | '/oyin' | '/sozjang' | '/privacy' | '/contact';
 
 const routes: Route[] = ['/', '/oyin', '/sozjang', '/privacy', '/contact'];
 
+/** Ilova ulashadigan kunlik havola — o'sha o'yin sahifasi.
+ *
+ *  `sozgir.uz/kunlik` ilovada bugungi so'zni ochadi (Universal Link /
+ *  App Link). Ilovasi yo'q odamda esa brauzerda qoladi, shuning uchun
+ *  u yerda ham o'ynaladigan sahifa chiqishi kerak — bosh sahifa emas.
+ *  Manzil o'zgarmaydi: ulashilgan havola o'z holicha qolaveradi. */
+const aliases: Record<string, Route> = { '/kunlik': '/oyin' };
+
 function read(): Route {
   const path = window.location.pathname.replace(/\/+$/, '') || '/';
+  const alias = aliases[path];
+  if (alias) return alias;
   return routes.includes(path as Route) ? (path as Route) : '/';
 }
 
