@@ -1,0 +1,18 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": [
+          "F5FABQJM9X.uz.ahadjonovss.soztop",
+          "NUAWH28W4S.uz.ahadjonovss.soztop.dev"
+        ],
+        "components": [
+          { "/": "/jang/*", "comment": "Jang chaqiruvi: kod bilan qo'shilish" },
+          { "/": "/u/*", "comment": "O'yinchining ochiq profili" },
+          { "/": "/kunlik", "comment": "Kunlik so'z" },
+          { "/": "/ilova", "comment": "Shunchaki ilovani ochish havolasi" }
+        ]
+      }
+    ]
+  }
+}

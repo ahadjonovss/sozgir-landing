@@ -10,7 +10,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "words:sync": "node tool/sync-words.mjs"
   },
   "dependencies": {
     "react": "^19.2.8",

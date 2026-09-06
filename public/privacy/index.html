@@ -1,0 +1,106 @@
+<!doctype html>
+<!-- Maxfiylik siyosati — `docs/` dagi matndan yasalgan sahifa.
+     Qo'lda tahrirlanmaydi: `tool/build_landing_pages.py` qayta yozadi.
+     `public/` ichida turgani uchun React ilovaga tegmaydi. -->
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121317" media="(prefers-color-scheme: dark)">
+<title>Maxfiylik siyosati — So‘zgir</title>
+<link rel="icon" type="image/png" href="/icon.png">
+<link rel="canonical" href="https://sozgir.uz/privacy/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ffffff; --surface: #f7f9fc; --text: #16181d; --text-2: #7a8290;
+    --divider: #eceef2; --green: #63a967;
+  }
+  :root[data-theme='dark'] {
+    --bg: #121317; --surface: #1b1d23; --text: #f3f4f6; --text-2: #9aa1ae;
+    --divider: #262a31; --green: #5e9e63;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 32px 20px 64px; background: var(--bg); color: var(--text);
+    font-family: Nunito, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+                 Helvetica, Arial, sans-serif;
+    font-size: 16px; line-height: 1.65;
+  }
+  main { max-width: 720px; margin: 0 auto; }
+  h1 { font-size: 28px; font-weight: 900; letter-spacing: -0.5px; margin: 0 0 6px; }
+  h2 { font-size: 19px; font-weight: 800; margin: 34px 0 10px; }
+  p, li { color: var(--text-2); }
+  li { margin-bottom: 6px; }
+  strong { color: var(--text); }
+  ul { padding-left: 20px; }
+  a { color: var(--green); }
+  code {
+    background: var(--surface); padding: 1px 5px; border-radius: 6px;
+    font-size: 0.92em;
+  }
+  .home {
+    display: inline-block; margin-bottom: 26px; font-weight: 700;
+    font-size: 14px; color: var(--green); text-decoration: none;
+  }
+  .home:hover { text-decoration: underline; }
+  footer {
+    margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--divider);
+    font-size: 13px; color: var(--text-2);
+  }
+</style>
+<script>
+  // Mavzu birinchi chizishdan oldin — landing bilan bir kalit.
+  (function () {
+    var saved = null;
+    try { saved = localStorage.getItem('sozgir.theme'); } catch (error) { saved = null; }
+    var dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.dataset.theme = saved || (dark ? 'dark' : 'light');
+  })();
+</script>
+</head>
+<body>
+  <main>
+    <a class="home" href="/">← So‘zgir</a>
+      <h1>Maxfiylik siyosati — So‘zgir</h1>
+      <p><strong>Oxirgi yangilanish:</strong> 2026-09-04</p>
+      <p>So‘zgir («ilova») o‘zbek tilidagi so‘z o‘yinlari to‘plami: So‘ztop (so‘z topish) va Yangso‘z (haftalik yangi so‘z o‘ylab topish turniri) modullari. Bu hujjat ilova qanday ma'lumot yig‘ishini va uni nima uchun ishlatishini tushuntiradi.</p>
+      <p>Ilova ishlab chiquvchisi: Samandar Ahadjonov. Aloqa: samandarahadjonov@gmail.com</p>
+      <h2>1. Hisobsiz ishlatish</h2>
+      <p>Ilovani <strong>hisob ochmasdan</strong> ham to‘liq o‘ynash mumkin. Bu holatda natijalar faqat qurilmaning o‘zida saqlanadi.</p>
+      <h2>2. Qanday ma'lumot yig‘iladi</h2>
+      <p><strong>Hisob ochsangiz:</strong></p>
+      <ul><li><strong>email manzil</strong> — hisobga kirish uchun;</li><li><strong>taxallus</strong> — reytingda ko‘rsatish uchun (siz o‘zingiz tanlaysiz);</li><li><strong>foydalanuvchi identifikatori</strong> — hisobingizni ma'lumotlaringiz bilan bog‘lash uchun.</li></ul>
+      <p><strong>O‘yin bilan bog‘liq:</strong></p>
+      <ul><li>topilgan so‘zlar, olingan ball, urinishlar soni, statistika va ketma-ketlik (streak);</li><li>kunlik va umumiy reyting uchun natijalar (taxallus va ball boshqa foydalanuvchilarga ko‘rinadi);</li><li>Yangso‘z turniriga yuborgan so‘zlaringiz va izohlaringiz hamda ovozlaringiz (yuborilgan so‘zlar ovoz berish uchun boshqalarga ko‘rsatiladi, g‘olib so‘z muallifi taxallusi bilan qayd etiladi).</li></ul>
+      <p><strong>Texnik:</strong></p>
+      <ul><li>ilovadan foydalanish hodisalari (o‘yin boshlandi/tugadi kabi) — Google Analytics for Firebase orqali;</li><li>xatolik hisobotlari (Firebase Crashlytics) — ilovadagi nosozliklarni tuzatish uchun.</li></ul>
+      <p><strong>Joylashuv (ixtiyoriy):</strong></p>
+      <ul><li>faqat «Yaqindagilar» bo‘limi ochilganda va faqat siz ruxsat berganingizda o‘qiladi;</li><li>aniq koordinata saqlanmaydi — u taxminan bir kilometrlik katakka yaxlitlanadi;</li><li>shu yaxlitlangan joy, taxallusingiz va bellashuv reytingingiz yaqin atrofda o‘sha bo‘limni ochgan o‘yinchilarga ko‘rinadi;</li><li>bo‘limdan chiqqaningizda yozuv o‘chiriladi;</li><li>ruxsat bermasangiz ilovaning qolgan qismi to‘liq ishlaydi.</li></ul>
+      <p>Ilova <strong>kontaktlar</strong>, <strong>rasm/galereya</strong>, <strong>mikrofon</strong> yoki <strong>sog‘liq</strong> ma'lumotlarini yig‘maydi.</p>
+      <h2>3. Ma'lumot nima uchun ishlatiladi</h2>
+      <ul><li>o‘yin natijalarini saqlash va boshqa qurilmada tiklash;</li><li>reyting tuzish;</li><li>ilovadagi nosozliklarni topish va tuzatish;</li><li>ilovadan qanday foydalanilayotganini umumiy tushunish (shaxsiy emas, jamlangan ko‘rinishda).</li></ul>
+      <p>Ma'lumot <strong>reklama uchun ishlatilmaydi</strong>, <strong>sotilmaydi</strong> va uchinchi tomonlarga marketing maqsadida berilmaydi.</p>
+      <h2>4. Kim bilan bo‘lishiladi</h2>
+      <p>Ma'lumot Google Firebase xizmatlarida saqlanadi (Authentication, Firestore, Analytics, Crashlytics). Google ma'lumotni bizning topshirig‘imiz bo‘yicha qayta ishlaydi: https://firebase.google.com/support/privacy</p>
+      <p>Reytingdagi <strong>taxallus va ball</strong> boshqa foydalanuvchilarga ko‘rinadi. Email manzil hech qachon boshqa foydalanuvchilarga ko‘rsatilmaydi.</p>
+      <h2>5. Qancha vaqt saqlanadi</h2>
+      <p>Hisob mavjud bo‘lgan vaqt ichida. Hisobni o‘chirsangiz, unga tegishli ma'lumotlar (statistika, topilgan so‘zlar, profil) o‘chiriladi.</p>
+      <h2>6. Sizning huquqlaringiz</h2>
+      <ul><li><strong>Ma'lumotni ko‘rish</strong>: Profil bo‘limida statistika va topgan so‘zlar ro‘yxati mavjud.</li><li><strong>O‘chirish</strong>: Profil → <strong>Hisobni o‘chirish</strong>. Bu amal hisobni va cloud'dagi ma'lumotlarni butunlay o‘chiradi va qaytarib bo‘lmaydi.</li><li><strong>Chiqish</strong>: Profil → Chiqish (qurilmadagi natijalar ko‘rinmay qoladi, hisobga qaytib kirsangiz tiklanadi).</li><li><strong>Tebranish va analitika</strong>: tebranishni sozlamalarda o‘chirish mumkin.</li></ul>
+      <h2>7. Bolalar</h2>
+      <p>Ilova bolalar uchun xavfsiz mazmunga ega, lekin hisob ochish 13 yoshdan katta foydalanuvchilar uchun mo‘ljallangan. Bolalardan ataylab shaxsiy ma'lumot yig‘ilmaydi.</p>
+      <h2>8. Ma'lumot xavfsizligi</h2>
+      <p>Ma'lumot shifrlangan ulanish (HTTPS/TLS) orqali uzatiladi va Google Firebase ichida saqlanadi: qoidalar har bir foydalanuvchiga faqat o‘z ma'lumotini o‘qish va yozish huquqini beradi. Parollar Firebase Authentication tomonida boshqariladi, ilova ularni o‘zida saqlamaydi.</p>
+      <h2>9. O‘zgarishlar</h2>
+      <p>Bu siyosat o‘zgarsa, yangilangan sana yuqorida ko‘rsatiladi. Muhim o‘zgarishlar ilova ichida ham xabar qilinadi.</p>
+    <footer>
+      Savollar: <a href="mailto:samandarahadjonov@gmail.com">samandarahadjonov@gmail.com</a>
+      · <a href="https://t.me/sozgir_uz">Telegram</a>
+    </footer>
+  </main>
+</body>
+</html>

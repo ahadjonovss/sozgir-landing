@@ -1,0 +1,19 @@
+{
+  "name": "So‘zgir",
+  "short_name": "So‘zgir",
+  "description": "O‘zbek tilidagi so‘z o‘yinlari — kuniga bitta so‘z, hamma uchun bir xil.",
+  "lang": "uz",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ],
+  "shortcuts": [
+    { "name": "Kunlik o‘yin", "url": "/kunlik" },
+    { "name": "So‘ztop", "url": "/soztop" }
+  ]
+}

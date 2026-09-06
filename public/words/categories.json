@@ -1,0 +1,125 @@
+{
+  "version": 8,
+  "categories": [
+    {
+      "id": "inson",
+      "name": "Inson va tana",
+      "emoji": "🧑",
+      "order": 0,
+      "counts": {
+        "4": 52,
+        "5": 95,
+        "6": 65,
+        "7": 52
+      }
+    },
+    {
+      "id": "uy",
+      "name": "Uy va buyum",
+      "emoji": "🏠",
+      "order": 1,
+      "counts": {
+        "4": 38,
+        "5": 84,
+        "6": 33,
+        "7": 25
+      }
+    },
+    {
+      "id": "taom",
+      "name": "Taom va mahsulot",
+      "emoji": "🍽️",
+      "order": 2,
+      "counts": {
+        "4": 26,
+        "5": 53,
+        "6": 29,
+        "7": 27
+      }
+    },
+    {
+      "id": "tabiat",
+      "name": "Tabiat",
+      "emoji": "🌿",
+      "order": 3,
+      "counts": {
+        "4": 36,
+        "5": 71,
+        "6": 46,
+        "7": 39
+      }
+    },
+    {
+      "id": "hayvonot",
+      "name": "Hayvonlar",
+      "emoji": "🐾",
+      "order": 4,
+      "counts": {
+        "4": 15,
+        "5": 28,
+        "6": 26,
+        "7": 15
+      }
+    },
+    {
+      "id": "shahar",
+      "name": "Shahar va safar",
+      "emoji": "🚕",
+      "order": 5,
+      "counts": {
+        "4": 27,
+        "5": 55,
+        "6": 50,
+        "7": 51
+      }
+    },
+    {
+      "id": "ilm",
+      "name": "Ilm, ish va pul",
+      "emoji": "📚",
+      "order": 6,
+      "counts": {
+        "4": 78,
+        "5": 170,
+        "6": 188,
+        "7": 182
+      }
+    },
+    {
+      "id": "harakat",
+      "name": "Harakat va fe'l",
+      "emoji": "🏃",
+      "order": 7,
+      "counts": {
+        "4": 3,
+        "5": 47,
+        "6": 79,
+        "7": 36
+      }
+    },
+    {
+      "id": "sifat",
+      "name": "Sifat va rang",
+      "emoji": "🎨",
+      "order": 8,
+      "counts": {
+        "4": 27,
+        "5": 108,
+        "6": 79,
+        "7": 42
+      }
+    },
+    {
+      "id": "tushuncha",
+      "name": "Tushuncha va vaqt",
+      "emoji": "💭",
+      "order": 9,
+      "counts": {
+        "4": 137,
+        "5": 240,
+        "6": 253,
+        "7": 191
+      }
+    }
+  ]
+}

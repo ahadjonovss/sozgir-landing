@@ -1,0 +1,104 @@
+<!doctype html>
+<!-- Foydalanish shartlari — `docs/` dagi matndan yasalgan sahifa.
+     Qo'lda tahrirlanmaydi: `tool/build_landing_pages.py` qayta yozadi.
+     `public/` ichida turgani uchun React ilovaga tegmaydi. -->
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121317" media="(prefers-color-scheme: dark)">
+<title>Foydalanish shartlari — So‘zgir</title>
+<link rel="icon" type="image/png" href="/icon.png">
+<link rel="canonical" href="https://sozgir.uz/shartlar/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ffffff; --surface: #f7f9fc; --text: #16181d; --text-2: #7a8290;
+    --divider: #eceef2; --green: #63a967;
+  }
+  :root[data-theme='dark'] {
+    --bg: #121317; --surface: #1b1d23; --text: #f3f4f6; --text-2: #9aa1ae;
+    --divider: #262a31; --green: #5e9e63;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 32px 20px 64px; background: var(--bg); color: var(--text);
+    font-family: Nunito, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+                 Helvetica, Arial, sans-serif;
+    font-size: 16px; line-height: 1.65;
+  }
+  main { max-width: 720px; margin: 0 auto; }
+  h1 { font-size: 28px; font-weight: 900; letter-spacing: -0.5px; margin: 0 0 6px; }
+  h2 { font-size: 19px; font-weight: 800; margin: 34px 0 10px; }
+  p, li { color: var(--text-2); }
+  li { margin-bottom: 6px; }
+  strong { color: var(--text); }
+  ul { padding-left: 20px; }
+  a { color: var(--green); }
+  code {
+    background: var(--surface); padding: 1px 5px; border-radius: 6px;
+    font-size: 0.92em;
+  }
+  .home {
+    display: inline-block; margin-bottom: 26px; font-weight: 700;
+    font-size: 14px; color: var(--green); text-decoration: none;
+  }
+  .home:hover { text-decoration: underline; }
+  footer {
+    margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--divider);
+    font-size: 13px; color: var(--text-2);
+  }
+</style>
+<script>
+  // Mavzu birinchi chizishdan oldin — landing bilan bir kalit.
+  (function () {
+    var saved = null;
+    try { saved = localStorage.getItem('sozgir.theme'); } catch (error) { saved = null; }
+    var dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.dataset.theme = saved || (dark ? 'dark' : 'light');
+  })();
+</script>
+</head>
+<body>
+  <main>
+    <a class="home" href="/">← So‘zgir</a>
+      <h1>Foydalanish shartlari — So‘zgir</h1>
+      <p><strong>Oxirgi yangilanish:</strong> 2026-09-04</p>
+      <p>So‘zgir («ilova») — o‘zbek tilidagi so‘z o‘yinlari to‘plami. Ilovadan foydalanish orqali siz quyidagi shartlarga rozilik bildirasiz. Rozi bo‘lmasangiz, ilovadan foydalanmang.</p>
+      <p>Ishlab chiquvchi: Samandar Ahadjonov, <a href="mailto:samandarahadjonov@gmail.com">samandarahadjonov@gmail.com</a>.</p>
+      <h2>1. Ilovadan foydalanish</h2>
+      <p>Ilova bepul. Hisob ochmasdan ham o‘ynash mumkin; hisob ochsangiz, natijalaringiz saqlanadi va boshqa qurilmada tiklanadi.</p>
+      <p>Ilovaning ishiga xalaqit berish, avtomatlashtirilgan vositalar bilan natija to‘plash, boshqa o‘yinchilar ma’lumotini yig‘ish yoki xizmatni buzishga urinish taqiqlanadi.</p>
+      <h2>2. Taxallus va boshqalarga ko‘rinadigan ma’lumot</h2>
+      <p>Reytingda, So‘zjangda va «Yaqindagilar» ro‘yxatida taxallusingiz boshqa o‘yinchilarga ko‘rinadi. Taxallus tanlashda javobgarlik sizda:</p>
+      <ul><li>haqorat, so‘kinish, kamsitish yoki nafrat uyg‘otuvchi so‘zlar ishlatilmaydi;</li><li>boshqa odam yoki tashkilot nomidan chiqish mumkin emas;</li><li>reklama va aloqa ma’lumotlari (telefon, havola) taxallusga yozilmaydi.</li></ul>
+      <p>Ilova taxallusni avtomatik tekshiradi, lekin har bir holatni oldindan aniqlay olmaydi.</p>
+      <h2>3. Nomaqbul kontentga nol tolerantlik</h2>
+      <p>Ilovada foydalanuvchilar ko‘radigan kontent (taxallus, Yangso‘z turniriga yuborilgan so‘zlar va izohlar) uchun <strong>nol tolerantlik</strong> qoidasi amal qiladi. Quyidagilar taqiqlanadi:</p>
+      <ul><li>haqorat, tahdid, ta’qib va boshqa o‘yinchini kamsitish;</li><li>irq, millat, din, jins yoki boshqa belgi bo‘yicha nafrat targ‘iboti;</li><li>zo‘ravonlik, pornografiya yoki qonunga zid mazmun;</li><li>spam, firibgarlik, reklama va begona havolalar.</li></ul>
+      <p>Bunday kontent o‘chiriladi, muallifning hisobi esa ogohlantirishsiz bloklanishi yoki o‘chirilishi mumkin.</p>
+      <h2>4. Shikoyat va moderatsiya</h2>
+      <p>Har bir o‘yinchi ilova ichidan shikoyat qila oladi: profil ustidagi menyudan o‘yinchi haqida, o‘yin ekranidan esa so‘z haqida.</p>
+      <p>Shikoyat qilingan kontent va xatti-harakat <strong>24 soat ichida</strong> ko‘rib chiqiladi. Qoida buzilgani tasdiqlansa, kontent o‘chiriladi va hisobga chora ko‘riladi.</p>
+      <h2>5. Boshqa o‘yinchini bloklash</h2>
+      <p>Har bir o‘yinchini bloklash mumkin. Bloklangan odam sizga chaqiruv yubora olmaydi va uning chaqiruvlari sizga ko‘rinmaydi.</p>
+      <h2>6. «Yaqindagilar» va joylashuv</h2>
+      <p>Bo‘lim ixtiyoriy va faqat siz ruxsat berganingizda ishlaydi. Aniq koordinata saqlanmaydi — tafsilotlar <a href="https://sozgir.uz/privacy/">maxfiylik siyosatida</a>.</p>
+      <h2>7. Qo‘llab-quvvatlash to‘lovlari</h2>
+      <p>Donat — ixtiyoriy qo‘llab-quvvatlash. U hech qanday imkoniyat, ustunlik yoki reklamasiz kontent sotib olish emas; evaziga ilovada faqat minnatdorchilik ro‘yxatida ismingiz ko‘rsatiladi. To‘lov amalga oshgandan keyin qaytarilmaydi.</p>
+      <h2>8. Kafolatlar</h2>
+      <p>Ilova «bor holicha» taqdim etiladi. Uzluksiz ishlash yoki xatolarsizlik kafolatlanmaydi. Lug‘at va so‘z ma’nolari ma’lumot uchun berilgan va rasmiy manba hisoblanmaydi.</p>
+      <h2>9. Hisobni o‘chirish</h2>
+      <p>Hisobingizni istalgan vaqtda ilova ichidan o‘chirishingiz mumkin: Profil → Hisob → Hisobni o‘chirish. Reyting jadvallaridagi yozuvlar ham o‘chiriladi.</p>
+      <h2>10. O‘zgarishlar</h2>
+      <p>Shartlar o‘zgarishi mumkin. Muhim o‘zgarish bo‘lsa, ilovada xabar beriladi. Yangi tahrir shu sahifada e’lon qilinadi.</p>
+    <footer>
+      Savollar: <a href="mailto:samandarahadjonov@gmail.com">samandarahadjonov@gmail.com</a>
+      · <a href="https://t.me/sozgir_uz">Telegram</a>
+    </footer>
+  </main>
+</body>
+</html>
