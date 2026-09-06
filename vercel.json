@@ -4,8 +4,12 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "installCommand": "npm ci",
-  "rewrites": [{ "source": "/((?!api/).*)", "destination": "/index.html" }],
+  "rewrites": [{ "source": "/((?!api/|\\.well-known/).*)", "destination": "/index.html" }],
   "headers": [
+    {
+      "source": "/.well-known/(apple-app-site-association|assetlinks.json)",
+      "headers": [{ "key": "Content-Type", "value": "application/json" }]
+    },
     {
       "source": "/assets/(.*)",
       "headers": [

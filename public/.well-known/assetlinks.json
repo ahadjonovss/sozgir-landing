@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "uz.ahadjonovss.soztop",
+      "sha256_cert_fingerprints": [
+        "B9:3D:CA:D8:51:B1:9B:F0:6B:94:01:B3:48:FA:95:BF:CD:E7:BA:9B:45:1E:14:53:9C:0A:C8:74:1D:3B:4F:17",
+        "B0:3F:DE:E1:E1:D8:64:67:FB:2E:B4:E9:73:F9:88:91:4F:DF:7C:0D:7C:CD:DF:31:01:42:55:16:BC:9A:B4:4D"
+      ]
+    }
+  }
+]
