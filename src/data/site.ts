@@ -20,6 +20,9 @@ export const links = {
   share: `${site}/oyin`,
   privacy: '/privacy',
   contact: '/contact',
+  /** Ulashish uchun qisqa havola — `public/ol/index.html`. Telefonda
+   *  ochilganda o'sha qurilmaning do'koni birinchi tugma bo'ladi. */
+  get: '/ol',
   /** Donat bo'limi: hisob, qo'llab-quvvatlaganlar va to'lov. */
   donate: '/qollab',
 };

@@ -26,6 +26,12 @@ Alohida sahifalar: `/oyin` (So‘ztop), `/sozjang` (bellashuv), `/privacy` (maxf
 siyosati, o‘zbekcha + inglizcha) va `/contact` (aloqa ma’lumotlari + so‘rov
 formasi).
 
+React ilovadan tashqarida, `public/` ichida turadigan mustaqil sahifalar:
+`/ol` — ulashish uchun yuklab olish havolasi (qurilmani aniqlab, o‘sha
+do‘konni birinchi tugma qiladi) va `/donat` — to‘lovdan qaytish sahifasi.
+Ular serverdan to‘g‘ridan-to‘g‘ri keladi, shuning uchun `useRoute` bilmagan
+manzilni ushlamaydi — bosilganda brauzerning o‘zi ochadi.
+
 ## O‘yin
 
 O‘yin ikki joyda ko‘rinadi va ikkisi bitta `Play` komponentini ishlatadi:

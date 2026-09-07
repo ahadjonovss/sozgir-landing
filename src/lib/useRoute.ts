@@ -25,11 +25,17 @@ const routes: Route[] = [
  *  Manzil o'zgarmaydi: ulashilgan havola o'z holicha qolaveradi. */
 const aliases: Record<string, Route> = { '/kunlik': '/oyin' };
 
+/** Manzil shu kichik router biladigan sahifami.
+ *
+ *  `public/` ichidagi mustaqil sahifalar (`/ol`, `/donat`) bu ro'yxatda
+ *  yo'q — ular serverdan keladi, ilova ularga tegmasligi kerak. */
+function known(path: string): Route | null {
+  return aliases[path] ?? (routes.includes(path as Route) ? (path as Route) : null);
+}
+
 function read(): Route {
   const path = window.location.pathname.replace(/\/+$/, '') || '/';
-  const alias = aliases[path];
-  if (alias) return alias;
-  return routes.includes(path as Route) ? (path as Route) : '/';
+  return known(path) ?? '/';
 }
 
 /** Bir necha sahifa uchun kichik router — paket qo'shmasdan.
@@ -51,6 +57,9 @@ export function useRoute(): Route {
       const url = new URL(link.href, window.location.href);
       if (url.origin !== window.location.origin) return;
       if (url.hash || url.pathname === window.location.pathname) return;
+      // Ilova bilmagan manzil — brauzerning o'ziga qoldiriladi. Aks holda
+      // `/ol` bosilganda manzil o'zgarib, ekranda bosh sahifa qolardi.
+      if (!known(url.pathname.replace(/\/+$/, '') || '/')) return;
 
       event.preventDefault();
       window.history.pushState(null, '', url.pathname);
