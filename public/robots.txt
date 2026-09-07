@@ -1,0 +1,5 @@
+# Sayt to'liq ochiq. Fayl atay qo'yilgan: bo'lmasa /robots.txt ga SPA
+# HTML'i qaytardi, kraulerlar (AdMob app-ads.txt tekshiruvi ham) esa uni
+# birinchi so'raydi.
+User-agent: *
+Allow: /
