@@ -26,7 +26,7 @@ const BANNED_PARTS = [
   'sikkan', 'sikvol', 'qotoq', 'kotoq', 'qutoq', 'padarlanat', 'ambosh',
   'pizd', 'ebal', 'ebat', 'eban', 'yebat', 'yebal', 'pidor', 'pidar',
   'mudak', 'mudila', 'gandon', 'zaebal', 'nahuy', 'naxuy', 'ohuel',
-  'oxuel', 'shlyuha', 'shluha', 'suchara', 'zalupa',
+  'oxuel', 'shlyuha', 'shluha', 'suchara', 'zalupa', 'suka', 'suchka',
   'fuck', 'fuk', 'bitch', 'cunt', 'whore', 'slut', 'nigger', 'nigga',
   'faggot', 'asshole', 'bastard', 'dickhead', 'motherf',
   'penis', 'vagina', 'rapist', 'pedofil', 'pedophil', 'prostitut', 'porno',
@@ -36,7 +36,7 @@ const BANNED_PARTS = [
  *  tutilmasligi kerak. */
 const BANNED_WORDS = new Set([
   'shit', 'ass', 'anal', 'anus', 'dick', 'sik', 'kot', 'koton', 'am',
-  'suka', 'suchka', 'blya', 'blyad', 'blyat', 'hui', 'huy', 'xui', 'xuy',
+  'blya', 'blyad', 'blyat', 'hui', 'huy', 'xui', 'xuy',
   'manda', 'mandavoshka', 'gavno', 'govno', 'pizda',
 ]);
 
