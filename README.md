@@ -20,7 +20,7 @@ bilan aynan bir xil. Hisob ochilsa natija reytingga tushadi.
 | Modullar | So‘ztop, So‘zjang, Yangso‘z, O‘rganish, Reyting, Qo‘llab-quvvatlash |
 | Kategoriyalar | 10 mavzu + ilova afzalliklari |
 | Savollar | Akkordeon FAQ |
-| Yuklab olish | App Store havolasi (Google Play hozircha «Tez orada») |
+| Yuklab olish | App Store va Google Play havolalari |
 
 Alohida sahifalar: `/oyin` (So‘ztop), `/sozjang` (bellashuv), `/privacy` (maxfiylik
 siyosati, o‘zbekcha + inglizcha) va `/contact` (aloqa ma’lumotlari + so‘rov

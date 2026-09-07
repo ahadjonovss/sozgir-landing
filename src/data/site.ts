@@ -10,7 +10,7 @@ export const links = {
    *  foydalanuvchining hisobiga qarab o'zi tanlaydi, aks holda `/us/`
    *  bilan o'zbek foydalanuvchi Amerika do'koniga tushib qolardi. */
   appStore: 'https://apps.apple.com/app/id6807138456',
-  playStore: '',
+  playStore: 'https://play.google.com/store/apps/details?id=uz.ahadjonovss.soztop',
   telegram: 'https://t.me/sozgir_uz',
   support: `mailto:${email}`,
   play: '/oyin',
