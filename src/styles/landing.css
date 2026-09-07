@@ -836,13 +836,18 @@
   gap: 14px;
 }
 
+/* Chekka ataylab bor: kartochka `--surface`, bo'lim esa `--bg` fonida —
+   yorug' mavzuda bu ikkisi deyarli bir xil rang, ya'ni chegarasiz
+   kartochka umuman ko'rinmasdi. Qalinlik ochilgan holat bilan bir xil,
+   shuning uchun ochilganda tartib siljimaydi. */
 .module {
   --tint: var(--accent);
   --tint-soft: var(--accent-soft);
+  border: 1.5px solid var(--divider);
   border-radius: var(--radius);
   background: var(--surface);
   overflow: hidden;
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .module--green {
@@ -870,8 +875,11 @@
   box-shadow: var(--shadow);
 }
 
+/* Ochilganda o'sha chekka modul rangiga bo'yaladi — ilgarigi ichki
+   soya chegara ustiga tushib, ikkita halqa bo'lib ko'rinardi. */
 .module--open {
-  box-shadow: inset 0 0 0 1.5px var(--tint), var(--shadow);
+  border-color: var(--tint);
+  box-shadow: var(--shadow);
 }
 
 .module__head {
