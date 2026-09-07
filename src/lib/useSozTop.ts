@@ -74,6 +74,9 @@ interface StoredSession {
   done?: boolean;
   /** Natija boshqa joyda (ilovada) yozilgan — taxminlar bizda yo'q. */
   elsewhere?: boolean;
+  /** Yutilganmi. Faqat `elsewhere` uchun kerak: taxminlar bo'lmagani
+   *  uchun buni taxta holatidan hisoblab bo'lmaydi. */
+  won?: boolean;
   attempts?: number;
 }
 
@@ -289,8 +292,19 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
           const units = split(word);
           return { units, verdicts: evaluate(units, next.units) };
         });
-        const won = rows.at(-1)?.verdicts?.every((v) => v === 'correct') ?? false;
-        const lost = !won && rows.length >= attemptsFor(length);
+        // Boshqa qurilmada o'ynalgan o'yinda taxminlar bizda yo'q, ya'ni
+        // `rows` bo'sh bo'ladi. Tugaganini taxtadan hisoblasak, o'yin
+        // «boshlanmagan» ko'rinardi va sahifa har ochilganda kunlik so'z
+        // qaytadan o'ynaladigan bo'lib qolardi.
+        const finishedElsewhere = Boolean(sameGame && stored?.done && stored.elsewhere);
+        const won = finishedElsewhere
+          // `won` bu maydon qo'shilgunicha yozilgan sessiyalarda yo'q —
+          // ularda ball g'alaba belgisi bo'lib qoladi.
+          ? (stored!.won ?? (stored!.points ?? 0) > 0)
+          : (rows.at(-1)?.verdicts?.every((v) => v === 'correct') ?? false);
+        const lost = finishedElsewhere
+          ? !won
+          : !won && rows.length >= attemptsFor(length);
 
         setPuzzle(next);
         setPast(rows);
@@ -367,6 +381,7 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
         guesses: [],
         done: true,
         elsewhere: true,
+        won: entry.won,
         points: entry.points,
         attempts: entry.attempts,
       });
