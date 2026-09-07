@@ -145,13 +145,14 @@
     var status = (query.get('status') || '').toLowerCase();
     var orderId = query.get('order_id') || '';
 
-    // inPAY summani tiyinda qaytaradi: 25 000 so'm → `amount=2500000`.
-    // To'lov so'mda yaratiladi (donationCreate), shuning uchun yuzga
-    // bo'linadi — aks holda ekranda ikkita ortiqcha nol chiqadi.
+    // inPAY summani qanday yuborilgan bo'lsa, shundayligicha qaytaradi.
+    // To'lov so'mda yaratiladi (donationCreate, eng kami 1000 so'm), ya'ni
+    // `amount=1000` — bu 1000 so'm. Tiyin deb yuzga bo'lish 1000 so'mni 10
+    // so'm qilib ko'rsatardi.
     // Bo'shliq va valyuta belgisi tashlanadi, nuqta qoldiriladi: inPAY
-    // summani `2500000` yoki `2500000.00` ko'rinishida berishi mumkin.
-    var tiyin = parseFloat((query.get('amount') || '').replace(/[^\d.]/g, ''));
-    var amount = Number.isFinite(tiyin) && tiyin > 0 ? Math.round(tiyin / 100) : 0;
+    // summani `1000` yoki `1000.00` ko'rinishida berishi mumkin.
+    var som = parseFloat((query.get('amount') || '').replace(/[^\d.]/g, ''));
+    var amount = Number.isFinite(som) && som > 0 ? Math.round(som) : 0;
     var paid = status === 'success' || status === 'paid';
 
     // Uch xonaga ajratilgan summa: 25 000.
