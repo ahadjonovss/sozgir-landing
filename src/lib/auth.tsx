@@ -26,7 +26,9 @@ import { client } from '../firebase/client';
 import { authError } from '../firebase/errors';
 import { saveProfile } from '../firebase/profile';
 import {
+  clearStoredNickname,
   GUEST,
+  readNicknameOwner,
   readStoredNickname,
   sanitizeNickname,
   writeStoredNickname,
@@ -98,6 +100,35 @@ function hadSession(): boolean {
   }
 }
 
+/** Kirilgan hisob uchun ko'rinadigan nomni hal qiladi va brauzerga
+ *  yozib qo'yadi.
+ *
+ *  Tartib ataylab shunday: **hisobning o'z nomi ustun**. Ilgari brauzerdagi
+ *  nom ustun edi va bitta qurilmadan ikkinchi hisobga kirilganda ekranda
+ *  eskisining nomi turaverardi — odam o'zining hisobida deb o'ylab,
+ *  aslida boshqasida o'ynardi. Reytingga ham o'sha nom yozilardi.
+ *
+ *  Hisobning nomi bo'lmasa, brauzerdagi nom faqat **egasiz** bo'lsa yoki
+ *  aynan shu hisobniki bo'lsa qoladi. */
+function adoptNickname(user: User): string {
+  const own = user.displayName?.trim();
+  if (own) {
+    writeStoredNickname(own, user.uid);
+    return own;
+  }
+
+  const stored = readStoredNickname();
+  const owner = readNicknameOwner();
+  if (stored && (!owner || owner === user.uid)) {
+    // Kirmasdan tanlangan nom shu hisobga o'tadi — endi egasi bor.
+    writeStoredNickname(stored, user.uid);
+    return stored;
+  }
+
+  clearStoredNickname();
+  return '';
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [ready, setReady] = useState(() => !hadSession());
@@ -118,13 +149,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(next);
       flagSession(next !== null);
       setReady(true);
-      // Hisobdagi nom brauzerda yo'q bo'lsa — ko'chirib qo'yamiz. Aks holda
-      // yangi qurilmada odam «Mehmon» bo'lib ko'rinardi.
-      const account = next?.displayName?.trim();
-      if (account && !readStoredNickname()) {
-        writeStoredNickname(account);
-        setNickname(account);
-      }
+      if (!next) return;
+      setNickname(adoptNickname(next));
     });
   }, []);
 
@@ -183,6 +209,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         await updateProfile(credential.user, { displayName: clean });
         await credential.user.reload();
+        writeStoredNickname(clean, credential.user.uid);
         setUser(auth.currentUser);
         await saveProfile({
           uid: credential.user.uid,
@@ -199,16 +226,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const { auth } = await client();
         const { signInWithEmailAndPassword } = await import('firebase/auth');
         const credential = await signInWithEmailAndPassword(auth, email, password);
-        // Hisob boshqa — brauzerdagi nom o'sha hisobdagisiga bo'shatiladi.
-        const account = credential.user.displayName?.trim();
-        if (account) {
-          writeStoredNickname(account);
-          setNickname(account);
-        }
+        // Ko'rinadigan nomni `onAuthStateChanged` hal qiladi — u kirishning
+        // hamma yo'llarida (kirish, ro'yxatdan o'tish, sessiya tiklanishi)
+        // bir marta ishlaydi, ya'ni qoida bitta joyda turadi.
+        setNickname(adoptNickname(credential.user));
         await saveProfile({
           uid: credential.user.uid,
           email: credential.user.email,
-          nickname: account,
+          nickname: credential.user.displayName?.trim(),
         });
       }),
     [run],
@@ -229,7 +254,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const saveNickname = useCallback(
     async (name: string) => {
       const clean = sanitizeNickname(name);
-      writeStoredNickname(clean);
+      // Kirilgan bo'lsa nom shu hisobga tegishli deb belgilanadi — keyin
+      // boshqa hisobga kirilganda u o'zi bilan qolib ketmaydi.
+      writeStoredNickname(clean, user?.uid ?? null);
       setNickname(clean);
       if (!user) return true;
       return run(async () => {
@@ -249,6 +276,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { signOut: leave } = await import('firebase/auth');
     await leave(auth).catch(() => undefined);
     flagSession(false);
+    // Nom ataylab qoladi: chiqqan odam mehmon sifatida o'sha nom bilan
+    // o'ynayveradi. Boshqa hisobga kirilsa `adoptNickname` uni egasiga
+    // qarab o'zi tashlaydi.
   }, [user]);
 
   const account = useMemo<Account | null>(() => {

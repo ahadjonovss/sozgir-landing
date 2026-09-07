@@ -98,6 +98,13 @@ export function sanitizeNickname(value: string): string {
  *  `localStorage` da — kalit admin panel bilan bir uslubda. */
 const NICKNAME_KEY = 'sozgir.nickname';
 
+/** Nomni qaysi hisob tanlagani. Kirmasdan tanlangan bo'lsa — bo'sh.
+ *
+ *  Shusiz brauzerdagi nom keyingi kirgan odamga o'tib ketardi: bir
+ *  qurilmadan ikkinchi hisobga kirilganda ekranda eskisining nomi
+ *  turaverar, reytingga ham o'sha nom yozilardi. */
+const OWNER_KEY = 'sozgir.nickname.uid';
+
 export function readStoredNickname(): string {
   try {
     return localStorage.getItem(NICKNAME_KEY)?.trim() ?? '';
@@ -106,10 +113,30 @@ export function readStoredNickname(): string {
   }
 }
 
-export function writeStoredNickname(value: string): void {
+export function readNicknameOwner(): string {
+  try {
+    return localStorage.getItem(OWNER_KEY)?.trim() ?? '';
+  } catch {
+    return '';
+  }
+}
+
+/** Nomni saqlaydi. `owner` — kirilgan hisob uid'i; kirilmagan bo'lsa `null`. */
+export function writeStoredNickname(value: string, owner: string | null = null): void {
   try {
     localStorage.setItem(NICKNAME_KEY, value);
+    if (owner) localStorage.setItem(OWNER_KEY, owner);
+    else localStorage.removeItem(OWNER_KEY);
   } catch {
     // Shaxsiy rejimda yozib bo'lmaydi — nom faqat shu sessiyada qoladi.
+  }
+}
+
+export function clearStoredNickname(): void {
+  try {
+    localStorage.removeItem(NICKNAME_KEY);
+    localStorage.removeItem(OWNER_KEY);
+  } catch {
+    // Tozalanmasa ham hisobga yozilmaydi — `owner` baribir mos kelmaydi.
   }
 }
