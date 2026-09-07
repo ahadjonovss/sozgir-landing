@@ -4,7 +4,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "installCommand": "npm ci",
-  "rewrites": [{ "source": "/((?!api/|\\.well-known/).*)", "destination": "/index.html" }],
+  "rewrites": [{ "source": "/((?!api/|\\.well-known/|app-ads\\.txt).*)", "destination": "/index.html" }],
   "headers": [
     {
       "source": "/.well-known/(apple-app-site-association|assetlinks.json)",
