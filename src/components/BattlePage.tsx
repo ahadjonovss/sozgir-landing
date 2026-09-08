@@ -561,7 +561,8 @@ function Playing({ game }: { game: Sozjang }) {
           </div>
           {game.hint && !game.me?.finished && (
             <p className="fight__hint">
-              Maslahat: <b>{game.hint.index + 1}</b>-katakda <b>{display(game.hint.unit)}</b>
+              💡 Maslahat: <b>{game.hint.index + 1}</b>-katakda <b>{display(game.hint.unit)}</b> —
+              harf keyingi qatorga qo‘yildi
             </p>
           )}
         </div>
@@ -571,6 +572,7 @@ function Playing({ game }: { game: Sozjang }) {
             <strong>{pretty(game.opponent?.nickname ?? 'Raqib')}</strong>
             <span>
               {game.opponent?.finished ? 'tugatdi' : `${lastFoe}/${game.maxAttempts}`}
+              {game.opponent?.hintUsed ? ' · maslahat oldi' : ''}
             </span>
           </div>
           <OpponentBoard

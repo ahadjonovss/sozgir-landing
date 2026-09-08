@@ -238,6 +238,55 @@
   color: var(--green);
 }
 
+/* Yordam ko'rsatkichi: sanoq (kulrang) yoki tayyor tugma (sariq). */
+.play__hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 26px;
+  padding: 0 9px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text-2);
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.play__hint--ready {
+  background: var(--yellow-soft);
+  color: var(--text);
+  cursor: pointer;
+  animation: hint-pulse 1.6s ease-in-out infinite;
+}
+
+.play__hint--ready:hover {
+  filter: brightness(0.97);
+}
+
+@keyframes hint-pulse {
+  50% {
+    box-shadow: 0 0 0 4px var(--yellow-soft);
+  }
+}
+
+/* Ochilgan yordam — taxta ustidagi qator: mavzu yoki ma'no. */
+.play__hintline {
+  margin: -4px 0 12px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: var(--yellow-soft);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: center;
+  animation: rise 0.25s ease;
+}
+
 /* Rejim tanlovi — segmentli tugma. Ikki rejim bir joyda turadi, chunki
    ular bitta taxtani almashtiradi. */
 .play__modes {

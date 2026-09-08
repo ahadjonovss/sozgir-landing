@@ -281,10 +281,13 @@ export function useSozjang() {
   const finished = me?.finished === true;
 
   /** Faol qator: topilgan harflar qulflangan, qolgani yozilgan harflar. */
-  const locked = useMemo(
-    () => autoFill(myRows, words, boardLength),
-    [boardLength, myRows, words],
-  );
+  const locked = useMemo(() => {
+    const out = autoFill(myRows, words, boardLength);
+    // Server bergan maslahat (60 % harf topilgach bitta harf) ham keyingi
+    // qatorga tushadi — ilovadagi topilgan harflar kabi qulflanadi.
+    if (hint && hint.index < boardLength && !out[hint.index]) out[hint.index] = hint.unit;
+    return out;
+  }, [boardLength, hint, myRows, words]);
   const current = useMemo(() => {
     const fresh = typed.row === myRows.length ? typed.units : [];
     return locked.map((unit, index) => unit || fresh[index] || '');

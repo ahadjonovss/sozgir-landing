@@ -15,6 +15,8 @@ export const PATHS = {
   battleRatings: 'battle_ratings',
   /** So'z haqidagi murojaatlar — moderatsiyaga tushadi. */
   wordReports: 'word_reports',
+  /** Kategoriyalar — yordamda mavzu nomi shundan olinadi. */
+  categories: 'categories',
 } as const;
 
 export const dictionaryDoc = (length: number) => `uz_${length}`;

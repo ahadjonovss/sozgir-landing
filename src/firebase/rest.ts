@@ -52,13 +52,16 @@ function decodeFields(fields: Record<string, TypedValue>): Record<string, unknow
  *  serverda bo'lmasa lokal tanlov ishlaydi, lug'at kelmasa keshdagisi. */
 export async function readDoc(
   path: string,
-  { timeout = 8000 }: { timeout?: number } = {},
+  { timeout = 8000, fields }: { timeout?: number; fields?: string[] } = {},
 ): Promise<Record<string, unknown> | null> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeout);
+  // `fields` — faqat kerakli maydonlar: kategoriya hujjati katta (so'zlar
+  // ro'yxati), yorliq uchun esa nom va emoji yetadi.
+  const mask = (fields ?? []).map((name) => `&mask.fieldPaths=${name}`).join('');
   try {
     const response = await fetch(
-      `${BASE}/${path}?key=${firebaseConfig.apiKey}`,
+      `${BASE}/${path}?key=${firebaseConfig.apiKey}${mask}`,
       { signal: controller.signal },
     );
     if (!response.ok) return null;

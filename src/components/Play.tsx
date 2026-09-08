@@ -14,6 +14,7 @@ import { useAuth } from '../lib/auth';
 import { LENGTHS, type Mode } from '../lib/modes';
 import type { GameChoice } from '../lib/useGameChoice';
 import type { Game } from '../lib/useSozTop';
+import { puzzleKey, useHint } from '../lib/useHint';
 import { pretty } from '../lib/uz';
 import { Board, Keyboard } from './Board';
 import DownloadPromo from './DownloadPromo';
@@ -36,7 +37,28 @@ function useCountdown(active: boolean): string {
   return `${pad(Math.floor(total / 3600))}:${pad(Math.floor((total % 3600) / 60))}:${pad(total % 60)}`;
 }
 
-export default function Play({ choice, game }: { choice: GameChoice; game: Game }) {
+/** Yordamgacha qolgan vaqt — `m:ss`. */
+function useHintCountdown(target: number | null): string {
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    if (target === null) return;
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, [target]);
+
+  if (target === null) return '';
+  const total = Math.max(0, Math.ceil((target - now) / 1000));
+  return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`;
+}
+
+/** Har yangi so'zda ichki holat (yordam sanog'i, oynalar) noldan boshlanadi:
+ *  komponent so'z kaliti bilan qayta yaratiladi. */
+export default function Play(props: { choice: GameChoice; game: Game }) {
+  return <PlayBoard key={puzzleKey(props.game.puzzle)} {...props} />;
+}
+
+function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
   const auth = useAuth();
   const { mode, setMode, endlessLength, pickLength, length } = choice;
   const finished = game.phase === 'won' || game.phase === 'lost';
@@ -54,6 +76,8 @@ export default function Play({ choice, game }: { choice: GameChoice; game: Game 
 
   const { stats } = game;
   const winRate = stats.played === 0 ? 0 : Math.round((stats.wins / stats.played) * 100);
+  const hint = useHint(game.puzzle, game.phase);
+  const hintLeft = useHintCountdown(hint.nextAt);
 
   async function share() {
     const text = game.shareText();
@@ -87,6 +111,22 @@ export default function Play({ choice, game }: { choice: GameChoice; game: Game 
           ))}
         </div>
         <div className="play__top-right">
+          {/* Yordam: o'ylash cho'zilganda o'zi paydo bo'ladi, undan oldin
+              qancha qolgani sanab turiladi — ilovadagi `_HintIndicator`. */}
+          {hint.ready ? (
+            <button
+              type="button"
+              className="play__hint play__hint--ready"
+              onClick={hint.reveal}
+              title="Yordam olish"
+            >
+              💡 Yordam
+            </button>
+          ) : hint.nextAt !== null ? (
+            <span className="play__hint" title="Yordam shuncha vaqtdan keyin ochiladi">
+              💡 {hintLeft}
+            </span>
+          ) : null}
           <span className="phone__live">
             <i />
             {game.puzzle
@@ -150,6 +190,12 @@ export default function Play({ choice, game }: { choice: GameChoice; game: Game 
             Qayta urinish
           </button>
         </div>
+      )}
+
+      {hint.line && !game.locked && (
+        <p className="play__hintline" role="status">
+          {pretty(hint.line)}
+        </p>
       )}
 
       {game.locked && (

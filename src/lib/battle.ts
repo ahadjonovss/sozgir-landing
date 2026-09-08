@@ -24,6 +24,8 @@ export interface BattlePlayer {
   durationMs?: number;
   /** Jang tugagach oshkor qilinadigan taxminlar. */
   words?: string[];
+  /** Maslahat olgan — raqib buni ko'radi, harfni esa bilmaydi. */
+  hintUsed?: boolean;
 }
 
 export interface BattleDoc {

@@ -110,6 +110,21 @@ xuddi shunday qiladi. Ikkala jadvalda ham faqat birinchi **10** o‘rin
 ko‘rsatiladi. Statistika paneli esa brauzerdagi ma’lumotdan
 tuziladi: g‘alaba foizi, ketma-ketlik va urinishlar taqsimoti.
 
+## Yordam (maslahat)
+
+Cheksiz rejimda ilovadagi qoida: o‘ylash cho‘zilganda yordam o‘zi paydo
+bo‘ladi (`src/lib/useHint.ts`, ilovadagi `hintLevel` porti). So‘z
+uzunligiga qarab 15·(n−1) soniyadan keyin **mavzu** (kategoriya), undan
+ikki barobar keyin **ma’no** ochiladi; undan oldin taxta tepasida qancha
+qolgani sanab turiladi. Mavzu nomi `categories/{id}` dan faqat `name` va
+`emoji` maydonlari bilan olinadi (REST `mask.fieldPaths`) va brauzerda
+keshlanadi. Kunlik o‘yinda yordam yo‘q.
+
+So‘zjangda maslahatni server beradi (`battleGuess`): harflarning 60 % i
+o‘z joyida topilgach bitta ochilmagan harf qaytariladi va u keyingi
+qatorga qulflanib tushadi; raqib «maslahat oldi» degan belgini ko‘radi,
+harfni esa bilmaydi.
+
 ## So‘z haqida xabar berish
 
 Natija ostidagi «So‘z haqida xabar berish» — ilovadagi `ReportWordSheet`
