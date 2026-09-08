@@ -92,7 +92,7 @@ function write(key: string, value: unknown): void {
 
 /** Mehmon hisobsiz o'ynay oladigan o'yinlar soni. Keyingisi uchun kirish
  *  kerak — natija saqlanmay yo'qolmasin, reyting ham adolatli bo'lsin. */
-export const GUEST_GAME_LIMIT = 10;
+export const GUEST_GAME_LIMIT = 5;
 
 /** Shu brauzerda tugallangan o'yinlar soni — barcha rejim va uzunliklar
  *  bo'yicha. Kirilgan hisobda ishlatilmaydi: u yerda cheklov yo'q. */
