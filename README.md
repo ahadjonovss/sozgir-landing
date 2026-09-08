@@ -110,6 +110,17 @@ xuddi shunday qiladi. Ikkala jadvalda ham faqat birinchi **10** o‘rin
 ko‘rsatiladi. Statistika paneli esa brauzerdagi ma’lumotdan
 tuziladi: g‘alaba foizi, ketma-ketlik va urinishlar taqsimoti.
 
+## So‘z haqida xabar berish
+
+Natija ostidagi «So‘z haqida xabar berish» — ilovadagi `ReportWordSheet`
+ning veb ko‘rinishi (`src/components/ReportWord.tsx`, `src/lib/report.ts`).
+Murojaat `word_reports/{id}` ga ilova bilan bir xil maydonlar bilan
+yoziladi (`word`, `length`, `reason`, `comment`, `mode`, `uid`,
+`nickname`, `status: pending`, `createdAt`) va admin panelida
+moderatsiyaga tushadi. Sabab kalitlari ilovadagi `WordReportReason.name`
+bilan bir xil. Qoidalar `uid` talab qiladi — mehmonga avval kirish
+taklif qilinadi. So‘ztop natijasida ham, So‘zjang natijasida ham bor.
+
 ## Hisob
 
 Uch yo‘l: **mehmon** (anonim hisob), **yangi hisob** (email + parol) va

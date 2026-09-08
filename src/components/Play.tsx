@@ -18,6 +18,7 @@ import { Board, Keyboard } from './Board';
 import DownloadPromo from './DownloadPromo';
 import Leaderboard from './Leaderboard';
 import Modal from './Modal';
+import ReportWord from './ReportWord';
 
 /** Keyingi kunlik so'zgacha qolgan vaqt. */
 function useCountdown(active: boolean): string {
@@ -241,6 +242,8 @@ export default function Play({ choice, game }: { choice: GameChoice; game: Game 
 
               {/* Mehmon uchun har o'yin tugagach: ilova natijani saqlaydi. */}
               {!auth.account && <DownloadPromo />}
+
+              <ReportWord word={game.puzzle.answer} length={game.puzzle.length} mode={mode} />
             </div>
           ) : (
             <Keyboard keyState={game.keyState} onPress={game.press} />

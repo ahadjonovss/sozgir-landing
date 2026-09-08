@@ -18,6 +18,7 @@ import { display, pretty, type Verdict } from '../lib/uz';
 import BattleStats from './BattleStats';
 import { Board, Keyboard } from './Board';
 import { Check, Copy, Send, Swords, Users } from './Icons';
+import ReportWord from './ReportWord';
 import RotatingLine from './RotatingLine';
 import Versus from './Versus';
 import OpponentBoard from './OpponentBoard';
@@ -699,6 +700,10 @@ function Result({ game }: { game: Sozjang }) {
           </button>
         )}
       </div>
+
+      {game.battle?.answer && (
+        <ReportWord word={game.battle.answer} length={game.boardLength} mode="battle" />
+      )}
     </div>
   );
 }

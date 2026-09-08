@@ -13,6 +13,8 @@ export const PATHS = {
   entries: 'entries',
   /** So'zjang reytingi — `battle_ratings/{uid}`, hammaga o'qish ochiq. */
   battleRatings: 'battle_ratings',
+  /** So'z haqidagi murojaatlar — moderatsiyaga tushadi. */
+  wordReports: 'word_reports',
 } as const;
 
 export const dictionaryDoc = (length: number) => `uz_${length}`;
