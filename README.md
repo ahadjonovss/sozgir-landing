@@ -373,6 +373,11 @@ palitrada, lekin sayt kengroq bo‘sh joy, kattaroq sarlavha va yumaloq
 kartochkalar bilan ajralib turadi. Tungi rejim tanlovi `localStorage` da
 `sozgir.theme` kalitida saqlanadi (admin panel bilan bir xil).
 
+Avatar ilovadagi `BattleAvatar` bilan bir xil (`src/components/Avatar.tsx`):
+taxallusning bosh harfi, rang taxallusdan hisoblanadi (kod birliklari
+yig‘indisi mod 6, palitra ilovadagi bilan aynan) — bir odam ilovada,
+saytda va reytingda bir xil rangda. Rasm yuklash yo‘q — ilovada ham yo‘q.
+
 Logotip `public/logo.svg` dan ko‘chirilgan, lekin `Logo.tsx` da `currentColor`
 bilan qayta chizilgan — shunda u tungi rejimda ham to‘g‘ri ko‘rinadi.
 

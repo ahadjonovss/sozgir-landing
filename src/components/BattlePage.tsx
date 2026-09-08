@@ -15,6 +15,7 @@ import { useAuth } from '../lib/auth';
 import { inviteLink, verdictsOf, type BattlePlayer } from '../lib/battle';
 import { useSozjang, type Sozjang } from '../lib/useSozjang';
 import { display, pretty, type Verdict } from '../lib/uz';
+import Avatar from './Avatar';
 import BattleStats from './BattleStats';
 import { Board, Keyboard } from './Board';
 import { Check, Copy, Send, Swords, Users } from './Icons';
@@ -27,11 +28,6 @@ import OpponentBoard from './OpponentBoard';
 function codeFromUrl(): string {
   const value = new URLSearchParams(window.location.search).get('kod') ?? '';
   return value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
-}
-
-function initialOf(name: string): string {
-  const trimmed = name.trim();
-  return trimmed.length === 0 ? '?' : trimmed[0].toUpperCase();
 }
 
 /** Matnni ulashish: iloji bo'lsa tizim oynasi, bo'lmasa nusxa. */
@@ -331,7 +327,7 @@ function Searching({ game }: { game: Sozjang }) {
         <span />
         <span />
         <span />
-        <b className="radar__me">{initialOf(name)}</b>
+        <Avatar name={name} size={60} className="radar__me" />
       </div>
 
       <p className="stage__timer" aria-live="off">
@@ -513,7 +509,7 @@ function Scoreboard({ game }: { game: Sozjang }) {
   return (
     <div className="board-head">
       <div className="board-head__side board-head__side--me">
-        <span className="board-head__avatar">{initialOf(me)}</span>
+        <Avatar name={me} size={40} className="board-head__avatar" />
         <div className="board-head__text">
           <strong>{me}</strong>
           <Dots player={game.me} max={game.maxAttempts} mine />
@@ -530,7 +526,7 @@ function Scoreboard({ game }: { game: Sozjang }) {
             {status}
           </span>
         </div>
-        <span className="board-head__avatar board-head__avatar--foe">{initialOf(foe)}</span>
+        <Avatar name={foe} size={40} className="board-head__avatar" />
       </div>
     </div>
   );
@@ -637,7 +633,7 @@ function Result({ game }: { game: Sozjang }) {
           necha ball olgani bir qarashda solishtiriladi. */}
       <div className="score">
         <div className={`score__side${mine ? ' score__side--win' : ''}`}>
-          <span className="score__avatar">{initialOf(meName)}</span>
+          <Avatar name={meName} size={36} className="score__avatar" />
           <span className="score__who">{meName}</span>
           <strong className="score__points">{game.me?.score ?? 0}</strong>
           <span className="score__meta">
@@ -648,7 +644,7 @@ function Result({ game }: { game: Sozjang }) {
           :
         </span>
         <div className={`score__side${!mine && !draw && !expired ? ' score__side--win' : ''}`}>
-          <span className="score__avatar score__avatar--foe">{initialOf(foeName)}</span>
+          <Avatar name={foeName} size={36} className="score__avatar" />
           <span className="score__who">{foeName}</span>
           <strong className="score__points">{game.opponent?.score ?? 0}</strong>
           <span className="score__meta">

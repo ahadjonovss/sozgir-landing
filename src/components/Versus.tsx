@@ -7,12 +7,7 @@
  *
  *  Xuddi shu ko'rinish raqib kutilayotganda ham ishlatiladi: o'ng tomonda
  *  so'roq belgisi turadi va do'st qo'shilganda uning ismiga aylanadi. */
-/** Avatar uchun bosh harf — ilovadagi `BattleAvatar` bilan bir xil
- *  qoida: birinchi harf, katta yozuvda. */
-function initialOf(name: string): string {
-  const trimmed = name.trim();
-  return trimmed.length === 0 ? '?' : trimmed[0].toUpperCase();
-}
+import Avatar from './Avatar';
 
 function Side({
   name,
@@ -27,12 +22,7 @@ function Side({
 }) {
   return (
     <div className={`versus__side${mine ? ' versus__side--me' : ''}`}>
-      <span
-        className={`versus__avatar${waiting ? ' versus__avatar--wait' : ''}`}
-        aria-hidden="true"
-      >
-        {waiting ? '?' : initialOf(name)}
-      </span>
+      <Avatar name={name} size={64} waiting={waiting} className="versus__avatar" />
       <strong className="versus__name">{name}</strong>
     </div>
   );

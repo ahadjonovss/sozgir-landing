@@ -34,25 +34,6 @@
   white-space: nowrap;
 }
 
-.account__avatar {
-  flex: 0 0 auto;
-  display: grid;
-  place-items: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: var(--green);
-  color: #fff;
-  font-size: 13px;
-  font-weight: 900;
-}
-
-.account__avatar--lg {
-  width: 46px;
-  height: 46px;
-  font-size: 20px;
-}
-
 /* Tor ekranda faqat avatar qoladi — sarlavha bir qatorga sig'ishi kerak. */
 @media (max-width: 620px) {
   .account {
@@ -62,6 +43,23 @@
   .account__name {
     display: none;
   }
+}
+
+/* ── Avatar (ilovadagi BattleAvatar) ──────────────────────────────────── */
+
+.avatar-mark {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.avatar-mark--empty {
+  background: var(--surface-2);
+  color: var(--text-2);
 }
 
 /* ── Oyna ─────────────────────────────────────────────────────────────── */
@@ -810,7 +808,7 @@
 
 .rank {
   display: grid;
-  grid-template-columns: 24px minmax(0, 1fr) auto auto;
+  grid-template-columns: 22px 28px minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 10px;
   padding: 8px 10px;
@@ -1548,16 +1546,7 @@
 
 .radar__me {
   position: relative;
-  display: grid;
-  place-items: center;
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: var(--green);
-  color: #fff;
-  font-size: 24px;
-  font-weight: 800;
-  box-shadow: 0 10px 24px -8px rgba(99, 169, 103, 0.8);
+  box-shadow: 0 10px 24px -8px rgba(22, 24, 29, 0.35);
 }
 
 @keyframes ping {
@@ -1598,21 +1587,9 @@
 
 .board-head__avatar {
   flex: none;
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--green);
-  color: #fff;
-  font-size: 17px;
-  font-weight: 800;
 }
 
-.board-head__avatar--foe {
-  background: var(--surface-2);
-  color: var(--text-2);
-}
+
 
 .board-head__text {
   display: grid;
@@ -1845,10 +1822,8 @@
     padding: 10px;
   }
   .board-head__avatar {
-    width: 34px;
-    height: 34px;
-    font-size: 15px;
-  }
+  flex: none;
+}
   .board-head__status {
     display: none;
   }
@@ -1914,24 +1889,10 @@
 }
 
 .versus__avatar {
-  display: grid;
-  place-items: center;
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: var(--green);
-  color: #fff;
-  font-size: 26px;
-  font-weight: 800;
-  box-shadow: 0 12px 28px -10px rgba(99, 169, 103, 0.8);
+  box-shadow: 0 12px 28px -10px rgba(22, 24, 29, 0.35);
 }
 
-.versus__avatar--wait {
-  background: var(--surface-2);
-  color: var(--text-2);
-  box-shadow: none;
-  animation: breathe 1.6s ease-in-out infinite;
-}
+
 
 .versus__name {
   max-width: 100%;
@@ -2064,22 +2025,10 @@
 }
 
 .score__avatar {
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
   margin-bottom: 4px;
-  border-radius: 50%;
-  background: var(--green);
-  color: #fff;
-  font-size: 15px;
-  font-weight: 800;
 }
 
-.score__avatar--foe {
-  background: var(--surface-2);
-  color: var(--text-2);
-}
+
 
 .score__who,
 .score__meta {

@@ -8,6 +8,7 @@
  *  tugma ham, o'yin natijasidagi «Natijani saqlash» ham chaqiradi. */
 import { useEffect, useRef, useState } from 'react';
 import { useAuth, type AuthPrompt } from '../lib/auth';
+import Avatar from './Avatar';
 import Modal from './Modal';
 import { nicknameError } from '../lib/nickname';
 
@@ -98,9 +99,7 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
     return (
       <Modal title="Hisob" onClose={close}>
         <div className="modal__row">
-          <span className="account__avatar account__avatar--lg">
-            {auth.account.initial}
-          </span>
+          <Avatar name={auth.account.nickname} size={46} />
           <div>
             <strong>{auth.account.nickname}</strong>
             <p className="modal__lead">
@@ -252,7 +251,7 @@ export default function Account() {
           onClick={() => auth.openPrompt('profile')}
           title={auth.account.email ?? 'Mehmon rejimi'}
         >
-          <span className="account__avatar">{auth.account.initial}</span>
+          <Avatar name={auth.account.nickname} size={26} />
           <span className="account__name">{auth.account.nickname}</span>
         </button>
       ) : (

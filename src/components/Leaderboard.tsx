@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../lib/auth';
 import { dailyKey } from '../lib/daily';
 import { dailyTop, totalTop, type Entry } from '../lib/leaderboard';
+import Avatar from './Avatar';
 import { DAILY_LENGTH } from '../lib/modes';
 import { pretty } from '../lib/uz';
 
@@ -77,6 +78,7 @@ export default function Leaderboard() {
               className={`rank${row.uid === account?.uid ? ' rank--me' : ''}`}
             >
               <span className="rank__place">{index + 1}</span>
+              <Avatar name={row.nickname} size={28} />
               <span className="rank__name">{pretty(row.nickname)}</span>
               <span className="rank__meta">
                 {tab === 'daily'
