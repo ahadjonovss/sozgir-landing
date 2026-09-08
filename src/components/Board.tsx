@@ -77,19 +77,12 @@ export function Keyboard({
   keyState: Map<string, string>;
   onPress: (key: string) => void;
 }) {
+  // Ilovadagi tartib: o'chirish ikkinchi qatorning oxirida, tasdiqlash
+  // uchinchi qatorning oxirida (kengroq tugma).
   return (
     <div className="keyboard" aria-label="O‘zbek klaviaturasi">
       {KEYBOARD_ROWS.map((row, r) => (
         <div className="keyboard__row" key={r}>
-          {r === 2 && (
-            <button
-              className="key key--action"
-              onClick={() => onPress('enter')}
-              aria-label="Tasdiqlash"
-            >
-              ⏎
-            </button>
-          )}
           {row.map((key) => (
             <button
               key={key}
@@ -105,13 +98,26 @@ export function Keyboard({
               {display(key)}
             </button>
           ))}
-          {r === 2 && (
+          {r === 1 && (
             <button
               className="key key--action"
               onClick={() => onPress('back')}
               aria-label="O‘chirish"
             >
-              ⌫
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M9 5h11a1 1 0 011 1v12a1 1 0 01-1 1H9l-6-7 6-7zM12 9l6 6M18 9l-6 6" />
+              </svg>
+            </button>
+          )}
+          {r === 2 && (
+            <button
+              className="key key--action key--enter"
+              onClick={() => onPress('enter')}
+              aria-label="Tasdiqlash"
+            >
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M20 6v6a2 2 0 01-2 2H5M9 10l-4 4 4 4" />
+              </svg>
             </button>
           )}
         </div>
