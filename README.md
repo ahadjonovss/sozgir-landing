@@ -381,6 +381,8 @@ bilan qayta chizilgan — shunda u tungi rejimda ham to‘g‘ri ko‘rinadi.
 `/contact` dagi forma `api/contact.ts` (Vercel Edge Function) ga yuboriladi, u
 esa xabarni Telegram guruhiga tashlaydi. Xabar formati soztop ilovasidagi
 `Reporter` bilan bir xil, shunda ikki oqim bitta guruhda bir ko‘rinishda bo‘ladi.
+Saytdan kelgan har bir xabarning birinchi qatori `#web`, ostida yozgan
+odamning ismi va emaili — guruhda manbani ajratish va qidirish uchun.
 
 Vercel muhit o‘zgaruvchilari (Project → Settings → Environment Variables):
 

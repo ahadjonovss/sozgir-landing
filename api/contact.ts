@@ -71,10 +71,14 @@ export default async function handler(request: Request): Promise<Response> {
   const threadId = Number(process.env.TELEGRAM_CONTACT_THREAD ?? 0);
   const time = new Date().toLocaleString('uz-UZ', { timeZone: 'Asia/Tashkent' });
 
+  // Birinchi qator — manba tegi: guruhda ilova va sayt xabarlari bir
+  // oqimda, `#web` bo'yicha qidirish va ajratish oson. Ostida kim
+  // yozgani: ism va email.
   const text = [
+    '#web',
+    `<b>${escape(name)}</b> · ${escape(email)}`,
+    '',
     '📬 <b>Saytdan yangi so‘rov</b>',
-    row('Ism', name),
-    row('Email', email),
     row('Mavzu', topic),
     '',
     escape(message),
