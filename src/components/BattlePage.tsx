@@ -662,9 +662,11 @@ function Result({ game }: { game: Sozjang }) {
             <strong>{meName}</strong>
             <span>{game.me?.rows?.length ?? 0}/{game.maxAttempts}</span>
           </div>
+          {/* Server ochgan so'zlar; bo'lmasa (yoki bo'sh kelsa) brauzerda
+              saqlangan o'z taxminlarim. */}
           <OpponentBoard
             rows={(game.me?.rows ?? []).map(verdictsOf)}
-            words={game.me?.words ?? game.words}
+            words={game.me?.words?.length ? game.me.words : game.words}
             length={game.boardLength}
             maxAttempts={game.maxAttempts}
           />
