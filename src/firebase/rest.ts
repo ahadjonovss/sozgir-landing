@@ -9,9 +9,10 @@
  *  uchun `decode` bilan oddiy JS qiymatlariga o'giriladi. */
 import { firebaseConfig } from './config';
 
-const BASE =
-  `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}` +
-  '/databases/(default)/documents';
+/** Hujjatlarning resurs nomi ildizi — `batchGet` da to'liq URL emas,
+ *  aynan shu ko'rinish talab qilinadi. */
+const ROOT = `projects/${firebaseConfig.projectId}/databases/(default)/documents`;
+const BASE = `https://firestore.googleapis.com/v1/${ROOT}`;
 
 type TypedValue = Record<string, unknown>;
 
@@ -137,7 +138,7 @@ export async function batchGetDocs(
       headers: { 'Content-Type': 'application/json' },
       signal: controller.signal,
       body: JSON.stringify({
-        documents: paths.map((path) => `${BASE}/${path}`),
+        documents: paths.map((path) => `${ROOT}/${path}`),
         ...(fields ? { mask: { fieldPaths: fields } } : {}),
       }),
     });
@@ -148,9 +149,9 @@ export async function batchGetDocs(
     }[];
     for (const item of body) {
       if (item.found) {
-        out[item.found.name.slice(BASE.length + 1)] = decodeFields(item.found.fields ?? {});
+        out[item.found.name.slice(ROOT.length + 1)] = decodeFields(item.found.fields ?? {});
       } else if (item.missing) {
-        out[item.missing.slice(BASE.length + 1)] = null;
+        out[item.missing.slice(ROOT.length + 1)] = null;
       }
     }
     return out;

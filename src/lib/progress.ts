@@ -118,7 +118,9 @@ export function foundSummary(
 ): FoundSummary {
   const words = Object.values(found);
   return {
-    totalScore: words.reduce((sum, word) => sum + word.score, 0),
+    // Bulutdan tiklangan yozuvda ball bo'lmasligi mumkin (eski yoki
+    // ilovadan kelgan hujjat) — `NaN` yig'indiga tushmasin.
+    totalScore: words.reduce((sum, word) => sum + (Number(word.score) || 0), 0),
     count: words.length,
   };
 }
@@ -436,11 +438,14 @@ async function restoreFromCloud(account: Account): Promise<void> {
     if (!words.empty) {
       const found = readFound();
       for (const entry of words.docs) {
-        const data = entry.data() as FoundWord;
-        if (!data.word) continue;
+        const raw = entry.data() as FoundWord & { points?: number };
+        if (!raw.word) continue;
+        // Ilova ballni `score` da yozadi; eski yozuvlarda `points` yoki
+        // umuman yo'q bo'lishi mumkin — raqamga keltiriladi.
+        const data: FoundWord = { ...raw, score: Number(raw.score ?? raw.points) || 0 };
         const local = found[data.word];
         // Ikki manbadan eng yuqori ball qoladi.
-        if (!local || data.score > local.score) found[data.word] = data;
+        if (!local || data.score > (Number(local.score) || 0)) found[data.word] = data;
       }
       write(FOUND_KEY, found);
     }
