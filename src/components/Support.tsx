@@ -232,18 +232,17 @@ export default function Support({ page = false }: { page?: boolean }) {
   return (
     <section className={`section support${page ? ' support--page' : ''}`} id="qollab">
       <div className="wrap">
-        {/* Alohida sahifada nom ramkadagi sarlavhada turadi —
-            ikki marta yozilmasin. */}
         <div className="section__head reveal">
-          {!page && (
-            <>
-              <span className="section__kicker">Qo‘llab-quvvatlash</span>
-              <h2>Loyihani hamjamiyat ko‘taradi</h2>
-            </>
+          <span className="section__kicker">Qo‘llab-quvvatlash</span>
+          {page ? (
+            <h1>Loyihani hamjamiyat ko‘taradi</h1>
+          ) : (
+            <h2>Loyihani hamjamiyat ko‘taradi</h2>
           )}
           <p className="section__lead">
-            Ilova ichi xaridlari yo‘q, obuna yo‘q. Yig‘ilgan pul lug‘atni
-            kengaytirishga va serverga ketadi — hisob esa ochiq turadi.
+            Ilova ichi xaridlari yo‘q, obuna yo‘q. Yig‘ilgan pul loyihani
+            rivojlantirishga ketadi, qolgani — muallifga bir piyola choy puli.
+            Hisob esa ochiq turadi.
           </p>
         </div>
 

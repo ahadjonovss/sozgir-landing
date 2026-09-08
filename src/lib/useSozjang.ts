@@ -24,14 +24,32 @@ import {
   type BattleDoc,
   type BattlePlayer,
 } from './battle';
-import { attemptsFor, DEFAULT_LENGTH, LENGTHS } from './modes';
-import { keyAction, lengthOf, normalize, split, type Verdict } from './uz';
+import { attemptsFor, DEFAULT_LENGTH } from './modes';
+import { EMOJI, keyAction, lengthOf, normalize, split, type Verdict } from './uz';
+import { links, site } from '../data/site';
 
 export type Phase = 'lobby' | 'searching' | 'waiting' | 'playing' | 'finished';
 
+/** Taxta qatori. Faol qatorda `lock` — oldingi taxminda joyi topilgan va
+ *  keyingi qatorga o'zi tushgan harf (ilovadagi `lockedPositions`). */
 export interface BoardRow {
   units: string[];
-  verdicts: Verdict[] | null;
+  verdicts: (Verdict | 'lock' | null)[] | null;
+}
+
+/** Oldingi taxminlardan joyi topilgan harflar — keyingi qator shulardan
+ *  boshlanadi. Ilovadagi `_autoFilledInput` bilan bir xil qoida. */
+function autoFill(rows: string[], words: string[], length: number): string[] {
+  const out = Array.from({ length }, () => '');
+  rows.forEach((row, index) => {
+    const units = split(words[index] ?? '');
+    verdictsOf(row).forEach((verdict, position) => {
+      if (verdict === 'correct' && units[position] && position < length) {
+        out[position] = units[position];
+      }
+    });
+  });
+  return out;
 }
 
 const ACTIVE_KEY = 'sozgir.battle';
@@ -44,7 +62,6 @@ const ACTIVE_KEY = 'sozgir.battle';
  *  o'tadi, ochiq bo'lmasa sahifa ochilganda saqlangan jangdan davom
  *  etadi. */
 const OPEN_EVENT = 'sozgir:battle-open';
-const LENGTH_KEY = 'sozgir.battle.length';
 const wordsKey = (battleId: string) => `sozgir.battle.words.${battleId}`;
 
 /** Navbatda turganda qidiruv shu oraliqda takrorlanadi.
@@ -79,11 +96,6 @@ function drop(key: string): void {
   }
 }
 
-function storedLength(): number {
-  const raw = read<number>(LENGTH_KEY, DEFAULT_LENGTH);
-  return LENGTHS.includes(raw as (typeof LENGTHS)[number]) ? raw : DEFAULT_LENGTH;
-}
-
 /** Chaqiruvdan kelgan jangni ochadi — xabar shu funksiyani chaqiradi. */
 export function openBattleById(id: string) {
   write(ACTIVE_KEY, id);
@@ -100,8 +112,19 @@ export function useSozjang() {
   const [battle, setBattle] = useState<BattleDoc | null>(null);
   const [searching, setSearching] = useState(false);
   const [seconds, setSeconds] = useState(0);
-  const [length, setLength] = useState(storedLength);
-  const [current, setCurrent] = useState<string[]>([]);
+  /** So'z uzunligi — saytda doim 5: tanlov yo'q, ilovadagi asosiy rejim
+   *  bilan bir xil. */
+  const [length, setLength] = useState<number>(DEFAULT_LENGTH);
+  /** Faol qatorga yozilgan harflar — joy bo'yicha (`''` — bo'sh katak).
+   *  `row` — qaysi qatorga tegishli: taxmin qabul qilinib qator
+   *  ko'paygach eski yozuv o'z-o'zidan eskiradi va tashlab yuboriladi. */
+  const [typed, setTyped] = useState<{ row: number; units: string[] }>({
+    row: 0,
+    units: [],
+  });
+  /** Endigina ochilgan qator — kataklar navbat bilan ag'dariladi. */
+  const [flipRow, setFlipRow] = useState(-1);
+  const [shake, setShake] = useState(false);
   /** Mening taxminlarim — serverda ular jang tugamaguncha yashirin, shu
    *  sabab harflarni ko'rsatish uchun brauzerda saqlanadi. Sahifa
    *  yangilanganda ham o'qiladi: aks holda taxta ranglar bilan qolib,
@@ -132,7 +155,8 @@ export function useSozjang() {
     setBattleId(id);
     write(ACTIVE_KEY, id);
     setWords(read<string[]>(wordsKey(id), []));
-    setCurrent([]);
+    setTyped({ row: 0, units: [] });
+    setFlipRow(-1);
     setHint(null);
     setMessage(null);
     setError(null);
@@ -152,7 +176,8 @@ export function useSozjang() {
     setBattleId(null);
     setBattle(null);
     setWords([]);
-    setCurrent([]);
+    setTyped({ row: 0, units: [] });
+    setFlipRow(-1);
     setHint(null);
     drop(ACTIVE_KEY);
   }, []);
@@ -246,16 +271,31 @@ export function useSozjang() {
   const myRows = useMemo(() => me?.rows ?? [], [me]);
   const finished = me?.finished === true;
 
+  /** Faol qator: topilgan harflar qulflangan, qolgani yozilgan harflar. */
+  const locked = useMemo(
+    () => autoFill(myRows, words, boardLength),
+    [boardLength, myRows, words],
+  );
+  const current = useMemo(() => {
+    const fresh = typed.row === myRows.length ? typed.units : [];
+    return locked.map((unit, index) => unit || fresh[index] || '');
+  }, [locked, myRows.length, typed]);
+
   const rows = useMemo<BoardRow[]>(() => {
     const out: BoardRow[] = myRows.map((row, index) => ({
       // Sahifa yangilangan bo'lsa harflar yo'q — faqat ranglar qoladi.
       units: split(words[index] ?? ''),
       verdicts: verdictsOf(row),
     }));
-    if (!finished && phase === 'playing') out.push({ units: current, verdicts: null });
+    if (!finished && phase === 'playing') {
+      out.push({
+        units: current,
+        verdicts: locked.map((unit) => (unit ? 'lock' : null)),
+      });
+    }
     while (out.length < maxAttempts) out.push({ units: [], verdicts: null });
     return out.slice(0, maxAttempts);
-  }, [current, finished, maxAttempts, myRows, phase, words]);
+  }, [current, finished, locked, maxAttempts, myRows, phase, words]);
 
   const keyState = useMemo(() => {
     const rank: Record<Verdict, number> = { absent: 1, present: 2, correct: 3 };
@@ -275,15 +315,41 @@ export function useSozjang() {
   const bump = useCallback(
     (text: string) => {
       setMessage(text);
+      setShake(true);
+      later(() => setShake(false), 420);
       later(() => setMessage(null), 1800);
     },
     [later],
   );
 
+  /** Harflarni o'zgartirish — qulflangan kataklarga tegilmaydi. */
+  const edit = useCallback(
+    (change: (units: string[]) => string[]) => {
+      setTyped((state) => {
+        const base = state.row === myRows.length ? state.units : [];
+        const filled = locked.map((unit, index) => unit || base[index] || '');
+        const next = change(filled);
+        return {
+          row: myRows.length,
+          units: next.map((unit, index) => (locked[index] ? '' : unit)),
+        };
+      });
+    },
+    [locked, myRows.length],
+  );
+
+  /** Oxirgi yozilgan (qulflanmagan) katak — o'chirish va qo'shma harf uchun. */
+  const lastTyped = useCallback((units: string[]) => {
+    for (let index = units.length - 1; index >= 0; index -= 1) {
+      if (units[index] && !locked[index]) return index;
+    }
+    return -1;
+  }, [locked]);
+
   const submit = useCallback(async () => {
     if (!battleId || busy) return;
     const word = normalize(current.join(''));
-    if (lengthOf(word) !== boardLength) {
+    if (current.some((unit) => !unit) || lengthOf(word) !== boardLength) {
       bump('Yetarli harf yo‘q');
       return;
     }
@@ -299,7 +365,10 @@ export function useSozjang() {
       const next = [...words, word];
       setWords(next);
       write(wordsKey(battleId), next);
-      setCurrent([]);
+      // Yangi qator ranglar bilan kelganda ag'dariladi; yozuv esa keyingi
+      // qatorga o'tadi (topilgan harflar o'zi tushadi).
+      setFlipRow(next.length - 1);
+      setTyped({ row: next.length, units: [] });
       if (reply.hint) {
         setHint(reply.hint);
         bump(`Maslahat: ${reply.hint.index + 1}-katak`);
@@ -319,16 +388,29 @@ export function useSozjang() {
         return;
       }
       if (key === 'back') {
-        setCurrent((units) => units.slice(0, -1));
+        edit((units) => {
+          const index = lastTyped(units);
+          if (index === -1) return units;
+          const next = [...units];
+          next[index] = '';
+          return next;
+        });
         return;
       }
-      if (current.length >= boardLength) {
+      // Harf birinchi bo'sh katakka tushadi — qulflanganlar o'tkazib
+      // yuboriladi.
+      const slot = current.findIndex((unit) => !unit);
+      if (slot === -1) {
         bump('Katak to‘lgan');
         return;
       }
-      setCurrent((units) => [...units, key]);
+      edit((units) => {
+        const next = [...units];
+        next[slot] = key;
+        return next;
+      });
     },
-    [boardLength, bump, busy, current.length, finished, phase, submit],
+    [bump, busy, current, edit, finished, lastTyped, phase, submit],
   );
 
   useEffect(() => {
@@ -339,19 +421,27 @@ export function useSozjang() {
         return;
       }
 
-      const action = keyAction(event.key, current.at(-1));
+      const last = lastTyped(current);
+      const action = keyAction(event.key, last === -1 ? undefined : current[last]);
       if (!action) return;
       event.preventDefault();
 
       if (action.kind === 'enter') press('enter');
       else if (action.kind === 'back') press('back');
       else if (action.kind === 'letter') press(action.unit);
-      else setCurrent((units) => [...units.slice(0, -1), action.unit]);
+      else {
+        // `s`+`h` → SH: oxirgi yozilgan harf qo'shma harfga aylanadi.
+        edit((units) => {
+          const next = [...units];
+          next[last] = action.unit;
+          return next;
+        });
+      }
     };
 
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [current, press]);
+  }, [current, edit, lastTyped, press]);
 
   /** Har bir amal uchun bir xil o'ram: bandlik va xato. */
   const run = useCallback(async (action: () => Promise<void>) => {
@@ -368,7 +458,6 @@ export function useSozjang() {
 
   const pickLength = useCallback((next: number) => {
     setLength(next);
-    write(LENGTH_KEY, next);
   }, []);
 
   const create = useCallback(
@@ -425,6 +514,37 @@ export function useSozjang() {
     }
   }, [battleId, close, finished, phase]);
 
+  /** Natijani ulashish matni — So'ztopdagi bilan bir uslubda: sarlavha,
+   *  ikki tomonning yo'li ranglar bilan, ostida havola. Harflar yo'q —
+   *  javob oshkor bo'lmasin. */
+  const shareText = useCallback(() => {
+    const max = attemptsFor(boardLength);
+    const label = (player: BattlePlayer | undefined, fallback: string) =>
+      `${player?.nickname ?? fallback} ${player?.won ? `${player.attempts ?? player.rows?.length ?? 0}/${max}` : `X/${max}`}`;
+    const grid = (player: BattlePlayer | undefined) =>
+      (player?.rows ?? [])
+        .map((row) => verdictsOf(row).map((verdict) => EMOJI[verdict]).join(''))
+        .join('\n');
+    const meName = account?.nickname ?? 'Men';
+    const winner = battle?.winnerUid;
+    const outcome = !winner
+      ? 'Durang'
+      : winner === uid
+        ? `${meName} yutdi`
+        : `${opponent?.nickname ?? 'Raqib'} yutdi`;
+    return [
+      `So‘zjang · ${boardLength} harf · ${outcome}`,
+      '',
+      label(me, meName),
+      grid(me),
+      '',
+      label(opponent, 'Raqib'),
+      grid(opponent),
+      '',
+      `${site}${links.battle}`,
+    ].join('\n');
+  }, [account, battle, boardLength, me, opponent, uid]);
+
   return {
     account,
     phase,
@@ -440,9 +560,13 @@ export function useSozjang() {
     rows,
     keyState,
     current,
+    locked,
+    flipRow,
+    shake,
     words,
     hint,
     message,
+    shareText,
     error,
     busy,
     seconds,

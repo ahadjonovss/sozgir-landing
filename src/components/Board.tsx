@@ -3,7 +3,13 @@
  *  taxta qoida bo'limidagi demo bilan bir xil ko'rinadi. */
 import type { CSSProperties } from 'react';
 import { display, KEYBOARD_ROWS } from '../lib/uz';
-import type { Row } from '../lib/useSozTop';
+
+/** Taxtaning bir qatori. Belgi — rang (`correct`, `present`, `absent`)
+ *  yoki `lock`: So'zjangda oldingi taxmindan o'tgan, joyida turgan harf. */
+export interface TileRow {
+  units: string[];
+  verdicts: ReadonlyArray<string | null> | null;
+}
 
 function Tile({
   unit,
@@ -37,7 +43,7 @@ export function Board({
   flipRow,
   shakeRow,
 }: {
-  rows: Row[];
+  rows: TileRow[];
   length: number;
   flipRow: number;
   shakeRow: number;

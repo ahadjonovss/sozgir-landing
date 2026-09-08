@@ -22,7 +22,9 @@ bilan aynan bir xil. Hisob ochilsa natija reytingga tushadi.
 | Savollar | Akkordeon FAQ |
 | Yuklab olish | App Store va Google Play havolalari |
 
-Alohida sahifalar: `/oyin` (So‘ztop), `/sozjang` (bellashuv), `/privacy` (maxfiylik
+Alohida sahifalar: `/oynash` (nimani o‘ynashni tanlash — sarlavhadagi
+«O‘ynash» tugmasi shu yerga olib keladi), `/oyin` (So‘ztop), `/sozjang`
+(bellashuv), `/privacy` (maxfiylik
 siyosati, o‘zbekcha + inglizcha) va `/contact` (aloqa ma’lumotlari + so‘rov
 formasi).
 
@@ -45,10 +47,11 @@ Holat brauzerda bir joyda saqlanadi, ya’ni hero’da boshlangan o‘yin `/oyin
 da davom etadi va aksincha. Rejim tanlovi `useGameChoice` da — taxta va
 uning yonidagi statistika paneli bir xil rejimni ko‘rsatishi kerak.
 
-Sarlavhadagi «O‘ynash» havolasi har doim ko‘rinadi: nav mobilda
-yashiringan, o‘yin sahifasiga boshqa yo‘l qolmasligi kerak. Shu sabab tor
-ekranda (≤440px) sarlavhadagi «Yuklab olish» tugmasi olib tashlanadi — u
-hero’da, «Yuklab olish» bo‘limida va footerda ham bor.
+Sarlavhadagi «O‘ynash» tugmasi har doim ko‘rinadi va `/oynash` ni ochadi —
+u yerda odam So‘ztop yoki So‘zjangni tanlaydi (ilgari So‘zjang sarlavhada
+alohida turardi, So‘ztopga esa yo‘l ko‘rinmasdi). Bo‘limlar ro‘yxati tor
+ekranda (≤980px) menyu tugmasi ostiga yig‘iladi. Juda tor ekranda (≤520px) sarlavhadan hisob
+tugmasi ham ketadi — u menyuning ichida bor.
 
 Ikki rejim, ilovadagi qoidalar bilan:
 
@@ -102,7 +105,8 @@ SDK yuklanmaydi:
 | Umumiy | `scores`, `totalScore desc` |
 
 Saralash bitta maydon bo‘yicha — qo‘shimcha indeks kerak emas, ilova ham
-xuddi shunday qiladi. Statistika paneli esa brauzerdagi ma’lumotdan
+xuddi shunday qiladi. Ikkala jadvalda ham faqat birinchi **10** o‘rin
+ko‘rsatiladi. Statistika paneli esa brauzerdagi ma’lumotdan
 tuziladi: g‘alaba foizi, ketma-ketlik va urinishlar taqsimoti.
 
 ## Hisob
@@ -160,7 +164,14 @@ qo‘shilish mumkin va aksincha.
 
 Raqibning kataklarida harflar yo‘q: rang naqshi u qancha yaqinlashganini
 bildiradi, javobni esa oshkor qilmaydi. Jang tugagach server ikki tomonning
-so‘zlarini va javobni ochadi — natija ekranida yo‘llar solishtiriladi.
+so‘zlarini va javobni ochadi — natija ekranida yo‘llar solishtiriladi va
+natijani ulashish mumkin (ranglar bilan, harflarsiz).
+
+Taxta ilovadagidek ishlaydi: qabul qilingan qator kataklari navbat bilan
+ag‘dariladi, oldingi taxminda joyi topilgan harflar keyingi qatorga o‘zi
+tushadi va o‘chirilmaydi (`autoFill` — ilovadagi `_autoFilledInput`).
+Yozilgan harf birinchi bo‘sh katakka tushadi, qulflanganlar o‘tkazib
+yuboriladi.
 
 O‘qish uchun `onSnapshot` kerak (raqibning qatori darhol ko‘rinishi kerak),
 u esa `firestore/lite` da yo‘q — shuning uchun bu sahifa to‘liq Firestore
@@ -243,8 +254,12 @@ api/
   contact.ts    aloqa formasini Telegramga uzatuvchi Edge Function
 src/
   components/   bo‘limlar (Hero, Rules, Alphabet, Modules, …)
+    Header.tsx    sarlavha: bo‘limlar, mavzu, hisob, «O‘ynash», telefon menyusi
+    Footer.tsx    ko‘p ustunli footer
     GamePage.tsx  `/oyin` sahifasi: taxta + statistika + reyting
+    PlayHub.tsx   `/oynash`: So‘ztop yoki So‘zjang tanlovi
     BattlePage.tsx  `/sozjang`: chaqiruv, tezkor jang va jangning o‘zi
+    BattleStats.tsx  So‘zjang reytingi kartochkasi (ilovadagi RatingCard)
     OpponentBoard.tsx  raqib yo‘li — faqat ranglar
     Play.tsx      o‘yin bo‘limi: rejim, natija, qisqa statistika
     Board.tsx     taxta va o‘zbek klaviaturasi
@@ -276,7 +291,8 @@ src/
     useGameChoice.ts  rejim va uzunlik tanlovi
     useSozTop.ts  o‘yin holati (kunlik + cheksiz)
     useReveal.ts  scroll animatsiyasi va mavzu almashtirish
-    useRoute.ts   kichik router (`/`, `/oyin`, `/sozjang`, `/privacy`, `/contact`)
+    useRoute.ts   kichik router (`/`, `/oynash`, `/oyin`, `/sozjang`, `/qollab`, `/privacy`, `/contact`)
+    battleRating.ts  So‘zjang reytingi: darajalar va `battle_ratings/{uid}` kuzatuvi
   styles/
     theme.css   dizayn tokenlari (yorug‘ + tungi)
     landing.css bo‘lim uslublari
@@ -314,9 +330,18 @@ tushishi kerak.
 
 ## Dizayn
 
-Ranglar ilovaning `app_palette.dart` faylidan va admin paneldagi `theme.css`
-dan olingan — sayt, ilova va admin panel bir ko‘rinishda. Tungi rejim tanlovi
-`localStorage` da `sozgir.theme` kalitida saqlanadi (admin panel bilan bir xil).
+Sayt — tanishtiruv sahifasi, ilovaning nusxasi emas. Bir vaqt u ilovadagidek
+yon menyu, AppBar va bosh ekrandagi kartochkalar bilan qurilgan edi;
+foydalanuvchilar buni admin panelga o‘xshatdi. Shuning uchun tuzilma oddiy
+veb-saytniki: tepada sticky sarlavha (logotip, bo‘limlar, mavzu, hisob,
+«O‘ynash»), bosh sahifada haqiqiy o‘yinli hero, kartochkali bo‘limlar,
+gradientli «Yuklab olish» bloki va ko‘p ustunli footer. Telefonda bo‘limlar
+menyu tugmasi ostidagi to‘liq ekranli ro‘yxatga yig‘iladi.
+
+Ranglar ilovaning `app_palette.dart` faylidan olingan — sayt va ilova bir
+palitrada, lekin sayt kengroq bo‘sh joy, kattaroq sarlavha va yumaloq
+kartochkalar bilan ajralib turadi. Tungi rejim tanlovi `localStorage` da
+`sozgir.theme` kalitida saqlanadi (admin panel bilan bir xil).
 
 Logotip `public/logo.svg` dan ko‘chirilgan, lekin `Logo.tsx` da `currentColor`
 bilan qayta chizilgan — shunda u tungi rejimda ham to‘g‘ri ko‘rinadi.

@@ -26,7 +26,7 @@ const int = (value: unknown) => (typeof value === 'number' ? value : 0);
 export async function dailyTop({
   dateKey,
   length,
-  limit = 20,
+  limit = 10,
 }: {
   dateKey: string;
   length: number;
@@ -47,7 +47,7 @@ export async function dailyTop({
 }
 
 /** Umumiy (all-time) reyting — jamlangan ball bo'yicha. */
-export async function totalTop({ limit = 20 }: { limit?: number } = {}): Promise<
+export async function totalTop({ limit = 10 }: { limit?: number } = {}): Promise<
   Entry[]
 > {
   const documents = await listDocs(PATHS.scores, {

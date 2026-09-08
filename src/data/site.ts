@@ -13,6 +13,8 @@ export const links = {
   playStore: 'https://play.google.com/store/apps/details?id=uz.ahadjonovss.soztop',
   telegram: 'https://t.me/sozgir_uz',
   support: `mailto:${email}`,
+  /** «O'ynash» tugmasi — nimani o'ynashni tanlash sahifasi. */
+  hub: '/oynash',
   play: '/oyin',
   battle: '/sozjang',
   /** Ulashilgan natija bosilganda odam darhol o'ynay olishi kerak —
@@ -117,7 +119,7 @@ export const modules: Module[] = [
     points: [
       'Loyiha hisobi ochiq ko‘rinadi',
       'Hissa qo‘shganlar ro‘yxati',
-      'Hamma pul lug‘at va serverga ketadi',
+      'Pul loyihani rivojlantirishga va muallifga choy puliga ketadi',
     ],
     accent: 'accent',
   },

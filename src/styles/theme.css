@@ -1,21 +1,23 @@
-/* So'zgir landing — dizayn tizimi.
-   Ranglar ilovaning app_palette.dart faylidan olingan, shunda sayt, ilova va
-   admin panel bir ko'rinishda bo'ladi. */
+/* So'zgir — dizayn tizimi.
+   Ranglar ilovaning app_palette.dart faylidan olingan, shunda sayt va ilova
+   bir ko'rinishda bo'ladi. Sayt esa ilovaning nusxasi emas — tanishtiruv
+   sahifasi: keng bo'sh joy, katta sarlavhalar, yumshoq kartochkalar. */
 
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
 
 :root {
-  --bg: #ffffff;
-  --surface: #f7f9fc;
-  --surface-2: #eef2f7;
+  --bg: #fcfcfd;
+  --surface: #f4f6f9;
+  --surface-2: #e9edf3;
   --text: #16181d;
-  --text-2: #7a8290;
-  --divider: #eceef2;
+  --text-2: #6f7785;
+  --divider: #e6e9ef;
   --tile-border: #c3c9d6;
   --tile-border-filled: #97a0b0;
   --key-bg: #edf2f7;
   --key-action: #e2e8f0;
   --green: #63a967;
+  --green-deep: #4f9254;
   --green-soft: rgba(99, 169, 103, 0.14);
   --yellow: #d3af4e;
   --yellow-soft: rgba(211, 175, 78, 0.16);
@@ -30,18 +32,18 @@
   --teal-soft: rgba(63, 168, 160, 0.14);
   --danger: #d1544f;
 
-  --radius: 18px;
-  --radius-lg: 26px;
   --radius-sm: 12px;
-  --shadow: 0 1px 2px rgba(22, 24, 29, 0.04), 0 8px 24px rgba(22, 24, 29, 0.06);
-  --shadow-lg: 0 2px 6px rgba(22, 24, 29, 0.05), 0 24px 60px rgba(22, 24, 29, 0.12);
-  --page: 1120px;
-  --header-h: 64px;
+  --radius: 22px;
+  --radius-lg: 32px;
+  --shadow: 0 1px 2px rgba(22, 24, 29, 0.04), 0 10px 30px rgba(22, 24, 29, 0.07);
+  --shadow-lg: 0 2px 6px rgba(22, 24, 29, 0.05), 0 30px 70px rgba(22, 24, 29, 0.14);
+  --page: 1160px;
+  --header-h: 76px;
 }
 
 :root[data-theme='dark'] {
-  --bg: #121317;
-  --surface: #1b1d23;
+  --bg: #0f1114;
+  --surface: #181a1f;
   --surface-2: #22252c;
   --text: #f3f4f6;
   --text-2: #9aa1ae;
@@ -51,6 +53,7 @@
   --key-bg: #2a2e36;
   --key-action: #343943;
   --green: #5e9e63;
+  --green-deep: #4c8a51;
   --green-soft: rgba(94, 158, 99, 0.2);
   --yellow: #c3a044;
   --yellow-soft: rgba(195, 160, 68, 0.2);
@@ -64,8 +67,8 @@
   --teal: #55bdb5;
   --teal-soft: rgba(85, 189, 181, 0.18);
   --danger: #d9605b;
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 2px 6px rgba(0, 0, 0, 0.4), 0 24px 60px rgba(0, 0, 0, 0.5);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 30px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 2px 6px rgba(0, 0, 0, 0.4), 0 30px 70px rgba(0, 0, 0, 0.5);
 }
 
 * {
@@ -95,15 +98,20 @@ h4 {
   margin: 0;
   font-weight: 800;
   letter-spacing: -0.025em;
-  line-height: 1.15;
+  line-height: 1.12;
+  text-wrap: balance;
 }
 
 h1 {
-  font-size: clamp(34px, 6vw, 60px);
+  font-size: clamp(38px, 6.2vw, 68px);
   font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1.02;
 }
 h2 {
-  font-size: clamp(26px, 4vw, 38px);
+  font-size: clamp(28px, 4.2vw, 44px);
+  font-weight: 900;
+  letter-spacing: -0.035em;
 }
 h3 {
   font-size: 19px;
@@ -118,7 +126,8 @@ a {
   text-decoration: none;
 }
 
-ul {
+ul,
+ol {
   margin: 0;
   padding: 0;
   list-style: none;
@@ -141,35 +150,51 @@ ul {
   width: 100%;
   max-width: var(--page);
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 24px;
 }
 
 .section {
-  padding: clamp(64px, 9vw, 112px) 0;
+  padding: clamp(72px, 9vw, 120px) 0;
 }
 
 .section__head {
-  max-width: 620px;
-  margin-bottom: 44px;
+  max-width: 640px;
+  margin-bottom: clamp(36px, 5vw, 56px);
+}
+
+.section__head--center {
+  margin-inline: auto;
+  text-align: center;
 }
 
 .section__kicker {
-  display: inline-block;
-  margin-bottom: 12px;
-  padding: 5px 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 6px 13px 6px 10px;
   border-radius: 999px;
-  background: var(--surface-2);
-  color: var(--text-2);
+  background: var(--green-soft);
+  color: var(--green-deep);
   font-size: 12.5px;
   font-weight: 800;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
+.section__kicker::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
 .section__lead {
-  margin-top: 14px;
+  margin-top: 16px;
   color: var(--text-2);
-  font-size: 17px;
+  font-size: clamp(16.5px, 1.4vw, 18.5px);
+  line-height: 1.55;
 }
 
 /* ── Tugmalar ─────────────────────────────────────────────────────────── */
@@ -180,19 +205,22 @@ ul {
   justify-content: center;
   gap: 9px;
   border: none;
-  border-radius: 15px;
-  padding: 13px 22px;
+  border-radius: 999px;
+  padding: 13px 24px;
   font: inherit;
   font-weight: 800;
   cursor: pointer;
   white-space: nowrap;
   background: var(--green);
   color: #fff;
-  transition: transform 0.14s ease, filter 0.14s ease, background 0.14s ease;
+  box-shadow: 0 6px 18px -6px rgba(99, 169, 103, 0.7);
+  transition: transform 0.14s ease, filter 0.14s ease, background 0.14s ease,
+    box-shadow 0.14s ease;
 }
 
 .btn:hover {
   filter: brightness(1.06);
+  transform: translateY(-1px);
 }
 .btn:active {
   transform: scale(0.97);
@@ -200,11 +228,13 @@ ul {
 .btn:disabled {
   opacity: 0.45;
   cursor: default;
+  transform: none;
 }
 
 .btn--ghost {
   background: var(--surface-2);
   color: var(--text);
+  box-shadow: none;
 }
 
 .btn--outline {
@@ -213,15 +243,17 @@ ul {
   box-shadow: inset 0 0 0 1.5px var(--divider);
 }
 
+.btn--outline:hover {
+  box-shadow: inset 0 0 0 1.5px var(--tile-border);
+}
+
 .btn--sm {
-  padding: 8px 14px;
-  border-radius: 12px;
+  padding: 9px 16px;
   font-size: 14px;
 }
 
 .btn--lg {
-  padding: 16px 26px;
-  border-radius: 17px;
+  padding: 17px 30px;
   font-size: 17px;
 }
 

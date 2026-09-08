@@ -1,16 +1,9 @@
-/** Sayt ramkasi.
+/** Sayt ramkasi: tepada sarlavha, o'rtada sahifa, pastda footer.
  *
- *  Ko'rinish ilovanikiga o'xshaydi: telefonda bitta ustun va sarlavhada
- *  orqaga tugmasi, kompyuterda chapda doimiy menyu. Sahifalarning o'zi
- *  o'zgarmagan — o'yin, So'zjang, qo'llab-quvvatlash va hujjatlar shu
- *  ramka ichida ochiladi.
- *
- *  Bosh sahifa ikki qismdan iborat: tepada ilovaning bosh ekrani
- *  (kunlik kartochka va modullar), ostida esa saytning tanishtiruv
- *  bloklari — birinchi marta kirgan odam uchun. */
+ *  Bosh sahifa — tanishtiruv: hero'da haqiqiy o'yin, so'ng qoida, alifbo,
+ *  modullar va yuklab olish. Qolgan manzillar shu ramka ichida ochiladi. */
 import { useEffect } from 'react';
 import Alphabet from './components/Alphabet';
-import AppBar from './components/AppBar';
 import Categories from './components/Categories';
 import Contact from './components/Contact';
 import Download from './components/Download';
@@ -18,21 +11,21 @@ import Faq from './components/Faq';
 import Footer from './components/Footer';
 import BattlePage from './components/BattlePage';
 import GamePage from './components/GamePage';
+import Header from './components/Header';
 import Hero from './components/Hero';
-import HomeApp from './components/HomeApp';
 import InviteOverlay from './components/InviteOverlay';
 import Modules from './components/Modules';
+import PlayHub from './components/PlayHub';
 import Privacy from './components/Privacy';
 import Rules from './components/Rules';
-import Sidebar from './components/Sidebar';
 import Support from './components/Support';
 import { AccountDialog } from './components/Account';
-import { dailyNumber } from './lib/daily';
 import { useReveal } from './lib/useReveal';
 import { useRoute } from './lib/useRoute';
 
 const titles = {
   '/': 'So‘zgir — o‘zbekcha so‘z o‘yinlari',
+  '/oynash': 'O‘ynash — So‘zgir',
   '/oyin': 'So‘zgir — bugungi so‘zni toping',
   '/sozjang': 'So‘zjang — do‘st bilan so‘z jangi | So‘zgir',
   '/qollab': 'Qo‘llab-quvvatlash — So‘zgir',
@@ -49,68 +42,36 @@ export default function App() {
   }, [route]);
 
   return (
-    <div className="app">
-      <Sidebar route={route} />
+    <>
+      <Header route={route} />
 
-      <div className="screen">
+      <main>
         {route === '/' && (
           <>
-            <HomeApp />
-            <div className="about">
-              <Hero compact />
-              <Rules />
-              <Alphabet />
-              <Modules />
-              <Categories />
-              <Support />
-              <Faq />
-              <Download />
-            </div>
+            <Hero />
+            <Rules />
+            <Alphabet />
+            <Modules />
+            <Categories />
+            <Support />
+            <Faq />
+            <Download />
           </>
         )}
+        {route === '/oynash' && <PlayHub />}
+        {route === '/oyin' && <GamePage />}
+        {route === '/sozjang' && <BattlePage />}
+        {route === '/qollab' && <Support page />}
+        {route === '/privacy' && <Privacy />}
+        {route === '/contact' && <Contact />}
+      </main>
 
-        {route === '/oyin' && (
-          <>
-            <AppBar title="So‘ztop" subtitle={`№${dailyNumber()} · O‘zbekcha`} />
-            <GamePage />
-          </>
-        )}
-
-        {route === '/sozjang' && (
-          <>
-            <AppBar title="So‘zjang" subtitle="Do‘st bilan bellashing" />
-            <BattlePage />
-          </>
-        )}
-
-        {route === '/qollab' && (
-          <>
-            <AppBar title="Qo‘llab-quvvatlash" subtitle="Loyihaga hissa qo‘shish" />
-            <Support page />
-          </>
-        )}
-
-        {route === '/privacy' && (
-          <>
-            <AppBar />
-            <Privacy />
-          </>
-        )}
-
-        {route === '/contact' && (
-          <>
-            <AppBar />
-            <Contact />
-          </>
-        )}
-
-        <Footer />
-      </div>
+      <Footer />
 
       {/* Hisob oynasi va jang chaqiruvi qaysi sahifada bo'lsangiz ham
           ko'rinadi, shuning uchun ular ramkaning o'zida turadi. */}
       <AccountDialog />
       <InviteOverlay />
-    </div>
+    </>
   );
 }

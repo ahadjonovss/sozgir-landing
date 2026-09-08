@@ -1,13 +1,18 @@
-import { useState } from 'react';
-import { modules } from '../data/site';
+import { links, modules } from '../data/site';
+
+/** Saytda ham ishlaydigan modullar — kartochkada havola chiqadi,
+ *  qolganlarida «Ilovada» belgisi turadi. */
+const ON_SITE: Record<string, { href: string; label: string }> = {
+  soztop: { href: links.play, label: 'Saytda o‘ynash' },
+  sozjang: { href: links.battle, label: 'Saytda o‘ynash' },
+  qollab: { href: links.donate, label: 'Hissa qo‘shish' },
+};
 
 export default function Modules() {
-  const [open, setOpen] = useState(modules[0].id);
-
   return (
     <section className="section" id="modullar">
       <div className="wrap">
-        <div className="section__head reveal">
+        <div className="section__head section__head--center reveal">
           <span className="section__kicker">Platforma</span>
           <h2>Bitta ilova, olti xil mashg‘ulot</h2>
           <p className="section__lead">
@@ -18,37 +23,34 @@ export default function Modules() {
 
         <div className="modules">
           {modules.map((m, i) => {
-            const active = open === m.id;
+            const site = ON_SITE[m.id];
             return (
               <article
                 key={m.id}
-                className={`module module--${m.accent}${active ? ' module--open' : ''} reveal`}
+                className={`module module--${m.accent} reveal`}
                 style={{ transitionDelay: `${i * 60}ms` }}
               >
-                <button
-                  className="module__head"
-                  onClick={() => setOpen(active ? '' : m.id)}
-                  aria-expanded={active}
-                >
+                <div className="module__top">
                   <span className="module__emoji" aria-hidden="true">
                     {m.emoji}
                   </span>
-                  <span className="module__title">
-                    <h3>{m.name}</h3>
-                    <p>{m.tagline}</p>
-                  </span>
-                  <span className="module__chev" aria-hidden="true">
-                    ⌄
-                  </span>
-                </button>
-
-                <div className="module__body">
-                  <ul>
-                    {m.points.map((p) => (
-                      <li key={p}>{p}</li>
-                    ))}
-                  </ul>
+                  {site ? (
+                    <a className="module__link" href={site.href}>
+                      {site.label} →
+                    </a>
+                  ) : (
+                    <span className="module__tag">Ilovada</span>
+                  )}
                 </div>
+
+                <h3>{m.name}</h3>
+                <p className="module__tagline">{m.tagline}</p>
+
+                <ul className="module__points">
+                  {m.points.map((p) => (
+                    <li key={p}>{p}</li>
+                  ))}
+                </ul>
               </article>
             );
           })}

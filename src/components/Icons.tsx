@@ -93,3 +93,4 @@ export const Copy = svg(
 export const Users = svg(
   'M8 11a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM2 20a6 6 0 0112 0M16.5 11.5a3 3 0 100-6M17 14.5a5.5 5.5 0 015 5.5',
 );
+export const Menu = svg('M4 7h16M4 12h16M4 17h16');

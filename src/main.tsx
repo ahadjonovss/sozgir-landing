@@ -5,7 +5,6 @@ import { AuthProvider } from './lib/auth';
 import './styles/theme.css';
 import './styles/landing.css';
 import './styles/play.css';
-import './styles/shell.css';
 
 // Mavzu birinchi chizishdan oldin qo'yiladi — ekran "sakramaydi".
 // Kalit admin panel bilan bir xil: sozgir.theme.

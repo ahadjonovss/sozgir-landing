@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 export type Route =
   | '/'
+  | '/oynash'
   | '/oyin'
   | '/sozjang'
   | '/qollab'
@@ -10,6 +11,7 @@ export type Route =
 
 const routes: Route[] = [
   '/',
+  '/oynash',
   '/oyin',
   '/sozjang',
   '/qollab',
@@ -39,6 +41,7 @@ function read(): Route {
 }
 
 /** Bir necha sahifa uchun kichik router — paket qo'shmasdan.
+ *  `/oynash` — nimani o'ynashni tanlash; `/oyin` va `/sozjang` — o'yinlar.
  *  Langar (`#`) va boshqa domenga havolalarni brauzerning o'ziga qoldiradi,
  *  shuning uchun `/#qoida` ko'rinishidagi havolalar ham ishlaydi. */
 export function useRoute(): Route {

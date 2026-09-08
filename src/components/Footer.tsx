@@ -1,31 +1,68 @@
-import { links } from '../data/site';
+import { email, links } from '../data/site';
 import Logo from './Logo';
+
+const COLUMNS = [
+  {
+    title: 'O‘yin',
+    items: [
+      { href: links.play, label: 'Bugungi so‘z' },
+      { href: links.battle, label: 'So‘zjang' },
+      { href: '/#qoida', label: 'Qoida' },
+      { href: '/#alifbo', label: 'Alifbo' },
+    ],
+  },
+  {
+    title: 'Ilova',
+    items: [
+      { href: '/#modullar', label: 'Modullar' },
+      { href: '/#yuklab-olish', label: 'Yuklab olish' },
+      { href: links.donate, label: 'Qo‘llab-quvvatlash' },
+      { href: '/#savollar', label: 'Savollar' },
+    ],
+  },
+  {
+    title: 'Loyiha',
+    items: [
+      { href: links.contact, label: 'Aloqa' },
+      { href: links.privacy, label: 'Maxfiylik siyosati' },
+      { href: links.support, label: email },
+      { href: links.telegram, label: 'Telegram kanal', external: true },
+    ],
+  },
+];
 
 export default function Footer() {
   return (
     <footer className="footer">
-      <div className="wrap footer__inner">
+      <div className="wrap footer__grid">
         <div className="footer__brand">
           <a className="brand" href="/#top" aria-label="So‘zgir — bosh sahifa">
-            <Logo height={36} />
+            <Logo height={34} />
           </a>
-          <p>O‘zbek tilidagi so‘z o‘yinlari platformasi.</p>
+          <p>
+            O‘zbek tilidagi so‘z o‘yinlari platformasi. Kuniga bitta so‘z —
+            hamma uchun bir xil.
+          </p>
+          <a className="btn btn--sm" href={links.hub}>
+            Hoziroq o‘ynash
+          </a>
         </div>
 
-        <nav className="footer__links">
-          <a href={links.play}>O‘ynash</a>
-          <a href={links.battle}>So‘zjang</a>
-          <a href="/#qoida">Qoida</a>
-          <a href="/#modullar">Modullar</a>
-          <a href="/#savollar">Savollar</a>
-          <a href={links.donate}>Qo‘llab-quvvatlash</a>
-          <a href={links.privacy}>Maxfiylik siyosati</a>
-          <a href={links.contact}>Aloqa</a>
-          <a href={links.support}>Yordam</a>
-          <a href={links.telegram} target="_blank" rel="noreferrer">
-            Telegram
-          </a>
-        </nav>
+        {COLUMNS.map((column) => (
+          <nav className="footer__col" key={column.title} aria-label={column.title}>
+            <h4>{column.title}</h4>
+            {column.items.map((item) => (
+              <a
+                key={item.label}
+                href={item.href}
+                target={item.external ? '_blank' : undefined}
+                rel={item.external ? 'noreferrer' : undefined}
+              >
+                {item.label}
+              </a>
+            ))}
+          </nav>
+        ))}
       </div>
 
       <div className="wrap footer__bottom">

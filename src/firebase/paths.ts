@@ -11,6 +11,8 @@ export const PATHS = {
   scores: 'scores',
   dailyResults: 'daily_results',
   entries: 'entries',
+  /** So'zjang reytingi — `battle_ratings/{uid}`, hammaga o'qish ochiq. */
+  battleRatings: 'battle_ratings',
 } as const;
 
 export const dictionaryDoc = (length: number) => `uz_${length}`;
