@@ -90,6 +90,20 @@ function write(key: string, value: unknown): void {
   }
 }
 
+/** Mehmon hisobsiz o'ynay oladigan o'yinlar soni. Keyingisi uchun kirish
+ *  kerak — natija saqlanmay yo'qolmasin, reyting ham adolatli bo'lsin. */
+export const GUEST_GAME_LIMIT = 10;
+
+/** Shu brauzerda tugallangan o'yinlar soni — barcha rejim va uzunliklar
+ *  bo'yicha. Kirilgan hisobda ishlatilmaydi: u yerda cheklov yo'q. */
+export function guestGamesPlayed(): number {
+  let total = 0;
+  for (const mode of ['daily', 'endless'] as Mode[]) {
+    for (const length of LENGTHS) total += readStats(mode, length).played;
+  }
+  return total;
+}
+
 export function readStats(mode: Mode, length: number): GameStats {
   const stored = read<Partial<GameStats>>(STATS_KEY(mode, length), {});
   return { ...EMPTY_STATS, ...stored, distribution: stored.distribution ?? {} };

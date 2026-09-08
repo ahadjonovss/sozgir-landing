@@ -132,7 +132,10 @@ Ilovadan bitta farqi bor va u ataylab: **sayt hech kimni avtomatik anonim
 hisobga kirgizmaydi**. Aks holda har bir tashrif Firebase’da yangi
 foydalanuvchi yasab, admin paneldagi statistikani buzardi. Kirmasdan ham
 o‘ynash mumkin — natija shunda brauzerda qoladi va `sozgir.pending` navbatiga
-tushadi; keyin kirilganda o‘zi cloud’ga yoziladi.
+tushadi; keyin kirilganda o‘zi cloud’ga yoziladi. Lekin chegara bor:
+mehmon shu brauzerda **10** ta o‘yin o‘ynagach (`GUEST_GAME_LIMIT`,
+barcha rejim va uzunliklar bo‘yicha `played` yig‘indisi) taxta yopiladi va
+«Iltimos, kiring» oynasi chiqadi — kirilgunicha keyingi o‘yin boshlanmaydi.
 
 Taxallus tekshiruvi (`src/lib/nickname.ts`) ilovaning `nickname_filter.dart`
 ko‘chirmasi va Firestore qoidalaridagi ro‘yxat bilan bir xil — mos kelmasa

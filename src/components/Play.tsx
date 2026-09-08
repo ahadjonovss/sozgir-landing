@@ -9,6 +9,7 @@
  *  xohlagancha o'ynaladi — ilovadagi qoidaning aynan o'zi. */
 import { useEffect, useState } from 'react';
 import { untilNextWord } from '../lib/daily';
+import { GUEST_GAME_LIMIT } from '../lib/progress';
 import { useAuth } from '../lib/auth';
 import { LENGTHS, type Mode } from '../lib/modes';
 import type { GameChoice } from '../lib/useGameChoice';
@@ -47,6 +48,9 @@ export default function Play({ choice, game }: { choice: GameChoice; game: Game 
   /** Reyting oynasi. Telefonda jadval taxtadan ancha pastda qolardi —
    *  endi taxtaning o'zidan bir bosishda ochiladi. */
   const [ranksOpen, setRanksOpen] = useState(false);
+  /** Mehmon chegarasi oynasi — taxta yopilganda bir marta ochiladi,
+   *  yopilsa ostidagi panel qoladi. */
+  const [gateOpen, setGateOpen] = useState(true);
 
   const { stats } = game;
   const winRate = stats.played === 0 ? 0 : Math.round((stats.wins / stats.played) * 100);
@@ -148,7 +152,56 @@ export default function Play({ choice, game }: { choice: GameChoice; game: Game 
         </div>
       )}
 
-      {game.puzzle && game.phase !== 'loading' && game.phase !== 'error' && (
+      {game.locked && (
+        <>
+          <div className="gate" role="status">
+            <span className="gate__icon" aria-hidden="true">🔒</span>
+            <h3>Iltimos, kiring</h3>
+            <p>
+              Hisobsiz {GUEST_GAME_LIMIT} ta o‘yin o‘ynadingiz. Davom etish
+              uchun kiring — natijalaringiz saqlanadi va reytingga tushadi.
+            </p>
+            <div className="result__actions">
+              <button className="btn btn--sm" onClick={() => auth.openPrompt('signIn')}>
+                Kirish
+              </button>
+              <button className="btn btn--sm btn--ghost" onClick={() => auth.openPrompt('register')}>
+                Hisob ochish
+              </button>
+            </div>
+          </div>
+          {gateOpen && (
+            <Modal
+              title="Iltimos, kiring"
+              lead={`Hisobsiz ${GUEST_GAME_LIMIT} ta o‘yin o‘ynadingiz. Keyingisi uchun kirish kerak — natijalaringiz saqlanadi va boshqa qurilmadan ham ko‘rinadi.`}
+              onClose={() => setGateOpen(false)}
+            >
+              <div className="form">
+                <button
+                  className="btn"
+                  onClick={() => {
+                    setGateOpen(false);
+                    auth.openPrompt('signIn');
+                  }}
+                >
+                  Kirish
+                </button>
+                <button
+                  className="btn btn--ghost"
+                  onClick={() => {
+                    setGateOpen(false);
+                    auth.openPrompt('register');
+                  }}
+                >
+                  Hisob ochish
+                </button>
+              </div>
+            </Modal>
+          )}
+        </>
+      )}
+
+      {game.puzzle && game.phase !== 'loading' && game.phase !== 'error' && !game.locked && (
         <>
           {!elsewhere && (
             <div className="play__area">

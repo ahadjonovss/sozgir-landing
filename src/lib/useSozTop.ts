@@ -23,6 +23,8 @@ import {
   recordOutcome,
   type FoundSummary,
   type GameStats,
+  GUEST_GAME_LIMIT,
+  guestGamesPlayed,
 } from './progress';
 import {
   display,
@@ -413,9 +415,13 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
     [later],
   );
 
+  /** Mehmon chegarasi: 10 o'yindan keyin taxta kirishgacha yopiladi. */
+  const locked =
+    !account && phase === 'playing' && guestGamesPlayed() >= GUEST_GAME_LIMIT;
+
   const press = useCallback(
     (key: string) => {
-      if (phase !== 'playing' || !puzzle) return;
+      if (phase !== 'playing' || !puzzle || locked) return;
       const answer = puzzle.units;
 
       if (key === 'back') {
@@ -468,7 +474,7 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
       }
       setCurrent((units) => [...units, key]);
     },
-    [bump, current, later, past.length, phase, puzzle],
+    [bump, current, later, locked, past.length, phase, puzzle],
   );
 
   /** Fizik klaviatura — qoida `uz.ts` dagi `keyAction` da. */
@@ -540,6 +546,7 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
 
   return {
     phase,
+    locked,
     puzzle,
     rows,
     activeRow: past.length,
