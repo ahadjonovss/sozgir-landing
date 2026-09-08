@@ -29,8 +29,9 @@ siyosati, o‘zbekcha + inglizcha) va `/contact` (aloqa ma’lumotlari + so‘ro
 formasi).
 
 React ilovadan tashqarida, `public/` ichida turadigan mustaqil sahifalar:
-`/ol` — ulashish uchun yuklab olish havolasi (qurilmani aniqlab, o‘sha
-do‘konni birinchi tugma qiladi) va `/donat` — to‘lovdan qaytish sahifasi.
+`/ol` — ulashish uchun yuklab olish havolasi (telefonda qurilmaning
+do‘koniga o‘zi yo‘naltiradi, kompyuterda ikkala tugmani ko‘rsatadi;
+`?stay=1` bilan yo‘naltirmaydi) va `/donat` — to‘lovdan qaytish sahifasi.
 Ular serverdan to‘g‘ridan-to‘g‘ri keladi, shuning uchun `useRoute` bilmagan
 manzilni ushlamaydi — bosilganda brauzerning o‘zi ochadi.
 

@@ -5,10 +5,13 @@
      Telefonda havola bosilganda sahifa darhol chiqishi kerak, shuning uchun
      hamma narsa shu bitta faylda: uslub ham, mantiq ham.
 
-     Sahifa qurilmani aniqlaydi va **shu qurilmaga tegishli** do'konni
-     birinchi tugma qilib qo'yadi. Avtomatik yo'naltirish ataylab yo'q:
-     havola Telegramda ulashiladi, avtomatik ketish esa ko'rinishni
-     (preview) va kompyuterdan ochganni buzardi.
+     Sahifa qurilmani aniqlaydi: telefonda (iOS/Android) darhol shu
+     qurilmaning do'koniga yo'naltiradi, sahifa esa zaxira bo'lib qoladi —
+     do'kon ochilmasa tugma bosiladi. Kompyuterda yo'naltirish yo'q: do'kon
+     havolasi telefonda ochilishi kerak, shuning uchun ikkala tugma va
+     eslatma ko'rsatiladi. Telegram preview'i buzilmaydi — bot JS
+     ishlatmaydi va oddiy sahifani ko'radi. `?stay=1` bilan ochilsa
+     telefonda ham yo'naltirilmaydi (sahifani ko'rish uchun).
 
      Do'kon manzillari `src/data/site.ts` dagi `links` bilan bir xil
      bo'lishi kerak — biri o'zgarsa, ikkinchisi ham o'zgaradi. -->
@@ -219,10 +222,23 @@
     var android = /Android/.test(ua);
 
     var lead = document.getElementById('lead');
+    var stay = /[?&]stay=1/.test(location.search);
+
+    // Telefonda darhol do'konga: sahifa faqat do'kon ochilmasa kerak
+    // bo'ladi. `replace` — «orqaga» bosilganda shu sahifaga qaytib
+    // qolmasin.
+    function go(id) {
+      var link = document.getElementById(id);
+      link.classList.add('store--primary');
+      if (stay) return;
+      lead.textContent = 'Do‘konga o‘tkazilmoqda… Ochilmasa, tugmani bosing.';
+      setTimeout(function () { location.replace(link.href); }, 400);
+    }
+
     if (ios) {
-      document.getElementById('ios').classList.add('store--primary');
+      go('ios');
     } else if (android) {
-      document.getElementById('android').classList.add('store--primary');
+      go('android');
     } else {
       // Kompyuterda do'kon havolasi telefonda ochilishi kerak — aytib
       // qo'yamiz, aks holda odam do'kon sahifasida qotib qoladi.
