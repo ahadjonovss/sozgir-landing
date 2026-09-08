@@ -11,10 +11,12 @@ import Avatar from './Avatar';
 
 function Side({
   name,
+  uid,
   mine = false,
   waiting = false,
 }: {
   name: string;
+  uid?: string;
   /** O'zining tomoni — ozgina ajratib ko'rsatiladi. */
   mine?: boolean;
   /** Raqib hali noma'lum: harf o'rniga so'roq belgisi. */
@@ -22,7 +24,7 @@ function Side({
 }) {
   return (
     <div className={`versus__side${mine ? ' versus__side--me' : ''}`}>
-      <Avatar name={name} size={64} waiting={waiting} className="versus__avatar" />
+      <Avatar name={name} uid={uid} size={64} waiting={waiting} className="versus__avatar" />
       <strong className="versus__name">{name}</strong>
     </div>
   );
@@ -31,11 +33,15 @@ function Side({
 export default function Versus({
   me,
   opponent,
+  meUid,
+  opponentUid,
   waiting = false,
   note,
 }: {
   me: string;
   opponent: string;
+  meUid?: string;
+  opponentUid?: string;
   waiting?: boolean;
   /** Afisha ostidagi qator — shior yoki sanoq. */
   note?: React.ReactNode;
@@ -43,11 +49,11 @@ export default function Versus({
   return (
     <div className="versus">
       <div className="versus__row">
-        <Side name={me} mine />
+        <Side name={me} uid={meUid} mine />
         <span className="versus__vs" aria-hidden="true">
           VS
         </span>
-        <Side name={opponent} waiting={waiting} />
+        <Side name={opponent} uid={opponentUid} waiting={waiting} />
       </div>
       <p className="versus__motto">Eng so‘zgirlar g‘olib bo‘ladi</p>
       {note}

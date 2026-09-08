@@ -9,6 +9,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAuth, type AuthPrompt } from '../lib/auth';
 import Avatar from './Avatar';
+import AvatarEditor from './AvatarEditor';
 import Modal from './Modal';
 import { nicknameError } from '../lib/nickname';
 
@@ -98,8 +99,10 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
     if (!auth.account) return null;
     return (
       <Modal title="Hisob" onClose={close}>
+        {/* Profil rasmi — ilovadagi kabi: qo'yish, almashtirish, o'chirish. */}
+        <AvatarEditor uid={auth.account.uid} name={auth.account.nickname} />
+
         <div className="modal__row">
-          <Avatar name={auth.account.nickname} size={46} />
           <div>
             <strong>{auth.account.nickname}</strong>
             <p className="modal__lead">
@@ -251,7 +254,7 @@ export default function Account() {
           onClick={() => auth.openPrompt('profile')}
           title={auth.account.email ?? 'Mehmon rejimi'}
         >
-          <Avatar name={auth.account.nickname} size={26} />
+          <Avatar name={auth.account.nickname} uid={auth.account.uid} size={26} />
           <span className="account__name">{auth.account.nickname}</span>
         </button>
       ) : (

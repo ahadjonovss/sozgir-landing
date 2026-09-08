@@ -78,7 +78,7 @@ export default function Leaderboard() {
               className={`rank${row.uid === account?.uid ? ' rank--me' : ''}`}
             >
               <span className="rank__place">{index + 1}</span>
-              <Avatar name={row.nickname} size={28} />
+              <Avatar name={row.nickname} uid={row.uid} size={28} />
               <span className="rank__name">{pretty(row.nickname)}</span>
               <span className="rank__meta">
                 {tab === 'daily'

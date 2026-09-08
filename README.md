@@ -373,10 +373,26 @@ palitrada, lekin sayt kengroq bo‘sh joy, kattaroq sarlavha va yumaloq
 kartochkalar bilan ajralib turadi. Tungi rejim tanlovi `localStorage` da
 `sozgir.theme` kalitida saqlanadi (admin panel bilan bir xil).
 
-Avatar ilovadagi `BattleAvatar` bilan bir xil (`src/components/Avatar.tsx`):
+Avatar ilovadagi `BattleAvatar` + `AvatarPhoto` bilan bir xil
+(`src/components/Avatar.tsx`): profil rasmi bo‘lsa — rasm, bo‘lmasa
 taxallusning bosh harfi, rang taxallusdan hisoblanadi (kod birliklari
-yig‘indisi mod 6, palitra ilovadagi bilan aynan) — bir odam ilovada,
-saytda va reytingda bir xil rangda. Rasm yuklash yo‘q — ilovada ham yo‘q.
+yig‘indisi mod 6, palitra ilovadagi bilan aynan).
+
+### Profil rasmi
+
+Ilova 1.1.5 sxemasi: rasm **Storage’da emas, Firestore’da** base64 JPEG —
+`avatars/{uid}` (64 px `thumb`, ≤ 4000 belgi) va
+`avatars/{uid}/sizes/full` (256 px `data`, ≤ 40 000 belgi); o‘qish
+hammaga ochiq, yozish egasiga. Saytda rasm brauzerda tayyorlanadi
+(`src/lib/avatarImage.ts`: kvadratga kesish, kichraytirish, chegaraga
+sig‘guncha sifatni pasaytirish — ilovadagi `AvatarImage` bilan bir xil
+sonlar) va SDK bilan ikki hujjatga bitta batch’da yoziladi.
+
+O‘qish `src/lib/avatars.ts` orqali: bir ekrandagi avatarlar 60 ms ichida
+yig‘ilib bitta REST `batchGet` so‘roviga tushadi (SDK kerak emas, hujjat
+ochiq), natija brauzerda uch kun keshlanadi — «rasmi yo‘q» ham. Profil
+oynasida (`AvatarEditor`) rasm qo‘yish, almashtirish va o‘chirish;
+telefon brauzeri fayl tanlashda kamerani ham taklif qiladi.
 
 Logotip `public/logo.svg` dan ko‘chirilgan, lekin `Logo.tsx` da `currentColor`
 bilan qayta chizilgan — shunda u tungi rejimda ham to‘g‘ri ko‘rinadi.

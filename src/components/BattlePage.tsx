@@ -327,7 +327,7 @@ function Searching({ game }: { game: Sozjang }) {
         <span />
         <span />
         <span />
-        <Avatar name={name} size={60} className="radar__me" />
+        <Avatar name={name} uid={game.account?.uid} size={60} className="radar__me" />
       </div>
 
       <p className="stage__timer" aria-live="off">
@@ -376,7 +376,12 @@ function Waiting({ game }: { game: Sozjang }) {
 
       {/* Raqib hali noma'lum — o'ng tomonda so'roq belgisi turadi va
           do'st qo'shilganda uning ismiga aylanadi. */}
-      <Versus me={pretty(game.account?.nickname ?? 'Siz')} opponent="Raqib" waiting />
+      <Versus
+        me={pretty(game.account?.nickname ?? 'Siz')}
+        meUid={game.account?.uid}
+        opponent="Raqib"
+        waiting
+      />
 
       <button
         type="button"
@@ -509,7 +514,7 @@ function Scoreboard({ game }: { game: Sozjang }) {
   return (
     <div className="board-head">
       <div className="board-head__side board-head__side--me">
-        <Avatar name={me} size={40} className="board-head__avatar" />
+        <Avatar name={me} uid={game.account?.uid} size={40} className="board-head__avatar" />
         <div className="board-head__text">
           <strong>{me}</strong>
           <Dots player={game.me} max={game.maxAttempts} mine />
@@ -526,7 +531,7 @@ function Scoreboard({ game }: { game: Sozjang }) {
             {status}
           </span>
         </div>
-        <Avatar name={foe} size={40} className="board-head__avatar" />
+        <Avatar name={foe} uid={game.opponentUid ?? undefined} size={40} className="board-head__avatar" />
       </div>
     </div>
   );
@@ -633,7 +638,7 @@ function Result({ game }: { game: Sozjang }) {
           necha ball olgani bir qarashda solishtiriladi. */}
       <div className="score">
         <div className={`score__side${mine ? ' score__side--win' : ''}`}>
-          <Avatar name={meName} size={36} className="score__avatar" />
+          <Avatar name={meName} uid={account?.uid} size={36} className="score__avatar" />
           <span className="score__who">{meName}</span>
           <strong className="score__points">{game.me?.score ?? 0}</strong>
           <span className="score__meta">
@@ -644,7 +649,7 @@ function Result({ game }: { game: Sozjang }) {
           :
         </span>
         <div className={`score__side${!mine && !draw && !expired ? ' score__side--win' : ''}`}>
-          <Avatar name={foeName} size={36} className="score__avatar" />
+          <Avatar name={foeName} uid={game.opponentUid ?? undefined} size={36} className="score__avatar" />
           <span className="score__who">{foeName}</span>
           <strong className="score__points">{game.opponent?.score ?? 0}</strong>
           <span className="score__meta">
@@ -740,7 +745,9 @@ export default function BattlePage() {
               <div className="stage">
                 <Versus
                   me={pretty(game.account?.nickname ?? 'Siz')}
+                  meUid={game.account?.uid}
                   opponent={pretty(game.opponent?.nickname ?? 'Raqib')}
+                  opponentUid={game.opponentUid ?? undefined}
                   note={<IntroCountdown />}
                 />
               </div>

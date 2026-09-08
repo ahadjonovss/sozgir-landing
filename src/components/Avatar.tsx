@@ -1,37 +1,57 @@
-/** Avatar — ilovadagi `BattleAvatar` ning porti.
+/** Avatar — ilovadagi `BattleAvatar` + `AvatarPhoto` porti.
  *
- *  Taxallusning bosh harfi, rang esa taxallusdan hisoblanadi: bir odam
- *  ilovada ham, saytda ham, reytingda ham bir xil rangda ko'rinadi —
- *  ro'yxatda kim kim ekani tezroq tanaladi. Palitra va formula ilovadagi
- *  bilan aynan bir xil (kod birliklari yig'indisi mod 6). */
+ *  Rasm bo'lsa (`avatars/{uid}`) — doira ichida rasm; bo'lmasa taxallusning
+ *  bosh harfi, rang taxallusdan hisoblanadi (palitra va formula ilovadagi
+ *  bilan aynan). Rasm do'kondan so'raladi — bir ekrandagi o'nlab avatar
+ *  bitta so'rovga tushadi. */
 import { avatarColor, initialOf } from '../lib/avatar';
+import { avatarSrc } from '../lib/avatarImage';
+import { useAvatarThumb } from '../lib/avatars';
 import { Users } from './Icons';
 
 export default function Avatar({
   name,
+  uid,
+  image,
   size = 42,
   waiting = false,
   className = '',
 }: {
   name: string;
+  /** Kimning rasmi — berilmasa faqat bosh harf. */
+  uid?: string;
+  /** Tayyor rasm (base64): o'z profilida do'kon kutilmaydi. */
+  image?: string;
   size?: number;
   /** Raqib hali yo'q: harf o'rniga belgi va so'lg'un rang. */
   waiting?: boolean;
   className?: string;
 }) {
+  const thumb = useAvatarThumb(waiting ? undefined : uid);
+  const photo = waiting ? '' : image || thumb;
   const empty = waiting || name.trim().length === 0;
+  const classes = ['avatar-mark', empty ? 'avatar-mark--empty' : '', photo ? 'avatar-mark--photo' : '', className]
+    .filter(Boolean)
+    .join(' ');
+
   return (
     <span
-      className={`avatar-mark${empty ? ' avatar-mark--empty' : ''}${className ? ` ${className}` : ''}`}
+      className={classes}
       style={{
         width: size,
         height: size,
         fontSize: Math.round(size * 0.42),
-        ...(empty ? {} : { background: avatarColor(name) }),
+        ...(empty || photo ? {} : { background: avatarColor(name) }),
       }}
       aria-hidden="true"
     >
-      {empty ? <Users size={Math.round(size * 0.5)} /> : initialOf(name)}
+      {photo ? (
+        <img src={avatarSrc(photo)} alt="" width={size} height={size} draggable={false} />
+      ) : empty ? (
+        <Users size={Math.round(size * 0.5)} />
+      ) : (
+        initialOf(name)
+      )}
     </span>
   );
 }

@@ -116,3 +116,47 @@ export async function listDocs(
     clearTimeout(timer);
   }
 }
+
+/** Bir nechta hujjatni bitta so'rovda o'qiydi (`documents:batchGet`).
+ *
+ *  Avatarlar uchun: reytingdagi o'nlab qator uchun har biriga alohida
+ *  so'rov yuborilmaydi. Topilmagan hujjat `null` bilan qaytadi — bu ham
+ *  javob («rasmi yo'q»), chaqiruvchi uni keshlaydi. Tarmoq yiqilsa
+ *  bo'sh xarita: avatar bezak, bosh harf qolaveradi. */
+export async function batchGetDocs(
+  paths: string[],
+  { fields, timeout = 8000 }: { fields?: string[]; timeout?: number } = {},
+): Promise<Record<string, Record<string, unknown> | null>> {
+  const out: Record<string, Record<string, unknown> | null> = {};
+  if (paths.length === 0) return out;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+  try {
+    const response = await fetch(`${BASE}:batchGet?key=${firebaseConfig.apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      signal: controller.signal,
+      body: JSON.stringify({
+        documents: paths.map((path) => `${BASE}/${path}`),
+        ...(fields ? { mask: { fieldPaths: fields } } : {}),
+      }),
+    });
+    if (!response.ok) return out;
+    const body = (await response.json()) as {
+      found?: { name: string; fields?: Record<string, TypedValue> };
+      missing?: string;
+    }[];
+    for (const item of body) {
+      if (item.found) {
+        out[item.found.name.slice(BASE.length + 1)] = decodeFields(item.found.fields ?? {});
+      } else if (item.missing) {
+        out[item.missing.slice(BASE.length + 1)] = null;
+      }
+    }
+    return out;
+  } catch {
+    return out;
+  } finally {
+    clearTimeout(timer);
+  }
+}
