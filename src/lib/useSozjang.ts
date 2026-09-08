@@ -138,6 +138,12 @@ export function useSozjang() {
   const [busy, setBusy] = useState(false);
   const [hint, setHint] = useState<{ index: number; unit: string } | null>(null);
 
+  /** Navbatdagi yozuv hali kutyaptimi. `false` bo'lsa bizni allaqachon
+   *  juftlashgan — takroriy so'rov yuborilmaydi: server bu so'rovda
+   *  yozuvimizni «kutilmoqda» deb qayta yozadi va juftlashuv yo'qoladi
+   *  (ilovadagi `_waiting` bilan bir xil himoya). */
+  const waiting = useRef(true);
+
   const timers = useRef<number[]>([]);
   const later = useCallback((action: () => void, delay: number) => {
     timers.current.push(window.setTimeout(action, delay));
@@ -208,7 +214,9 @@ export function useSozjang() {
     let stop: Unsubscribe | null = null;
 
     void watchQueue(uid, (entry) => {
-      if (!alive || !entry?.matchId) return;
+      if (!alive) return;
+      waiting.current = !entry || entry.status === 'waiting';
+      if (!entry?.matchId) return;
       setSearching(false);
       open(entry.matchId);
     }).then((unsubscribe) => {
@@ -228,6 +236,7 @@ export function useSozjang() {
 
     const tick = window.setInterval(() => setSeconds((value) => value + 1), 1000);
     const retry = window.setInterval(() => {
+      if (!waiting.current) return;
       void quickMatch({ length, nickname: account.nickname })
         .then((reply) => {
           if (reply.battleId) {
@@ -491,6 +500,7 @@ export function useSozjang() {
       run(async () => {
         if (!account) return;
         setSeconds(0);
+        waiting.current = true;
         const reply = await quickMatch({ length, nickname: account.nickname });
         if (reply.battleId) open(reply.battleId);
         else setSearching(true);

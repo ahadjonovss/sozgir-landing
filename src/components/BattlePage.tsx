@@ -705,6 +705,16 @@ export default function BattlePage() {
   const game = useSozjang();
   const intro = useIntro(game.phase);
 
+  // Holat almashganda (qidiruv, kutish, jang, natija) sahifa tepaga
+  // qaytadi. Telefonda tugma ekranning pastida bo'lardi va yangi ekran
+  // ko'rinmay qolardi — ilgari «Raqib qidirish» bosilgach faqat footer
+  // ko'rinib turardi.
+  const phase = game.phase;
+  useEffect(() => {
+    if (phase === 'lobby') return;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [phase]);
+
   return (
     <section className="oyin jang">
       <div className="wrap jang__wrap">
