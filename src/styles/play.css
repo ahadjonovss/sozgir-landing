@@ -390,6 +390,67 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* ── Ilovaga taklif (mehmon natijasi ostida) ──────────────────────────── */
+
+.promo {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  background: var(--green-soft);
+  text-align: start;
+}
+
+.promo__text {
+  display: grid;
+  gap: 3px;
+}
+
+.promo__text strong {
+  font-size: 14.5px;
+  font-weight: 800;
+}
+
+.promo__text span {
+  color: var(--text-2);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.promo__stores {
+  display: flex;
+  gap: 8px;
+}
+
+.promo__store {
+  flex: 1 1 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: var(--bg);
+  box-shadow: inset 0 0 0 1.5px var(--divider);
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+  transition: transform 0.14s ease;
+}
+
+.promo__store:hover {
+  transform: translateY(-1px);
+}
+
+/* Qurilmaning do'koni — to'q tugma. */
+.promo__store--first {
+  background: var(--text);
+  color: var(--bg);
+  box-shadow: none;
+}
+
 /* ── Statistika chizig'i ──────────────────────────────────────────────── */
 
 .play__stats {

@@ -15,6 +15,7 @@ import type { GameChoice } from '../lib/useGameChoice';
 import type { Game } from '../lib/useSozTop';
 import { pretty } from '../lib/uz';
 import { Board, Keyboard } from './Board';
+import DownloadPromo from './DownloadPromo';
 import Leaderboard from './Leaderboard';
 import Modal from './Modal';
 
@@ -212,7 +213,7 @@ export default function Play({ choice, game }: { choice: GameChoice; game: Game 
                     Cheksiz rejimda mashq qilish
                   </button>
                 )}
-                {mode === 'daily' && !elsewhere && (
+                {mode === 'daily' && !elsewhere && auth.account && (
                   <a className="btn btn--sm btn--ghost" href="#yuklab-olish">
                     Ilovada davom etish
                   </a>
@@ -237,6 +238,9 @@ export default function Play({ choice, game }: { choice: GameChoice; game: Game 
                   Keyingi so‘zgacha <strong>{countdown}</strong>
                 </p>
               )}
+
+              {/* Mehmon uchun har o'yin tugagach: ilova natijani saqlaydi. */}
+              {!auth.account && <DownloadPromo />}
             </div>
           ) : (
             <Keyboard keyState={game.keyState} onPress={game.press} />
