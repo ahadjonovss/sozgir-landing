@@ -23,7 +23,7 @@ export type Policy = {
 const uz: Policy = {
   label: 'O‘zbekcha',
   title: 'Maxfiylik siyosati',
-  updated: 'Oxirgi yangilanish: 2026-yil 1-sentabr',
+  updated: 'Oxirgi yangilanish: 2026-yil 8-sentabr',
   intro:
     'So‘zgir («ilova») — o‘zbek tilidagi so‘z o‘yinlari to‘plami. Uning ichida So‘ztop moduli (so‘z topish) va Yangso‘z moduli (yangi so‘z o‘ylab topish bo‘yicha haftalik tanlov) bor. Bu hujjatda ilova qanday ma’lumot yig‘ishi, nima uchun yig‘ishi va uni qanday o‘chirish mumkinligi tushuntirilgan.',
   meta: ['Ishlab chiquvchi: Samandar Ahadjonov', `Aloqa: ${email}`],
@@ -54,7 +54,7 @@ const uz: Policy = {
           '«o‘yin boshlandi» yoki «o‘yin tugadi» kabi foydalanish hodisalari — Google Analytics for Firebase orqali;',
           'ilovadagi nosozliklarni tuzatish uchun ishlatiladigan xatolik va yiqilish hisobotlari — Firebase Crashlytics orqali.',
         ],
-        'Ilova joylashuv, kontaktlar, suratlar, fayllar, mikrofon ovozi, sog‘liq ma’lumotlari va reklama identifikatorlarini yig‘maydi. Ilovada reklama ham, ilova ichi xaridlari ham yo‘q.',
+        'Ilova joylashuv, kontaktlar, suratlar, fayllar, mikrofon ovozi va sog‘liq ma’lumotlarini yig‘maydi. Ilovada ilova ichi xaridlari va obuna yo‘q. Reklama ko‘rsatish uchun qurilmangizning reklama identifikatori ishlatiladi — 9-bo‘limga qarang.',
       ],
     },
     {
@@ -67,7 +67,7 @@ const uz: Policy = {
           'yiqilish va xatoliklarni topib tuzatish uchun;',
           'ilova umumiy holda qanday ishlatilayotganini tushunish uchun.',
         ],
-        'Ma’lumotlaringiz reklama uchun ishlatilmaydi, sotilmaydi va marketing maqsadida uchinchi tomonlarga berilmaydi.',
+        'O‘yin ma’lumotlaringiz — topilgan so‘zlar, ballar, statistika — reklama tanlash uchun ishlatilmaydi. Ma’lumotlaringiz sotilmaydi va marketing maqsadida uchinchi tomonlarga berilmaydi. Reklama qanday ko‘rsatilishi 9-bo‘limda yozilgan.',
       ],
     },
     {
@@ -75,6 +75,7 @@ const uz: Policy = {
       blocks: [
         'Ma’lumotlar Google Firebase xizmatlarida (Authentication, Cloud Firestore, Analytics, Crashlytics) saqlanadi va qayta ishlanadi. Google bu ma’lumotni bizning nomimizdan, xizmat ko‘rsatuvchi sifatida qayta ishlaydi: https://firebase.google.com/support/privacy',
         'Taxallusingiz va ballingiz reytingda boshqa o‘yinchilarga ko‘rinadi, Yangso‘zga yuborgan so‘zlaringiz esa ovoz berish uchun boshqalarga ko‘rsatiladi. Elektron pochtangiz boshqa foydalanuvchilarga hech qachon ko‘rsatilmaydi.',
+        'Reklama Google AdMob orqali ko‘rsatiladi — bu yerda Google mustaqil ravishda, o‘z siyosati bo‘yicha ish ko‘radi (9-bo‘lim).',
       ],
     },
     {
@@ -108,7 +109,21 @@ const uz: Policy = {
       ],
     },
     {
-      title: '9. Siyosatdagi o‘zgarishlar',
+      title: '9. Reklama',
+      blocks: [
+        'Ilovada Google AdMob orqali reklama ko‘rsatiladi: bosh ekranning ostida bitta banner. O‘yin taxtasi, kategoriyalar va reyting reklamasiz qoladi; oraliq va video reklama yo‘q.',
+        'Reklamani tanlash uchun Google qurilma haqidagi umumiy ma’lumotni (model, operatsion tizim, taxminiy joy, til) va qurilmaning reklama identifikatorini — iOS’da IDFA, Android’da «reklama ID» — ishlatadi. Google bu ma’lumotni bizning nomimizdan emas, mustaqil ravishda, o‘z siyosati bo‘yicha qayta ishlaydi: https://policies.google.com/technologies/ads',
+        'iOS’da ilova sizdan kuzatuvga ruxsat so‘raydi (App Tracking Transparency). Ruxsat bermasangiz ilova to‘liq ishlaydi — reklama shunchaki sizga moslanmaydi.',
+        'Reklama identifikatorini istalgan payt qurilma sozlamalaridan nolga tushirish yoki cheklash mumkin:',
+        [
+          'iOS: Sozlamalar > Maxfiylik va xavfsizlik > Kuzatuv;',
+          'Android: Sozlamalar > Google > Reklama.',
+        ],
+        'Hisobingiz, topilgan so‘zlaringiz va statistikangiz reklama tarmog‘iga berilmaydi.',
+      ],
+    },
+    {
+      title: '10. Siyosatdagi o‘zgarishlar',
       blocks: [
         'Bu siyosat o‘zgarsa, hujjat boshidagi yangilanish sanasi ham o‘zgaradi. Muhim o‘zgarishlar ilova ichida ham e’lon qilinadi.',
       ],
@@ -119,7 +134,7 @@ const uz: Policy = {
 const en: Policy = {
   label: 'English',
   title: 'Privacy policy',
-  updated: 'Last updated: September 1, 2026',
+  updated: 'Last updated: September 8, 2026',
   intro:
     'So‘zgir ("the app") is a collection of Uzbek-language word games. It contains the So‘ztop module (word guessing) and the Yangso‘z module (a weekly contest for coining new words). This document explains what data the app collects, why it is collected, and how you can remove it.',
   meta: ['Developer: Samandar Ahadjonov', `Contact: ${email}`],
@@ -150,7 +165,7 @@ const en: Policy = {
           'usage events such as "game started" or "game finished", collected through Google Analytics for Firebase;',
           'crash and error reports, collected through Firebase Crashlytics, used to fix problems in the app.',
         ],
-        'The app does not collect location, contacts, photos, files, microphone audio, health data, or advertising identifiers. The app contains no ads and no in-app purchases.',
+        'The app does not collect location, contacts, photos, files, microphone audio, or health data. The app contains no in-app purchases and no subscriptions. Your device’s advertising identifier is used to show ads — see section 9.',
       ],
     },
     {
@@ -163,7 +178,7 @@ const en: Policy = {
           'to find and fix crashes and errors;',
           'to understand in aggregate how the app is used.',
         ],
-        'Your data is not used for advertising, is not sold, and is not shared with third parties for marketing purposes.',
+        'Your game data — found words, points, statistics — is not used to select ads. Your data is not sold and is not shared with third parties for marketing purposes. How ads are shown is described in section 9.',
       ],
     },
     {
@@ -171,6 +186,7 @@ const en: Policy = {
       blocks: [
         'Data is stored and processed in Google Firebase services (Authentication, Cloud Firestore, Analytics, Crashlytics). Google processes this data on our behalf as a service provider; see https://firebase.google.com/support/privacy',
         'Your nickname and score are visible to other players in the leaderboard, and words you submit to Yangso‘z are shown to other players for voting. Your email address is never shown to other users.',
+        'Ads are served through Google AdMob, where Google acts independently under its own policies (see section 9).',
       ],
     },
     {
@@ -204,7 +220,21 @@ const en: Policy = {
       ],
     },
     {
-      title: '9. Changes to this policy',
+      title: '9. Advertising',
+      blocks: [
+        'The app shows ads through Google AdMob: a single banner below the home screen. The game board, categories and leaderboard stay free of ads; there are no interstitial or video ads.',
+        'To select ads, Google uses general device information (model, operating system, approximate location, language) and your device’s advertising identifier — IDFA on iOS, "advertising ID" on Android. Google processes this data independently, under its own policies, not on our behalf: https://policies.google.com/technologies/ads',
+        'On iOS the app asks for tracking permission (App Tracking Transparency). If you decline, the app works fully — the ads simply are not tailored to you.',
+        'You can reset or limit the advertising identifier at any time in your device settings:',
+        [
+          'iOS: Settings > Privacy & Security > Tracking;',
+          'Android: Settings > Google > Ads.',
+        ],
+        'Your account, the words you have found and your statistics are not shared with the ad network.',
+      ],
+    },
+    {
+      title: '10. Changes to this policy',
       blocks: [
         'If this policy changes, the updated date at the top of the document will change. Significant changes will also be announced inside the app.',
       ],

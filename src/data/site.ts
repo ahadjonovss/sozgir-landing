@@ -113,7 +113,7 @@ export const modules: Module[] = [
     id: 'qollab',
     emoji: '🤝',
     name: 'Qo‘llab-quvvatlash',
-    tagline: 'Reklama yo‘q, xarid yo‘q. Loyihani hamjamiyat ko‘taradi.',
+    tagline: 'Xarid ham, obuna ham yo‘q. Loyihani hamjamiyat ko‘taradi.',
     points: [
       'Loyiha hisobi ochiq ko‘rinadi',
       'Hissa qo‘shganlar ro‘yxati',
@@ -151,7 +151,7 @@ export const faq = [
   },
   {
     q: 'Reklama yoki pullik xaridlar bormi?',
-    a: 'Yo‘q. Ilova butunlay bepul, reklama va ilova ichi xaridlari yo‘q. Xohlovchilar «Qo‘llab-quvvatlash» bo‘limi orqali hissa qo‘shishi mumkin.',
+    a: 'Ilova bepul. Bosh ekran ostida bitta reklama banneri turadi — o‘yin taxtasiga, kategoriyalarga va reytingga reklama tushmaydi. Oraliq reklama, video reklama, ilova ichi xaridlari va obuna yo‘q. Xohlovchilar «Qo‘llab-quvvatlash» bo‘limi orqali hissa qo‘shishi mumkin.',
   },
   {
     q: 'Kunlik so‘z hammaga bir xilmi?',

@@ -7,9 +7,9 @@ const perks = [
     text: 'Lug‘at ilova bilan birga keladi. O‘yin hech qachon tarmoqni kutmaydi — aloqa qaytganda yangi so‘zlar o‘zi yuklanadi.',
   },
   {
-    icon: '🚫',
-    title: 'Reklama yo‘q',
-    text: 'Banner ham, oraliq reklama ham, ilova ichi xaridlari ham yo‘q. Hech kim sizga hech narsa sotmaydi.',
+    icon: '🪙',
+    title: 'Bitta banner, tamom',
+    text: 'Bosh ekran ostida bitta banner turadi. O‘yin taxtasi reklamasiz: oraliq reklama, video, ilova ichi xaridlari va obuna yo‘q.',
   },
   {
     icon: '👤',

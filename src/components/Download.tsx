@@ -61,7 +61,7 @@ export default function Download() {
 
           <h2>Bugungi so‘zni telefoningizda toping</h2>
           <p>
-            Bepul, reklamasiz, internetsiz ham ishlaydi. iOS 15+ va Android 6.0+
+            Bepul, internetsiz ham ishlaydi, xaridsiz. iOS 15+ va Android 6.0+
             qurilmalarda.
           </p>
 

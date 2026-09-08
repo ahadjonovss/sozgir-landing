@@ -242,7 +242,7 @@ export default function Support({ page = false }: { page?: boolean }) {
             </>
           )}
           <p className="section__lead">
-            Reklama yo‘q, ilova ichi xaridlari yo‘q. Yig‘ilgan pul lug‘atni
+            Ilova ichi xaridlari yo‘q, obuna yo‘q. Yig‘ilgan pul lug‘atni
             kengaytirishga va serverga ketadi — hisob esa ochiq turadi.
           </p>
         </div>

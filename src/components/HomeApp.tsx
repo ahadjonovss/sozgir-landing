@@ -223,7 +223,7 @@ export default function HomeApp() {
           </span>
           <span className="tile-card__text">
             <span className="tile-card__title">Qo‘llab-quvvatlash</span>
-            <span className="tile-card__sub">Reklama yo‘q, xarid yo‘q</span>
+            <span className="tile-card__sub">Xarid yo‘q, obuna yo‘q</span>
           </span>
           <span className="tile-card__badge">Hissa</span>
         </a>
