@@ -208,6 +208,14 @@ u esa `firestore/lite` da yo‘q — shuning uchun bu sahifa to‘liq Firestore
 SDK sini alohida chunk sifatida yuklaydi. Qolgan sahifalar yengil variantda
 qoladi.
 
+Natijadagi «Yangi raqib qidirish» tezkor jangdan keyin darrov navbatga
+qo‘yadi (lobbiga qaytilmaydi); do‘st bilan jangdan keyin «Yangi jang»
+lobbini ochadi. Navbat yozuvi kuzatuvida keshdagi holat tashlab
+yuboriladi (`watchDoc(..., { skipCache })`): SDK yangi tinglovchiga avval
+xotiradagi eski nusxani beradi, unda esa o‘tgan jangning `matchId` si
+turadi — aks holda «Raqib qidirish» bosilganda o‘tgan jang natijasi
+qayta ochilardi.
+
 Boshlangan jang brauzerda eslab qolinadi (`sozgir.battle`), o‘z
 taxminlarim ham (`sozgir.battle.words.{id}`) — server ularni jang
 tugamaguncha yashiradi, shuning uchun sahifa yangilanganda harflar

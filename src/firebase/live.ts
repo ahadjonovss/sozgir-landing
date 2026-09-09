@@ -15,6 +15,15 @@ export type Unsubscribe = () => void;
 export async function watchDoc<T>(
   path: string,
   onData: (data: T | null) => void,
+  {
+    skipCache = false,
+  }: {
+    /** Keshdan kelgan (`fromCache`) holatlar tashlab yuboriladi.
+     *  SDK oldin tinglangan hujjatni xotirada saqlaydi va yangi
+     *  tinglovchiga avval **eski** nusxani beradi — navbat yozuvida bu
+     *  o'tgan jangning `matchId` si bo'lib, o'tgan jang qayta ochilardi. */
+    skipCache?: boolean;
+  } = {},
 ): Promise<Unsubscribe> {
   const { app } = await client();
   const { connectFirestoreEmulator, getFirestore, doc, onSnapshot } =
@@ -25,7 +34,10 @@ export async function watchDoc<T>(
 
   return onSnapshot(
     doc(db, path),
-    (snapshot) => onData(snapshot.exists() ? (snapshot.data() as T) : null),
+    (snapshot) => {
+      if (skipCache && snapshot.metadata.fromCache) return;
+      onData(snapshot.exists() ? (snapshot.data() as T) : null);
+    },
     // Ulanish uzilsa jim o'tamiz: chaqiruvchi oxirgi holat bilan qoladi.
     () => onData(null),
   );

@@ -143,6 +143,9 @@ export function useSozjang() {
    *  yozuvimizni «kutilmoqda» deb qayta yozadi va juftlashuv yo'qoladi
    *  (ilovadagi `_waiting` bilan bir xil himoya). */
   const waiting = useRef(true);
+  /** Endigina chiqilgan jang — navbat yozuvida uning `matchId` si qolgan
+   *  bo'lsa, u qayta ochilmasin. */
+  const lastLeft = useRef<string | null>(null);
 
   const timers = useRef<number[]>([]);
   const later = useCallback((action: () => void, delay: number) => {
@@ -216,7 +219,7 @@ export function useSozjang() {
     void watchQueue(uid, (entry) => {
       if (!alive) return;
       waiting.current = !entry || entry.status === 'waiting';
-      if (!entry?.matchId) return;
+      if (!entry?.matchId || entry.matchId === lastLeft.current) return;
       setSearching(false);
       open(entry.matchId);
     }).then((unsubscribe) => {
@@ -520,12 +523,22 @@ export function useSozjang() {
    *  kutib qolmasligi kerak. */
   const leave = useCallback(async () => {
     const id = battleId;
+    lastLeft.current = id;
     close();
     if (!id) return;
     if (phase === 'playing' && !finished) {
       await forfeit(id).catch(() => undefined);
     }
   }, [battleId, close, finished, phase]);
+
+  /** Natijadagi «Yangi jang»: tezkor jang bo'lsa darrov raqib qidiriladi —
+   *  lobbiga qaytib yana tugma bosib o'tirmasin. Do'st bilan jang bo'lsa
+   *  lobbi (yangi kod kerak). */
+  const again = useCallback(async () => {
+    const type = battle?.type;
+    await leave();
+    if (type === 'quick') await quick();
+  }, [battle?.type, leave, quick]);
 
   /** Natijani ulashish matni — So'ztopdagi bilan bir uslubda: sarlavha,
    *  ikki tomonning yo'li ranglar bilan, ostida havola. Harflar yo'q —
@@ -590,6 +603,7 @@ export function useSozjang() {
     quick,
     cancelSearch,
     leave,
+    again,
     press,
     clearError: () => setError(null),
   };

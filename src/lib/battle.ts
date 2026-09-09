@@ -83,10 +83,12 @@ export const watchBattle = (
   onData: (battle: BattleDoc | null) => void,
 ): Promise<Unsubscribe> => watchDoc<BattleDoc>(`battles/${battleId}`, onData);
 
+/** Navbat yozuvi. Faqat serverdan kelgan holat: keshdagi eski yozuvda
+ *  o'tgan jangning `matchId` si turadi. */
 export const watchQueue = (
   uid: string,
   onData: (entry: { status?: string; matchId?: string } | null) => void,
-): Promise<Unsubscribe> => watchDoc(`battle_queue/${uid}`, onData);
+): Promise<Unsubscribe> => watchDoc(`battle_queue/${uid}`, onData, { skipCache: true });
 
 /** Chaqiruv havolasi — bosgan odam kodni terib o'tirmasligi uchun. */
 export const inviteLink = (code: string) =>

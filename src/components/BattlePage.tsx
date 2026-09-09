@@ -692,9 +692,9 @@ function Result({ game }: { game: Sozjang }) {
       {account && !expired && <BattleStats uid={account.uid} compact />}
 
       <div className="result__actions">
-        <button className="btn" onClick={game.leave}>
+        <button className="btn" onClick={() => void game.again()}>
           <Swords size={16} />
-          Yangi jang
+          {game.battle?.type === 'quick' ? 'Yangi raqib qidirish' : 'Yangi jang'}
         </button>
         {!expired && (
           <button className="btn btn--ghost" onClick={() => void share(game.shareText())}>
