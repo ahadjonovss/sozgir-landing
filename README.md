@@ -35,6 +35,9 @@ do‘koniga o‘zi yo‘naltiradi, kompyuterda ikkala tugmani ko‘rsatadi;
 Ular serverdan to‘g‘ridan-to‘g‘ri keladi, shuning uchun `useRoute` bilmagan
 manzilni ushlamaydi — bosilganda brauzerning o‘zi ochadi.
 
+`/ol` ning har tarmoq uchun alohida manzili bor — pastdagi
+«Ulashish havolalari» bo‘limiga qaraldi.
+
 ## O‘yin
 
 O‘yin ikki joyda ko‘rinadi va ikkisi bitta `Play` komponentini ishlatadi:
@@ -290,6 +293,7 @@ Node 22+ kerak.
 ```
 api/
   contact.ts    aloqa formasini Telegramga uzatuvchi Edge Function
+  ol.ts         ulashish havolasi ochilganini qayd qiluvchi Edge Function
 src/
   components/   bo‘limlar (Hero, Rules, Alphabet, Modules, …)
     Header.tsx    sarlavha: bo‘limlar, mavzu, hisob, «O‘ynash», telefon menyusi
@@ -405,6 +409,61 @@ telefon brauzeri fayl tanlashda kamerani ham taklif qiladi.
 Logotip `public/logo.svg` dan ko‘chirilgan, lekin `Logo.tsx` da `currentColor`
 bilan qayta chizilgan — shunda u tungi rejimda ham to‘g‘ri ko‘rinadi.
 
+## Ulashish havolalari
+
+Yuklab olish sahifasi bitta, manzil esa har tarmoq uchun alohida — shunda
+qaysi tarmoq qancha odam olib kelgani ko‘rinadi:
+
+| Havola | Manba kaliti | Qayerda ishlatiladi |
+| --- | --- | --- |
+| `sozgir.uz/ol` | `web` | to‘g‘ridan-to‘g‘ri ulashish, QR, matbuot |
+| `sozgir.uz/t/ol` | `telegram` | Telegram kanali va guruhlar |
+| `sozgir.uz/x/ol` | `x` | X (Twitter) |
+| `sozgir.uz/th/ol` | `threads` | Threads |
+| `sozgir.uz/i/ol` | `instagram` | Instagram — profildagi havola |
+| `sozgir.uz/tt/ol` | `tiktok` | TikTok |
+| `sozgir.uz/y/ol` | `youtube` | YouTube |
+| `sozgir.uz/f/ol` | `facebook` | Facebook |
+
+Sahifa **nusxalanmaydi**: hammasi `vercel.json` dagi bitta rewrite bilan
+`public/ol/index.html` ga yo‘naltiriladi (`/:channel(t|x|th|i|tt|y|f)/ol`).
+Brauzerdagi manzil o‘zgarmaydi, shuning uchun manba `location.pathname`
+dan olinadi. Ro‘yxatda yo‘q bo‘lak (`/zz/ol`) `other` bo‘lib qoladi.
+`canonical` va `og:url` esa doim `/ol` — ya’ni izlash tizimlari uchun bu
+bitta sahifa, tarmoq nusxalari indeksni bo‘lmaydi.
+
+Yangi tarmoq qo‘shish uchun uch joy yangilanadi: `vercel.json` dagi
+rewrite, sahifadagi `CHANNELS` xaritasi va `api/ol.ts` dagi `SOURCES`.
+Firestore qoidalaridagi `linkSources()` ro‘yxati ham (`soztop/firestore.rules`)
+— aks holda yozuv rad etiladi.
+
+### Qayd va statistika
+
+Sahifa ochilganda `/api/ol` ga bitta `sendBeacon` ketadi (javob kutilmaydi,
+do‘konga o‘tish kechikmaydi), `api/ol.ts` esa ikki ish qiladi:
+
+1. **Telegram** — alohida mavzuga xabar: manba, sahifa, joy (shahar va
+   davlat), qurilma, OS, brauzer, ekran, til, vaqt mintaqasi va
+   yo‘naltirgan sayt. Birinchi qator heshteglar: `#ol #telegram #ios #UZ`,
+   ya’ni guruhda manba yoki platforma bo‘yicha filtrlash mumkin.
+   Ilova ichidagi brauzerlar alohida ajratiladi («Instagram ichida»,
+   «Telegram ichida») — bu manbani URL’dan mustaqil tasdiqlaydi.
+2. **Firestore** — `link_hits/{manba}_{sana}` hujjatidagi hisoblagich
+   bittaga oshadi (`hits` va shu platformaning hisoblagichi). Admin
+   panelning **Statistika → Havolalar** bo‘limi shundan o‘qiydi.
+
+Bir tashrifda bir marta sanaladi (`sessionStorage`), preview botlari esa
+umuman hisobga olinmaydi. IP yozilmaydi — shahar va davlat yetadi.
+
+Yozuv **hisobsiz** ketadi, shuning uchun himoya qoidalarda: `link_hits`
+ga faqat «bitta bosish qo‘shildi» shaklidagi yozuv o‘tadi (maydonlar
+ro‘yxati qat’iy, `hits` aynan bittaga oshadi, manba ro‘yxatdan). O‘qish
+faqat moderatorda.
+
+Kerakli muhit o‘zgaruvchisi — `TELEGRAM_OL_THREAD` (havolalar mavzusining
+raqami). Berilmasa xabar guruhning asosiy oqimiga tushadi; token yoki chat
+bo‘lmasa xabar yuborilmaydi, hisoblagich baribir yoziladi.
+
 ## Aloqa formasi va Telegram
 
 `/contact` dagi forma `api/contact.ts` (Vercel Edge Function) ga yuboriladi, u
@@ -420,6 +479,7 @@ Vercel muhit o‘zgaruvchilari (Project → Settings → Environment Variables):
 | `TELEGRAM_BOT_TOKEN` | bot tokeni |
 | `TELEGRAM_CHAT_ID` | guruh yoki kanal ID (masalan `-1001234567890`) |
 | `TELEGRAM_CONTACT_THREAD` | mavzu (topic) raqami, ixtiyoriy |
+| `TELEGRAM_OL_THREAD` | ulashish havolalari uchun mavzu raqami, ixtiyoriy |
 
 Token yoki chat berilmasa funksiya `503` qaytaradi, forma esa foydalanuvchiga
 pochta manzilini ko‘rsatadi. Lokalda `npm run dev` bilan faqat sahifalar

@@ -14,7 +14,20 @@
      telefonda ham yo'naltirilmaydi (sahifani ko'rish uchun).
 
      Do'kon manzillari `src/data/site.ts` dagi `links` bilan bir xil
-     bo'lishi kerak — biri o'zgarsa, ikkinchisi ham o'zgaradi. -->
+     bo'lishi kerak — biri o'zgarsa, ikkinchisi ham o'zgaradi.
+
+     Bitta sahifa, bir necha manzil: har tarmoq uchun alohida havola
+     bor va hammasi `vercel.json` dagi rewrite bilan shu faylga
+     yo'naltiriladi (`/t/ol` → Telegram, `/x/ol` → X, `/th/ol` →
+     Threads, `/i/ol` → Instagram, `/tt/ol` → TikTok, `/y/ol` →
+     YouTube, `/f/ol` → Facebook). Brauzerdagi manzil o'zgarmaydi,
+     shuning uchun manba `location.pathname` dan olinadi — sahifa
+     nusxalanmaydi.
+
+     Sahifa ochilganda `/api/ol` ga bitta beacon ketadi: u Telegramga
+     xabar yuboradi va `link_hits/{manba}_{sana}` hisoblagichini
+     oshiradi (admin paneldagi «Havolalar» bo'limi shundan o'qiydi).
+     Beacon javob kutmaydi va do'konga o'tishni kechiktirmaydi. -->
 <html lang="uz">
 <head>
 <meta charset="utf-8">
@@ -224,6 +237,64 @@
     var lead = document.getElementById('lead');
     var stay = /[?&]stay=1/.test(location.search);
 
+    // ── Manba: manzilning birinchi bo'lagi ────────────────────────────
+    // Kalitlar `api/ol.ts` va Firestore qoidalaridagi ro'yxat bilan bir
+    // xil. `/ol` — to'g'ridan-to'g'ri kirish, notanish bo'lak esa
+    // `other` bo'lib qoladi (havola noto'g'ri ulashilgan holat).
+    var CHANNELS = {
+      t: 'telegram',
+      x: 'x',
+      th: 'threads',
+      i: 'instagram',
+      tt: 'tiktok',
+      y: 'youtube',
+      f: 'facebook'
+    };
+
+    var parts = location.pathname.split('/').filter(Boolean);
+    // Birinchi bo'lak — tarmoq kaliti. `/ol` va `/ol/index.html` da u
+    // «ol» bo'lib qoladi, ya'ni to'g'ridan-to'g'ri kirish.
+    var first = parts.length > 1 && parts[0] !== 'ol' ? parts[0] : '';
+    var source = first ? CHANNELS[first] || 'other' : 'web';
+    var platform = ios ? 'ios' : android ? 'android' : 'desktop';
+
+    // Qayd — bir tashrifda bir marta. `sendBeacon` sahifa do'konga
+    // o'tib ketsa ham yuborilishini kafolatlaydi; bo'lmasa `keepalive`
+    // bilan oddiy so'rov ketadi. Xato bo'lsa jim o'tiladi: sahifaning
+    // vazifasi — do'konni ochish.
+    (function track() {
+      var once = 'sozgir.ol.' + source;
+      try {
+        if (sessionStorage.getItem(once)) return;
+        sessionStorage.setItem(once, '1');
+      } catch (error) { /* private rejim — baribir yuboramiz */ }
+
+      var body = JSON.stringify({
+        source: source,
+        path: location.pathname,
+        platform: platform,
+        ua: ua,
+        lang: navigator.language || '',
+        screen: window.screen ? window.screen.width + '×' + window.screen.height : '',
+        dpr: window.devicePixelRatio ? String(window.devicePixelRatio) : '',
+        referrer: document.referrer ? document.referrer.slice(0, 120) : '',
+        tz: (window.Intl && Intl.DateTimeFormat().resolvedOptions().timeZone) || ''
+      });
+
+      try {
+        if (navigator.sendBeacon) {
+          var blob = new Blob([body], { type: 'application/json' });
+          if (navigator.sendBeacon('/api/ol', blob)) return;
+        }
+        fetch('/api/ol', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: body,
+          keepalive: true
+        }).catch(function () {});
+      } catch (error) { /* qayd yozilmasa ham sahifa ishlaydi */ }
+    })();
+
     // Telefonda darhol do'konga: sahifa faqat do'kon ochilmasa kerak
     // bo'ladi. `replace` — «orqaga» bosilganda shu sahifaga qaytib
     // qolmasin.
@@ -242,9 +313,11 @@
     } else {
       // Kompyuterda do'kon havolasi telefonda ochilishi kerak — aytib
       // qo'yamiz, aks holda odam do'kon sahifasida qotib qoladi.
+      // Havola aynan shu sahifaning manzili bo'lsin: `/t/ol` dan
+      // ko'chirilgan havola ham manbani saqlab qolsin.
       lead.textContent =
         'Kuniga bitta o‘zbekcha so‘z. Havolani telefoningizga yuboring — ' +
-        'sozgir.uz/ol';
+        'sozgir.uz' + location.pathname.replace(/\/index\.html$/, '');
     }
   })();
 </script>
