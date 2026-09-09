@@ -28,7 +28,7 @@ import { attemptsFor, DEFAULT_LENGTH } from './modes';
 import { EMOJI, keyAction, lengthOf, normalize, split, type Verdict } from './uz';
 import { links, site } from '../data/site';
 
-export type Phase = 'lobby' | 'searching' | 'waiting' | 'playing' | 'finished';
+export type Phase = 'lobby' | 'searching' | 'loading' | 'waiting' | 'playing' | 'finished';
 
 /** Taxta qatori. Faol qatorda `lock` — oldingi taxminda joyi topilgan va
  *  keyingi qatorga o'zi tushgan harf (ilovadagi `lockedPositions`). */
@@ -162,6 +162,8 @@ export function useSozjang() {
 
   const open = useCallback((id: string) => {
     setBattleId(id);
+    // Oldingi jangning hujjati yangi jang holati o'rnida ko'rinmasin.
+    setBattle(null);
     write(ACTIVE_KEY, id);
     setWords(read<string[]>(wordsKey(id), []));
     setTyped({ row: 0, units: [] });
@@ -268,15 +270,22 @@ export function useSozjang() {
   const boardLength = battle?.length ?? length;
   const maxAttempts = attemptsFor(boardLength);
 
+  // Jang hujjati hali kelmagan bo'lsa holat noma'lum — «yuklanmoqda».
+  // Ilgari bu payt ham 'playing' deb hisoblanardi: jang ochilishi bilan
+  // holat qisqa vaqt 'playing' bo'lib, hujjat kelgach 'waiting' ga
+  // qaytardi. Shu «sakrash» boshlanish afishasining sanog'ini o'z paytida
+  // yeb qo'yardi va taxta ochilmay qolardi.
   const phase: Phase = !battleId
     ? searching
       ? 'searching'
       : 'lobby'
-    : battle?.status === 'finished' || battle?.status === 'expired'
-      ? 'finished'
-      : battle?.status === 'waiting'
-        ? 'waiting'
-        : 'playing';
+    : !battle
+      ? 'loading'
+      : battle.status === 'finished' || battle.status === 'expired'
+        ? 'finished'
+        : battle.status === 'waiting'
+          ? 'waiting'
+          : 'playing';
 
   // `me` hujjat bilan birga o'zgaradi — ro'yxat har renderda yangi
   // bo'lib qolmasligi uchun eslab qo'yiladi.
@@ -526,7 +535,9 @@ export function useSozjang() {
     lastLeft.current = id;
     close();
     if (!id) return;
-    if (phase === 'playing' && !finished) {
+    // Holat hali noma'lum ('loading') bo'lsa ham taslim bo'lamiz: raqib
+    // cheksiz kutib qolmasligi kerak.
+    if ((phase === 'playing' || phase === 'loading') && !finished) {
       await forfeit(id).catch(() => undefined);
     }
   }, [battleId, close, finished, phase]);

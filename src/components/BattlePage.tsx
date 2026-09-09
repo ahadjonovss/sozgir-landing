@@ -344,6 +344,24 @@ function Searching({ game }: { game: Sozjang }) {
   );
 }
 
+/** Jang ochildi, ammo hujjati hali kelmadi — holat noma'lum. Bu qisqa
+ *  oraliq bo'lib, taxta ham, afisha ham ko'rsatilmaydi: aks holda holat
+ *  «sakrab» boshlanish afishasini buzadi. */
+function Loading() {
+  return (
+    <div className="stage stage--wait">
+      <div className="radar" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+      </div>
+      <p className="panel__note jang__wait" role="status">
+        Jang yuklanmoqda…
+      </p>
+    </div>
+  );
+}
+
 const WAIT_LINES = [
   'Do‘stingiz shu kodni kiritsa jang boshlanadi',
   'Havolani yuborsangiz, kodni terib ham o‘tirmaydi',
@@ -445,18 +463,32 @@ function Waiting({ game }: { game: Sozjang }) {
  *  bilish uchun yon ustunga qarash kerak edi. Afisha bir marta, faqat
  *  jang boshlanganda ko'rinadi. */
 function useIntro(phase: string): boolean {
-  const [show, setShow] = useState(false);
+  /** Afisha yopiladigan payt — mutlaq vaqt. `null` bo'lsa afisha yo'q. */
+  const [endsAt, setEndsAt] = useState<number | null>(null);
   const seen = useRef(false);
 
   useEffect(() => {
     if (phase !== 'playing' || seen.current) return;
     seen.current = true;
-    setShow(true);
-    const timer = window.setTimeout(() => setShow(false), INTRO_MS);
-    return () => window.clearTimeout(timer);
+    setEndsAt(Date.now() + INTRO_MS);
   }, [phase]);
 
-  return show;
+  // Taymer alohida effektda va muddati mutlaq. Ilgari taymer «bir marta»
+  // qo'riqchisi bilan bitta effektda edi: React effektni ikki marta
+  // chaqirganda birinchi taymer cleanup'da bekor bo'lardi, ikkinchi
+  // chaqiruv esa qo'riqchi sababli qaytib ketardi — afisha yopilmay,
+  // sanoq «1» da qotib qolardi. Muddat mutlaq bo'lgani uchun taymer
+  // qayta qo'yilsa ham afisha aynan o'z paytida yopiladi.
+  useEffect(() => {
+    if (endsAt === null) return;
+    const timer = window.setTimeout(
+      () => setEndsAt(null),
+      Math.max(0, endsAt - Date.now()),
+    );
+    return () => window.clearTimeout(timer);
+  }, [endsAt]);
+
+  return endsAt !== null;
 }
 
 const INTRO_MS = 3000;
@@ -740,6 +772,7 @@ export default function BattlePage() {
 
             {game.phase === 'lobby' && <Lobby game={game} />}
             {game.phase === 'searching' && <Searching game={game} />}
+            {game.phase === 'loading' && <Loading />}
             {game.phase === 'waiting' && <Waiting game={game} />}
             {game.phase === 'playing' && intro && (
               <div className="stage">
