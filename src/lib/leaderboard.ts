@@ -63,3 +63,42 @@ export async function totalTop({ limit = 10 }: { limit?: number } = {}): Promise
     won: true,
   }));
 }
+
+export interface BattleEntry {
+  uid: string;
+  nickname: string;
+  rating: number;
+  wins: number;
+  losses: number;
+  draws: number;
+}
+
+/** So'zjang reytingi — `battle_ratings`, `rating desc`. Hujjatni server jang
+ *  yakunida yozadi, o'qish hammaga ochiq; jang o'ynamagan odam jadvalga
+ *  tushmaydi (hujjati yo'q).
+ *
+ *  Robotlar (`bot: true`) jadvalga chiqmaydi: ular navbatda odam
+ *  bo'lmaganda raqib bo'lish uchun yaratilgan va eng yuqori reytinglarni
+ *  egallab olgan — jadvalda o'ntaning hammasi robot bo'lib turardi. REST
+ *  ro'yxati filtr bilmaydi, shuning uchun ko'proq olinib shu yerda
+ *  saralanadi. */
+export async function battleTop({ limit = 10 }: { limit?: number } = {}): Promise<
+  BattleEntry[]
+> {
+  const documents = await listDocs(PATHS.battleRatings, {
+    orderBy: 'rating desc',
+    pageSize: limit * 4,
+  });
+
+  return documents
+    .filter((document) => document.fields.bot !== true)
+    .slice(0, limit)
+    .map((document) => ({
+    uid: document.id,
+    nickname: text(document.fields.nickname, GUEST),
+    rating: int(document.fields.rating),
+    wins: int(document.fields.wins),
+    losses: int(document.fields.losses),
+    draws: int(document.fields.draws),
+  }));
+}

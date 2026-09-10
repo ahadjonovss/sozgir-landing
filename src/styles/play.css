@@ -1025,171 +1025,136 @@
   margin: 0 auto;
 }
 
-/* Sahifa boshi: gap chapda, jonli namoyish o'ngda. */
-.jang-hero {
+/* ── Lobbi: chapda amallar, o'ngda So'zjang jadvali ─────────────────── */
+
+.lobby {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-  gap: clamp(24px, 4vw, 48px);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 400px);
+  gap: 24px;
+  align-items: start;
+  padding-top: 4px;
+}
+
+.lobby__main,
+.lobby__side {
+  display: grid;
+  gap: 16px;
+}
+
+.lobby__head h1 {
+  font-size: clamp(28px, 3.6vw, 40px);
+}
+
+.lobby__head .section__lead {
+  margin-top: 6px;
+}
+
+.lobby__card {
+  display: grid;
+  gap: 12px;
+}
+
+.lobby__quick {
+  width: 100%;
+  font-size: 17px;
+}
+
+.lobby__hint {
+  text-align: center;
+}
+
+.lobby__friend {
+  display: grid;
+  gap: 10px;
+  margin-top: 6px;
+  padding-top: 14px;
+  border-top: 1px solid var(--divider);
+}
+
+.lobby__friend .panel__label {
+  display: inline-flex;
   align-items: center;
-  padding: clamp(12px, 3vw, 32px) 0 8px;
+  gap: 6px;
 }
 
-.jang-hero h1 {
-  font-size: clamp(34px, 4.6vw, 52px);
+.lobby__friend-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
 }
 
-.jang-hero__gate {
-  margin-top: 26px;
-  padding: 22px;
-  border-radius: var(--radius);
-  background: var(--surface);
+.lobby__friend-row .codein {
+  flex: 1 1 220px;
+  max-width: 280px;
 }
 
-.jang-hero__gate p {
+.lobby__or {
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.lobby__gate p {
   color: var(--text-2);
   font-size: 15px;
+  line-height: 1.5;
 }
 
-.result__actions--start {
+.lobby__gate .result__actions {
   justify-content: flex-start;
-  margin-top: 18px;
+}
+
+/* Qoidalar — yig'ilgan ro'yxat. */
+.lobby__rules {
+  padding: 14px 18px;
+  border-radius: var(--radius);
+  background: var(--bg);
+  box-shadow: inset 0 0 0 1.5px var(--divider);
+}
+
+.lobby__rules summary {
+  cursor: pointer;
+  color: var(--text-2);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.lobby__rules ul {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding-left: 18px;
+  color: var(--text-2);
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 @media (max-width: 860px) {
-  .jang-hero {
+  .lobby {
     grid-template-columns: minmax(0, 1fr);
   }
-  .jang-hero__copy {
+  .lobby__head {
     text-align: center;
   }
-  .result__actions--start {
+  .lobby__gate .result__actions {
     justify-content: center;
   }
 }
 
-/* ── Jonli namoyish: ikki taxta, qatorlar navbat bilan ochiladi ───────── */
-
-.demo {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  align-items: center;
-  gap: 14px;
-  padding: 22px;
-  border-radius: var(--radius);
-  background: var(--surface);
-  box-shadow: inset 0 0 0 1px var(--divider);
-}
-
-.demo__side {
-  display: grid;
-  justify-items: center;
-  gap: 10px;
-}
-
-.demo__name {
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--text-2);
-}
-
-.demo__name--me {
-  color: var(--green-deep);
-}
-
-.demo__vs {
-  color: var(--text-2);
-  font-size: 15px;
-  font-weight: 900;
-  letter-spacing: 1px;
-}
-
-.demo__board {
-  display: grid;
-  gap: 5px;
-}
-
-.demo__row {
-  display: flex;
-  gap: 5px;
-}
-
-.demo__tile {
-  --tone: transparent;
-  width: clamp(18px, 3vw, 26px);
-  aspect-ratio: 1;
-  border-radius: 6px;
-  box-shadow: inset 0 0 0 1.5px var(--tile-border);
-  background: transparent;
-}
-
-.demo__tile--correct {
-  --tone: var(--green);
-}
-.demo__tile--present {
-  --tone: var(--yellow);
-}
-.demo__tile--absent {
-  --tone: var(--grey);
-}
-
-/* Bo'yalgan kataklar 9 soniyalik sikl bilan ochiladi: har qator o'z
-   navbatida, katak esa 0.12 s kechikish bilan. Oxirida hammasi o'chib,
-   namoyish qaytadan boshlanadi. */
-.demo__tile--correct,
-.demo__tile--present,
-.demo__tile--absent {
-  animation: demo-reveal 9s cubic-bezier(0.22, 1, 0.36, 1) infinite;
-  animation-delay: calc(var(--r) * 1.1s + var(--i) * 0.12s + 0.6s);
-}
-
-.demo__board--foe .demo__tile--correct,
-.demo__board--foe .demo__tile--present,
-.demo__board--foe .demo__tile--absent {
-  animation-delay: calc(var(--r) * 1.1s + var(--i) * 0.12s + 1.1s);
-}
-
-@keyframes demo-reveal {
-  0%,
-  4% {
-    background: transparent;
-    box-shadow: inset 0 0 0 1.5px var(--tile-border);
-    transform: rotateX(0);
+/* Telefonda do'st bilan o'ynash qatori ustun bo'lib tushadi: tugma to'liq
+   kenglikda, ostida «yoki», keyin kod kataklari va «Qo'shilish». */
+@media (max-width: 560px) {
+  .lobby__friend-row {
+    flex-direction: column;
+    align-items: stretch;
   }
-  6% {
-    transform: rotateX(90deg);
+  .lobby__friend-row .codein {
+    max-width: none;
+    justify-content: center;
   }
-  8%,
-  86% {
-    background: var(--tone);
-    box-shadow: none;
-    transform: rotateX(0);
-  }
-  92%,
-  100% {
-    background: transparent;
-    box-shadow: inset 0 0 0 1.5px var(--tile-border);
-  }
-}
-
-.demo__badge {
-  padding: 3px 10px;
-  border-radius: 999px;
-  background: var(--green-soft);
-  color: var(--green-deep);
-  font-size: 11.5px;
-  font-weight: 800;
-  white-space: nowrap;
-}
-
-.demo__badge--muted {
-  background: var(--surface-2);
-  color: var(--text-2);
-}
-
-@media (max-width: 420px) {
-  .demo {
-    padding: 16px 12px;
-    gap: 8px;
+  .lobby__or {
+    text-align: center;
   }
 }
 
@@ -1227,177 +1192,6 @@
 .lengths__row .chip--on {
   background: var(--green);
   color: #fff;
-}
-
-/* ── Rejim kartochkalari ─────────────────────────────────────────────── */
-
-.arena {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
-}
-
-.mode {
-  --tone: var(--accent);
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 28px;
-  border-radius: var(--radius-lg);
-  background: linear-gradient(
-    165deg,
-    color-mix(in srgb, var(--tone) 13%, var(--surface)) 0%,
-    var(--surface) 65%
-  );
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tone) 22%, var(--divider));
-  overflow: hidden;
-  transition: transform 0.22s ease, box-shadow 0.22s ease;
-}
-
-.mode:hover {
-  transform: translateY(-3px);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tone) 45%, var(--divider)), var(--shadow);
-}
-
-.mode--friend {
-  --tone: var(--orange);
-}
-
-.mode--quick {
-  --tone: var(--green);
-}
-
-.mode::after {
-  content: '';
-  position: absolute;
-  right: -70px;
-  top: -70px;
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--tone) 10%, transparent);
-  pointer-events: none;
-}
-
-.mode > * {
-  position: relative;
-}
-
-.mode__icon {
-  width: 54px;
-  height: 54px;
-  display: grid;
-  place-items: center;
-  border-radius: 18px;
-  background: var(--bg);
-  color: var(--tone);
-  box-shadow: var(--shadow);
-}
-
-.mode h3 {
-  font-size: 25px;
-  font-weight: 900;
-  letter-spacing: -0.03em;
-}
-
-.mode > p {
-  color: var(--text-2);
-  font-size: 15px;
-  line-height: 1.5;
-}
-
-.mode__cta {
-  margin-top: 6px;
-  align-self: flex-start;
-  background: var(--tone);
-  box-shadow: 0 10px 24px -10px color-mix(in srgb, var(--tone) 80%, transparent);
-}
-
-.mode__or {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 10px;
-  color: var(--text-2);
-  font-size: 12.5px;
-  font-weight: 700;
-}
-
-.mode__or::before,
-.mode__or::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--divider);
-}
-
-.mode__join {
-  align-self: flex-start;
-}
-
-.mode__facts {
-  display: grid;
-  gap: 8px;
-  margin-top: 10px;
-  padding-top: 16px;
-  border-top: 1px solid color-mix(in srgb, var(--tone) 22%, var(--divider));
-}
-
-.mode__facts li {
-  position: relative;
-  padding-left: 24px;
-  color: var(--text-2);
-  font-size: 14px;
-}
-
-.mode__facts li::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 5px;
-  width: 12px;
-  height: 12px;
-  border-radius: 4px;
-  background: var(--tone);
-}
-
-/* Kichik radar — kartochka ikonkasi. */
-.mode__radar {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: 24px;
-  height: 24px;
-}
-
-.mode__radar::before {
-  content: '';
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: currentColor;
-}
-
-.mode__radar i {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  box-shadow: inset 0 0 0 2px currentColor;
-  animation: ping 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite;
-}
-
-.mode__radar i:nth-child(2) {
-  animation-delay: 1.2s;
-}
-
-@media (max-width: 760px) {
-  .arena {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .mode {
-    padding: 22px;
-  }
 }
 
 /* ── Kod kiritish: olti katak ────────────────────────────────────────── */
@@ -1454,59 +1248,6 @@
 @keyframes caret {
   50% {
     opacity: 0;
-  }
-}
-
-/* ── Qadamlar ────────────────────────────────────────────────────────── */
-
-.steps {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 6px;
-}
-
-.step {
-  display: grid;
-  gap: 6px;
-  padding: 18px;
-  border-radius: var(--radius);
-  background: var(--surface);
-}
-
-.step__n {
-  width: 30px;
-  height: 30px;
-  display: grid;
-  place-items: center;
-  margin-bottom: 4px;
-  border-radius: 9px;
-  background: var(--green-soft);
-  color: var(--green-deep);
-  font-size: 14px;
-  font-weight: 900;
-}
-
-.step strong {
-  font-size: 15px;
-  font-weight: 800;
-}
-
-.step p {
-  color: var(--text-2);
-  font-size: 13.5px;
-  line-height: 1.45;
-}
-
-@media (max-width: 860px) {
-  .steps {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 420px) {
-  .steps {
-    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -3198,14 +2939,8 @@
    ochiladi, tugmalar esa darrov qo'l ostida bo'lishi kerak (/oyin da
    taxta tepada turgani kabi). Sarlavha va namoyish pastga tushadi. */
 @media (max-width: 860px) {
-  .jang__wrap > .arena {
-    order: -1;
-  }
   .jang__wrap {
     gap: 16px;
-  }
-  .jang-hero {
-    padding-top: 6px;
   }
 }
 
@@ -3242,9 +2977,6 @@
   }
   .board-head {
     padding: 10px 12px;
-  }
-  .mode {
-    padding: 20px 18px;
   }
   .versus {
     padding: 18px 10px 14px;

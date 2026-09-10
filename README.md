@@ -211,7 +211,17 @@ ketardi.
 
 ## So‘zjang
 
-`/sozjang` — ilovadagi bellashuv rejimi. Ikki yo‘l:
+`/sozjang` — ilovadagi bellashuv rejimi. Lobbi bitta asosiy tugma
+(«Raqib qidirish»), ostida do‘st bilan o‘ynash qatori (kod yaratish yoki
+kod bilan qo‘shilish), o‘z reytingi kartochkasi va yig‘ilgan «Qoidalar»;
+yonida **So‘zjang reytingi** jadvali (`BattleBoard.tsx`, `battle_ratings`
+bo‘yicha eng yaxshi o‘nlik, robotlar chiqarilgan, qatordan profil va
+chaqiruv). Ilgari bu yerda katta sarlavha, ikki taxtali namoyish, ikkita
+kartochka, «faktlar» va to‘rt «qadam» turardi — «O‘ynash» → «Jangga
+kirish» deb kelgan odamga yana bir tanishtiruv emas, tugma kerak.
+Kirmagan odamga bir jumla va ikki tugma, jadval yonida qolaveradi.
+
+Ikki yo‘l:
 
 | Rejim | Qanday ishlaydi |
 | --- | --- |
@@ -376,6 +386,7 @@ src/
     PlayHub.tsx   `/oynash`: So‘ztop yoki So‘zjang tanlovi
     BattlePage.tsx  `/sozjang`: chaqiruv, tezkor jang va jangning o‘zi
     BattleStats.tsx  So‘zjang reytingi kartochkasi (ilovadagi RatingCard)
+    BattleBoard.tsx  So‘zjang reytingi jadvali (battle_ratings, robotlarsiz)
     Versus.tsx    arena afishasi: kutish, 3-2-1 va «kelmadi» holatlari
     PlayerPage.tsx  `/oyinchi/{uid}`: o‘yinchining ochiq profili
     SendInvite.tsx  yuborilgan chaqiruv (revansh / jadvaldan) — javob kutish oynasi
