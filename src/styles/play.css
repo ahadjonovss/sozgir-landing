@@ -2991,3 +2991,8 @@
     flex: 1 1 140px;
   }
 }
+
+/* Jangdan chiqish tasdig'i: tugmalar chapdan. */
+.leave__actions {
+  justify-content: flex-start;
+}

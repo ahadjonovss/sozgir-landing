@@ -25,6 +25,7 @@ import ReportWord from './ReportWord';
 import RotatingLine from './RotatingLine';
 import SendInvite, { type InviteTarget } from './SendInvite';
 import Versus from './Versus';
+import Modal from './Modal';
 import OpponentBoard from './OpponentBoard';
 
 /** Havoladagi `?kod=ABC123` — chaqiruvni bosib kelgan odam uchun. */
@@ -612,6 +613,31 @@ function Playing({ game }: { game: Sozjang }) {
   );
 }
 
+/* ── Jangdan chiqish tasdig'i ────────────────────────────────────────── */
+
+/** Jang ketayotganda ekrandan shunchaki chiqib bo'lmaydi — raqib kutib
+ *  qolmasin. Chiqishning yagona yo'li mag'lubiyat, shuning uchun ilovadagi
+ *  `ConfirmSheet` kabi avval so'raladi (matnlar `battleLeave*` bilan bir
+ *  xil). Ilgari «Jangdan chiqish» bosilishi bilan taslim bo'linardi. */
+function LeaveConfirm({ onLeave, onClose }: { onLeave: () => void; onClose: () => void }) {
+  return (
+    <Modal
+      title="Jangdan chiqish"
+      lead="Jang hali tugamagan. Chiqsangiz bu mag‘lubiyat sifatida yoziladi."
+      onClose={onClose}
+    >
+      <div className="result__actions leave__actions">
+        <button className="btn btn--danger" onClick={onLeave}>
+          Mag‘lub bo‘lib chiqish
+        </button>
+        <button className="btn btn--outline" onClick={onClose}>
+          Qolish
+        </button>
+      </div>
+    </Modal>
+  );
+}
+
 /* ── Natija ──────────────────────────────────────────────────────────── */
 
 const CONFETTI = Array.from({ length: 18 }, (_, index) => index);
@@ -781,6 +807,15 @@ function Result({ game }: { game: Sozjang }) {
 export default function BattlePage() {
   const game = useSozjang();
   const intro = useIntro(game.phase);
+  /** «Jangdan chiqish» bosildi, tasdiq kutilmoqda. */
+  const [leaving, setLeaving] = useState(false);
+
+  // O'zim tugatgan bo'lsam (raqibni kutyapman) chiqish taslim emas — so'ramay
+  // chiqiladi. Jang ketayotganda esa avval tasdiq.
+  const askLeave = () => {
+    if (game.me?.finished) void game.leave();
+    else setLeaving(true);
+  };
 
   // Holat almashganda (qidiruv, kutish, jang, natija) sahifa tepaga
   // qaytadi. Telefonda tugma ekranning pastida bo'lardi va yangi ekran
@@ -848,10 +883,19 @@ export default function BattlePage() {
                   </div>
                 )}
                 <div className="jang__foot">
-                  <button className="link" onClick={game.leave}>
+                  <button className="link" onClick={askLeave}>
                     Jangdan chiqish
                   </button>
                 </div>
+                {leaving && (
+                  <LeaveConfirm
+                    onLeave={() => {
+                      setLeaving(false);
+                      void game.leave();
+                    }}
+                    onClose={() => setLeaving(false)}
+                  />
+                )}
               </>
             )}
             {game.phase === 'finished' && <Result game={game} />}

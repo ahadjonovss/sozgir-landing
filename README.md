@@ -262,6 +262,11 @@ xotiradagi eski nusxani beradi, unda esa o‘tgan jangning `matchId` si
 turadi — aks holda «Raqib qidirish» bosilganda o‘tgan jang natijasi
 qayta ochilardi.
 
+Jang ketayotganda «Jangdan chiqish» avval tasdiq so‘raydi (ilovadagi
+`ConfirmSheet` kabi: «Jang hali tugamagan. Chiqsangiz bu mag‘lubiyat
+sifatida yoziladi» → «Mag‘lub bo‘lib chiqish» / «Qolish»). O‘zi tugatib
+raqibni kutayotgan odam so‘roqsiz chiqadi — bu taslim emas.
+
 Boshlangan jang brauzerda eslab qolinadi (`sozgir.battle`), o‘z
 taxminlarim ham (`sozgir.battle.words.{id}`) — server ularni jang
 tugamaguncha yashiradi, shuning uchun sahifa yangilanganda harflar
