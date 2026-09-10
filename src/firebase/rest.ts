@@ -161,3 +161,102 @@ export async function batchGetDocs(
     clearTimeout(timer);
   }
 }
+
+/** Jadvaldagi o'rin uchun sanoq: `field > value` bo'lgan hujjatlar soni
+ *  (`runAggregationQuery`). Butun jadval o'qilmaydi — faqat son
+ *  qaytadi, shuning uchun ro'yxat uzun bo'lsa ham arzon. Ilovadagi
+ *  `_rank` bilan bir xil: o'rin = shu sondan bittasi ko'p. Xato bo'lsa
+ *  `null` — o'rin ko'rsatilmaydi, ekran ochilaveradi. */
+export async function countAbove(
+  collectionId: string,
+  { field, value, timeout = 8000 }: { field: string; value: number; timeout?: number },
+): Promise<number | null> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+  try {
+    const response = await fetch(
+      `${BASE}:runAggregationQuery?key=${firebaseConfig.apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
+        body: JSON.stringify({
+          structuredAggregationQuery: {
+            structuredQuery: {
+              from: [{ collectionId }],
+              where: {
+                fieldFilter: {
+                  field: { fieldPath: field },
+                  op: 'GREATER_THAN',
+                  value: { integerValue: String(Math.round(value)) },
+                },
+              },
+            },
+            aggregations: [{ alias: 'above', count: {} }],
+          },
+        }),
+      },
+    );
+    if (!response.ok) return null;
+    const body = (await response.json()) as {
+      result?: { aggregateFields?: Record<string, TypedValue> };
+    }[];
+    const raw = body[0]?.result?.aggregateFields?.above;
+    const count = raw ? decode(raw) : undefined;
+    return typeof count === 'number' ? count : null;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/** Kolleksiyadan bitta maydon bo'yicha tanlab o'qish (`runQuery`) — masalan
+ *  bir odamning donatlari. `listDocs` filtr bilmaydi (u `documents`
+ *  ro'yxati), bu yerda esa `where field == value`. */
+export async function queryDocs(
+  collectionId: string,
+  {
+    field,
+    equals,
+    limit = 50,
+    timeout = 8000,
+  }: { field: string; equals: string; limit?: number; timeout?: number },
+): Promise<RestDoc[]> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+  try {
+    const response = await fetch(`${BASE}:runQuery?key=${firebaseConfig.apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      signal: controller.signal,
+      body: JSON.stringify({
+        structuredQuery: {
+          from: [{ collectionId }],
+          where: {
+            fieldFilter: {
+              field: { fieldPath: field },
+              op: 'EQUAL',
+              value: { stringValue: equals },
+            },
+          },
+          limit,
+        },
+      }),
+    });
+    if (!response.ok) return [];
+    const body = (await response.json()) as {
+      document?: { name: string; fields?: Record<string, TypedValue> };
+    }[];
+    return body
+      .filter((item) => item.document)
+      .map((item) => ({
+        id: item.document!.name.split('/').pop() ?? '',
+        fields: decodeFields(item.document!.fields ?? {}),
+      }));
+  } catch {
+    return [];
+  } finally {
+    clearTimeout(timer);
+  }
+}

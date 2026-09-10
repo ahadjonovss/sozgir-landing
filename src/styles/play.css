@@ -904,7 +904,7 @@
 
 .rank {
   display: grid;
-  grid-template-columns: 22px 28px minmax(0, 1fr) auto auto;
+  grid-template-columns: 22px 28px minmax(0, 1fr) auto auto auto;
   align-items: center;
   gap: 10px;
   padding: 8px 10px;
@@ -941,6 +941,28 @@
   text-align: right;
   font-weight: 900;
   font-variant-numeric: tabular-nums;
+}
+
+/* Jadvaldagi o'yinchini So'zjangga chaqirish — ilovadagi ochiq
+   profildagi tugma; saytda profil yo'q, qatorning o'zida turadi. O'z
+   qatorida bo'lmaydi: u yerda ustun bo'sh qoladi. */
+.rank__invite {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.rank__invite:hover {
+  transform: scale(1.08);
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
 }
 
 .result__where {
@@ -1952,43 +1974,153 @@
 /* ── Jang afishasi: «falonchi VS falonchi» ────────────────────────────── */
 
 .versus {
+  --mine: var(--green);
+  --rival: var(--accent);
+  position: relative;
   display: grid;
   justify-items: center;
-  gap: 12px;
+  gap: 14px;
   width: 100%;
-  padding: 12px 12px 4px;
+  padding: 22px 16px 16px;
+  border-radius: 24px;
+  background: var(--surface);
   text-align: center;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Raqib kelmadi — arena so'lg'un: ikkala tomon kulrang. */
+.versus--expired {
+  --mine: var(--text-2);
+  --rival: var(--text-2);
+}
+
+/* Arena maydoni: diagonal chiziq bilan bo'lingan ikki rang parda va ular
+   orasidagi yorug' tirqish. Parda shaffof (≈13 %), ya'ni tungi rejimda
+   ham fonni yutib yubormaydi; tirqish `--bg` rangida — kartochka
+   ostidagi fon «yorib» chiqqanday ko'rinadi. Qiyalik 9 %: tepada
+   o'ngroq, pastda chaproq. */
+.versus__floor {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.versus__floor::before,
+.versus__floor::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.versus__floor::before {
+  clip-path: polygon(0 0, 59% 0, 41% 100%, 0 100%);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--mine) 21%, transparent),
+    color-mix(in srgb, var(--mine) 8%, transparent)
+  );
+}
+
+.versus__floor::after {
+  clip-path: polygon(59% 0, 100% 0, 100% 100%, 41% 100%);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--rival) 8%, transparent),
+    color-mix(in srgb, var(--rival) 21%, transparent)
+  );
+  box-shadow: inset 3px 0 0 var(--bg);
+}
+
+.versus--expired .versus__floor::before,
+.versus--expired .versus__floor::after {
+  opacity: 0.5;
 }
 
 .versus__row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  align-items: center;
-  gap: 12px;
+  align-items: start;
+  gap: 8px;
   width: 100%;
-  max-width: 380px;
+  max-width: 420px;
 }
 
+/* Tomonlar chetdan o'rtaga qarab suzib chiqadi — ikkovi bir-biriga
+   yaqinlashgandek ko'rinadi. */
 .versus__side {
+  --tone: var(--mine);
   display: grid;
   justify-items: center;
   gap: 8px;
   min-width: 0;
-  animation: versus-in 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: versus-in 0.52s cubic-bezier(0.33, 1, 0.68, 1) both;
+}
+
+.versus__side--foe {
+  --tone: var(--rival);
+  animation-name: versus-in-right;
 }
 
 @keyframes versus-in {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateX(-56px);
   }
 }
 
-.versus__avatar {
-  box-shadow: 0 12px 28px -10px rgba(22, 24, 29, 0.35);
+@keyframes versus-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(56px);
+  }
 }
 
+/* Halqali avatar: tomon rangida chegara va yumshoq nur. */
+.versus__ring {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 96px;
+  height: 96px;
+}
 
+.versus__avatar {
+  position: relative;
+  box-sizing: content-box;
+  padding: 3px;
+  border: 2.5px solid var(--tone);
+  border-radius: 50%;
+  background: var(--bg);
+  box-shadow: 0 0 18px 1px color-mix(in srgb, var(--tone) 28%, transparent);
+}
+
+.versus--expired .versus__avatar {
+  box-shadow: none;
+}
+
+/* Kengayib so'nadigan halqa — raqib kutilayotganda avatar atrofida.
+   Radar to'lqinining bitta nusxasi: «qidiryapmiz» va «boshlanmoqda»
+   hissi tezkor jang ekrani bilan bir tilda gapiradi. */
+.versus__pulse {
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--tone);
+  border-radius: 50%;
+  animation: versus-pulse 1.6s ease-out infinite;
+}
+
+@keyframes versus-pulse {
+  from {
+    transform: scale(0.68);
+    opacity: 0.55;
+  }
+  to {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
 
 .versus__name {
   max-width: 100%;
@@ -1998,22 +2130,82 @@
   white-space: nowrap;
 }
 
-.versus__side--me .versus__name {
-  color: var(--green-deep);
+.versus--expired .versus__side--foe .versus__name {
+  color: var(--text-2);
 }
 
+/* Holat yorlig'i: «Siz», «Kutilmoqda», «Kelmadi», «Raqib qo'shildi». */
+.versus__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--tone) 14%, transparent);
+  color: var(--tone);
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+/* O'rtadagi «VS»: 45° burilgan romb, ichida to'g'ri turgan yozuv. Romb —
+   jang afishalarining tanish belgisi; kulrang matndan farqli u arenani
+   ikkiga «bo'lib» turadi va ikki rang chegarasida o'tiradi. */
 .versus__vs {
-  width: 40px;
-  height: 40px;
+  width: 46px;
+  height: 46px;
+  margin-top: 25px;
   display: grid;
   place-items: center;
-  border-radius: 50%;
+  border-radius: 13px;
+  background: var(--bg);
+  box-shadow:
+    inset 0 0 0 2px var(--tile-border-filled),
+    0 6px 14px rgba(0, 0, 0, 0.14);
+  transform: rotate(45deg);
+  animation: versus-badge 0.62s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.versus--expired .versus__vs {
+  box-shadow:
+    inset 0 0 0 2px var(--divider),
+    0 6px 14px rgba(0, 0, 0, 0.06);
+}
+
+.versus__vs b {
+  transform: rotate(-45deg);
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+}
+
+.versus--expired .versus__vs b {
+  color: var(--text-2);
+}
+
+@keyframes versus-badge {
+  from {
+    transform: rotate(45deg) scale(0.4);
+  }
+}
+
+/* Jang shartlari — o'rtada, ikkala rangga ham tegmaydigan yorliqlar. */
+.versus__meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.versus__tag {
+  padding: 5px 11px;
+  border-radius: 999px;
   background: var(--bg);
   box-shadow: inset 0 0 0 1px var(--divider);
   color: var(--text-2);
-  font-size: 14px;
-  font-weight: 900;
-  letter-spacing: 1px;
+  font-size: 12.5px;
+  font-weight: 800;
 }
 
 .versus__motto {
@@ -2022,13 +2214,26 @@
   font-weight: 700;
 }
 
+/* Halqali sanoq: raqam va atrofida kengayib so'nadigan halqa. */
 .versus__count {
-  display: block;
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 84px;
+  height: 84px;
   color: var(--green);
   font-size: 56px;
   font-weight: 900;
   line-height: 1;
-  animation: count-in 1s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  animation: count-in 1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.versus__count-ring {
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--green);
+  border-radius: 50%;
+  animation: versus-pulse 1s ease-out;
 }
 
 @keyframes count-in {
@@ -2040,6 +2245,151 @@
     transform: scale(1);
     opacity: 1;
   }
+}
+
+/* ── Pilik: raqib kirishiga qolgan vaqt ──────────────────────────────── */
+
+.fuse {
+  --tone: var(--green);
+  display: grid;
+  gap: 10px;
+  width: 100%;
+  max-width: 420px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--tone) 10%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tone) 35%, transparent);
+  color: var(--tone);
+  transition: background 0.4s ease, box-shadow 0.4s ease, color 0.4s ease;
+}
+
+.fuse--urgent {
+  --tone: var(--danger);
+}
+
+.fuse__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fuse__label {
+  flex: 1;
+  text-align: start;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* Raqam kengligi qotirilgan — «1:09» dan «0:59» ga o'tganda chiziq
+   siljimaydi. */
+.fuse__clock {
+  min-width: 60px;
+  text-align: right;
+  font-size: 18px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.fuse__track {
+  display: block;
+  height: 7px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--tone) 18%, transparent);
+  overflow: hidden;
+}
+
+.fuse__track i {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: var(--tone);
+  /* Soniya sakrab emas, oqib kamayadi. */
+  transition: width 0.9s linear, background 0.4s ease;
+}
+
+/* Butun sahifa uchun arena pardasi: chapdan yashil, o'ngdan ko'k, pastga
+   qarab so'nadi (≈10 %). Sahifa bir butun arena bo'lib qoladi, matn va
+   kartochkalar esa avvalgidek o'qiladi. */
+.jang--arena {
+  background:
+    linear-gradient(160deg, color-mix(in srgb, var(--green) 10%, transparent), transparent 55%),
+    linear-gradient(200deg, color-mix(in srgb, var(--accent) 10%, transparent), transparent 55%);
+}
+
+/* ── Yuborilgan chaqiruv oynasi ──────────────────────────────────────── */
+
+.sendinv {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  max-width: 360px;
+  text-align: center;
+}
+
+.sendinv__title {
+  font-size: 18px;
+}
+
+.sendinv__avatar {
+  margin-top: 4px;
+}
+
+.sendinv__name {
+  font-size: 16px;
+}
+
+.sendinv__wait {
+  margin-top: 8px;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.sendinv__hint,
+.sendinv__left {
+  color: var(--text-2);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.sendinv__err {
+  margin-top: 8px;
+  color: var(--danger);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* Cheksiz yurib turadigan chiziq — «kutilmoqda». */
+.sendinv__bar {
+  display: block;
+  width: 100%;
+  height: 3px;
+  margin-top: 6px;
+  border-radius: 3px;
+  background: var(--divider);
+  overflow: hidden;
+}
+
+.sendinv__bar i {
+  display: block;
+  width: 40%;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--green);
+  animation: sendinv-run 1.4s ease-in-out infinite;
+}
+
+@keyframes sendinv-run {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+
+.sendinv__cancel {
+  width: 100%;
+  margin-top: 12px;
 }
 
 /* ── Natija ─────────────────────────────────────────────────────────── */
@@ -2604,5 +2954,273 @@
   }
   .hub-card {
     padding: 22px;
+  }
+}
+
+/* ── O'yinchi profili (/oyinchi/{uid}) ──────────────────────────────── */
+
+.player__wrap {
+  display: grid;
+  gap: 18px;
+  max-width: 560px;
+}
+
+.player__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  justify-self: start;
+  color: var(--text-2);
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.player__back:hover {
+  color: var(--text);
+}
+
+.player__head {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 24px 20px 20px;
+  text-align: center;
+  animation: rise 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.player__name {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 24px;
+  text-overflow: ellipsis;
+}
+
+.player__chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.player__chips .versus__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.player__chip--me {
+  --tone: var(--green);
+}
+
+.player__invite {
+  display: grid;
+  gap: 8px;
+  text-align: center;
+}
+
+.player__invite .btn {
+  width: 100%;
+}
+
+/* Umumiy ball — ekrandagi eng katta raqam, sariq (ilovadagi `present`). */
+.player__score {
+  display: grid;
+  gap: 4px;
+  padding: 18px 20px;
+  border-radius: var(--radius);
+  background: var(--yellow);
+  color: #fff;
+}
+
+.player__score strong {
+  font-size: 36px;
+  font-weight: 900;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.player__score-label {
+  font-size: 13px;
+  font-weight: 700;
+  opacity: 0.9;
+}
+
+.player__block {
+  display: grid;
+  gap: 8px;
+}
+
+.player__block .panel__label {
+  padding-left: 4px;
+}
+
+/* Raqamli kartochkalar: har biri o'z fonida, chapga tekis. */
+.metrics--cells {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  text-align: start;
+}
+
+.metrics--cells li {
+  padding: 14px;
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+.metrics--cells strong {
+  font-size: 22px;
+}
+
+.metrics--two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.metrics__cell--accent strong {
+  color: var(--green);
+}
+
+.player__empty,
+.player__msg {
+  padding: 18px 16px;
+}
+
+.player__support {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  color: var(--green);
+}
+
+.player__support div {
+  display: grid;
+  gap: 3px;
+  color: var(--text);
+}
+
+.player__support span {
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.player__private {
+  text-align: center;
+}
+
+.player__skeleton {
+  display: grid;
+  gap: 16px;
+}
+
+.player__skeleton i {
+  display: block;
+  border-radius: var(--radius);
+  background: var(--surface);
+  animation: skeleton 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes skeleton {
+  to {
+    opacity: 0.55;
+  }
+}
+
+/* Jadval qatoridagi ism va avatar — profil havolasi. */
+.rank__who {
+  display: contents;
+  color: inherit;
+  text-decoration: none;
+}
+
+.rank__who:hover .rank__name {
+  text-decoration: underline;
+}
+
+.score__who--link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.score__who--link:hover {
+  text-decoration: underline;
+}
+
+.donor__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.donor__link:hover {
+  text-decoration: underline;
+}
+
+/* ── Telefon ─────────────────────────────────────────────────────────── */
+
+/* Lobbida tanlov kartochkalari birinchi. Telefonda «Chaqiruv yaratish» va
+   «Raqib qidirish» sarlavha, namoyish va reyting kartochkasidan keyin,
+   ekrandan ≈1100px pastda turardi — o'yin sahifasi o'ynash uchun
+   ochiladi, tugmalar esa darrov qo'l ostida bo'lishi kerak (/oyin da
+   taxta tepada turgani kabi). Sarlavha va namoyish pastga tushadi. */
+@media (max-width: 860px) {
+  .jang__wrap > .arena {
+    order: -1;
+  }
+  .jang__wrap {
+    gap: 16px;
+  }
+  .jang-hero {
+    padding-top: 6px;
+  }
+}
+
+@media (max-width: 560px) {
+  /* Klaviatura kartochka chetigacha yoyiladi — tugmalar barmoqqa
+     kattaroq (23 px o'rniga ≈27 px, balandligi 48 px). */
+  .oyin__board {
+    padding: 12px 8px 10px;
+  }
+  .keyboard {
+    gap: 6px;
+  }
+  .keyboard__row {
+    gap: 4px;
+  }
+  .key {
+    height: 48px;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+  .key--action svg {
+    width: 22px;
+    height: 22px;
+  }
+  .stage {
+    padding: 16px 12px;
+    border-radius: var(--radius);
+  }
+  .stage--fight {
+    padding: 12px 8px 10px;
+  }
+  .stage__head h2 {
+    font-size: 20px;
+  }
+  .board-head {
+    padding: 10px 12px;
+  }
+  .mode {
+    padding: 20px 18px;
+  }
+  .versus {
+    padding: 18px 10px 14px;
+  }
+  .versus__row {
+    gap: 4px;
+  }
+  .result__actions {
+    width: 100%;
+  }
+  .result__actions .btn {
+    flex: 1 1 140px;
   }
 }

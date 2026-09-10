@@ -24,9 +24,9 @@ bilan aynan bir xil. Hisob ochilsa natija reytingga tushadi.
 
 Alohida sahifalar: `/oynash` (nimani o‘ynashni tanlash — sarlavhadagi
 «O‘ynash» tugmasi shu yerga olib keladi), `/oyin` (So‘ztop), `/sozjang`
-(bellashuv), `/privacy` (maxfiylik
-siyosati, o‘zbekcha + inglizcha) va `/contact` (aloqa ma’lumotlari + so‘rov
-formasi).
+(bellashuv), `/oyinchi/{uid}` (o‘yinchining ochiq profili), `/privacy`
+(maxfiylik siyosati, o‘zbekcha + inglizcha) va `/contact` (aloqa
+ma’lumotlari + so‘rov formasi).
 
 React ilovadan tashqarida, `public/` ichida turadigan mustaqil sahifalar:
 `/ol` — ulashish uchun yuklab olish havolasi (telefonda qurilmaning
@@ -128,6 +128,39 @@ o‘z joyida topilgach bitta ochilmagan harf qaytariladi va u keyingi
 qatorga qulflanib tushadi; raqib «maslahat oldi» degan belgini ko‘radi,
 harfni esa bilmaydi.
 
+## O‘yinchi profili
+
+`/oyinchi/{uid}` — ilovadagi `PublicProfilePage` ning veb ko‘rinishi
+(`src/components/PlayerPage.tsx`, `src/lib/publicProfile.ts`). Reyting
+qatori, jang natijasidagi raqib ismi va donatchilar ro‘yxati shu sahifaga
+olib boradi; hisob oynasida «Ochiq profilim» havolasi bor. Router uchun bu
+yagona parametrli manzil: `useRoute` uni `/oyinchi` deb biladi,
+identifikator `routeParam()` bilan olinadi.
+
+Faqat **ochiq** ma’lumot yig‘iladi — qoidalar begona odam haqida shuni
+beradi: `scores/{uid}` (umumiy ball, topilgan so‘zlar), `battle_ratings/
+{uid}` (bellashuv reytingi; jang o‘ynamagan bo‘lsa 1000 ball
+ko‘rsatilmaydi), bugungi `daily_results/{sana}_5/entries/{uid}` va
+`donations` (`uid` bo‘yicha). Shaxsiy statistika (`users/{uid}`) o‘qilmaydi,
+shu sabab ketma-ketlik va urinishlar taqsimoti yo‘q — sahifa buni
+yozib qo‘yadi.
+
+Hammasi SDK’siz, REST bilan: uch hujjat bitta `batchGet` da, jadvaldagi
+o‘rin `runAggregationQuery` (`count`, `field > value` — ilovadagi `_rank`
+bilan bir xil), donatlar `runQuery`. Manbalarning biri xato bersa qolgani
+qaytadi — sahifa yarim ma’lumot bilan ham ochiladi. «So‘zjangga chaqirish»
+sarlavhaning ostida (`profile` turi, pastdagi «Manzilli chaqiruvlar»).
+
+## Telefon
+
+O‘yin sahifalari telefonda o‘ynash uchun moslangan (`play.css` oxiridagi
+«Telefon» bo‘limi): `/sozjang` lobbisida tanlov kartochkalari birinchi
+turadi (ilgari «Raqib qidirish» sarlavha va namoyishdan keyin, ≈1100px
+pastda edi), klaviatura kartochka chetigacha yoyilib tugmalar 48 px
+balandlikda, tugmalarda `touch-action: manipulation` (ikki bosishda
+kattalashtirish kutilmaydi). Taxta kataklari suyuq (`flex` +
+`aspect-ratio`), shuning uchun tor ekranda o‘zi kichrayadi.
+
 ## So‘z haqida xabar berish
 
 Natija ostidagi «So‘z haqida xabar berish» — ilovadagi `ReportWordSheet`
@@ -224,6 +257,47 @@ taxminlarim ham (`sozgir.battle.words.{id}`) — server ularni jang
 tugamaguncha yashiradi, shuning uchun sahifa yangilanganda harflar
 brauzerdan tiklanadi.
 
+### Arena
+
+Kutish va 3-2-1 ekranlari — ilovadagi `BattleArena` ning porti
+(`src/components/Versus.tsx`): maydon diagonal ikki rangga bo‘lingan (siz
+— yashil, raqib — ko‘k), o‘rtada romb «VS», raqib kirmaguncha uning
+tomoni bo‘sh va avatar atrofida to‘lqin, pastda jang shartlari (harf va
+urinish soni). Raqib kirganda o‘sha joy uning rasmi bilan to‘ladi — ekran
+almashmaydi. Kutishda ostida ikki daqiqalik «pilik» (`JoinFuse`): muddat
+jang hujjatidagi `expiresAt` dan olinadi, oxirgi 20 soniyada qizaradi.
+Shu paytda butun sahifa arena pardasida (`.jang--arena`). Raqib kelmagan
+jangda (`expired`) arena so‘lg‘un, o‘ng tomonda «Kelmadi».
+
+### Manzilli chaqiruvlar
+
+`battle_invites/{id}` — aniq odamga chaqiruv. Mijoz hujjat yaratmaydi:
+`battleInvite` funksiyasi yaratadi, `battleInviteAccept` jangni ochadi,
+`battleInviteDecline` rad etadi (chaqirganning o‘zi ham shu bilan bekor
+qiladi). Uch turi bor va uchalasi bir oqim, farqi faqat manba:
+`rematch` (natijadagi «Revansh»), `nearby` (faqat ilovada — yaqin
+atrofdagilar) va `profile` (ilovada ochiq profildagi «So‘zjangga
+chaqirish»; saytda profil sahifasi yo‘q, shuning uchun tugma reyting
+jadvalining har qatorida — `Leaderboard.tsx`). Javobsiz chaqiruv 2
+daqiqada eskiradi.
+
+Yuborilgan chaqiruv `SendInvite.tsx` da kutiladi (ilovadagi
+`SendInviteSheet`): hujjat kuzatiladi, `accepted` kelsa `battleId` bilan
+jang ochiladi va sahifa `/sozjang` ga o‘tadi (`showBattle`), `declined`
+va `expired` xabar bo‘lib qoladi. Muddat tugagach oyna o‘zi yakun yasaydi
+— serverdagi `expired` belgisi daqiqada bir marta qo‘yiladi, undan
+kutilsa oyna bir daqiqagacha osilib turardi; lekin 8 soniya imtiyoz bor:
+raqib oxirgi soniyada qabul qilgan bo‘lishi mumkin.
+
+Kelgan chaqiruv istalgan sahifada pastdan chiqadi (`InviteOverlay.tsx`),
+manbasi yozuvda ko‘rinadi: «revansh», «yaqin atrofdan», «profil orqali».
+
+Taxallus o‘zgarganda `battle_ratings/{uid}.nickname` ham yangilanadi
+(`patchBattleNickname`, ilovadagi bilan bir xil): hujjatni server jang
+yakunida yozadi va u paytdagi nomni qo‘yadi — aks holda odam kunlik
+jadvalda o‘z ismi bilan, So‘zjangda esa eski nom (ko‘pincha «Mehmon»)
+bilan turib qolardi.
+
 ### Lokal sinash
 
 Funksiyalar faqat prodga joylashtirilgan, ya‘ni jangni sinash uchun
@@ -302,6 +376,10 @@ src/
     PlayHub.tsx   `/oynash`: So‘ztop yoki So‘zjang tanlovi
     BattlePage.tsx  `/sozjang`: chaqiruv, tezkor jang va jangning o‘zi
     BattleStats.tsx  So‘zjang reytingi kartochkasi (ilovadagi RatingCard)
+    Versus.tsx    arena afishasi: kutish, 3-2-1 va «kelmadi» holatlari
+    PlayerPage.tsx  `/oyinchi/{uid}`: o‘yinchining ochiq profili
+    SendInvite.tsx  yuborilgan chaqiruv (revansh / jadvaldan) — javob kutish oynasi
+    InviteOverlay.tsx  kelgan chaqiruv — istalgan sahifada pastdan chiqadi
     OpponentBoard.tsx  raqib yo‘li — faqat ranglar
     Play.tsx      o‘yin bo‘limi: rejim, natija, qisqa statistika
     Board.tsx     taxta va o‘zbek klaviaturasi
@@ -328,12 +406,13 @@ src/
     nickname.ts taxallus filtri (nickname_filter.dart porti)
     leaderboard.ts  kunlik va umumiy reyting jadvallari
     battle.ts   So‘zjang chaqiruvlari va turlari
+    publicProfile.ts  ochiq profil: scores + battle_ratings + kunlik + donatlar
     useSozjang.ts  So‘zjang holati (chaqiruv, navbat, jang)
     auth.tsx    hisob holati va amallari
     useGameChoice.ts  rejim va uzunlik tanlovi
     useSozTop.ts  o‘yin holati (kunlik + cheksiz)
     useReveal.ts  scroll animatsiyasi va mavzu almashtirish
-    useRoute.ts   kichik router (`/`, `/oynash`, `/oyin`, `/sozjang`, `/qollab`, `/privacy`, `/contact`)
+    useRoute.ts   kichik router (`/`, `/oynash`, `/oyin`, `/sozjang`, `/oyinchi/{uid}`, `/qollab`, `/privacy`, `/contact`)
     battleRating.ts  So‘zjang reytingi: darajalar va `battle_ratings/{uid}` kuzatuvi
   styles/
     theme.css   dizayn tokenlari (yorug‘ + tungi)

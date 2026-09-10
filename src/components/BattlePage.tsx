@@ -15,12 +15,14 @@ import { useAuth } from '../lib/auth';
 import { inviteLink, verdictsOf, type BattlePlayer } from '../lib/battle';
 import { useSozjang, type Sozjang } from '../lib/useSozjang';
 import { display, pretty, type Verdict } from '../lib/uz';
+import { playerLink } from '../data/site';
 import Avatar from './Avatar';
 import BattleStats from './BattleStats';
 import { Board, Keyboard } from './Board';
-import { Check, Copy, Send, Swords, Users } from './Icons';
+import { Check, Clock, Copy, Send, Swords, Users } from './Icons';
 import ReportWord from './ReportWord';
 import RotatingLine from './RotatingLine';
+import SendInvite, { type InviteTarget } from './SendInvite';
 import Versus from './Versus';
 import OpponentBoard from './OpponentBoard';
 
@@ -369,6 +371,49 @@ const WAIT_LINES = [
   'Chaqiruvga telefondagi ilovadan ham qo‘shilish mumkin',
 ];
 
+/** Raqib kirishi kerak bo'lgan muddat — serverdagi `JOIN_WINDOW_MINUTES`. */
+const JOIN_WINDOW_SECONDS = 120;
+
+/** Oxirgi shuncha soniyada pilik qizaradi. */
+const FUSE_URGENT_AT = 20;
+
+/** Raqib kirishiga qolgan vaqt — «pilik» (ilovadagi `_JoinFuse`): chapdan
+ *  o'ngga kamayadigan chiziq va soat. Plastina arena tonida (yashil),
+ *  oxirgi 20 soniyada qizaradi — tugab borayotganini rang va shakl bilan
+ *  aytadi. Muddat jang hujjatidagi `expiresAt` dan: server bilan bir xil
+ *  soat, sahifa yangilansa ham to'g'ri joydan davom etadi. */
+function JoinFuse({ expiresAt }: { expiresAt?: { seconds?: number } | null }) {
+  const endsAt = expiresAt?.seconds ? expiresAt.seconds * 1000 : null;
+  // Soat sekundlab yuradi, qolgan vaqt esa renderda hisoblanadi — muddat
+  // (hujjatdan kelgan `expiresAt`) o'zgarsa ham alohida holat kerak emas.
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  if (endsAt === null) return null;
+  const left = Math.max(0, Math.min(JOIN_WINDOW_SECONDS, Math.round((endsAt - now) / 1000)));
+  const urgent = left <= FUSE_URGENT_AT;
+  const pad = (value: number) => String(value).padStart(2, '0');
+
+  return (
+    <div className={`fuse${urgent ? ' fuse--urgent' : ''}`} role="timer" aria-live="off">
+      <div className="fuse__row">
+        <Clock size={17} />
+        <span className="fuse__label">Kirishga qolgan vaqt</span>
+        <strong className="fuse__clock">
+          {Math.floor(left / 60)}:{pad(left % 60)}
+        </strong>
+      </div>
+      <span className="fuse__track" aria-hidden="true">
+        <i style={{ width: `${Math.min(100, (left / JOIN_WINDOW_SECONDS) * 100)}%` }} />
+      </span>
+    </div>
+  );
+}
+
 function Waiting({ game }: { game: Sozjang }) {
   const { copied, share } = useShare();
   const [codeCopied, setCodeCopied] = useState(false);
@@ -392,14 +437,17 @@ function Waiting({ game }: { game: Sozjang }) {
         <span className="stage__tag">{game.boardLength} harf</span>
       </div>
 
-      {/* Raqib hali noma'lum — o'ng tomonda so'roq belgisi turadi va
-          do'st qo'shilganda uning ismiga aylanadi. */}
+      {/* Raqib hali noma'lum — arenaning o'ng tomoni bo'sh turadi va
+          do'st qo'shilganda uning rasmi bilan to'ladi. */}
       <Versus
         me={pretty(game.account?.nickname ?? 'Siz')}
         meUid={game.account?.uid}
         opponent="Raqib"
-        waiting
+        mode="waiting"
+        length={game.boardLength}
+        maxAttempts={game.maxAttempts}
       />
+      <JoinFuse expiresAt={game.battle?.expiresAt} />
 
       <button
         type="button"
@@ -505,7 +553,14 @@ function IntroCountdown() {
     return () => window.clearInterval(timer);
   }, []);
 
-  return <span className="versus__count">{left}</span>;
+  // Halqali sanoq: raqam atrofida kengayib so'nadigan halqa — «qidiryapmiz»
+  // to'lqinining bitta nusxasi, boshlanish ham shu tilda gapiradi.
+  return (
+    <span className="versus__count" key={left}>
+      <i className="versus__count-ring" aria-hidden="true" />
+      {left}
+    </span>
+  );
 }
 
 /** Bir o'yinchining urinish nuqtalari: har qator uchun bitta — bo'sh,
@@ -626,6 +681,10 @@ const CONFETTI = Array.from({ length: 18 }, (_, index) => index);
 function Result({ game }: { game: Sozjang }) {
   const { account } = game;
   const { copied, share } = useShare();
+  /** Revansh — o'sha raqibga chaqiruv (ilovadagi natija ekranidagi
+   *  «Qayta jang»). Yuboriladi va javob kutiladi; qabul qilinsa yangi
+   *  jang shu sahifada ochiladi. */
+  const [rematch, setRematch] = useState<InviteTarget | null>(null);
   const winner = game.battle?.winnerUid;
   const mine = !!winner && !!account && winner === account.uid;
   const draw = !winner;
@@ -666,9 +725,21 @@ function Result({ game }: { game: Sozjang }) {
         )}
       </div>
 
+      {/* Raqib kelmadi — arena so'lg'un holatda, o'ng tomonda «kelmadi». */}
+      {expired && (
+        <Versus
+          me={meName}
+          meUid={account?.uid}
+          opponent="Raqib"
+          mode="expired"
+          length={game.boardLength}
+          maxAttempts={game.maxAttempts}
+        />
+      )}
+
       {/* Bitta uzun qator o'rniga ikki ustun: kim nechada topgani va
           necha ball olgani bir qarashda solishtiriladi. */}
-      <div className="score">
+      {!expired && <div className="score">
         <div className={`score__side${mine ? ' score__side--win' : ''}`}>
           <Avatar name={meName} uid={account?.uid} size={36} className="score__avatar" />
           <span className="score__who">{meName}</span>
@@ -682,7 +753,15 @@ function Result({ game }: { game: Sozjang }) {
         </span>
         <div className={`score__side${!mine && !draw && !expired ? ' score__side--win' : ''}`}>
           <Avatar name={foeName} uid={game.opponentUid ?? undefined} size={36} className="score__avatar" />
-          <span className="score__who">{foeName}</span>
+          {/* Raqib ismi — uning ochiq profiliga: kim bilan o'ynaganini
+              ko'rish va keyin yana chaqirish uchun. */}
+          {game.opponentUid ? (
+            <a className="score__who score__who--link" href={playerLink(game.opponentUid)}>
+              {foeName}
+            </a>
+          ) : (
+            <span className="score__who">{foeName}</span>
+          )}
           <strong className="score__points">{game.opponent?.score ?? 0}</strong>
           <span className="score__meta">
             {game.opponent?.won
@@ -690,9 +769,9 @@ function Result({ game }: { game: Sozjang }) {
               : 'topa olmadi'}
           </span>
         </div>
-      </div>
+      </div>}
 
-      <div className="fight fight--done">
+      {!expired && <div className="fight fight--done">
         <div className="fight__side">
           <div className="fight__who">
             <strong>{meName}</strong>
@@ -719,7 +798,7 @@ function Result({ game }: { game: Sozjang }) {
             maxAttempts={game.maxAttempts}
           />
         </div>
-      </div>
+      </div>}
 
       {account && !expired && <BattleStats uid={account.uid} compact />}
 
@@ -728,6 +807,22 @@ function Result({ game }: { game: Sozjang }) {
           <Swords size={16} />
           {game.battle?.type === 'quick' ? 'Yangi raqib qidirish' : 'Yangi jang'}
         </button>
+        {!expired && game.opponentUid && (
+          <button
+            className="btn btn--outline"
+            onClick={() =>
+              setRematch({
+                uid: game.opponentUid!,
+                nickname: game.opponent?.nickname ?? 'Raqib',
+                kind: 'rematch',
+                length: game.boardLength,
+              })
+            }
+          >
+            <Swords size={16} />
+            Revansh
+          </button>
+        )}
         {!expired && (
           <button className="btn btn--ghost" onClick={() => void share(game.shareText())}>
             <Send size={16} />
@@ -735,6 +830,8 @@ function Result({ game }: { game: Sozjang }) {
           </button>
         )}
       </div>
+
+      {rematch && <SendInvite target={rematch} onClose={() => setRematch(null)} />}
 
       {game.battle?.answer && (
         <ReportWord word={game.battle.answer} length={game.boardLength} mode="battle" />
@@ -757,8 +854,13 @@ export default function BattlePage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [phase]);
 
+  // Kutish va boshlanish afishasida butun sahifa arena ohangida: fonda
+  // och yashil-ko'k parda (ilovadagi `ArenaBackdrop`). Arena kartochkasi
+  // yolg'iz turganda sahifaning qolgani oddiy oq ro'yxatdek ko'rinardi.
+  const arena = phase === 'waiting' || (phase === 'playing' && intro);
+
   return (
-    <section className="oyin jang">
+    <section className={`oyin jang${arena ? ' jang--arena' : ''}`}>
       <div className="wrap jang__wrap">
         {!game.account ? (
           <Gate />
@@ -781,6 +883,8 @@ export default function BattlePage() {
                   meUid={game.account?.uid}
                   opponent={pretty(game.opponent?.nickname ?? 'Raqib')}
                   opponentUid={game.opponentUid ?? undefined}
+                  length={game.boardLength}
+                  maxAttempts={game.maxAttempts}
                   note={<IntroCountdown />}
                 />
               </div>

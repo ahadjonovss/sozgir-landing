@@ -27,6 +27,7 @@ import {
   type SupportBalance,
 } from '../lib/support';
 import { pretty } from '../lib/uz';
+import { playerLink } from '../data/site';
 import Modal from './Modal';
 
 function Balance({ balance }: { balance: SupportBalance }) {
@@ -73,7 +74,13 @@ function Donors({ donations, uid }: { donations: Donation[] | null; uid?: string
               ♥
             </span>
             <span className="donor__text">
-              {pretty(donationPhrase(donation, index))}
+              {donation.uid ? (
+                <a className="donor__link" href={playerLink(donation.uid)}>
+                  {pretty(donationPhrase(donation, index))}
+                </a>
+              ) : (
+                pretty(donationPhrase(donation, index))
+              )}
               {mine && <b className="donor__me">Bu siz</b>}
             </span>
           </li>

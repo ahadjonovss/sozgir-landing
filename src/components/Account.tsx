@@ -12,6 +12,7 @@ import Avatar from './Avatar';
 import AvatarEditor from './AvatarEditor';
 import Modal from './Modal';
 import { nicknameError } from '../lib/nickname';
+import { playerLink } from '../data/site';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -108,6 +109,12 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
             <p className="modal__lead">
               {auth.account.linked ? auth.account.email : 'Mehmon rejimi'}
             </p>
+            {/* Boshqalar ko'radigan sahifa — ochiq ma'lumot qanday
+                ko'rinishini o'zi ham ko'rsin. Oyna yopiladi: havola
+                sahifani almashtiradi. */}
+            <a className="link" href={playerLink(auth.account.uid)} onClick={close}>
+              Ochiq profilim
+            </a>
           </div>
         </div>
 

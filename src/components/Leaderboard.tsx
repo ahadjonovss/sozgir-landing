@@ -7,8 +7,11 @@ import { useAuth } from '../lib/auth';
 import { dailyKey } from '../lib/daily';
 import { dailyTop, totalTop, type Entry } from '../lib/leaderboard';
 import Avatar from './Avatar';
+import { Swords } from './Icons';
+import SendInvite, { type InviteTarget } from './SendInvite';
 import { DAILY_LENGTH } from '../lib/modes';
 import { pretty } from '../lib/uz';
+import { playerLink } from '../data/site';
 
 type Tab = 'daily' | 'total';
 
@@ -19,6 +22,20 @@ export default function Leaderboard() {
    *  bo'lim almashganda holatni sinxron tozalash kerak bo'lmaydi. */
   const [loaded, setLoaded] = useState<{ tab: Tab; entries: Entry[] } | null>(null);
   const rows = loaded?.tab === tab ? loaded.entries : null;
+  /** Jadvaldan chaqirilayotgan raqib — ilovadagi ochiq profildagi
+   *  «So'zjangga chaqirish». Jadvalda ko'rgan odamni darhol jangga
+   *  taklif qilsa bo'ladi; ilgari buning yo'li faqat tasodif edi (bir
+   *  marta o'ynagan raqib). */
+  const [target, setTarget] = useState<InviteTarget | null>(null);
+
+  const invite = (row: Entry) => {
+    // Jang hisobga bog'lanadi — mehmon avval kiradi.
+    if (!account) {
+      openPrompt('signIn');
+      return;
+    }
+    setTarget({ uid: row.uid, nickname: row.nickname, kind: 'profile' });
+  };
 
   useEffect(() => {
     let alive = true;
@@ -78,8 +95,12 @@ export default function Leaderboard() {
               className={`rank${row.uid === account?.uid ? ' rank--me' : ''}`}
             >
               <span className="rank__place">{index + 1}</span>
-              <Avatar name={row.nickname} uid={row.uid} size={28} />
-              <span className="rank__name">{pretty(row.nickname)}</span>
+              {/* Ism va avatar — o'yinchining ochiq profiliga havola
+                  (ilovada ham jadval qatori profilga olib boradi). */}
+              <a className="rank__who" href={playerLink(row.uid)}>
+                <Avatar name={row.nickname} uid={row.uid} size={28} />
+                <span className="rank__name">{pretty(row.nickname)}</span>
+              </a>
               <span className="rank__meta">
                 {tab === 'daily'
                   ? row.won
@@ -88,6 +109,17 @@ export default function Leaderboard() {
                   : `${row.count} so‘z`}
               </span>
               <span className="rank__points">{row.points}</span>
+              {row.uid !== account?.uid && (
+                <button
+                  type="button"
+                  className="rank__invite"
+                  onClick={() => invite(row)}
+                  title="So‘zjangga chaqirish"
+                  aria-label={`${pretty(row.nickname)} ni So‘zjangga chaqirish`}
+                >
+                  <Swords size={15} />
+                </button>
+              )}
             </li>
           ))}
         </ol>
@@ -106,6 +138,10 @@ export default function Leaderboard() {
             Sizning o‘rningiz — <strong>{minePlace}</strong>.
           </p>
         )
+      )}
+
+      {target && (
+        <SendInvite key={target.uid} target={target} onClose={() => setTarget(null)} />
       )}
     </div>
   );

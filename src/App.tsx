@@ -16,6 +16,7 @@ import Hero from './components/Hero';
 import InviteOverlay from './components/InviteOverlay';
 import Modules from './components/Modules';
 import PlayHub from './components/PlayHub';
+import PlayerPage from './components/PlayerPage';
 import Privacy from './components/Privacy';
 import Rules from './components/Rules';
 import Support from './components/Support';
@@ -31,6 +32,7 @@ const titles = {
   '/qollab': 'Qo‘llab-quvvatlash — So‘zgir',
   '/privacy': 'Maxfiylik siyosati — So‘zgir',
   '/contact': 'Aloqa — So‘zgir',
+  '/oyinchi': 'O‘yinchi — So‘zgir',
 };
 
 export default function App() {
@@ -64,6 +66,7 @@ export default function App() {
         {route === '/qollab' && <Support page />}
         {route === '/privacy' && <Privacy />}
         {route === '/contact' && <Contact />}
+        {route === '/oyinchi' && <PlayerPage />}
       </main>
 
       <Footer />

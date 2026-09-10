@@ -27,7 +27,12 @@ export const links = {
   get: '/ol',
   /** Donat bo'limi: hisob, qo'llab-quvvatlaganlar va to'lov. */
   donate: '/qollab',
+  /** O'yinchining ochiq profili — `/oyinchi/{uid}`. */
+  player: '/oyinchi',
 };
+
+/** Ochiq profil havolasi — reyting, natija va donatchilar ro'yxatidan. */
+export const playerLink = (uid: string) => `${links.player}/${encodeURIComponent(uid)}`;
 
 export const stats = [
   { value: '2 164', label: 'yashirin so‘z', hint: '4–7 harfli javoblar bazasi' },

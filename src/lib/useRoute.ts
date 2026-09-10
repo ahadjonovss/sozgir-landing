@@ -7,7 +7,8 @@ export type Route =
   | '/sozjang'
   | '/qollab'
   | '/privacy'
-  | '/contact';
+  | '/contact'
+  | '/oyinchi';
 
 const routes: Route[] = [
   '/',
@@ -17,7 +18,24 @@ const routes: Route[] = [
   '/qollab',
   '/privacy',
   '/contact',
+  '/oyinchi',
 ];
+
+/** Yagona parametrli manzil: `/oyinchi/{uid}` — o'yinchining ochiq
+ *  profili. Router uchun u `/oyinchi`, identifikator esa `routeParam`
+ *  bilan olinadi. */
+const PLAYER_PREFIX = '/oyinchi/';
+
+/** Manzilning parametri (`/oyinchi/abc` → `abc`). Yo'q bo'lsa bo'sh. */
+export function routeParam(): string {
+  const path = window.location.pathname;
+  if (!path.startsWith(PLAYER_PREFIX)) return '';
+  try {
+    return decodeURIComponent(path.slice(PLAYER_PREFIX.length).replace(/\/+$/, ''));
+  } catch {
+    return '';
+  }
+}
 
 /** Ilova ulashadigan kunlik havola — o'sha o'yin sahifasi.
  *
@@ -32,6 +50,7 @@ const aliases: Record<string, Route> = { '/kunlik': '/oyin' };
  *  `public/` ichidagi mustaqil sahifalar (`/ol`, `/donat`) bu ro'yxatda
  *  yo'q — ular serverdan keladi, ilova ularga tegmasligi kerak. */
 function known(path: string): Route | null {
+  if (path.startsWith(PLAYER_PREFIX) && path.length > PLAYER_PREFIX.length) return '/oyinchi';
   return aliases[path] ?? (routes.includes(path as Route) ? (path as Route) : null);
 }
 
@@ -46,9 +65,15 @@ function read(): Route {
  *  shuning uchun `/#qoida` ko'rinishidagi havolalar ham ishlaydi. */
 export function useRoute(): Route {
   const [route, setRoute] = useState(read);
+  // Parametrli manzilda (`/oyinchi/a` → `/oyinchi/b`) marshrut o'zgarmaydi,
+  // sahifa esa o'zgarishi kerak — shuning uchun yo'lning o'zi ham holatda.
+  const [, setPath] = useState(() => window.location.pathname);
 
   useEffect(() => {
-    const sync = () => setRoute(read());
+    const sync = () => {
+      setRoute(read());
+      setPath(window.location.pathname);
+    };
 
     const onClick = (event: MouseEvent) => {
       if (event.defaultPrevented || event.button !== 0) return;

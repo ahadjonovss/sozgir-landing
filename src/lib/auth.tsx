@@ -25,6 +25,7 @@ import type { User } from 'firebase/auth';
 import { client } from '../firebase/client';
 import { authError } from '../firebase/errors';
 import { saveProfile } from '../firebase/profile';
+import { patchBattleNickname } from './battleRating';
 import {
   clearStoredNickname,
   GUEST,
@@ -265,6 +266,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!auth.currentUser) return;
         await updateProfile(auth.currentUser, { displayName: clean });
         await saveProfile({ uid: auth.currentUser.uid, nickname: clean });
+        // So'zjang jadvali ham yangi nomga o'tadi — aks holda u yerda
+        // jangdagi eski nom qolib ketardi.
+        await patchBattleNickname(auth.currentUser.uid, clean);
       });
     },
     [run, user],
