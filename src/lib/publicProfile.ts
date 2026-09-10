@@ -106,9 +106,14 @@ export async function loadPublicProfile(uid: string): Promise<PublicProfile> {
     count += 1;
   }
 
+  // Jadvallarda nomi bo'lmagan donatchi (o'yin o'ynamagan) donatdagi
+  // ismi bilan chiqadi — «O'yinchi» o'rniga.
+  const donorName = donations.map((doc) => text(doc.fields.name)).find(Boolean) ?? '';
+
   return {
     uid,
-    nickname: text(score?.nickname) || text(ratingDoc?.nickname) || text(daily?.nickname),
+    nickname:
+      text(score?.nickname) || text(ratingDoc?.nickname) || text(daily?.nickname) || donorName,
     totalScore,
     wordsFound: int(score?.wordsFound),
     scoreRank: scoreRank === null ? null : scoreRank + 1,

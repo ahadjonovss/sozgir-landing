@@ -31,6 +31,10 @@
   --teal: #3fa8a0;
   --teal-soft: rgba(63, 168, 160, 0.14);
   --danger: #d1544f;
+  /* Homiylik darajalari: bronza, oltin, platina. */
+  --donor-homiy: #b8763a;
+  --donor-oltin: #d4a017;
+  --donor-platina: #8fa6c2;
 
   --radius-sm: 12px;
   --radius: 22px;

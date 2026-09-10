@@ -7,6 +7,7 @@
 import { avatarColor, initialOf } from '../lib/avatar';
 import { avatarSrc } from '../lib/avatarImage';
 import { useAvatarThumb } from '../lib/avatars';
+import { donorLabel, useDonorTier } from '../lib/donor';
 import { Users } from './Icons';
 
 export default function Avatar({
@@ -30,13 +31,23 @@ export default function Avatar({
   const thumb = useAvatarThumb(waiting ? undefined : uid);
   const photo = waiting ? '' : image || thumb;
   const empty = waiting || name.trim().length === 0;
-  const classes = ['avatar-mark', empty ? 'avatar-mark--empty' : '', photo ? 'avatar-mark--photo' : '', className]
+  // Homiylik halqasi: donat qilgan odamning avatari daraja rangida
+  // ajralib turadi — hamma joyda, chunki hamma avatar shu komponent.
+  const donor = useDonorTier(waiting ? undefined : uid);
+  const classes = [
+    'avatar-mark',
+    empty ? 'avatar-mark--empty' : '',
+    photo ? 'avatar-mark--photo' : '',
+    donor ? `avatar-mark--donor avatar-mark--${donor}` : '',
+    className,
+  ]
     .filter(Boolean)
     .join(' ');
 
   return (
     <span
       className={classes}
+      title={donor ? donorLabel(donor) : undefined}
       style={{
         width: size,
         height: size,

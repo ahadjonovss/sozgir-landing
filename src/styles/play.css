@@ -74,6 +74,46 @@
   object-fit: cover;
 }
 
+/* Homiylik halqasi: daraja rangida, avatar bilan orasida fon rangidagi
+   tirqish. Platinada yengil nur ham bor — eng yuqori daraja. */
+.avatar-mark--donor {
+  --donor: var(--donor-homiy);
+  box-shadow:
+    0 0 0 2px var(--bg),
+    0 0 0 4px var(--donor);
+}
+
+.avatar-mark--oltin {
+  --donor: var(--donor-oltin);
+}
+
+.avatar-mark--platina {
+  --donor: var(--donor-platina);
+  box-shadow:
+    0 0 0 2px var(--bg),
+    0 0 0 4px var(--donor),
+    0 0 14px 2px color-mix(in srgb, var(--donor) 55%, transparent);
+}
+
+/* Arenada halqa tomon rangining o'rnini oladi — homiy tomoni oltin. */
+.versus__avatar.avatar-mark--donor {
+  border-color: var(--donor);
+  box-shadow: 0 0 18px 1px color-mix(in srgb, var(--donor) 32%, transparent);
+}
+
+/* Daraja chipi — profil sarlavhasida. */
+.donor-chip {
+  --tone: var(--donor-homiy);
+}
+
+.donor-chip--oltin {
+  --tone: var(--donor-oltin);
+}
+
+.donor-chip--platina {
+  --tone: var(--donor-platina);
+}
+
 /* ── Profil rasmi tahriri ─────────────────────────────────────────────── */
 
 .avatar-editor {
@@ -2464,6 +2504,67 @@
 
 .rating--compact .rating__value {
   font-size: 30px;
+}
+
+.rating__tiers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* Homiy kartochkasi: daraja ohangidagi yumshoq parda va chip. Bu odamning
+   o'ziga ham, profilini ochganga ham ko'rinadi — loyihani qo'llagani
+   kartochkaning o'zidan bilinadi. */
+.rating--donor {
+  --donor: var(--donor-homiy);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--donor) 18%, transparent), transparent 60%),
+    var(--surface);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--donor) 45%, transparent);
+}
+
+.rating--compact.rating--donor {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--donor) 18%, transparent), transparent 60%),
+    var(--bg);
+}
+
+.rating--oltin {
+  --donor: var(--donor-oltin);
+}
+
+.rating--platina {
+  --donor: var(--donor-platina);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Platinada kartochka ustidan sekin yaltirash o'tadi. */
+.rating--platina::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    110deg,
+    transparent 30%,
+    color-mix(in srgb, #fff 22%, transparent) 50%,
+    transparent 70%
+  );
+  transform: translateX(-100%);
+  animation: donor-shine 6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes donor-shine {
+  20%,
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.rating__donor {
+  background: color-mix(in srgb, var(--donor) 16%, transparent);
+  color: var(--donor);
 }
 
 .rating__tier {

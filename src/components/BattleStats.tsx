@@ -14,7 +14,8 @@ import {
   winRate,
   type BattleRating,
 } from '../lib/battleRating';
-import { Trophy } from './Icons';
+import { donorLabel, useDonorTier } from '../lib/donor';
+import { Heart, Trophy } from './Icons';
 
 export default function BattleStats({ uid, compact = false }: { uid: string; compact?: boolean }) {
   const [value, setValue] = useState<BattleRating | null>(null);
@@ -37,15 +38,29 @@ export default function BattleStats({ uid, compact = false }: { uid: string; com
   const rating = value ?? EMPTY_RATING;
   const next = nextTierAt(rating.rating);
   const games = played(rating);
+  /** Homiylik darajasi: kartochka daraja ohangida, daraja yonida chip. */
+  const donor = useDonorTier(uid);
 
   return (
-    <div className={`rating${compact ? ' rating--compact' : ''}${value ? '' : ' rating--loading'}`}>
+    <div
+      className={`rating${compact ? ' rating--compact' : ''}${value ? '' : ' rating--loading'}${
+        donor ? ` rating--donor rating--${donor}` : ''
+      }`}
+    >
       <div className="rating__main">
         <span className="rating__label">Bellashuv reytingi</span>
         <strong className="rating__value">{rating.rating}</strong>
-        <span className="rating__tier">
-          <Trophy size={14} />
-          {tierName(rating.rating)}
+        <span className="rating__tiers">
+          <span className="rating__tier">
+            <Trophy size={14} />
+            {tierName(rating.rating)}
+          </span>
+          {donor && (
+            <span className="rating__tier rating__donor">
+              <Heart size={13} />
+              {donorLabel(donor)}
+            </span>
+          )}
         </span>
         <span className="rating__track" aria-hidden="true">
           <i style={{ width: `${Math.round(tierProgress(rating.rating) * 100)}%` }} />

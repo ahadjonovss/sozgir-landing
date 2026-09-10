@@ -151,6 +151,25 @@ bilan bir xil), donatlar `runQuery`. Manbalarning biri xato bersa qolgani
 qaytadi — sahifa yarim ma’lumot bilan ham ochiladi. «So‘zjangga chaqirish»
 sarlavhaning ostida (`profile` turi, pastdagi «Manzilli chaqiruvlar»).
 
+## Homiylik darajalari
+
+Donat qilgan o‘yinchi ajralib turadi (`src/lib/donor.ts`): avatar atrofida
+daraja rangidagi halqa (hamma avatar `Avatar.tsx` orqali chiqadi, shuning
+uchun reyting, arena, profil — hamma joyda), reyting kartochkasida daraja
+chipi va kartochkaning o‘zi daraja ohangida (`rating--donor`), profil
+sarlavhasida chip. Darajalar umumiy summadan: **5 000** — Homiy (bronza),
+**25 000** — Oltin homiy, **100 000** — Platina (kartochka ustidan
+yaltirash o‘tadi). Chegaralar `DONOR_TIERS` da, hozirgi donatlarga qarab
+qo‘yilgan.
+
+Manba — `donations` (ochiq kolleksiya): bitta REST so‘rovda 300 tagacha
+yozuv olinib `uid` bo‘yicha yig‘iladi, xotirada va brauzer keshida
+(`sozgir.donors`, bir soat) turadi; har avatar do‘kondan so‘raydi,
+alohida so‘rov yubormaydi. Hisobsiz donat (`uid` yo‘q) sanalmaydi. Ilovada
+hozircha bunday ko‘rinish yo‘q — ko‘chirilsa, yig‘indini serverda
+(`onDonationWrite` → `scores/{uid}.donated`) yozib qo‘ygan ma’qul, shunda
+ikkalasi bitta maydondan o‘qiydi.
+
 ## Telefon
 
 O‘yin sahifalari telefonda o‘ynash uchun moslangan (`play.css` oxiridagi
@@ -422,6 +441,7 @@ src/
     nickname.ts taxallus filtri (nickname_filter.dart porti)
     leaderboard.ts  kunlik va umumiy reyting jadvallari
     battle.ts   So‘zjang chaqiruvlari va turlari
+    donor.ts    homiylik darajalari: donatlar yig‘indisi, halqa va chip uchun
     publicProfile.ts  ochiq profil: scores + battle_ratings + kunlik + donatlar
     useSozjang.ts  So‘zjang holati (chaqiruv, navbat, jang)
     auth.tsx    hisob holati va amallari
