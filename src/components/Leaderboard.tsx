@@ -18,10 +18,16 @@ type Tab = 'daily' | 'total';
 export default function Leaderboard() {
   const { account, openPrompt } = useAuth();
   const [tab, setTab] = useState<Tab>('daily');
-  /** Jadval o'zi qaysi bo'lim uchun yuklanganini eslab qoladi — shunda
-   *  bo'lim almashganda holatni sinxron tozalash kerak bo'lmaydi. */
-  const [loaded, setLoaded] = useState<{ tab: Tab; entries: Entry[] } | null>(null);
-  const rows = loaded?.tab === tab ? loaded.entries : null;
+  /** Har bo'limning yuklangan jadvali alohida saqlanadi: qaytib
+   *  almashilganda darrov chiqadi, yuklanish paytida esa oldingi bo'limning
+   *  qatorlari joyida qolib xiralashadi — ro'yxat o'rniga bitta qator
+   *  «Yuklanmoqda…» chiqib panel kichrayib-kattalashib yubormaydi. */
+  const [cache, setCache] = useState<Partial<Record<Tab, Entry[]>>>({});
+  const rows = cache[tab] ?? null;
+  /** Ekranda ko'rinadigan qatorlar: bu bo'limniki, bo'lmasa (hali
+   *  yuklanmoqda) boshqa bo'limning qatorlari — o'sha balandlikda. */
+  const shown = rows ?? cache[tab === 'daily' ? 'total' : 'daily'] ?? null;
+  const loading = rows === null;
   /** Jadvaldan chaqirilayotgan raqib — ilovadagi ochiq profildagi
    *  «So'zjangga chaqirish». Jadvalda ko'rgan odamni darhol jangga
    *  taklif qilsa bo'ladi; ilgari buning yo'li faqat tasodif edi (bir
@@ -45,7 +51,7 @@ export default function Leaderboard() {
         tab === 'daily'
           ? await dailyTop({ dateKey: dailyKey(), length: DAILY_LENGTH })
           : await totalTop({});
-      if (alive) setLoaded({ tab, entries });
+      if (alive) setCache((current) => ({ ...current, [tab]: entries }));
     })();
 
     return () => {
@@ -77,7 +83,20 @@ export default function Leaderboard() {
         </div>
       </div>
 
-      {rows === null && <p className="panel__note">Yuklanmoqda…</p>}
+      {/* Birinchi yuklash: jadval shaklidagi skelet — panel keyin
+          kattalashmaydi. */}
+      {shown === null && (
+        <ol className="ranks ranks--skeleton" aria-busy="true" aria-label="Yuklanmoqda">
+          {Array.from({ length: 10 }, (_, index) => (
+            <li key={index} className="rank rank--skeleton">
+              <span className="rank__place">{index + 1}</span>
+              <i />
+              <i />
+              <i />
+            </li>
+          ))}
+        </ol>
+      )}
 
       {rows !== null && rows.length === 0 && (
         <p className="panel__note">
@@ -87,9 +106,9 @@ export default function Leaderboard() {
         </p>
       )}
 
-      {rows !== null && rows.length > 0 && (
-        <ol className="ranks">
-          {rows.map((row, index) => (
+      {shown !== null && shown.length > 0 && (rows === null || rows.length > 0) && (
+        <ol className={`ranks${loading ? ' ranks--loading' : ''}`} aria-busy={loading}>
+          {shown.map((row, index) => (
             <li
               key={row.uid}
               className={`rank${row.uid === account?.uid ? ' rank--me' : ''}`}

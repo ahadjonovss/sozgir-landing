@@ -916,6 +916,33 @@
   background: var(--green-soft);
 }
 
+/* Bo'lim almashganda: eski qatorlar joyida, xira — balandlik saqlanadi. */
+.ranks--loading {
+  opacity: 0.45;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+/* Birinchi yuklash skeleti: qatorlar haqiqiy jadval bilan bir balandlikda. */
+.rank--skeleton i {
+  display: block;
+  height: 12px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  animation: skeleton 1.2s ease-in-out infinite alternate;
+}
+
+.rank--skeleton i:nth-of-type(1) {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+}
+
+.rank--skeleton i:nth-of-type(3) {
+  width: 34px;
+  justify-self: end;
+}
+
 .rank__place {
   color: var(--text-2);
   font-size: 12.5px;
