@@ -157,9 +157,9 @@ Donat qilgan o‘yinchi ajralib turadi (`src/lib/donor.ts`): avatar atrofida
 daraja rangidagi halqa (hamma avatar `Avatar.tsx` orqali chiqadi, shuning
 uchun reyting, arena, profil — hamma joyda), reyting kartochkasida daraja
 chipi va kartochkaning o‘zi daraja ohangida (`rating--donor`), profil
-sarlavhasida chip. Darajalar umumiy summadan: **5 000** — Homiy (bronza),
-**25 000** — Oltin homiy, **100 000** — Platina (kartochka ustidan
-yaltirash o‘tadi). Chegaralar `DONOR_TIERS` da, hozirgi donatlarga qarab
+sarlavhasida chip. Darajalar umumiy summadan: **5 000** — «Saxovatpesha»
+(bronza), **25 000** — «Eski boylardan» (oltin), **100 000** — «Boylarni
+boyi» (platina, kartochka ustidan yaltirash o‘tadi). Chegaralar `DONOR_TIERS` da, hozirgi donatlarga qarab
 qo‘yilgan.
 
 Manba — `donations` (ochiq kolleksiya): bitta REST so‘rovda 300 tagacha

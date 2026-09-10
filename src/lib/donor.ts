@@ -3,7 +3,7 @@
  *  Loyihani qo'llagan odam boshqalardan ajralib tursin: avatar atrofida
  *  daraja rangidagi halqa, reyting kartochkasida daraja chipi. Daraja
  *  umumiy summadan (`donations`, `uid` bo'yicha yig'indi): 5 000 —
- *  «Homiy», 25 000 — «Oltin homiy», 100 000 — «Platina». Chegaralar
+ *  «Saxovatpesha», 25 000 — «Eski boylardan», 100 000 — «Boylarni boyi». Chegaralar
  *  hozirgi donatlarga qarab qo'yilgan (eng kattasi 25 000 so'm atrofida):
  *  pastki daraja ko'pchilikka yetadigan, yuqorisi intilish uchun. Hisobsiz
  *  qilingan donat sanalmaydi — unda `uid` yo'q.
@@ -19,9 +19,9 @@ export type DonorTier = 'homiy' | 'oltin' | 'platina';
 
 /** Darajalar — yuqoridan pastga: birinchi mos kelgani olinadi. */
 export const DONOR_TIERS: { tier: DonorTier; min: number; label: string }[] = [
-  { tier: 'platina', min: 100_000, label: 'Platina' },
-  { tier: 'oltin', min: 25_000, label: 'Oltin homiy' },
-  { tier: 'homiy', min: 5_000, label: 'Homiy' },
+  { tier: 'platina', min: 100_000, label: 'Boylarni boyi' },
+  { tier: 'oltin', min: 25_000, label: 'Eski boylardan' },
+  { tier: 'homiy', min: 5_000, label: 'Saxovatpesha' },
 ];
 
 export function donorTier(amount: number): DonorTier | null {
