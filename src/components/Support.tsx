@@ -22,15 +22,15 @@ import {
   formatSum,
   loadBalance,
   loadDonations,
-  PRESETS,
   type Donation,
   type SupportBalance,
 } from '../lib/support';
 import { pretty } from '../lib/uz';
-import { playerLink } from '../data/site';
+import { links, playerLink } from '../data/site';
+import { DONOR_TIERS, donorLabel, donorTier, forgetDonorTotals, nextDonorTier } from '../lib/donor';
 import Modal from './Modal';
 
-function Balance({ balance }: { balance: SupportBalance }) {
+export function Balance({ balance }: { balance: SupportBalance }) {
   return (
     <div className="support__balance">
       <span className="support__label">Loyiha ishlab topdi</span>
@@ -53,7 +53,7 @@ function Balance({ balance }: { balance: SupportBalance }) {
   );
 }
 
-function Donors({ donations, uid }: { donations: Donation[] | null; uid?: string }) {
+export function Donors({ donations, uid }: { donations: Donation[] | null; uid?: string }) {
   if (donations === null) return <p className="panel__note">Yuklanmoqda…</p>;
 
   if (donations.length === 0) {
@@ -90,7 +90,153 @@ function Donors({ donations, uid }: { donations: Donation[] | null; uid?: string
   );
 }
 
-/** Donat oynasi: summa tanlash va to'lovga o'tish. */
+/** Summa tanlash va to'lovga o'tish — oynada ham (bosh sahifa), donat
+ *  sahifasida ham bitta shakl.
+ *
+ *  Tayyor summalar homiylik darajalarining chegaralari: odam qancha
+ *  qo'shsa qaysi daraja bo'lishini tanlash paytida ko'radi. Kirilgan
+ *  bo'lsa va hissasi ma'lum bo'lsa, natija joriy yig'indi bilan
+ *  hisoblanadi («shu hissa bilan Boyvachcha bo'lasiz»). */
+export function DonateForm({
+  nickname,
+  signedIn,
+  current = null,
+  onSignIn,
+  onRegister,
+}: {
+  nickname: string;
+  signedIn: boolean;
+  /** Joriy yig'indi (so'm); noma'lum bo'lsa `null`. */
+  current?: number | null;
+  onSignIn: () => void;
+  onRegister: () => void;
+}) {
+  const [amount, setAmount] = useState(String(DONOR_TIERS[DONOR_TIERS.length - 2].min));
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+
+  const value = Number(amount.replace(/[^0-9]/g, '')) || 0;
+  const valid = value >= DONATION_MIN && value <= DONATION_MAX;
+  const after = donorTier((current ?? 0) + value);
+  const now = current === null ? null : donorTier(current);
+
+  async function pay() {
+    if (!valid || busy) return;
+    setBusy(true);
+    setError('');
+    try {
+      const payUrl = await createDonation({ amount: value, nickname });
+      // Yig'indi keshi eskiradi: qaytib kelganda yangi daraja ko'rinsin.
+      forgetDonorTotals();
+      // To'lov sahifasi o'sha oynada ochiladi: inPAY tugagach `/donat`
+      // ga qaytaradi va u yerda natija ko'rinadi.
+      window.location.href = payUrl;
+    } catch (cause) {
+      setError(functionError(cause));
+      setBusy(false);
+    }
+  }
+
+  // Tayyor summalar — darajalar pastdan yuqoriga.
+  const presets = [...DONOR_TIERS].reverse();
+
+  return (
+    <div className="form donate">
+      <div className="donate__presets" role="group" aria-label="Tayyor summalar">
+        {presets.map((level) => (
+          <button
+            key={level.tier}
+            type="button"
+            className={`donate__preset donate__preset--${level.tier}${
+              value === level.min ? ' donate__preset--on' : ''
+            }`}
+            onClick={() => {
+              setAmount(String(level.min));
+              setError('');
+            }}
+          >
+            <i aria-hidden="true" />
+            <strong>{formatSum(level.min)}</strong>
+            <span>{level.label}</span>
+          </button>
+        ))}
+      </div>
+
+      <label className="field">
+        <span>Yoki o‘z summangiz (so‘m)</span>
+        <input
+          inputMode="numeric"
+          value={amount}
+          onChange={(event) => {
+            setAmount(event.target.value.replace(/[^0-9 ]/g, ''));
+            setError('');
+          }}
+          maxLength={9}
+        />
+      </label>
+
+      {!valid && value > 0 && (
+        <p className="support__error">
+          {value < DONATION_MIN
+            ? `Eng kami ${formatSum(DONATION_MIN)} so‘m`
+            : 'Summa juda katta'}
+        </p>
+      )}
+      {error && <p className="support__error">{error}</p>}
+
+      {/* Natija: shu hissa bilan qaysi daraja. */}
+      {valid && after && (
+        <p className={`donate__result donate__result--${after}`}>
+          <i aria-hidden="true" />
+          {now && now === after
+            ? `Darajangiz «${donorLabel(after)}» bo‘lib qoladi${
+                nextDonorTier((current ?? 0) + value)
+                  ? `, «${nextDonorTier((current ?? 0) + value)!.label}» gacha ${formatSum(
+                      nextDonorTier((current ?? 0) + value)!.min - (current ?? 0) - value,
+                    )} so‘m qoladi`
+                  : ''
+              }`
+            : `Shu hissa bilan «${donorLabel(after)}» bo‘lasiz`}
+        </p>
+      )}
+      {valid && !after && (
+        <p className="donate__result">
+          <i aria-hidden="true" />
+          Homiylik darajasi {formatSum(DONOR_TIERS[DONOR_TIERS.length - 1].min)} so‘mdan boshlanadi — lekin har bir so‘m loyihaga ketadi.
+        </p>
+      )}
+
+      {signedIn ? (
+        <>
+          <button className="btn btn--lg" onClick={pay} disabled={!valid || busy}>
+            {busy ? 'To‘lov ochilmoqda…' : `${formatSum(value)} so‘m qo‘shish`}
+          </button>
+          <p className="panel__note">
+            Ro‘yxatda <b>{pretty(nickname)}</b> nomi bilan chiqasiz. To‘lov
+            Payme, Click yoki karta orqali — to‘lagach hisob o‘zi yangilanadi.
+          </p>
+        </>
+      ) : (
+        <>
+          <p className="panel__note">
+            Hissangiz ismingiz bilan ro‘yxatda chiqadi va hisobingizga
+            bog‘lanadi — shuning uchun avval kirish kerak.
+          </p>
+          <div className="result__actions donate__gate">
+            <button className="btn" onClick={onSignIn}>
+              Kirish
+            </button>
+            <button className="btn btn--ghost" onClick={onRegister}>
+              Hisob ochish
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+/** Donat oynasi — bosh sahifadagi bo'limdan. */
 function DonateModal({
   nickname,
   signedIn,
@@ -104,105 +250,24 @@ function DonateModal({
   onSignIn: () => void;
   onRegister: () => void;
 }) {
-  const [amount, setAmount] = useState(String(PRESETS[1]));
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
-
-  const value = Number(amount.replace(/[^0-9]/g, '')) || 0;
-  const valid = value >= DONATION_MIN && value <= DONATION_MAX;
-
-  async function pay() {
-    if (!valid || busy) return;
-    setBusy(true);
-    setError('');
-    try {
-      const payUrl = await createDonation({ amount: value, nickname });
-      // To'lov sahifasi o'sha oynada ochiladi: inPAY tugagach `/donat`
-      // ga qaytaradi va u yerda natija ko'rinadi.
-      window.location.href = payUrl;
-    } catch (cause) {
-      setError(functionError(cause));
-      setBusy(false);
-    }
-  }
-
   return (
     <Modal
       title="Hissa qo‘shish"
       lead="Ilova bepul — qo‘llab-quvvatlasangiz, rivojlanishda davom etamiz."
       onClose={onClose}
     >
-      {!signedIn ? (
-        <div className="form">
-          <p className="panel__note">
-            Hissangiz ismingiz bilan ro‘yxatda chiqadi va hisobingizga
-            bog‘lanadi — shuning uchun avval kirish kerak. So‘ztopni esa
-            kirmasdan ham o‘ynash mumkin.
-          </p>
-          <div className="result__actions">
-            <button className="btn btn--sm" onClick={onSignIn}>
-              Kirish
-            </button>
-            <button className="btn btn--sm btn--ghost" onClick={onRegister}>
-              Hisob ochish
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div className="form">
-          <div className="support__presets" role="group" aria-label="Tayyor summalar">
-            {PRESETS.map((preset) => (
-              <button
-                key={preset}
-                type="button"
-                className={`chip${value === preset ? ' chip--on' : ''}`}
-                onClick={() => {
-                  setAmount(String(preset));
-                  setError('');
-                }}
-              >
-                {formatSum(preset)}
-              </button>
-            ))}
-          </div>
-
-          <label className="field">
-            <span>Summa (so‘m)</span>
-            <input
-              inputMode="numeric"
-              value={amount}
-              onChange={(event) => {
-                setAmount(event.target.value.replace(/[^0-9 ]/g, ''));
-                setError('');
-              }}
-              maxLength={9}
-            />
-          </label>
-
-          {!valid && value > 0 && (
-            <p className="support__error">
-              {value < DONATION_MIN
-                ? `Eng kami ${formatSum(DONATION_MIN)} so‘m`
-                : 'Summa juda katta'}
-            </p>
-          )}
-          {error && <p className="support__error">{error}</p>}
-
-          <p className="panel__note">
-            Ro‘yxatda <b>{pretty(nickname)}</b> nomi bilan chiqasiz. To‘lov
-            Payme, Click yoki karta orqali — to‘lagach hisob o‘zi yangilanadi.
-          </p>
-
-          <button className="btn btn--lg" onClick={pay} disabled={!valid || busy}>
-            {busy ? 'To‘lov ochilmoqda…' : `${formatSum(value)} so‘m qo‘shish`}
-          </button>
-        </div>
-      )}
+      <DonateForm
+        nickname={nickname}
+        signedIn={signedIn}
+        onSignIn={onSignIn}
+        onRegister={onRegister}
+      />
     </Modal>
   );
 }
 
-export default function Support({ page = false }: { page?: boolean }) {
+/** Bosh sahifadagi bo'lim. To'liq sahifa — `SupportPage.tsx` (`/qollab`). */
+export default function Support() {
   const { account, nickname, openPrompt } = useAuth();
   const [balance, setBalance] = useState<SupportBalance | null>(null);
   const [donations, setDonations] = useState<Donation[] | null>(null);
@@ -226,26 +291,14 @@ export default function Support({ page = false }: { page?: boolean }) {
   const state = balance ?? EMPTY_BALANCE;
 
   // Adminka bo'limni yopib qo'yishi mumkin — u holda saytda ham chiqmaydi.
-  if (balance && !state.visible) {
-    return page ? (
-      <section className="section">
-        <div className="wrap">
-          <p className="panel__note">Bu bo‘lim hozircha yopiq.</p>
-        </div>
-      </section>
-    ) : null;
-  }
+  if (balance && !state.visible) return null;
 
   return (
-    <section className={`section support${page ? ' support--page' : ''}`} id="qollab">
+    <section className="section support" id="qollab">
       <div className="wrap">
         <div className="section__head reveal">
           <span className="section__kicker">Qo‘llab-quvvatlash</span>
-          {page ? (
-            <h1>Loyihani hamjamiyat ko‘taradi</h1>
-          ) : (
-            <h2>Loyihani hamjamiyat ko‘taradi</h2>
-          )}
+          <h2>Loyihani hamjamiyat ko‘taradi</h2>
           <p className="section__lead">
             Ilova ichi xaridlari yo‘q, obuna yo‘q. Yig‘ilgan pul loyihani
             rivojlantirishga ketadi, qolgani — muallifga bir piyola choy puli.
@@ -261,7 +314,11 @@ export default function Support({ page = false }: { page?: boolean }) {
             </button>
             <p className="panel__note">
               To‘lov Payme, Click yoki karta orqali. Telefondagi ilovada ham
-              shu ro‘yxat ko‘rinadi.
+              shu ro‘yxat ko‘rinadi. Homiylik darajalari va top donatchilar —{' '}
+              <a className="link" href={links.donate}>
+                to‘liq sahifada
+              </a>
+              .
             </p>
           </div>
 

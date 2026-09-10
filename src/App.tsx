@@ -20,6 +20,7 @@ import PlayerPage from './components/PlayerPage';
 import Privacy from './components/Privacy';
 import Rules from './components/Rules';
 import Support from './components/Support';
+import SupportPage from './components/SupportPage';
 import { AccountDialog } from './components/Account';
 import { useReveal } from './lib/useReveal';
 import { useRoute } from './lib/useRoute';
@@ -63,7 +64,7 @@ export default function App() {
         {route === '/oynash' && <PlayHub />}
         {route === '/oyin' && <GamePage />}
         {route === '/sozjang' && <BattlePage />}
-        {route === '/qollab' && <Support page />}
+        {route === '/qollab' && <SupportPage />}
         {route === '/privacy' && <Privacy />}
         {route === '/contact' && <Contact />}
         {route === '/oyinchi' && <PlayerPage />}

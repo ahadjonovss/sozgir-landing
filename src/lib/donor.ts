@@ -41,6 +41,21 @@ export function donorLabel(tier: DonorTier): string {
   return DONOR_TIERS.find((level) => level.tier === tier)?.label ?? '';
 }
 
+/** Keyingi daraja — donatga sabab. Eng yuqorida `null`. */
+export function nextDonorTier(amount: number): { tier: DonorTier; min: number; label: string } | null {
+  for (const level of [...DONOR_TIERS].reverse()) if (amount < level.min) return level;
+  return null;
+}
+
+/** Joriy darajadan keyingisiga qadar bosilgan yo'l (0..1). */
+export function donorProgress(amount: number): number {
+  const next = nextDonorTier(amount);
+  if (!next) return 1;
+  const current = donorTier(amount);
+  const from = current ? (DONOR_TIERS.find((level) => level.tier === current)?.min ?? 0) : 0;
+  return Math.min(1, Math.max(0, (amount - from) / (next.min - from)));
+}
+
 const CACHE_KEY = 'sozgir.donors';
 const TTL_MS = 60 * 60 * 1000;
 /** Shuncha yozuv bir so'rovda — tarix uzayganda yig'indi ham shuncha
@@ -95,6 +110,35 @@ export function loadDonorTotals(): Promise<Record<string, number>> {
       loading = null;
     });
   return loading;
+}
+
+/** Odamning yig'indisi (so'm). Ma'lumot kelmaguncha `null`, donat
+ *  qilmagan bo'lsa `0`. */
+export function useDonorTotal(uid: string | undefined): number | null {
+  const [, bump] = useState(0);
+
+  useEffect(() => {
+    if (!uid || totals) return;
+    const listener = () => bump((value) => value + 1);
+    listeners.add(listener);
+    void loadDonorTotals();
+    return () => {
+      listeners.delete(listener);
+    };
+  }, [uid]);
+
+  if (!uid || !totals) return null;
+  return totals[uid] ?? 0;
+}
+
+/** Yangi donatdan keyin kesh eskiradi — qaytib kelganda qayta o'qilsin. */
+export function forgetDonorTotals(): void {
+  totals = null;
+  try {
+    localStorage.removeItem(CACHE_KEY);
+  } catch {
+    // e'tiborsiz
+  }
 }
 
 /** Odamning homiylik darajasi. Ma'lumot kelmaguncha va donat qilmagan

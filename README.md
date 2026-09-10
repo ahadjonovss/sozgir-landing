@@ -151,6 +151,20 @@ bilan bir xil), donatlar `runQuery`. Manbalarning biri xato bersa qolgani
 qaytadi — sahifa yarim ma’lumot bilan ham ochiladi. «So‘zjangga chaqirish»
 sarlavhaning ostida (`profile` turi, pastdagi «Manzilli chaqiruvlar»).
 
+## Qo‘llab-quvvatlash sahifasi
+
+`/qollab` — `SupportPage.tsx`: bosh sahifadagi qisqa bo‘limdan (`Support.tsx`,
+hisob + tugma + oxirgilari) farqli to‘liq sahifa. Chapda **hissa qo‘shish
+shakli** sahifaning o‘zida (oyna emas — sahifaga shuning uchun kelingan):
+tayyor summalar homiylik darajalarining chegaralari, tanlanganda «shu
+hissa bilan qaysi daraja bo‘lasiz» ko‘rinadi (kirgan odamda joriy
+yig‘indi bilan); ostida darajalar ro‘yxati. O‘ngda loyiha hisobi, **top
+donatchilar** (`loadTopDonors` — `uid` bo‘yicha, hisobsizlari ism bo‘yicha
+yig‘iladi, profil havolasi bilan) va oxirgilari. Kirgan odam tepada o‘z
+hissasini, darajasini va keyingisigacha qolgan summani ko‘radi
+(`useDonorTotal`, `donorProgress`). To‘lovga o‘tishda yig‘indi keshi
+tashlanadi (`forgetDonorTotals`) — qaytib kelganda yangi daraja chiqsin.
+
 ## Homiylik darajalari
 
 Donat qilgan o‘yinchi ajralib turadi (`src/lib/donor.ts`): avatar atrofida
@@ -417,6 +431,8 @@ src/
     InviteOverlay.tsx  kelgan chaqiruv — istalgan sahifada pastdan chiqadi
     OpponentBoard.tsx  raqib yo‘li — faqat ranglar
     Play.tsx      o‘yin bo‘limi: rejim, natija, qisqa statistika
+    Support.tsx   qo‘llab-quvvatlash bo‘limi (bosh sahifa), DonateForm
+    SupportPage.tsx  `/qollab`: shakl, darajalar, top donatchilar
     Board.tsx     taxta va o‘zbek klaviaturasi
     StatsPanel.tsx  statistika va urinishlar taqsimoti
     Leaderboard.tsx kunlik va umumiy reyting

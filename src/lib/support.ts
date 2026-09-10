@@ -144,3 +144,34 @@ export function balanceHint(earned: number): string {
   if (earned < 100_000) return 'Boshlanishi shu — davomi sizdan';
   return 'Qo‘llab-quvvatlaganlarga rahmat';
 }
+
+export interface TopDonor {
+  /** Hisob — bo'lmasa (hisobsiz donat) faqat ism bo'yicha yig'iladi. */
+  uid?: string;
+  name: string;
+  total: number;
+  count: number;
+}
+
+/** Eng ko'p hissa qo'shganlar — yig'indi bo'yicha.
+ *
+ *  Hisobli donatlar `uid` bo'yicha, hisobsizlari ism bo'yicha yig'iladi
+ *  (bir odam ikki marta chiqmasin). Tarix uzayganda ham 300 yozuv
+ *  yetadi — ro'yxat oxirgilaridan hisoblanadi. */
+export async function loadTopDonors(limit = 5): Promise<TopDonor[]> {
+  const docs = await listDocs('donations', { pageSize: 300 });
+  const map = new Map<string, TopDonor>();
+  for (const doc of docs) {
+    const amount = Math.round(Number(doc.fields.amount ?? 0));
+    if (!Number.isFinite(amount) || amount <= 0) continue;
+    const uid = String(doc.fields.uid ?? '').trim();
+    const name = String(doc.fields.name ?? '').trim() || 'Xayrixoh';
+    const key = uid ? `u:${uid}` : `n:${name.toLowerCase()}`;
+    const row = map.get(key) ?? { uid: uid || undefined, name, total: 0, count: 0 };
+    row.total += amount;
+    row.count += 1;
+    if (!row.name || row.name === 'Xayrixoh') row.name = name;
+    map.set(key, row);
+  }
+  return [...map.values()].sort((a, b) => b.total - a.total).slice(0, limit);
+}

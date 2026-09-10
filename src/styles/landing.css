@@ -1918,6 +1918,326 @@
   font-weight: 700;
 }
 
+/* ── Hissa qo'shish shakli: tayyor summalar = darajalar ─────────────── */
+
+.donate {
+  gap: 14px;
+}
+
+.donate__presets {
+  display: grid;
+  /* Beshta daraja bir qatorda; tor joyda ikki-uchtadan tushadi. */
+  grid-template-columns: repeat(auto-fill, minmax(94px, 1fr));
+  gap: 8px;
+}
+
+.donate__preset {
+  --tone: var(--donor-saxovatpesha);
+  display: grid;
+  gap: 2px;
+  justify-items: start;
+  padding: 10px 12px 9px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--bg);
+  box-shadow: inset 0 0 0 1.5px var(--divider);
+  color: var(--text);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, transform 0.15s ease, background 0.15s ease;
+}
+
+.donate__preset:hover {
+  transform: translateY(-1px);
+  box-shadow: inset 0 0 0 1.5px var(--tone);
+}
+
+.donate__preset--on {
+  background: color-mix(in srgb, var(--tone) 14%, var(--bg));
+  box-shadow: inset 0 0 0 2px var(--tone);
+}
+
+.donate__preset i {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2.5px solid var(--tone);
+  background: color-mix(in srgb, var(--tone) 25%, transparent);
+}
+
+.donate__preset strong {
+  font-size: 14.5px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.donate__preset span {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--text-2);
+  font-size: 11.5px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.donate__preset--boyvachcha {
+  --tone: var(--donor-boyvachcha);
+}
+.donate__preset--eskiBoylardan {
+  --tone: var(--donor-eskiBoylardan);
+}
+.donate__preset--zodagon {
+  --tone: var(--donor-zodagon);
+}
+.donate__preset--oqsuyak {
+  --tone: var(--donor-oqsuyak);
+}
+
+/* Natija: shu hissa bilan qaysi daraja. */
+.donate__result {
+  --tone: var(--text-2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--tone) 12%, transparent);
+  color: var(--text);
+  font-size: 13.5px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.donate__result i {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--tone);
+}
+
+.donate__result--saxovatpesha {
+  --tone: var(--donor-saxovatpesha);
+}
+.donate__result--boyvachcha {
+  --tone: var(--donor-boyvachcha);
+}
+.donate__result--eskiBoylardan {
+  --tone: var(--donor-eskiBoylardan);
+}
+.donate__result--zodagon {
+  --tone: var(--donor-zodagon);
+}
+.donate__result--oqsuyak {
+  --tone: var(--donor-oqsuyak);
+}
+
+.donate__gate {
+  justify-content: flex-start;
+}
+
+/* ── /qollab sahifasi ────────────────────────────────────────────────── */
+
+.sp__head {
+  margin-bottom: 26px;
+}
+
+.sp__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .sp__grid {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  }
+}
+
+.sp__main,
+.sp__side {
+  display: grid;
+  gap: 18px;
+}
+
+.sp__hero {
+  display: grid;
+  gap: 18px;
+}
+
+/* O'z hissasi: avatar, yig'indi, daraja va keyingisigacha yo'l. */
+.sp__me {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  background: var(--bg);
+  box-shadow: inset 0 0 0 1.5px var(--divider);
+}
+
+.sp__me--loading {
+  min-height: 96px;
+  animation: skeleton 1.2s ease-in-out infinite alternate;
+}
+
+.sp__me-heart {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.sp__me-text {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+
+.sp__me-sum {
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.sp__me-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.sp__me-note {
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.sp__track {
+  display: block;
+  height: 6px;
+  margin-top: 4px;
+  border-radius: 4px;
+  background: var(--divider);
+  overflow: hidden;
+}
+
+.sp__track i {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: var(--green);
+  transition: width 0.6s ease;
+}
+
+/* Darajalar ro'yxati. */
+.sp__tiers {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sp__tier {
+  --tone: var(--donor-saxovatpesha);
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--bg);
+}
+
+.sp__tier--boyvachcha {
+  --tone: var(--donor-boyvachcha);
+}
+.sp__tier--eskiBoylardan {
+  --tone: var(--donor-eskiBoylardan);
+}
+.sp__tier--zodagon {
+  --tone: var(--donor-zodagon);
+}
+.sp__tier--oqsuyak {
+  --tone: var(--donor-oqsuyak);
+}
+
+/* Halqa namunasi — avatardagi bilan bir xil: tirqish va daraja rangi. */
+.sp__tier-ring {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  box-shadow:
+    0 0 0 2px var(--bg),
+    0 0 0 4px var(--tone);
+  margin: 2px;
+}
+
+.sp__tier--zodagon .sp__tier-ring,
+.sp__tier--oqsuyak .sp__tier-ring {
+  box-shadow:
+    0 0 0 2px var(--bg),
+    0 0 0 4px var(--tone),
+    0 0 12px 2px color-mix(in srgb, var(--tone) 60%, transparent);
+}
+
+.sp__tier-text {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.sp__tier-text strong {
+  font-size: 15px;
+}
+
+.sp__tier-text span {
+  color: var(--text-2);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.sp__tier-sum {
+  color: var(--tone);
+  font-size: 14px;
+  font-weight: 900;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Top donatchilar — reyting qatorlari uslubida, chaqiruv tugmasisiz. */
+.sp__top {
+  grid-template-columns: 22px 28px minmax(0, 1fr) auto auto;
+}
+
+.sp__top .rank__points {
+  min-width: 0;
+}
+
+@media (max-width: 560px) {
+  .sp__me {
+    align-items: flex-start;
+  }
+  .sp__tier {
+    grid-template-columns: 34px minmax(0, 1fr);
+  }
+  .sp__tier-sum {
+    grid-column: 2;
+  }
+}
+
 /* Alohida sahifada sarlavha ramkadan keladi — bo'lim faqat mazmunni
    ko'rsatadi. */
 .support--page {
