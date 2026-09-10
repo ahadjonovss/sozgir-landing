@@ -3,7 +3,8 @@
  *  Qolgan sahifalar `firestore/lite` bilan ishlaydi — u kichik, lekin
  *  tinglashni bilmaydi. Jangda esa raqibning har qatori darhol ko'rinishi
  *  kerak, shuning uchun shu yerda to'liq SDK ishlatiladi. U alohida chunk
- *  va faqat So'zjang sahifasida yuklanadi.
+ *  va faqat kerak bo'lganda yuklanadi: kirgan odamda chaqiruv kuzatuvi
+ *  (sayt darajasida) va jangning o'zi.
  *
  *  Ikki variant bitta `FirebaseApp` ustida yonma-yon yashaydi: SDK ularni
  *  alohida komponent sifatida ro'yxatga oladi. */

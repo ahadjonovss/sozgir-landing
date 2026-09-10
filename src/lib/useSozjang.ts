@@ -62,6 +62,10 @@ const ACTIVE_KEY = 'sozgir.battle';
  *  o'tadi, ochiq bo'lmasa sahifa ochilganda saqlangan jangdan davom
  *  etadi. */
 const OPEN_EVENT = 'sozgir:battle-open';
+
+/** Ochiq jang o'zgargani. `storage` hodisasi bu ish uchun yaramaydi: u
+ *  faqat boshqa oynalarda ishlaydi, o'zimizda esa jim. */
+const ACTIVE_EVENT = 'sozgir:battle-active';
 const wordsKey = (battleId: string) => `sozgir.battle.words.${battleId}`;
 
 /** Navbatda turganda qidiruv shu oraliqda takrorlanadi.
@@ -96,10 +100,50 @@ function drop(key: string): void {
   }
 }
 
+/** Ochiq jangni eslab qo'yadi va o'zgarganini e'lon qiladi.
+ *
+ *  Jang So'zjang sahifasida o'ynaladi, lekin u haqda saytning boshqa
+ *  qismlari ham bilishi kerak (chaqiruv xabari bandlikni shundan
+ *  biladi), shuning uchun yozuv bir joydan o'tadi. */
+function setActive(id: string | null): void {
+  if (id) write(ACTIVE_KEY, id);
+  else drop(ACTIVE_KEY);
+  window.dispatchEvent(new CustomEvent(ACTIVE_EVENT, { detail: id }));
+}
+
 /** Chaqiruvdan kelgan jangni ochadi — xabar shu funksiyani chaqiradi. */
 export function openBattleById(id: string) {
-  write(ACTIVE_KEY, id);
+  setActive(id);
   window.dispatchEvent(new CustomEvent(OPEN_EVENT, { detail: id }));
+}
+
+/** Brauzerda saqlangan ochiq jang — sahifa almashsa ham qolaveradi.
+ *
+ *  So'zjang sahifasi yopilganda jang tugamaydi: odam boshqa bo'limga
+ *  o'tib ketishi mumkin, jang esa serverda davom etaveradi. Shuning
+ *  uchun bandlikni sahifadan emas, shu yozuvdan so'raladi. */
+export function useActiveBattleId(): string | null {
+  const [id, setId] = useState(() => read<string | null>(ACTIVE_KEY, null));
+
+  useEffect(() => {
+    const onActive = (event: Event) =>
+      setId((event as CustomEvent<string | null>).detail ?? null);
+    // Boshqa oynada boshlangan jang ham hisobga olinadi.
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === null || event.key === ACTIVE_KEY) {
+        setId(read<string | null>(ACTIVE_KEY, null));
+      }
+    };
+
+    window.addEventListener(ACTIVE_EVENT, onActive);
+    window.addEventListener('storage', onStorage);
+    return () => {
+      window.removeEventListener(ACTIVE_EVENT, onActive);
+      window.removeEventListener('storage', onStorage);
+    };
+  }, []);
+
+  return id;
 }
 
 /** Jangni ochib, So'zjang sahifasiga o'tadi. Chaqiruv istalgan sahifada
@@ -175,7 +219,7 @@ export function useSozjang() {
     setBattleId(id);
     // Oldingi jangning hujjati yangi jang holati o'rnida ko'rinmasin.
     setBattle(null);
-    write(ACTIVE_KEY, id);
+    setActive(id);
     setWords(read<string[]>(wordsKey(id), []));
     setTyped({ row: 0, units: [] });
     setFlipRow(-1);
@@ -201,7 +245,7 @@ export function useSozjang() {
     setTyped({ row: 0, units: [] });
     setFlipRow(-1);
     setHint(null);
-    drop(ACTIVE_KEY);
+    setActive(null);
   }, []);
 
   // Jangni kuzatamiz: raqibning har qatori shu orqali keladi.

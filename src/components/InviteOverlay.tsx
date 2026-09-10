@@ -7,14 +7,17 @@
  *  chiqadi — barmoq ham, sichqoncha ham shu yerda.
  *
  *  Javob shu yerda beriladi: qabul qilinsa jang ochiladi, rad etilsa
- *  chaqirgan odamga server xabar yuboradi. */
+ *  chaqirgan odamga server xabar yuboradi.
+ *
+ *  Jang o'rtasida esa xabar umuman chiqmaydi — sababi `useInBattle`
+ *  izohida. */
 import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { callFunction } from '../firebase/functions';
 import { watchInvites, type LiveInvite, type Unsubscribe } from '../firebase/live';
 import { useAuth } from '../lib/auth';
-import { inviteSource } from '../lib/battle';
-import { showBattle } from '../lib/useSozjang';
+import { inviteSource, watchBattle, type BattleDoc } from '../lib/battle';
+import { showBattle, useActiveBattleId } from '../lib/useSozjang';
 import { pretty } from '../lib/uz';
 
 /** Chaqiruv muddati tugaguncha qolgan soniya. */
@@ -36,9 +39,55 @@ function remaining(expiresAt: number): number {
   return Math.max(0, Math.round((expiresAt - Date.now()) / 1000));
 }
 
+/** Ayni damda jangdamizmi.
+ *
+ *  Serverda ham himoya bor: jang o'rtasidagi odamga chaqiruv umuman
+ *  yaratilmaydi. Lekin chaqiruv jang boshlanishidan bir necha soniya
+ *  oldin yaratilgan bo'lishi mumkin — u ikki daqiqa javob kutadi va
+ *  aynan o'yin ustidan chiqib qoladi. «Qabul qilish» bosilsa boshlangan
+ *  jang tashlab ketilardi, raqib esa sababini bilmay kutib qolardi.
+ *  Shuning uchun xabar jang tugaguncha kutadi: muddati o'tmagan bo'lsa,
+ *  keyin o'zi chiqadi.
+ *
+ *  O'zim tugatgan jang bandlik hisoblanmaydi: raqibning natijasini
+ *  kutib turgan odam uchun chaqiruvda yo'qotadigan narsa yo'q. */
+function useInBattle(uid: string): boolean {
+  const battleId = useActiveBattleId();
+  /** Hujjat qaysi jangdan kelgani bilan saqlanadi: boshqa jangga
+   *  o'tilganda eskisi render paytida chiqarib tashlanadi va holatni
+   *  effekt ichida tozalash kerak bo'lmaydi. */
+  const [watched, setWatched] = useState<{
+    id: string;
+    doc: BattleDoc | null;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!uid || !battleId) return;
+
+    let stop: Unsubscribe | null = null;
+    let alive = true;
+
+    void watchBattle(battleId, (doc) => {
+      if (alive) setWatched({ id: battleId, doc });
+    }).then((unsubscribe) => {
+      if (alive) stop = unsubscribe;
+      else unsubscribe();
+    });
+
+    return () => {
+      alive = false;
+      stop?.();
+    };
+  }, [battleId, uid]);
+
+  const battle = watched?.id === battleId ? watched.doc : null;
+  return battle?.status === 'running' && battle.players?.[uid]?.finished !== true;
+}
+
 export default function InviteOverlay() {
   const { account } = useAuth();
   const uid = account?.uid ?? '';
+  const inBattle = useInBattle(uid);
   const [live, setLive] = useState<LiveInvite[]>([]);
   const [busy, setBusy] = useState(false);
   /** Javob berilgan chaqiruvlar: server yozuvni yangilagunicha xabar
@@ -66,9 +115,10 @@ export default function InviteOverlay() {
 
   // Chiqariladigan chaqiruv render paytida hisoblanadi — kirish holati
   // o'zgarganda holatni effekt ichida tozalash kerak bo'lmaydi.
-  const invite = uid
-    ? (live.find((item) => !answered.includes(item.id)) ?? null)
-    : null;
+  const invite =
+    uid && !inBattle
+      ? (live.find((item) => !answered.includes(item.id)) ?? null)
+      : null;
 
   const accept = useCallback(async () => {
     if (!invite || !account || busy) return;
