@@ -16,7 +16,8 @@ import { isEmptyProfile, loadPublicProfile, type PublicProfile } from '../lib/pu
 import { routeParam } from '../lib/useRoute';
 import { pretty } from '../lib/uz';
 import { formatSum } from '../lib/support';
-import { donorLabel, donorTier } from '../lib/donor';
+import { donorTier } from '../lib/donor';
+import DonorChip from './DonorChip';
 import Avatar from './Avatar';
 import BattleStats from './BattleStats';
 import { ChevronLeft, Heart, Person, Swords, Trophy } from './Icons';
@@ -112,10 +113,7 @@ export default function PlayerPage() {
                   </span>
                 )}
                 {donorTier(profile.donated) && (
-                  <span className={`versus__chip donor-chip donor-chip--${donorTier(profile.donated)}`}>
-                    <Heart size={13} />
-                    {donorLabel(donorTier(profile.donated)!)}
-                  </span>
+                  <DonorChip tier={donorTier(profile.donated)!} className="versus__chip" />
                 )}
               </div>
             </header>

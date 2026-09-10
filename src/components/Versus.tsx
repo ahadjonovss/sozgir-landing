@@ -10,7 +10,9 @@
  *
  *  Ranglar palitradan: ikki rejimda ham ishlaydi, «jangovar» tus
  *  qizil-qora bilan emas, saytning o'z ranglari bilan beriladi. */
+import { useDonorTier } from '../lib/donor';
 import Avatar from './Avatar';
+import DonorChip from './DonorChip';
 import { Clock, Close, Person, Swords } from './Icons';
 
 /** Arena qaysi holatda: raqib kutilmoqda, kelmadi yoki ikkalasi joyida. */
@@ -37,6 +39,9 @@ function Side({
   label: string;
   icon: React.ReactNode;
 }) {
+  // Homiylik belgisi — raqib ko'rganda «bu nima?» degan savolga chipdagi
+  // ⓘ javob beradi.
+  const donor = useDonorTier(waiting ? undefined : uid);
   return (
     <div className={`versus__side${mine ? ' versus__side--me' : ' versus__side--foe'}`}>
       <span className="versus__ring">
@@ -44,6 +49,7 @@ function Side({
         <Avatar name={name} uid={uid} size={64} waiting={waiting} className="versus__avatar" />
       </span>
       <strong className="versus__name">{name}</strong>
+      {donor && <DonorChip tier={donor} className="versus__chip versus__donor" />}
       <span className="versus__chip">
         {icon}
         {label}

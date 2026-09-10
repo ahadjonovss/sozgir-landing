@@ -118,9 +118,77 @@
   box-shadow: 0 0 18px 1px color-mix(in srgb, var(--donor) 32%, transparent);
 }
 
-/* Daraja chipi — profil sarlavhasida. */
+/* Daraja chipi: profil sarlavhasida, arenada, kartochkada. Burchagida
+   ⓘ — bosilsa ostida bir jumlalik izoh. */
 .donor-chip {
   --tone: var(--donor-saxovatpesha);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.donor-chip:focus-visible {
+  outline: 2px solid var(--tone);
+  outline-offset: 2px;
+}
+
+.donor-chip__info {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--bg);
+  box-shadow: inset 0 0 0 1.5px var(--tone);
+  color: var(--tone);
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.donor-chip:hover .donor-chip__info,
+.donor-chip--open .donor-chip__info {
+  background: var(--tone);
+  color: var(--bg);
+}
+
+/* Izoh chipning tepasida. */
+.donor-chip__tip {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  z-index: 5;
+  width: 230px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+  white-space: normal;
+  transform: translateX(-50%);
+  box-shadow: var(--shadow-lg);
+  animation: rise 0.2s ease;
+}
+
+/* Arenada tomon tor — izoh chetdan chiqib ketmasin. */
+.versus__side--me .donor-chip__tip {
+  left: 0;
+  transform: none;
+}
+
+.versus__side--foe .donor-chip__tip {
+  left: auto;
+  right: 0;
+  transform: none;
 }
 
 .donor-chip--boyvachcha {

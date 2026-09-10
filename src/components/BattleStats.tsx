@@ -14,8 +14,9 @@ import {
   winRate,
   type BattleRating,
 } from '../lib/battleRating';
-import { donorLabel, useDonorTier } from '../lib/donor';
-import { Heart, Trophy } from './Icons';
+import { useDonorTier } from '../lib/donor';
+import DonorChip from './DonorChip';
+import { Trophy } from './Icons';
 
 export default function BattleStats({ uid, compact = false }: { uid: string; compact?: boolean }) {
   const [value, setValue] = useState<BattleRating | null>(null);
@@ -55,12 +56,7 @@ export default function BattleStats({ uid, compact = false }: { uid: string; com
             <Trophy size={14} />
             {tierName(rating.rating)}
           </span>
-          {donor && (
-            <span className="rating__tier rating__donor">
-              <Heart size={13} />
-              {donorLabel(donor)}
-            </span>
-          )}
+          {donor && <DonorChip tier={donor} className="rating__tier rating__donor" />}
         </span>
         <span className="rating__track" aria-hidden="true">
           <i style={{ width: `${Math.round(tierProgress(rating.rating) * 100)}%` }} />
