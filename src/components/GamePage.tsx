@@ -18,6 +18,7 @@ import { useSozTop } from '../lib/useSozTop';
 import Leaderboard from './Leaderboard';
 import Play from './Play';
 import StatsPanel from './StatsPanel';
+import TelegramBanner from './TelegramBanner';
 
 export default function GamePage() {
   const { account, openPrompt } = useAuth();
@@ -48,6 +49,7 @@ export default function GamePage() {
 
           <StatsPanel choice={choice} stats={game.stats} total={game.total} />
           <Leaderboard />
+          <TelegramBanner compact />
 
           <div className="panel panel--call">
             <h3>Do‘st bilan bellashing</h3>

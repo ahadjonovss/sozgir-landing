@@ -12,6 +12,9 @@ export const links = {
   appStore: 'https://apps.apple.com/app/id6807138456',
   playStore: 'https://play.google.com/store/apps/details?id=uz.ahadjonovss.soztop',
   telegram: 'https://t.me/sozgir_uz',
+  /** Hamjamiyat guruhi — o'yinchilar bir-birini topadi, takliflar,
+   *  yangiliklar. Banner `/oynash`, `/oyin` va `/sozjang` da. */
+  telegramGroup: 'https://t.me/+_dbBWMhlXqFiMjYy',
   support: `mailto:${email}`,
   /** «O'ynash» tugmasi — nimani o'ynashni tanlash sahifasi. */
   hub: '/oynash',

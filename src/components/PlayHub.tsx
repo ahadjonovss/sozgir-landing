@@ -11,6 +11,7 @@ import { dailyKey, dailyNumber, untilNextWord } from '../lib/daily';
 import { DAILY_LENGTH, attemptsFor } from '../lib/modes';
 import AppMark from './AppMark';
 import { Clock, Swords } from './Icons';
+import TelegramBanner from './TelegramBanner';
 
 /** Bugungi o'yin holati — saqlangan sessiyadan.
  *
@@ -151,6 +152,8 @@ export default function PlayHub() {
             </div>
           </article>
         </div>
+
+        <TelegramBanner />
 
         <p className="hub__more">
           Ilovada yana:

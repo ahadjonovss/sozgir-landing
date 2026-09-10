@@ -26,6 +26,7 @@ import RotatingLine from './RotatingLine';
 import SendInvite, { type InviteTarget } from './SendInvite';
 import Versus from './Versus';
 import Modal from './Modal';
+import TelegramBanner from './TelegramBanner';
 import OpponentBoard from './OpponentBoard';
 
 /** Havoladagi `?kod=ABC123` — chaqiruvni bosib kelgan odam uchun. */
@@ -112,6 +113,7 @@ function Gate() {
       </div>
       <aside className="lobby__side">
         <BattleBoard />
+        <TelegramBanner compact />
       </aside>
     </div>
   );
@@ -235,6 +237,7 @@ function Lobby({ game }: { game: Sozjang }) {
 
       <aside className="lobby__side">
         <BattleBoard />
+        <TelegramBanner compact />
       </aside>
     </div>
   );

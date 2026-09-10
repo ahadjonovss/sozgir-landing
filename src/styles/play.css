@@ -3210,3 +3210,97 @@
 .leave__actions {
   justify-content: flex-start;
 }
+
+/* ── Telegram guruhi banneri ─────────────────────────────────────────── */
+
+.tg {
+  --tg: #2aabee;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: var(--radius);
+  background:
+    linear-gradient(120deg, color-mix(in srgb, var(--tg) 22%, transparent), transparent 70%),
+    var(--surface);
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--tg) 45%, transparent);
+  color: var(--text);
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.tg:hover {
+  transform: translateY(-1px);
+  box-shadow: inset 0 0 0 1.5px var(--tg);
+}
+
+.tg__icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--tg);
+  color: #fff;
+}
+
+.tg__text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.tg__text strong {
+  font-size: 15px;
+}
+
+.tg__text span {
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.tg__cta {
+  padding: 9px 14px;
+  border-radius: 999px;
+  background: var(--tg);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+/* Yon ustunda: kichikroq, tugma pastga tushadi. */
+.tg--compact {
+  grid-template-columns: auto minmax(0, 1fr);
+  padding: 14px 16px;
+}
+
+.tg--compact .tg__icon {
+  width: 36px;
+  height: 36px;
+}
+
+.tg--compact .tg__text strong {
+  font-size: 14px;
+}
+
+.tg--compact .tg__cta {
+  grid-column: 2;
+  justify-self: start;
+  margin-top: 4px;
+  padding: 7px 12px;
+}
+
+@media (max-width: 560px) {
+  .tg {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .tg__cta {
+    grid-column: 2;
+    justify-self: start;
+    margin-top: 4px;
+  }
+}
