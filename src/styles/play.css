@@ -2647,7 +2647,10 @@
 
 .rating {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+  /* Ikki ustun faqat joy bo'lganda (≥ ~630px): profil sahifasining 560px
+     li ustunida va natija kartochkasida raqamlar «109», «mag'lubiyat»
+     kesilib qolardi. Tor joyda statistika kartochkaning ostiga tushadi. */
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 24px;
   align-items: center;
   padding: 22px 26px;
@@ -2741,10 +2744,15 @@
 .rating__stats li {
   display: grid;
   gap: 2px;
-  padding: 12px 8px;
+  min-width: 0;
+  padding: 12px 6px;
   border-radius: 14px;
   background: var(--bg);
   text-align: center;
+}
+
+.rating__stats span {
+  overflow-wrap: anywhere;
 }
 
 .rating--compact .rating__stats li {
