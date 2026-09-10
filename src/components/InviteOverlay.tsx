@@ -13,7 +13,8 @@ import { createPortal } from 'react-dom';
 import { callFunction } from '../firebase/functions';
 import { watchInvites, type LiveInvite, type Unsubscribe } from '../firebase/live';
 import { useAuth } from '../lib/auth';
-import { openBattleById } from '../lib/useSozjang';
+import { inviteSource } from '../lib/battle';
+import { showBattle } from '../lib/useSozjang';
 import { pretty } from '../lib/uz';
 
 /** Chaqiruv muddati tugaguncha qolgan soniya. */
@@ -78,13 +79,7 @@ export default function InviteOverlay() {
         { inviteId: invite.id, nickname: account.nickname },
       );
       setAnswered((ids) => [...ids, invite.id]);
-      if (reply.battleId) {
-        openBattleById(reply.battleId);
-        if (window.location.pathname !== '/sozjang') {
-          window.history.pushState(null, '', '/sozjang');
-          window.dispatchEvent(new PopStateEvent('popstate'));
-        }
-      }
+      if (reply.battleId) showBattle(reply.battleId);
     } catch {
       // Xato bo'lsa chaqiruv joyida qoladi — qayta urinish mumkin.
     } finally {
@@ -139,8 +134,7 @@ function Card({
           <div className="invite__who">
             <strong>{pretty(invite.fromNickname)}</strong>
             <span>
-              Sizni jangga chaqirdi ·{' '}
-              {invite.kind === 'nearby' ? 'yaqin atrofdan' : 'revansh'}
+              Sizni jangga chaqirdi · {inviteSource(invite.kind)}
             </span>
           </div>
           {left > 0 && <span className="invite__left">{left} s</span>}

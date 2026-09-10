@@ -9,13 +9,15 @@ const DARK: [number, number, number, number][] = [
   [6, 0, 5, 1], [6, 4, 5, 1], [6, 1, 1, 3], [10, 1, 1, 3],
   // Z
   [14, 0, 5, 1], [18, 1, 1, 1], [14, 2, 5, 1], [14, 3, 1, 1], [14, 4, 5, 1],
-  // G
-  [0, 6, 5, 1], [0, 7, 1, 3], [0, 10, 5, 1], [4, 7, 1, 1], [4, 9, 1, 1], [2, 8, 3, 1],
+  // G — o'ng chetning yuqorisi ochiq: kosacha yuqoridan o'ngga chiqadi,
+  // til o'rtadan kirib keladi va pastda ilib turadi (ilova 1.1.6 bilan).
+  [0, 6, 5, 1], [0, 7, 1, 3], [0, 10, 5, 1], [4, 9, 1, 1], [2, 8, 3, 1],
   // I
   [7, 6, 5, 1], [9, 7, 1, 3], [7, 10, 5, 1],
-  // R
+  // R — oyoq bitta katak qalinlikda, diagonal tushadi: (17,9) → (18,10).
+  // Ilgari (18,9) ham qora edi va oyoq qalinlashib, harf «A» ga o'xshardi.
   [14, 6, 5, 1], [14, 7, 1, 4], [18, 7, 1, 1], [14, 8, 5, 1],
-  [17, 9, 1, 1], [18, 9, 1, 1], [18, 10, 1, 1],
+  [17, 9, 1, 1], [18, 10, 1, 1],
 ];
 
 const GREEN: [number, number, number, number][] = [

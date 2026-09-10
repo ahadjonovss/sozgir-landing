@@ -102,6 +102,17 @@ export function openBattleById(id: string) {
   window.dispatchEvent(new CustomEvent(OPEN_EVENT, { detail: id }));
 }
 
+/** Jangni ochib, So'zjang sahifasiga o'tadi. Chaqiruv istalgan sahifada
+ *  qabul qilinishi (yoki qabul qilingani bilinishi) mumkin — reytingdan
+ *  chaqirilgan raqib javob berganda odam `/oyin` da turadi. */
+export function showBattle(id: string) {
+  openBattleById(id);
+  if (window.location.pathname !== links.battle) {
+    window.history.pushState(null, '', links.battle);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  }
+}
+
 export function useSozjang() {
   const { account } = useAuth();
   const uid = account?.uid ?? '';

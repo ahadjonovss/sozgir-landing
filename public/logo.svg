@@ -54,8 +54,6 @@
       <rect x="0" y="7" width="1" height="3"/>
       <!-- bottom -->
       <rect x="0" y="10" width="5" height="1"/>
-      <!-- right upper -->
-      <rect x="4" y="7" width="1" height="1"/>
       <!-- right lower -->
       <rect x="4" y="9" width="1" height="1"/>
       <!-- mid spur from right inward (square counter feel) -->
@@ -79,7 +77,6 @@
       <rect x="14" y="8" width="5" height="1"/> <!-- mid -->
       <!-- leg: 1-thick stepped from mid-right down-right -->
       <rect x="17" y="9" width="1" height="1"/>
-      <rect x="18" y="9" width="1" height="1"/>
       <rect x="18" y="10" width="1" height="1"/>
     </g>
     

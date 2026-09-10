@@ -47,7 +47,8 @@ export async function watchDoc<T>(
 export interface LiveInvite {
   id: string;
   fromNickname: string;
-  /** `nearby` yoki `rematch` — qayerdan kelgani. */
+  /** Qayerdan kelgani: `rematch`, `nearby` yoki `profile` (ilovadagi
+   *  ochiq profil / saytdagi reyting qatori). Yozuvi `inviteSource` da. */
   kind: string;
   /** Muddati tugaydigan payt (millisekundda). Noma'lum bo'lsa `0`. */
   expiresAt: number;

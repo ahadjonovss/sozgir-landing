@@ -3,6 +3,7 @@
  *  Hujjat `battle_ratings/{uid}`: server har jangdan keyin yangilaydi,
  *  o'qish hammaga ochiq. Darajalar va chegaralar ilova bilan bir xil,
  *  aks holda saytda «Havaskor», telefonda «Tajribali» bo'lib qolardi. */
+import { client } from '../firebase/client';
 import { PATHS } from '../firebase/paths';
 import { watchDoc, type Unsubscribe } from '../firebase/live';
 
@@ -75,4 +76,23 @@ export function watchRating(
       streak: int(data.streak),
     });
   });
+}
+
+/** So'zjang jadvalidagi taxallusni yangilaydi — ilovadagi
+ *  `patchBattleNickname`.
+ *
+ *  Hujjatni server jang yakunida yozadi va u paytdagi nomni qo'yadi.
+ *  Taxallus keyin o'zgarsa u yerda eski nom (ko'pincha «Mehmon») qolib
+ *  ketardi: odam kunlik jadvalda o'z ismi bilan, So'zjangda esa mehmon
+ *  bo'lib turardi. Faqat mavjud hujjat: jang o'ynamagan odam jadvalga
+ *  tushmasin, shuning uchun `not-found` jimgina o'tkaziladi. */
+export async function patchBattleNickname(uid: string, nickname: string): Promise<void> {
+  const { db } = await client();
+  const { doc, updateDoc } = await import('firebase/firestore/lite');
+  try {
+    await updateDoc(doc(db, PATHS.battleRatings, uid), { nickname });
+  } catch (error) {
+    if ((error as { code?: string })?.code === 'not-found') return;
+    throw error;
+  }
 }
