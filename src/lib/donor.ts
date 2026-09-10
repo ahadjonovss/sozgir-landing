@@ -3,9 +3,10 @@
  *  Loyihani qo'llagan odam boshqalardan ajralib tursin: avatar atrofida
  *  daraja rangidagi halqa, reyting kartochkasida daraja chipi. Daraja
  *  umumiy summadan (`donations`, `uid` bo'yicha yig'indi): 5 000 —
- *  «Saxovatpesha», 25 000 — «Eski boylardan», 100 000 — «Boylarni boyi». Chegaralar
- *  hozirgi donatlarga qarab qo'yilgan (eng kattasi 25 000 so'm atrofida):
- *  pastki daraja ko'pchilikka yetadigan, yuqorisi intilish uchun. Hisobsiz
+ *  «Saxovatpesha», 20 000 — «Boyvachcha», 50 000 — «Eski boylardan»,
+ *  150 000 — «Zodagon», 500 000 — «Oqsuyak». Chegaralar hozirgi donatlarga qarab qo'yilgan (eng
+ *  kattasi 25 000 so'm atrofida): pastki daraja ko'pchilikka yetadigan,
+ *  yuqorisi intilish uchun. Hisobsiz
  *  qilingan donat sanalmaydi — unda `uid` yo'q.
  *
  *  Yig'indi hamma uchun bir marta olinadi: `donations` ochiq kolleksiya,
@@ -15,13 +16,20 @@
 import { useEffect, useState } from 'react';
 import { listDocs } from '../firebase/rest';
 
-export type DonorTier = 'homiy' | 'oltin' | 'platina';
+export type DonorTier =
+  | 'saxovatpesha'
+  | 'boyvachcha'
+  | 'eskiBoylardan'
+  | 'zodagon'
+  | 'oqsuyak';
 
 /** Darajalar — yuqoridan pastga: birinchi mos kelgani olinadi. */
 export const DONOR_TIERS: { tier: DonorTier; min: number; label: string }[] = [
-  { tier: 'platina', min: 100_000, label: 'Boylarni boyi' },
-  { tier: 'oltin', min: 25_000, label: 'Eski boylardan' },
-  { tier: 'homiy', min: 5_000, label: 'Saxovatpesha' },
+  { tier: 'oqsuyak', min: 500_000, label: 'Oqsuyak' },
+  { tier: 'zodagon', min: 150_000, label: 'Zodagon' },
+  { tier: 'eskiBoylardan', min: 50_000, label: 'Eski boylardan' },
+  { tier: 'boyvachcha', min: 20_000, label: 'Boyvachcha' },
+  { tier: 'saxovatpesha', min: 5_000, label: 'Saxovatpesha' },
 ];
 
 export function donorTier(amount: number): DonorTier | null {

@@ -75,24 +75,41 @@
 }
 
 /* Homiylik halqasi: daraja rangida, avatar bilan orasida fon rangidagi
-   tirqish. Platinada yengil nur ham bor — eng yuqori daraja. */
+   tirqish. Yuqori ikki darajada (zodagon, oqsuyak) nur ham bor. */
 .avatar-mark--donor {
-  --donor: var(--donor-homiy);
+  --donor: var(--donor-saxovatpesha);
   box-shadow:
     0 0 0 2px var(--bg),
     0 0 0 4px var(--donor);
 }
 
-.avatar-mark--oltin {
-  --donor: var(--donor-oltin);
+.avatar-mark--boyvachcha {
+  --donor: var(--donor-boyvachcha);
 }
 
-.avatar-mark--platina {
-  --donor: var(--donor-platina);
+.avatar-mark--eskiBoylardan {
+  --donor: var(--donor-eskiBoylardan);
+}
+
+.avatar-mark--zodagon,
+.avatar-mark--oqsuyak {
   box-shadow:
     0 0 0 2px var(--bg),
     0 0 0 4px var(--donor),
     0 0 14px 2px color-mix(in srgb, var(--donor) 55%, transparent);
+}
+
+.avatar-mark--zodagon {
+  --donor: var(--donor-zodagon);
+}
+
+/* Oqsuyak — marvarid: halqa oq-kumush, nuri kengroq. */
+.avatar-mark--oqsuyak {
+  --donor: var(--donor-oqsuyak);
+  box-shadow:
+    0 0 0 2px var(--bg),
+    0 0 0 4px var(--donor),
+    0 0 18px 4px color-mix(in srgb, var(--donor) 70%, transparent);
 }
 
 /* Arenada halqa tomon rangining o'rnini oladi — homiy tomoni oltin. */
@@ -103,15 +120,24 @@
 
 /* Daraja chipi — profil sarlavhasida. */
 .donor-chip {
-  --tone: var(--donor-homiy);
+  --tone: var(--donor-saxovatpesha);
 }
 
-.donor-chip--oltin {
-  --tone: var(--donor-oltin);
+.donor-chip--boyvachcha {
+  --tone: var(--donor-boyvachcha);
 }
 
-.donor-chip--platina {
-  --tone: var(--donor-platina);
+.donor-chip--eskiBoylardan {
+  --tone: var(--donor-eskiBoylardan);
+}
+
+.donor-chip--zodagon {
+  --tone: var(--donor-zodagon);
+}
+
+.donor-chip--oqsuyak {
+  --tone: var(--donor-oqsuyak);
+  color: var(--text);
 }
 
 /* ── Profil rasmi tahriri ─────────────────────────────────────────────── */
@@ -2516,7 +2542,7 @@
    o'ziga ham, profilini ochganga ham ko'rinadi — loyihani qo'llagani
    kartochkaning o'zidan bilinadi. */
 .rating--donor {
-  --donor: var(--donor-homiy);
+  --donor: var(--donor-saxovatpesha);
   background:
     linear-gradient(135deg, color-mix(in srgb, var(--donor) 18%, transparent), transparent 60%),
     var(--surface);
@@ -2529,18 +2555,31 @@
     var(--bg);
 }
 
-.rating--oltin {
-  --donor: var(--donor-oltin);
+.rating--boyvachcha {
+  --donor: var(--donor-boyvachcha);
 }
 
-.rating--platina {
-  --donor: var(--donor-platina);
+.rating--eskiBoylardan {
+  --donor: var(--donor-eskiBoylardan);
+}
+
+.rating--zodagon {
+  --donor: var(--donor-zodagon);
+}
+
+.rating--oqsuyak {
+  --donor: var(--donor-oqsuyak);
+}
+
+/* Yuqori ikki darajada kartochka ustidan sekin yaltirash o'tadi. */
+.rating--zodagon,
+.rating--oqsuyak {
   position: relative;
   overflow: hidden;
 }
 
-/* Platinada kartochka ustidan sekin yaltirash o'tadi. */
-.rating--platina::after {
+.rating--zodagon::after,
+.rating--oqsuyak::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -2565,6 +2604,12 @@
 .rating__donor {
   background: color-mix(in srgb, var(--donor) 16%, transparent);
   color: var(--donor);
+}
+
+/* Marvarid rang och fonda o'qilmaydi — oqsuyak chipi to'q matn bilan. */
+.rating--oqsuyak .rating__donor {
+  background: color-mix(in srgb, var(--donor) 45%, transparent);
+  color: var(--text);
 }
 
 .rating__tier {
