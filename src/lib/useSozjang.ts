@@ -25,6 +25,12 @@ import {
   type BattlePlayer,
 } from './battle';
 import { attemptsFor, DEFAULT_LENGTH } from './modes';
+import {
+  REACTION_COOLDOWN_MS,
+  sendReaction,
+  watchReactions,
+  type ReactionKey,
+} from './reactions';
 import { EMOJI, keyAction, lengthOf, normalize, split, type Verdict } from './uz';
 import { gameKey } from './useScript';
 import { links, site } from '../data/site';
@@ -193,6 +199,16 @@ export function useSozjang() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [hint, setHint] = useState<{ index: number; unit: string } | null>(null);
+  /** Raqibdan endigina kelgan reaksiya. `token` — bayroq emas, sanoq:
+   *  raqib ketma-ket ikki marta bir xil belgini yuborsa ham ekran
+   *  ikkalasini ko'rsatishi kerak. */
+  const [incoming, setIncoming] = useState<{ key: ReactionKey; token: number } | null>(
+    null,
+  );
+  /** Endigina yuborgan reaksiyam — sovish tugagunicha tugmada turadi.
+   *  Xira, bosilmaydigan ikonka «buzilib qoldi» degan taassurot berardi;
+   *  belgining o'zi esa «ketdi» degan javob bo'ladi. */
+  const [sentReaction, setSentReaction] = useState<ReactionKey | null>(null);
 
   /** Navbatdagi yozuv hali kutyaptimi. `false` bo'lsa bizni allaqachon
    *  juftlashgan — takroriy so'rov yuborilmaydi: server bu so'rovda
@@ -227,6 +243,7 @@ export function useSozjang() {
     setHint(null);
     setMessage(null);
     setError(null);
+    setIncoming(null);
   }, []);
 
   // Chaqiruv qabul qilindi: sahifa ochiq bo'lsa jang shu zahoti ochiladi.
@@ -267,6 +284,27 @@ export function useSozjang() {
       stop?.();
     };
   }, [account, battleId]);
+
+  // Raqibning reaksiyalari. Jang hujjatidan alohida kolleksiya, shuning
+  // uchun alohida kuzatuv — jang holati bekorga qayta chizilmaydi.
+  useEffect(() => {
+    if (!battleId || !uid) return;
+    let alive = true;
+    let stop: Unsubscribe | null = null;
+
+    void watchReactions(battleId, uid, (key) => {
+      if (!alive) return;
+      setIncoming((previous) => ({ key, token: (previous?.token ?? 0) + 1 }));
+    }).then((unsubscribe) => {
+      if (alive) stop = unsubscribe;
+      else unsubscribe();
+    });
+
+    return () => {
+      alive = false;
+      stop?.();
+    };
+  }, [battleId, uid]);
 
   // Navbat: kimdir bizni tanlasa yozuvimizga `matchId` tushadi.
   useEffect(() => {
@@ -607,6 +645,22 @@ export function useSozjang() {
     if (type === 'quick') await quick();
   }, [battle?.type, leave, quick]);
 
+  /** Raqibga reaksiya yuboradi.
+   *
+   *  Yuborish «optimistik»: tugma darhol sovishga o'tadi va javob
+   *  kutilmaydi — bu amal jangni to'xtatib qo'ymasligi kerak. Xato bo'lsa
+   *  ham ekranda hech narsa o'zgarmaydi: reaksiya yetib bormagani
+   *  o'yinga ta'sir qilmaydi. */
+  const react = useCallback(
+    (key: ReactionKey) => {
+      if (!battleId || !uid || sentReaction) return;
+      setSentReaction(key);
+      later(() => setSentReaction(null), REACTION_COOLDOWN_MS);
+      void sendReaction(battleId, uid, key).catch(() => undefined);
+    },
+    [battleId, later, sentReaction, uid],
+  );
+
   /** Natijani ulashish matni — So'ztopdagi bilan bir uslubda: sarlavha,
    *  ikki tomonning yo'li ranglar bilan, ostida havola. Harflar yo'q —
    *  javob oshkor bo'lmasin. */
@@ -672,6 +726,9 @@ export function useSozjang() {
     leave,
     again,
     press,
+    incoming,
+    sentReaction,
+    react,
     clearError: () => setError(null),
   };
 }

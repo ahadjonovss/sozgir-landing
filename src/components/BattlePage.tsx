@@ -20,7 +20,8 @@ import Avatar from './Avatar';
 import BattleBoard from './BattleBoard';
 import BattleStats from './BattleStats';
 import { Board, Keyboard } from './Board';
-import { Check, Clock, Copy, Send, Swords, Users } from './Icons';
+import { Check, Clock, Copy, Send, Smile, Swords, Users } from './Icons';
+import { emojiOf, REACTIONS } from '../lib/reactions';
 import ReportWord from './ReportWord';
 import RotatingLine from './RotatingLine';
 import SendInvite, { type InviteTarget } from './SendInvite';
@@ -527,6 +528,90 @@ function Dots({ player, max, mine }: { player?: BattlePlayer; max: number; mine?
   );
 }
 
+/* ── Reaksiya ────────────────────────────────────────────────────────── */
+
+/** Reaksiya tanlash: tugma bosilganda yetti belgi ustida ochiladi.
+ *
+ *  Tanlov bir bosishda tugashi kerak — jang ketayotgan bo'ladi. Yuborgach
+ *  tugma ikki soniya «sovib» turadi va shu vaqt ichida uning o'rnida
+ *  yuborilgan belgi turadi: bu ham «ketdi» degan javob, ham ketma-ket
+ *  bosishning oldini olish (qoidalar yozuvlar orasida 1.5 soniya
+ *  talab qiladi). */
+function ReactionPicker({ game }: { game: Sozjang }) {
+  const [open, setOpen] = useState(false);
+  const box = useRef<HTMLDivElement>(null);
+  const sent = emojiOf(game.sentReaction);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (event: PointerEvent) => {
+      if (!box.current?.contains(event.target as Node)) setOpen(false);
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
+    window.addEventListener('pointerdown', onDown);
+    window.addEventListener('keydown', onKey);
+    return () => {
+      window.removeEventListener('pointerdown', onDown);
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  return (
+    <div className="react" ref={box}>
+      {open && (
+        <div className="react__menu" role="menu" data-script="off">
+          {REACTIONS.map((item) => (
+            <button
+              key={item.key}
+              type="button"
+              role="menuitem"
+              className="react__pick"
+              title={item.label}
+              aria-label={item.label}
+              onClick={() => {
+                setOpen(false);
+                game.react(item.key);
+              }}
+            >
+              {item.emoji}
+            </button>
+          ))}
+        </div>
+      )}
+      <button
+        type="button"
+        className={`react__btn${sent ? ' react__btn--sent' : ''}`}
+        onClick={() => setOpen((value) => !value)}
+        disabled={!!sent}
+        aria-label="Reaksiya yuborish"
+        aria-expanded={open}
+        aria-haspopup="menu"
+        title="Reaksiya — raqibingiz darhol ko‘radi"
+      >
+        {sent ? <span data-script="off">{sent}</span> : <Smile size={20} />}
+        <span className="react__label">Reaksiya</span>
+      </button>
+    </div>
+  );
+}
+
+/** Raqibdan kelgan reaksiya: belgi paydo bo'lib, chayqalib turadi va
+ *  yuqoriga suzib ketadi. `key` sifatida sanoq berilgan — element qaytadan
+ *  yaratiladi va animatsiya boshidan yuriladi, ya'ni raqib ketma-ket bir
+ *  xil belgini yuborsa ham har biri ko'rinadi. */
+function ReactionBurst({ event }: { event: Sozjang['incoming'] }) {
+  const emoji = emojiOf(event?.key);
+  if (!emoji) return null;
+  return (
+    <span className="burst" key={event!.token} aria-hidden="true" data-script="off">
+      {emoji}
+    </span>
+  );
+}
+
+
 /** Jang tepasidagi hisob taxtasi: ikki tomon, urinishlar va holat. */
 function Scoreboard({ game }: { game: Sozjang }) {
   const me = pretty(game.account?.nickname ?? 'Siz');
@@ -597,19 +682,25 @@ function Playing({ game }: { game: Sozjang }) {
           )}
         </div>
 
-        <div className="fight__side fight__side--foe" key={lastFoe}>
-          <div className="fight__who">
-            <strong>{pretty(game.opponent?.nickname ?? 'Raqib')}</strong>
-            <span>
-              {game.opponent?.finished ? 'tugatdi' : `${lastFoe}/${game.maxAttempts}`}
-              {game.opponent?.hintUsed ? ' · maslahat oldi' : ''}
-            </span>
+        {/* O'rash kerak: panelning o'zi har yangi qatorda qaytadan
+            yaratiladi (`key`), reaksiya esa undan mustaqil yashashi
+            kerak. */}
+        <div className="fight__foe">
+          <ReactionBurst event={game.incoming} />
+          <div className="fight__side fight__side--foe" key={lastFoe}>
+            <div className="fight__who">
+              <strong>{pretty(game.opponent?.nickname ?? 'Raqib')}</strong>
+              <span>
+                {game.opponent?.finished ? 'tugatdi' : `${lastFoe}/${game.maxAttempts}`}
+                {game.opponent?.hintUsed ? ' · maslahat oldi' : ''}
+              </span>
+            </div>
+            <OpponentBoard
+              rows={opponentRows}
+              length={game.boardLength}
+              maxAttempts={game.maxAttempts}
+            />
           </div>
-          <OpponentBoard
-            rows={opponentRows}
-            length={game.boardLength}
-            maxAttempts={game.maxAttempts}
-          />
         </div>
       </div>
     </div>
@@ -885,7 +976,11 @@ export default function BattlePage() {
                     <Keyboard keyState={game.keyState} onPress={game.press} />
                   </div>
                 )}
+                {/* Reaksiya jang ketayotganda ham, o'z navbatim tugab
+                    raqibni kutayotganda ham yuboriladi — aynan o'sha
+                    kutish paytida u eng o'rinli. */}
                 <div className="jang__foot">
+                  <ReactionPicker game={game} />
                   <button className="link" onClick={askLeave}>
                     Jangdan chiqish
                   </button>

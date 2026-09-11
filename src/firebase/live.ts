@@ -44,6 +44,31 @@ export async function watchDoc<T>(
   );
 }
 
+/** Kolleksiyadagi hujjatlarni kuzatadi — `battles/{id}/reactions` kabi
+ *  kichik, tez-tez o'zgaradigan ro'yxatlar uchun. */
+export async function watchCollection<T>(
+  path: string,
+  onData: (docs: { id: string; data: T }[]) => void,
+  { skipCache = false }: { skipCache?: boolean } = {},
+): Promise<Unsubscribe> {
+  const { app } = await client();
+  const { connectFirestoreEmulator, getFirestore, collection, onSnapshot } =
+    await import('firebase/firestore');
+
+  const db = getFirestore(app);
+  if (useEmulator) connectFirestoreEmulator(db, EMULATOR.host, EMULATOR.firestore);
+
+  return onSnapshot(
+    collection(db, path),
+    (snapshot) => {
+      if (skipCache && snapshot.metadata.fromCache) return;
+      onData(snapshot.docs.map((item) => ({ id: item.id, data: item.data() as T })));
+    },
+    // Ulanish uzilsa jim o'tamiz — chaqiruvchi oxirgi holat bilan qoladi.
+    () => onData([]),
+  );
+}
+
 /** Menga kelgan, javob kutayotgan chaqiruv. */
 export interface LiveInvite {
   id: string;

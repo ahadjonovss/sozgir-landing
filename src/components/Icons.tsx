@@ -87,6 +87,11 @@ export const Shield = svg(
   'M12 3l7 3v5.5c0 4.2-2.9 7.6-7 9.5-4.1-1.9-7-5.3-7-9.5V6z',
 );
 export const Send = svg('M4 12l16-8-6 16-2.5-6z');
+// Kulgichga reaksiya: yuz, ikki ko'z va tabassum (ilovadagi
+// `add_reaction_outlined` ning yengil varianti).
+export const Smile = svg(
+  'M12 21a9 9 0 100-18 9 9 0 000 18zM9 10h.01M15 10h.01M8.5 14.5a4.5 4.5 0 007 0',
+);
 export const Copy = svg(
   'M9 9h9a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1v-9a1 1 0 011-1zM6 15H5a1 1 0 01-1-1V5a1 1 0 011-1h9a1 1 0 011 1v1',
 );

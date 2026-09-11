@@ -14,7 +14,7 @@ bilan aynan bir xil. Hisob ochilsa natija reytingga tushadi.
 | Bo‘lim | Nima qiladi |
 | --- | --- |
 | Hero | Haqiqiy So‘ztop: kunlik va cheksiz rejim, hisob, ball, statistika |
-| So‘zjang | Do‘st bilan (kod orqali) va tezkor jang — `/sozjang` |
+| So‘zjang | Do‘st bilan (kod orqali) va tezkor jang, reaksiyalar — `/sozjang` |
 | Qoida | Ikki bosqichli avto-demo, rang legendasi ustiga kursor kelganda ajratiladi |
 | Alifbo | Yozilgan so‘zni jonli ravishda harf-kataklarga ajratadi |
 | Yozuv | Butun sayt lotin, yangi lotin yoki kirillda — sarlavhadagi `O‘` tugmasi |
@@ -400,6 +400,39 @@ glifi yo‘q, fallback shrift chaqirilib matnda bo‘shliq paydo bo‘lardi. Shu
 uchun ko‘rsatishda ular `‘` va `’` ga almashtiriladi, ma’lumot fayllari esa
 kanonik holatda qoladi.
 
+## Jangdagi reaksiyalar
+
+Jang davomida raqibga bitta belgi yuboriladi — ilovadagi `BattleReaction`
+ning aynan o‘zi: 😭 🌚 😎 🤯 🤪 🥸 🫡. Ro‘yxat **yopiq**, erkin matn yo‘q:
+demak moderatsiya ham kerak emas va Firestore qoidalari aynan shu yetti
+kalitni qabul qiladi. Ilovadan yuborilgan reaksiya saytda, saytdan
+yuborilgani ilovada ko‘rinadi.
+
+Yozuv: `battles/{id}/reactions/{uid}` — har o‘yinchiga bitta hujjat,
+`{ key, at }`. Jang hujjatining o‘ziga tegilmaydi (u serverniki), shuning
+uchun bu yo‘l mijozga ochiq: reaksiya Cloud Function orqali emas,
+to‘g‘ridan-to‘g‘ri Firestore’ga yoziladi. Qoidalar yangi yozuvni
+eskisidan kamida 1.5 soniya keyin qabul qiladi — tugma esa 2 soniya
+«sovib» turadi va shu vaqt ichida uning o‘rnida yuborilgan belgi turadi
+(xira ikonka «buzilib qoldi» degan taassurot berardi).
+
+Yuborish «optimistik»: javob kutilmaydi va xato jim yutiladi — reaksiya
+yetib bormagani o‘yinga ta’sir qilmaydi, jang esa to‘xtamasligi kerak.
+
+Kelgan reaksiya raqib paneli ustida chiqib, chayqalib turadi va yuqoriga
+suzib ketadi (`.burst`). Yangi voqea sanoq (`token`) bilan belgilanadi:
+element qaytadan yaratiladi, ya’ni raqib ketma-ket bir xil belgini
+yuborsa ham har biri ko‘rinadi.
+
+«Yangi reaksiya» hujjatdagi `at` ni **o‘z soatimiz bilan** emas, oldingi
+suratdagi qiymat bilan solishtirib aniqlanadi: `at` raqibning
+qurilmasidan olinadi va u biznikidan orqada bo‘lsa hech qachon «yangi»
+bo‘lmasdi. Birinchi surat faqat boshlang‘ich nuqta — jangdan oldin
+yuborilgan reaksiya qaytadan chiqmaydi.
+
+Tugma jang ketayotganda ham, o‘z navbatim tugab raqibni kutayotganda ham
+ko‘rinadi — aynan o‘sha kutish paytida u eng o‘rinli.
+
 ## Alifbolar: lotin, yangi lotin, kirill
 
 Sayt ham ilovadagidek uch alifboda o‘qiladi. Sarlavhadagi `O‘` tugmasi
@@ -514,6 +547,7 @@ src/
     nickname.ts taxallus filtri (nickname_filter.dart porti)
     leaderboard.ts  kunlik va umumiy reyting jadvallari
     battle.ts   So‘zjang chaqiruvlari va turlari
+    reactions.ts  jangdagi reaksiyalar: ro‘yxat, yuborish va kuzatuv
     donor.ts    homiylik darajalari: donatlar yig‘indisi, halqa va chip uchun
     publicProfile.ts  ochiq profil: scores + battle_ratings + kunlik + donatlar
     useSozjang.ts  So‘zjang holati (chaqiruv, navbat, jang)
