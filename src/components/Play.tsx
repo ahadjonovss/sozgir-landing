@@ -283,7 +283,7 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
                   .
                 </p>
               )}
-              <p className="result__word">{game.answerWord}</p>
+              <p className="result__word" data-script="word">{game.answerWord}</p>
               {game.puzzle.description && (
                 <p className="result__def">{pretty(game.puzzle.description)}</p>
               )}
@@ -366,8 +366,12 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
           )}
 
           <p className="game__hint">
-            Kompyuter klaviaturasida ham yozing: <kbd>s</kbd>+<kbd>h</kbd> → SH,{' '}
-            <kbd>o</kbd>+<kbd>'</kbd> → O‘
+            {/* Tugmalar fizik klaviaturada nima bosilishini ko'rsatadi —
+                ular hech qachon ko'chirilmaydi; natija (`SH`, `O‘`) esa
+                tanlangan alifboda yoziladi. */}
+            Kompyuter klaviaturasida ham yozing: <kbd data-script="off">s</kbd>+
+            <kbd data-script="off">h</kbd> → SH, <kbd data-script="off">o</kbd>+
+            <kbd data-script="off">'</kbd> → O‘
           </p>
         </>
       )}

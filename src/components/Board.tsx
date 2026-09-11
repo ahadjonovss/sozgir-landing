@@ -49,7 +49,7 @@ export function Board({
   shakeRow: number;
 }) {
   return (
-    <div className="game__board" aria-label="So‘ztop taxtasi">
+    <div className="game__board" aria-label="So‘ztop taxtasi" data-script="word">
       {rows.map((row, r) => (
         <div
           className={`board__row${r === shakeRow ? ' board__row--shake' : ''}`}
@@ -80,7 +80,7 @@ export function Keyboard({
   // Ilovadagi tartib: o'chirish ikkinchi qatorning oxirida, tasdiqlash
   // uchinchi qatorning oxirida (kengroq tugma).
   return (
-    <div className="keyboard" aria-label="O‘zbek klaviaturasi">
+    <div className="keyboard" aria-label="O‘zbek klaviaturasi" data-script="word">
       {KEYBOARD_ROWS.map((row, r) => (
         <div className="keyboard__row" key={r}>
           {row.map((key) => (

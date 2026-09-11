@@ -17,6 +17,7 @@ bilan aynan bir xil. Hisob ochilsa natija reytingga tushadi.
 | So‘zjang | Do‘st bilan (kod orqali) va tezkor jang — `/sozjang` |
 | Qoida | Ikki bosqichli avto-demo, rang legendasi ustiga kursor kelganda ajratiladi |
 | Alifbo | Yozilgan so‘zni jonli ravishda harf-kataklarga ajratadi |
+| Yozuv | Butun sayt lotin, yangi lotin yoki kirillda — sarlavhadagi `O‘` tugmasi |
 | Modullar | So‘ztop, So‘zjang, Yangso‘z, O‘rganish, Reyting, Qo‘llab-quvvatlash |
 | Kategoriyalar | 10 mavzu + ilova afzalliklari |
 | Savollar | Akkordeon FAQ |
@@ -399,6 +400,58 @@ glifi yo‘q, fallback shrift chaqirilib matnda bo‘shliq paydo bo‘lardi. Shu
 uchun ko‘rsatishda ular `‘` va `’` ga almashtiriladi, ma’lumot fayllari esa
 kanonik holatda qoladi.
 
+## Alifbolar: lotin, yangi lotin, kirill
+
+Sayt ham ilovadagidek uch alifboda o‘qiladi. Sarlavhadagi `O‘` tugmasi
+ro‘yxatni ochadi: **Lotin** (`O‘zbek tili`), **Yangi lotin** (`Özbek tili`)
+va **Кирилл** (`Ўзбек тили`). Tanlov `localStorage` da — `sozgir.script`.
+
+**Asosiy qoida ilovanikiga aynan teng:** lug‘at, Firestore, sessiya —
+hammasi **eski lotinda** saqlanadi. Alifbo faqat ekranga chiqishda
+almashtiriladi, kiritishda esa darhol eski lotinga qaytariladi. Shu sababli
+kunlik so‘z, reyting, jang va ulashish uch alifboda ham bir xil ishlaydi.
+
+Ikki xil ko‘chirish bor va ular aralashmaydi:
+
+| Nima | Qanday | Misol |
+| --- | --- | --- |
+| O‘yin so‘zi | harfma-harf, birlik soni o‘zgarmaydi | `yosh` → `ЙОШ` (3 katak) |
+| Interfeys matni | to‘g‘ri imlo | `yosh` → `ёш`, `eshik` → `эшик` |
+
+Agar o‘yin so‘zi ham to‘g‘ri imloda yozilsa, kirillcha `ёш` ikki katak
+bo‘lardi — kunlik so‘z hammaga bir xil bo‘lishi va jang ikki o‘yinchiga bir
+xil to‘r berishi kerak, ya‘ni katak soni o‘zgarishi mumkin emas.
+
+Ko‘chirish **bitta joyda**, `src/lib/scriptDom.ts` da: ilovadagi `AppText`
+vidjetining o‘rnini bosadi. React chizgan matn tugunlari o‘qiladi, asl (eski
+lotin) shakli `WeakMap` da eslab qolinadi va ekranga tanlangan alifbodagi
+shakli qo‘yiladi; keyingi o‘zgarishlarni `MutationObserver` ushlaydi. Har bir
+matnni alohida o‘rash shart emas — keyin qo‘shiladigan matn ham o‘zi
+ko‘chadi. React xalaqit ko‘rmaydi: u virtual daraxtiga qaraydi, DOM’dagi
+matnni o‘qimaydi.
+
+Istisnolar `data-script` atributi bilan belgilanadi:
+
+* `word` — harfma-harf ko‘chiriladi: taxta, klaviatura, natija so‘zi,
+  alifbo bo‘limidagi kataklar;
+* `off` — umuman tegilmaydi: alifbo tanlash ro‘yxati (har bir variant o‘z
+  alifbosida turishi kerak), logotip harflari va fizik klaviatura
+  maslahatidagi `<kbd>` tugmalari;
+* atribut matnlari (`title`, `aria-label`, `placeholder`, `alt`) doim
+  to‘g‘ri imloda — ular gap, katak emas.
+
+Brend va manzillar ko‘chirilmaydi: URL, email, `sozgir.uz`, `@sozgir_uz` va
+ro‘yxatdagi nomlar (`Telegram`, `App Store`, `Payme`, `Elo`, …).
+
+Kiritish teskari yo‘ldan o‘tadi (`toLatin`): kirill yoki yangi lotinda
+yozilgan taxallus, alifbo bo‘limidagi so‘z va xabar izohi darhol eski
+lotinga o‘giriladi — maydonda ham, serverda ham bitta shakl turadi.
+Fizik klaviatura ham shunday: `ш` bosilsa `sh` katagi to‘ladi
+(`gameKey` → `keyAction`).
+
+Ulashish matni ataylab lotinda qoladi — ilovadagidek: natijani boshqa
+odam o‘qiydi, uning alifbosi boshqacha bo‘lishi mumkin.
+
 ## Ishga tushirish
 
 ```bash
@@ -418,7 +471,8 @@ api/
   ol.ts         ulashish havolasi ochilganini qayd qiluvchi Edge Function
 src/
   components/   bo‘limlar (Hero, Rules, Alphabet, Modules, …)
-    Header.tsx    sarlavha: bo‘limlar, mavzu, hisob, «O‘ynash», telefon menyusi
+    Header.tsx    sarlavha: bo‘limlar, alifbo, mavzu, hisob, «O‘ynash», telefon menyusi
+    ScriptPicker.tsx  alifbo tanlash (ilovadagi `ScriptSheet`)
     Footer.tsx    ko‘p ustunli footer
     GamePage.tsx  `/oyin` sahifasi: taxta + statistika + reyting
     PlayHub.tsx   `/oynash`: So‘ztop yoki So‘zjang tanlovi
@@ -449,6 +503,9 @@ src/
     errors.ts   auth xato kodlari → o‘zbekcha matn
   lib/
     uz.ts       alifbo, normalize/split, Wordle baholash
+    script.ts   uch alifbo: harf jadvallari, harfma-harf va to‘g‘ri imlo
+    useScript.ts  tanlangan alifbo (store + `useScript` hook), qisqartmalar
+    scriptDom.ts  sahifani tanlangan alifboga ko‘chiruvchi (`AppText` o‘rni)
     modes.ts    rejim, uzunliklar, urinishlar soni
     daily.ts    kunlik raqam, sana kaliti va deterministik so‘z tanlovi
     dictionary.ts  lug‘at (REST + localStorage kesh + versiya tekshiruvi)

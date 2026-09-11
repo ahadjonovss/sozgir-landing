@@ -26,6 +26,7 @@ import {
 } from './battle';
 import { attemptsFor, DEFAULT_LENGTH } from './modes';
 import { EMOJI, keyAction, lengthOf, normalize, split, type Verdict } from './uz';
+import { gameKey } from './useScript';
 import { links, site } from '../data/site';
 
 export type Phase = 'lobby' | 'searching' | 'loading' | 'waiting' | 'playing' | 'finished';
@@ -501,7 +502,7 @@ export function useSozjang() {
       }
 
       const last = lastTyped(current);
-      const action = keyAction(event.key, last === -1 ? undefined : current[last]);
+      const action = keyAction(gameKey(event.key), last === -1 ? undefined : current[last]);
       if (!action) return;
       event.preventDefault();
 

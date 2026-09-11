@@ -26,7 +26,8 @@ export default function Hero() {
   return (
     <section className="hero" id="top">
       <div className="hero__glow" aria-hidden="true" />
-      <div className="hero__confetti" aria-hidden="true">
+      {/* Brend harflari — logotip kabi doim lotinda qoladi. */}
+      <div className="hero__confetti" aria-hidden="true" data-script="off">
         {CONFETTI.map((item, index) => (
           <span key={index} className={`tile tile--${item.verdict}`} style={{ '--n': index } as React.CSSProperties}>
             <span>{item.unit}</span>

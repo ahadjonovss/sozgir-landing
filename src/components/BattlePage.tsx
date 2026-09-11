@@ -591,7 +591,7 @@ function Playing({ game }: { game: Sozjang }) {
           </div>
           {game.hint && !game.me?.finished && (
             <p className="fight__hint">
-              💡 Maslahat: <b>{game.hint.index + 1}</b>-katakda <b>{display(game.hint.unit)}</b> —
+              💡 Maslahat: <b>{game.hint.index + 1}</b>-katakda <b data-script="word">{display(game.hint.unit)}</b> —
               harf keyingi qatorga qo‘yildi
             </p>
           )}
@@ -687,7 +687,7 @@ function Result({ game }: { game: Sozjang }) {
         {game.battle?.answer && (
           <>
             <p className="verdict__label">Yashirin so‘z</p>
-            <p className="result__word">{display(game.battle.answer)}</p>
+            <p className="result__word" data-script="word">{display(game.battle.answer)}</p>
           </>
         )}
       </div>

@@ -37,6 +37,7 @@ import {
   split,
   type Verdict,
 } from './uz';
+import { gameKey } from './useScript';
 
 export interface Puzzle {
   answer: string;
@@ -486,7 +487,7 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
         return;
       }
 
-      const action = keyAction(event.key, current.at(-1));
+      const action = keyAction(gameKey(event.key), current.at(-1));
       if (!action) return;
       event.preventDefault();
 

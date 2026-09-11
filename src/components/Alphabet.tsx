@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { toLatin } from '../lib/useScript';
 import { display, MULTI_LETTERS, normalize, pretty, split } from '../lib/uz';
 
 const samples = ['boshqa', 'oʻgʻil', 'chumchuq', 'shashlik', 'maʼno'];
@@ -32,7 +33,10 @@ export default function Alphabet() {
               <input
                 id="alpha-input"
                 value={raw}
-                onChange={(e) => setRaw(e.target.value)}
+                /* Kirill yoki yangi lotinda yozilgan so'z darhol eski
+                   lotinga qaytariladi — hisob ham, kataklar ham bazadagi
+                   shaklga qarab ishlaydi. */
+                onChange={(e) => setRaw(pretty(toLatin(e.target.value)))}
                 placeholder="masalan: gʻisht"
                 maxLength={24}
                 autoComplete="off"
@@ -46,6 +50,7 @@ export default function Alphabet() {
                   key={s}
                   className={`chip${normalize(s) === word ? ' chip--on' : ''}`}
                   onClick={() => setRaw(pretty(s))}
+                  data-script="word"
                 >
                   {display(s)}
                 </button>
@@ -65,7 +70,7 @@ export default function Alphabet() {
                       (MULTI_LETTERS as readonly string[]).includes(u) ? ' tile--correct' : ''
                     }`}
                   >
-                    <span>{display(u)}</span>
+                    <span data-script="word">{display(u)}</span>
                   </span>
                 ))
               )}

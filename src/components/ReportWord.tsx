@@ -7,6 +7,7 @@
 import { useState } from 'react';
 import { useAuth } from '../lib/auth';
 import { COMMENT_MAX, REASONS, submitWordReport, type ReportReason } from '../lib/report';
+import { toLatin } from '../lib/useScript';
 import { display } from '../lib/uz';
 import Modal from './Modal';
 
@@ -76,7 +77,7 @@ export default function ReportWord({
             </div>
           ) : (
             <div className="form">
-              <p className="report__word">{display(word)}</p>
+              <p className="report__word" data-script="word">{display(word)}</p>
 
               <div className="report__reasons" role="radiogroup" aria-label="Sabab">
                 {REASONS.map((item) => (
@@ -97,7 +98,9 @@ export default function ReportWord({
                 <span>Izoh (ixtiyoriy)</span>
                 <textarea
                   value={comment}
-                  onChange={(event) => setComment(event.target.value.slice(0, COMMENT_MAX))}
+                  onChange={(event) =>
+                    setComment(toLatin(event.target.value).slice(0, COMMENT_MAX))
+                  }
                   placeholder="Nima noto‘g‘ri ekanini yozing"
                   rows={3}
                   maxLength={COMMENT_MAX}

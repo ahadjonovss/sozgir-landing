@@ -12,6 +12,7 @@ import Avatar from './Avatar';
 import AvatarEditor from './AvatarEditor';
 import Modal from './Modal';
 import { nicknameError } from '../lib/nickname';
+import { toLatin } from '../lib/useScript';
 import { playerLink } from '../data/site';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -82,7 +83,9 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
       <input
         ref={ref ? first : undefined}
         value={name}
-        onChange={(event) => setName(event.target.value)}
+        /* Boshqa alifboda yozilgan taxallus darhol eski lotinga
+           o'giriladi — bazada va reytingda bitta shakl turadi. */
+        onChange={(event) => setName(toLatin(event.target.value))}
         maxLength={24}
         placeholder={placeholder}
       />

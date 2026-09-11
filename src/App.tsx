@@ -2,7 +2,7 @@
  *
  *  Bosh sahifa — tanishtiruv: hero'da haqiqiy o'yin, so'ng qoida, alifbo,
  *  modullar va yuklab olish. Qolgan manzillar shu ramka ichida ochiladi. */
-import { useEffect } from 'react';
+import { useEffect, useLayoutEffect } from 'react';
 import Alphabet from './components/Alphabet';
 import Categories from './components/Categories';
 import Contact from './components/Contact';
@@ -22,6 +22,8 @@ import Rules from './components/Rules';
 import Support from './components/Support';
 import SupportPage from './components/SupportPage';
 import { AccountDialog } from './components/Account';
+import { startScriptDom } from './lib/scriptDom';
+import { prose, useScript } from './lib/useScript';
 import { useReveal } from './lib/useReveal';
 import { useRoute } from './lib/useRoute';
 
@@ -39,10 +41,16 @@ const titles = {
 export default function App() {
   useReveal();
   const route = useRoute();
+  const script = useScript();
+
+  /* Alifbo ko'chiruvchisi birinchi chizishdan oldin yoqiladi — matn bir
+     lahza lotinda "yonib" ketmasin. Sahifa sarlavhasi `<head>` da, ya'ni
+     ko'chiruvchi yetmaydigan joyda: u qo'lda o'giriladi. */
+  useLayoutEffect(() => startScriptDom(document.body), []);
 
   useEffect(() => {
-    document.title = titles[route];
-  }, [route]);
+    document.title = prose(titles[route]);
+  }, [route, script]);
 
   return (
     <>

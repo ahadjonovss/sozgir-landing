@@ -91,7 +91,7 @@ export default function Rules() {
                             .join(' ')}
                           style={{ '--i': i } as CSSProperties}
                         >
-                          <span>{display(unit)}</span>
+                          <span data-script="word">{display(unit)}</span>
                         </div>
                       );
                     })}

@@ -100,6 +100,81 @@
   background: var(--surface-2);
 }
 
+/* ── Alifbo tanlash ───────────────────────────────────────────────────── */
+
+.script {
+  position: relative;
+}
+
+.script__btn {
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.script__menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 196px;
+  padding: 6px;
+  border: 1px solid var(--divider);
+  border-radius: 18px;
+  background: var(--bg);
+  box-shadow: 0 24px 48px -24px rgba(15, 17, 20, 0.5);
+  animation: script-in 0.16s ease;
+}
+
+@keyframes script-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+.script__item {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 9px 12px;
+  border: none;
+  border-radius: 13px;
+  background: transparent;
+  color: var(--text);
+  font-family: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition: background 0.14s ease;
+}
+
+.script__item:hover {
+  background: var(--surface);
+}
+
+.script__item b {
+  font-size: 14.5px;
+  font-weight: 800;
+}
+
+.script__item span {
+  font-size: 12.5px;
+  color: var(--text-2);
+}
+
+.script__item--on {
+  background: var(--green-soft);
+  color: var(--green-deep);
+}
+
+.script__item--on span {
+  color: inherit;
+  opacity: 0.72;
+}
+
 /* `.icon-btn` dan keyin turadi — bir xil kuchdagi qoidalarda keyingisi
    yutadi, aks holda tugma kompyuterda ham ko'rinib qolardi. */
 .header__burger {

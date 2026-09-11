@@ -29,6 +29,7 @@ export default function OpponentBoard({
               <span
                 key={i}
                 className={`mini__tile${verdict ? ` mini__tile--${verdict}` : ''}`}
+                data-script="word"
               >
                 {unit ? display(unit) : ''}
               </span>

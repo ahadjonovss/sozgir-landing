@@ -13,6 +13,7 @@ import { toggleTheme } from '../lib/useReveal';
 import type { Route } from '../lib/useRoute';
 import Account from './Account';
 import Logo from './Logo';
+import ScriptPicker from './ScriptPicker';
 import { Close, Menu, Moon, Send, Sun } from './Icons';
 
 interface Item {
@@ -90,6 +91,7 @@ export default function Header({ route }: { route: Route }) {
           </nav>
 
           <div className="header__actions">
+            <ScriptPicker />
             <button
               className="icon-btn"
               onClick={() => setDark(toggleTheme() === 'dark')}

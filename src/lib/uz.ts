@@ -116,7 +116,13 @@ export function keyAction(key: string, last: string | undefined): KeyAction | nu
   if (key === 'Backspace') return { kind: 'back' };
 
   const char = key.toLowerCase();
-  if (char.length !== 1) return null;
+  // Boshqa alifbodan kelgan birlik (`ш` → `sh`) bitta belgidan uzun bo'ladi
+  // — u to'g'ridan-to'g'ri katakka tushadi, birikish shart emas.
+  if (char.length !== 1) {
+    return (MULTI_LETTERS as readonly string[]).includes(char)
+      ? { kind: 'letter', unit: char }
+      : null;
+  }
 
   if (char === 'h' && (last === 's' || last === 'c')) {
     return { kind: 'combine', unit: `${last}h` };
