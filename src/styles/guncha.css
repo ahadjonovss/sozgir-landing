@@ -1,0 +1,508 @@
+/* G'uncha: gul shakli, yig'ilayotgan so'z, daraja va jang paneli.
+   Umumiy bloklar (`panel`, `lobby`, `stage`, `react`) `play.css` da —
+   bu yerda faqat g'unchaga tegishlisi. */
+
+/* ── «O'ynash» sahifasidagi kartochka ─────────────────────────────────── */
+
+.hub-card--guncha {
+  --tone: var(--teal);
+}
+
+/* Uchta kartochka ikki ustunga sig'maydi — keng ekranda uchta, o'rtacha
+   ekranda ikkita bo'lib joylashadi. */
+@media (min-width: 861px) {
+  .hub__grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+}
+
+/* ── Gul ──────────────────────────────────────────────────────────────── */
+
+.flower {
+  position: relative;
+  width: min(360px, 86vw);
+  aspect-ratio: 1;
+  margin: 6px auto 2px;
+}
+
+.flower__cell {
+  position: absolute;
+  /* Har bir katak o'z markazi bo'yicha joylashadi. */
+  transform: translate(-50%, -50%);
+  width: 31%;
+  aspect-ratio: 1 / 1.08;
+  /* Yassi tepali oltiburchak: qo'shnilar tepa-past va to'rt burchakda
+     turadi — `GunchaFlower` dagi burchaklar aynan shunga mos. */
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  border: none;
+  background: var(--key-bg);
+  color: var(--text);
+  font: inherit;
+  font-weight: 900;
+  font-size: clamp(18px, 4.6vw, 26px);
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: filter 0.14s ease, transform 0.08s ease;
+}
+
+.flower__cell:hover:not(:disabled) {
+  filter: brightness(0.95);
+}
+
+.flower__cell:active:not(:disabled) {
+  transform: translate(-50%, -50%) scale(0.94);
+}
+
+.flower__cell:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.flower__cell--center {
+  background: var(--green);
+  color: #fff;
+}
+
+/* ── Taxta ────────────────────────────────────────────────────────────── */
+
+.guncha {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.guncha__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.guncha__modes {
+  display: flex;
+  gap: 8px;
+}
+
+.guncha__rules {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--text-2);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.guncha__rank {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.guncha__rankrow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 15px;
+}
+
+.guncha__rankrow span {
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.guncha__bar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.guncha__bar i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--green);
+  transition: width 0.3s ease;
+}
+
+.guncha__note {
+  margin: 0;
+  color: var(--text-2);
+  font-size: 13px;
+}
+
+/* Yig'ilayotgan so'z. Balandligi qat'iy: xabar chiqqanda taxta
+   sakramasligi kerak. */
+.guncha__typed {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 44px;
+  padding: 6px 12px;
+  border-bottom: 2px solid var(--divider);
+}
+
+.guncha__typed--shake {
+  animation: guncha-shake 0.38s ease;
+}
+
+@keyframes guncha-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+.guncha__unit {
+  font-size: clamp(20px, 5vw, 26px);
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.guncha__unit--center {
+  color: var(--green);
+}
+
+.guncha__hint {
+  color: var(--text-2);
+  font-size: 14px;
+}
+
+/* Ball va xabar so'zning ustida chiqadi — joyni egallamaydi. */
+.guncha__praise,
+.guncha__msg {
+  position: absolute;
+  top: -6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 800;
+  animation: guncha-pop 0.24s ease;
+}
+
+.guncha__praise {
+  right: 8px;
+  background: var(--green-soft);
+  color: var(--green-deep, var(--green));
+}
+
+.guncha__msg {
+  left: 8px;
+  background: var(--surface-2);
+  color: var(--text-2);
+}
+
+@keyframes guncha-pop {
+  from { transform: translateY(6px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.guncha__controls {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.guncha__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  color: var(--text-2);
+  font-size: 13px;
+}
+
+/* ── Topilgan so'zlar ─────────────────────────────────────────────────── */
+
+.guncha__found {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.guncha__found li {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--divider);
+}
+
+.guncha__found li:last-child {
+  border-bottom: none;
+}
+
+.guncha__found p {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--text-2);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.guncha__score {
+  color: var(--green);
+  font-size: 12.5px;
+  font-weight: 800;
+}
+
+.guncha__pang {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--yellow-soft);
+  color: var(--yellow);
+  font-size: 11.5px;
+  font-weight: 800;
+}
+
+/* ── Jang paneli ──────────────────────────────────────────────────────── */
+
+.guncha--battle {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.gbar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.gbar__time {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+}
+
+.gbar__time strong {
+  font-size: 26px;
+  font-variant-numeric: tabular-nums;
+}
+
+.gbar__time i {
+  display: block;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--green);
+  transition: width 0.25s linear;
+}
+
+/* Oxirgi 30 soniya: rang ogohlantiruvchiga o'tadi. */
+.gbar--urgent .gbar__time strong {
+  color: var(--danger);
+}
+
+.gbar--urgent .gbar__time i {
+  background: var(--danger);
+}
+
+.gbar__rows {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.gbar__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  font-size: 13px;
+  min-width: 0;
+}
+
+.gbar__row b {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gbar__row em {
+  font-style: normal;
+  font-weight: 900;
+  font-size: 16px;
+}
+
+.gbar__row span {
+  color: var(--text-2);
+  font-size: 12px;
+}
+
+.gbar__row--me {
+  box-shadow: inset 0 0 0 1.5px var(--green);
+}
+
+/* ── Natija ───────────────────────────────────────────────────────────── */
+
+.gresult {
+  max-width: 640px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.gresult__head {
+  text-align: center;
+}
+
+.gresult__head h2 {
+  margin: 0 0 4px;
+}
+
+.gresult__delta {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  font-size: 12.5px;
+  font-weight: 800;
+}
+
+.gresult__delta.is-up {
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.gresult__cols {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.gresult__col {
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+
+.gresult__who {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.gresult__who em {
+  font-style: normal;
+  font-weight: 800;
+  color: var(--text-2);
+  font-size: 13px;
+}
+
+.gresult__words {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 13.5px;
+}
+
+.gresult__words li {
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--bg);
+}
+
+.gresult__foot {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ── Janglar tarixi ───────────────────────────────────────────────────── */
+
+.history {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.history__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  font-size: 13px;
+  min-width: 0;
+}
+
+.history__who {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+  font-weight: 800;
+}
+
+.history__who span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.history__game,
+.history__detail,
+.history__outcome {
+  color: var(--text-2);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.history__row--win .history__outcome {
+  color: var(--green);
+  font-weight: 800;
+}
+
+.history__row--loss .history__outcome {
+  color: var(--danger);
+  font-weight: 800;
+}
+
+.history__delta {
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* Telefonda qator torayadi — o'yin nomi va izoh tushib qoladi. */
+@media (max-width: 560px) {
+  .history__game,
+  .history__detail {
+    display: none;
+  }
+  .gresult__cols,
+  .gbar__rows {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

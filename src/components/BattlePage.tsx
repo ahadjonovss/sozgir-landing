@@ -20,8 +20,9 @@ import Avatar from './Avatar';
 import BattleBoard from './BattleBoard';
 import BattleStats from './BattleStats';
 import { Board, Keyboard } from './Board';
-import { Check, Clock, Copy, Send, Smile, Swords, Users } from './Icons';
-import { emojiOf, REACTIONS } from '../lib/reactions';
+import CodeInput from './CodeInput';
+import { Check, Clock, Copy, Send, Swords, Users } from './Icons';
+import { ReactionBurst, ReactionPicker } from './Reactions';
 import ReportWord from './ReportWord';
 import RotatingLine from './RotatingLine';
 import SendInvite, { type InviteTarget } from './SendInvite';
@@ -125,58 +126,6 @@ function Gate() {
 /** Kod kataklari: olti katak, yozilayotgani ajratib ko'rsatiladi.
  *  Haqiqiy `input` ko'rinmaydi, lekin klaviatura va joylashtirish unga
  *  tushadi — shu sabab telefon klaviaturasi ham ishlaydi. */
-function CodeInput({
-  value,
-  onChange,
-  onSubmit,
-  disabled,
-}: {
-  value: string;
-  onChange: (next: string) => void;
-  onSubmit: () => void;
-  disabled: boolean;
-}) {
-  const input = useRef<HTMLInputElement>(null);
-  const [focus, setFocus] = useState(false);
-  const active = Math.min(value.length, 5);
-
-  return (
-    <div className={`codein${focus ? ' codein--focus' : ''}`} onClick={() => input.current?.focus()}>
-      <input
-        ref={input}
-        className="codein__input"
-        value={value}
-        onChange={(event) =>
-          onChange(event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6))
-        }
-        onKeyDown={(event) => {
-          if (event.key === 'Enter' && value.length === 6) onSubmit();
-        }}
-        onFocus={() => setFocus(true)}
-        onBlur={() => setFocus(false)}
-        inputMode="text"
-        autoCapitalize="characters"
-        autoComplete="off"
-        spellCheck={false}
-        maxLength={6}
-        disabled={disabled}
-        aria-label="Chaqiruv kodi"
-      />
-      {Array.from({ length: 6 }, (_, index) => (
-        <span
-          key={index}
-          className={`codein__cell${value[index] ? ' codein__cell--filled' : ''}${
-            focus && index === active && value.length < 6 ? ' codein__cell--active' : ''
-          }`}
-          aria-hidden="true"
-        >
-          {value[index] ?? ''}
-        </span>
-      ))}
-    </div>
-  );
-}
-
 /** Lobbi: bitta asosiy tugma («Raqib qidirish»), ostida do'st bilan
  *  o'ynash yo'li, o'z reytingi va yonida So'zjang jadvali. */
 function Lobby({ game }: { game: Sozjang }) {
@@ -537,81 +486,6 @@ function Dots({ player, max, mine }: { player?: BattlePlayer; max: number; mine?
  *  yuborilgan belgi turadi: bu ham «ketdi» degan javob, ham ketma-ket
  *  bosishning oldini olish (qoidalar yozuvlar orasida 1.5 soniya
  *  talab qiladi). */
-function ReactionPicker({ game }: { game: Sozjang }) {
-  const [open, setOpen] = useState(false);
-  const box = useRef<HTMLDivElement>(null);
-  const sent = emojiOf(game.sentReaction);
-
-  useEffect(() => {
-    if (!open) return;
-    const onDown = (event: PointerEvent) => {
-      if (!box.current?.contains(event.target as Node)) setOpen(false);
-    };
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setOpen(false);
-    };
-    window.addEventListener('pointerdown', onDown);
-    window.addEventListener('keydown', onKey);
-    return () => {
-      window.removeEventListener('pointerdown', onDown);
-      window.removeEventListener('keydown', onKey);
-    };
-  }, [open]);
-
-  return (
-    <div className="react" ref={box}>
-      {open && (
-        <div className="react__menu" role="menu" data-script="off">
-          {REACTIONS.map((item) => (
-            <button
-              key={item.key}
-              type="button"
-              role="menuitem"
-              className="react__pick"
-              title={item.label}
-              aria-label={item.label}
-              onClick={() => {
-                setOpen(false);
-                game.react(item.key);
-              }}
-            >
-              {item.emoji}
-            </button>
-          ))}
-        </div>
-      )}
-      <button
-        type="button"
-        className={`react__btn${sent ? ' react__btn--sent' : ''}`}
-        onClick={() => setOpen((value) => !value)}
-        disabled={!!sent}
-        aria-label="Reaksiya yuborish"
-        aria-expanded={open}
-        aria-haspopup="menu"
-        title="Reaksiya — raqibingiz darhol ko‘radi"
-      >
-        {sent ? <span data-script="off">{sent}</span> : <Smile size={20} />}
-        <span className="react__label">Reaksiya</span>
-      </button>
-    </div>
-  );
-}
-
-/** Raqibdan kelgan reaksiya: belgi paydo bo'lib, chayqalib turadi va
- *  yuqoriga suzib ketadi. `key` sifatida sanoq berilgan — element qaytadan
- *  yaratiladi va animatsiya boshidan yuriladi, ya'ni raqib ketma-ket bir
- *  xil belgini yuborsa ham har biri ko'rinadi. */
-function ReactionBurst({ event }: { event: Sozjang['incoming'] }) {
-  const emoji = emojiOf(event?.key);
-  if (!emoji) return null;
-  return (
-    <span className="burst" key={event!.token} aria-hidden="true" data-script="off">
-      {emoji}
-    </span>
-  );
-}
-
-
 /** Jang tepasidagi hisob taxtasi: ikki tomon, urinishlar va holat. */
 function Scoreboard({ game }: { game: Sozjang }) {
   const me = pretty(game.account?.nickname ?? 'Siz');
@@ -980,7 +854,7 @@ export default function BattlePage() {
                     raqibni kutayotganda ham yuboriladi — aynan o'sha
                     kutish paytida u eng o'rinli. */}
                 <div className="jang__foot">
-                  <ReactionPicker game={game} />
+                  <ReactionPicker sent={game.sentReaction} onReact={game.react} />
                   <button className="link" onClick={askLeave}>
                     Jangdan chiqish
                   </button>

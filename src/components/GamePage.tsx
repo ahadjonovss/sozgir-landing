@@ -11,6 +11,7 @@
  *
  *  Ikkisi bir xil `Play` komponentini ishlatadi va holat brauzerda bir
  *  joyda saqlanadi — hero'da boshlangan o'yin shu yerda davom etadi. */
+import { links } from '../data/site';
 import { useAuth } from '../lib/auth';
 import { dailyNumber } from '../lib/daily';
 import { useGameChoice } from '../lib/useGameChoice';
@@ -64,10 +65,21 @@ export default function GamePage() {
           </div>
 
           <div className="panel panel--call">
+            <h3>Harflardan so‘z yig‘ing</h3>
+            <p className="panel__note">
+              G‘unchada yettita harf beriladi: o‘rtadagi yurak harf har bir
+              so‘zda qatnashadi. Topilgan so‘zning ma’nosi ham shu yerda.
+            </p>
+            <a className="btn btn--sm btn--ghost" href={links.guncha}>
+              G‘unchani ochish
+            </a>
+          </div>
+
+          <div className="panel panel--call">
             <h3>Ilovada ko‘proq</h3>
             <p className="panel__note">
-              Yangso‘z, kategoriyalar, o‘rganish bo‘limi va bildirishnomalar
-              — bularning hammasi ilovada. Internetsiz ham ishlaydi.
+              Yangso‘z, kategoriyalar va bildirishnomalar — bularning
+              hammasi ilovada. Internetsiz ham ishlaydi.
             </p>
             <a className="btn btn--sm btn--ghost" href="/#yuklab-olish">
               Ilovani yuklab olish

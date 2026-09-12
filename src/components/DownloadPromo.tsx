@@ -25,7 +25,7 @@ export default function DownloadPromo() {
         <strong>Ilovada davom eting</strong>
         <span>
           Natijalar saqlanadi, kunlik eslatma keladi. Yangso‘z, kategoriyalar
-          va o‘rganish — internetsiz ham.
+          va g‘uncha — internetsiz ham.
         </span>
       </div>
       <div className="promo__stores">

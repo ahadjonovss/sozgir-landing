@@ -11,6 +11,7 @@ import { dailyKey, dailyNumber, untilNextWord } from '../lib/daily';
 import { DAILY_LENGTH, attemptsFor } from '../lib/modes';
 import AppMark from './AppMark';
 import { Clock, Swords } from './Icons';
+import GunchaCard from './GunchaCard';
 import TelegramBanner from './TelegramBanner';
 
 /** Bugungi o'yin holati — saqlangan sessiyadan.
@@ -64,8 +65,8 @@ export default function PlayHub() {
           <span className="section__kicker">O‘ynash</span>
           <h1>Nimani o‘ynaymiz?</h1>
           <p className="section__lead">
-            Bugungi so‘zni yolg‘iz toping yoki do‘stingiz bilan bir so‘z
-            ustida bellashing. Ikkalasi ham shu yerda, brauzerda.
+            Bugungi so‘zni yolg‘iz toping, harflardan so‘z yig‘ing yoki
+            do‘stingiz bilan bellashing. Hammasi shu yerda, brauzerda.
           </p>
         </div>
 
@@ -151,6 +152,8 @@ export default function PlayHub() {
               )}
             </div>
           </article>
+
+          <GunchaCard />
         </div>
 
         <TelegramBanner />
@@ -161,10 +164,10 @@ export default function PlayHub() {
             Yangso‘z
           </a>
           <a className="chip" href="/#modullar">
-            O‘rganish
+            Kategoriyalar
           </a>
           <a className="chip" href="/#modullar">
-            Kategoriyalar
+            Reyting
           </a>
           <a className="chip" href="/#yuklab-olish">
             Yuklab olish →

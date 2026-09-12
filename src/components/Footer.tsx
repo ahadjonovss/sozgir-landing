@@ -7,6 +7,7 @@ const COLUMNS = [
     items: [
       { href: links.play, label: 'Bugungi so‘z' },
       { href: links.battle, label: 'So‘zjang' },
+      { href: links.guncha, label: 'G‘uncha' },
       { href: '/#qoida', label: 'Qoida' },
       { href: '/#alifbo', label: 'Alifbo' },
     ],

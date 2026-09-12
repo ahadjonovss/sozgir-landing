@@ -20,6 +20,10 @@ export const links = {
   hub: '/oynash',
   play: '/oyin',
   battle: '/sozjang',
+  /** G'uncha — yettita harfdan so'z yig'ish. */
+  guncha: '/guncha',
+  /** G'uncha jangi: bir xil g'uncha, uch daqiqa, kim ko'p ball yig'sa. */
+  gunchaBattle: '/gunchajang',
   /** Ulashilgan natija bosilganda odam darhol o'ynay olishi kerak —
    *  tanishtiruv sahifasi emas, o'yinning o'zi ochiladi. */
   share: `${site}/oyin`,
@@ -94,15 +98,15 @@ export const modules: Module[] = [
     accent: 'violet',
   },
   {
-    id: 'organish',
-    emoji: '📖',
-    name: 'O‘rganish',
-    tagline: 'Har so‘zning ta’rifi bor — o‘ynab turib lug‘at boyitasiz.',
+    id: 'guncha',
+    emoji: '🌸',
+    name: 'G‘uncha',
+    tagline: 'Yettita harfdan iloji boricha ko‘p so‘z yasang.',
     points: [
-      'Tasodifiy so‘z va uning ma’nosi',
-      'Uzunlik bo‘yicha qidiruv',
-      'Bilim darajasi: lug‘atning necha foizini topgansiz',
-      'Topilgan so‘zlar tarixi — sana va ball bilan',
+      'Saytda ham o‘ynaladi: kunlik g‘uncha va cheksiz mashq',
+      'O‘rtadagi yurak harf har bir so‘zda qatnashadi',
+      'Yettala harf ishlatilgan so‘z — pangramma, qo‘shimcha ball',
+      'Har topilgan so‘zning ma’nosi shu yerda: o‘ynab turib lug‘at boyitasiz',
     ],
     accent: 'teal',
   },

@@ -5,6 +5,7 @@ import { links, modules } from '../data/site';
 const ON_SITE: Record<string, { href: string; label: string }> = {
   soztop: { href: links.play, label: 'Saytda o‘ynash' },
   sozjang: { href: links.battle, label: 'Saytda o‘ynash' },
+  guncha: { href: links.guncha, label: 'Saytda o‘ynash' },
   qollab: { href: links.donate, label: 'Hissa qo‘shish' },
 };
 

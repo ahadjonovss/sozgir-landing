@@ -76,6 +76,9 @@ export interface LiveInvite {
   /** Qayerdan kelgani: `rematch`, `nearby` yoki `profile` (ilovadagi
    *  ochiq profil / saytdagi reyting qatori). Yozuvi `inviteSource` da. */
   kind: string;
+  /** Qaysi o'yinga chaqirilgan: `soztop` yoki `guncha`. Maydoni yo'q
+   *  chaqiruv So'ztopniki — eski server aynan shunday yozardi. */
+  game: string;
   /** Muddati tugaydigan payt (millisekundda). Noma'lum bo'lsa `0`. */
   expiresAt: number;
 }
@@ -117,6 +120,7 @@ export async function watchInvites(
             id: item.id,
             fromNickname: String(data.fromNickname ?? 'Raqib'),
             kind: String(data.kind ?? 'rematch'),
+            game: data.game === 'guncha' ? 'guncha' : 'soztop',
             expiresAt: expires?.seconds ? expires.seconds * 1000 : 0,
           };
         }),

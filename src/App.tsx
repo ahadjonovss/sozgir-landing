@@ -11,6 +11,8 @@ import Faq from './components/Faq';
 import Footer from './components/Footer';
 import BattlePage from './components/BattlePage';
 import GamePage from './components/GamePage';
+import GunchaBattlePage from './components/GunchaBattlePage';
+import GunchaPage from './components/GunchaPage';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import InviteOverlay from './components/InviteOverlay';
@@ -32,6 +34,8 @@ const titles = {
   '/oynash': 'O‘ynash — So‘zgir',
   '/oyin': 'So‘zgir — bugungi so‘zni toping',
   '/sozjang': 'So‘zjang — do‘st bilan so‘z jangi | So‘zgir',
+  '/guncha': 'G‘uncha — yettita harfdan so‘z yig‘ing | So‘zgir',
+  '/gunchajang': 'G‘uncha jangi — uch daqiqa, bir g‘uncha | So‘zgir',
   '/qollab': 'Qo‘llab-quvvatlash — So‘zgir',
   '/privacy': 'Maxfiylik siyosati — So‘zgir',
   '/contact': 'Aloqa — So‘zgir',
@@ -72,6 +76,8 @@ export default function App() {
         {route === '/oynash' && <PlayHub />}
         {route === '/oyin' && <GamePage />}
         {route === '/sozjang' && <BattlePage />}
+        {route === '/guncha' && <GunchaPage />}
+        {route === '/gunchajang' && <GunchaBattlePage />}
         {route === '/qollab' && <SupportPage />}
         {route === '/privacy' && <Privacy />}
         {route === '/contact' && <Contact />}

@@ -16,8 +16,8 @@ import { createPortal } from 'react-dom';
 import { callFunction } from '../firebase/functions';
 import { watchInvites, type LiveInvite, type Unsubscribe } from '../firebase/live';
 import { useAuth } from '../lib/auth';
-import { inviteSource, watchBattle, type BattleDoc } from '../lib/battle';
-import { showBattle, useActiveBattleId } from '../lib/useSozjang';
+import { gameOf, inviteSource, watchBattle, type BattleDoc } from '../lib/battle';
+import { showBattle, useActiveBattle } from '../lib/activeBattle';
 import { pretty } from '../lib/uz';
 
 /** Chaqiruv muddati tugaguncha qolgan soniya. */
@@ -52,7 +52,7 @@ function remaining(expiresAt: number): number {
  *  O'zim tugatgan jang bandlik hisoblanmaydi: raqibning natijasini
  *  kutib turgan odam uchun chaqiruvda yo'qotadigan narsa yo'q. */
 function useInBattle(uid: string): boolean {
-  const battleId = useActiveBattleId();
+  const battleId = useActiveBattle()?.id ?? null;
   /** Hujjat qaysi jangdan kelgani bilan saqlanadi: boshqa jangga
    *  o'tilganda eskisi render paytida chiqarib tashlanadi va holatni
    *  effekt ichida tozalash kerak bo'lmaydi. */
@@ -129,7 +129,9 @@ export default function InviteOverlay() {
         { inviteId: invite.id, nickname: account.nickname },
       );
       setAnswered((ids) => [...ids, invite.id]);
-      if (reply.battleId) showBattle(reply.battleId);
+      // Chaqiruvning o'zi qaysi o'yin ekanini aytadi: g'uncha jangi
+      // So'zjang ekranida ochilsa, taxta bo'sh turib qolardi.
+      if (reply.battleId) showBattle(gameOf(invite.game), reply.battleId);
     } catch {
       // Xato bo'lsa chaqiruv joyida qoladi — qayta urinish mumkin.
     } finally {
@@ -184,7 +186,10 @@ function Card({
           <div className="invite__who">
             <strong>{pretty(invite.fromNickname)}</strong>
             <span>
-              Sizni jangga chaqirdi · {inviteSource(invite.kind)}
+              {invite.game === 'guncha'
+                ? 'Sizni g‘uncha jangiga chaqirdi'
+                : 'Sizni jangga chaqirdi'}{' '}
+              · {inviteSource(invite.kind)}
             </span>
           </div>
           {left > 0 && <span className="invite__left">{left} s</span>}

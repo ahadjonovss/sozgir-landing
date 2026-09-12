@@ -47,7 +47,8 @@ class Lehmer {
   }
 }
 
-function shuffled(source: string[], seed: number): string[] {
+/** Urug'langan Fisher–Yates — kunlik so'z ham, g'uncha ham shunga tayanadi. */
+export function shuffled<T>(source: readonly T[], seed: number): T[] {
   const items = [...source];
   const random = new Lehmer(seed);
   for (let i = items.length - 1; i > 0; i--) {

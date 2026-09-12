@@ -10,6 +10,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { functionError } from '../firebase/functions';
 import type { Unsubscribe } from '../firebase/live';
+import {
+  onBattleOpen,
+  readActive,
+  setActive as setActiveBattle,
+} from './activeBattle';
 import { useAuth } from './auth';
 import {
   createChallenge,
@@ -59,20 +64,6 @@ function autoFill(rows: string[], words: string[], length: number): string[] {
   return out;
 }
 
-const ACTIVE_KEY = 'sozgir.battle';
-
-/** Chaqiruv qabul qilinganda jangni ochish hodisasi.
- *
- *  Chaqiruv xabari ilova darajasida turadi va `useSozjang` ga
- *  to'g'ridan-to'g'ri yeta olmaydi. Shuning uchun jang identifikatori
- *  saqlanadi va hodisa yuboriladi: So'zjang sahifasi ochiq bo'lsa darrov
- *  o'tadi, ochiq bo'lmasa sahifa ochilganda saqlangan jangdan davom
- *  etadi. */
-const OPEN_EVENT = 'sozgir:battle-open';
-
-/** Ochiq jang o'zgargani. `storage` hodisasi bu ish uchun yaramaydi: u
- *  faqat boshqa oynalarda ishlaydi, o'zimizda esa jim. */
-const ACTIVE_EVENT = 'sozgir:battle-active';
 const wordsKey = (battleId: string) => `sozgir.battle.words.${battleId}`;
 
 /** Navbatda turganda qidiruv shu oraliqda takrorlanadi.
@@ -99,77 +90,14 @@ function write(key: string, value: unknown): void {
   }
 }
 
-function drop(key: string): void {
-  try {
-    localStorage.removeItem(key);
-  } catch {
-    // e'tiborsiz
-  }
-}
-
-/** Ochiq jangni eslab qo'yadi va o'zgarganini e'lon qiladi.
- *
- *  Jang So'zjang sahifasida o'ynaladi, lekin u haqda saytning boshqa
- *  qismlari ham bilishi kerak (chaqiruv xabari bandlikni shundan
- *  biladi), shuning uchun yozuv bir joydan o'tadi. */
-function setActive(id: string | null): void {
-  if (id) write(ACTIVE_KEY, id);
-  else drop(ACTIVE_KEY);
-  window.dispatchEvent(new CustomEvent(ACTIVE_EVENT, { detail: id }));
-}
-
-/** Chaqiruvdan kelgan jangni ochadi — xabar shu funksiyani chaqiradi. */
-export function openBattleById(id: string) {
-  setActive(id);
-  window.dispatchEvent(new CustomEvent(OPEN_EVENT, { detail: id }));
-}
-
-/** Brauzerda saqlangan ochiq jang — sahifa almashsa ham qolaveradi.
- *
- *  So'zjang sahifasi yopilganda jang tugamaydi: odam boshqa bo'limga
- *  o'tib ketishi mumkin, jang esa serverda davom etaveradi. Shuning
- *  uchun bandlikni sahifadan emas, shu yozuvdan so'raladi. */
-export function useActiveBattleId(): string | null {
-  const [id, setId] = useState(() => read<string | null>(ACTIVE_KEY, null));
-
-  useEffect(() => {
-    const onActive = (event: Event) =>
-      setId((event as CustomEvent<string | null>).detail ?? null);
-    // Boshqa oynada boshlangan jang ham hisobga olinadi.
-    const onStorage = (event: StorageEvent) => {
-      if (event.key === null || event.key === ACTIVE_KEY) {
-        setId(read<string | null>(ACTIVE_KEY, null));
-      }
-    };
-
-    window.addEventListener(ACTIVE_EVENT, onActive);
-    window.addEventListener('storage', onStorage);
-    return () => {
-      window.removeEventListener(ACTIVE_EVENT, onActive);
-      window.removeEventListener('storage', onStorage);
-    };
-  }, []);
-
-  return id;
-}
-
-/** Jangni ochib, So'zjang sahifasiga o'tadi. Chaqiruv istalgan sahifada
- *  qabul qilinishi (yoki qabul qilingani bilinishi) mumkin — reytingdan
- *  chaqirilgan raqib javob berganda odam `/oyin` da turadi. */
-export function showBattle(id: string) {
-  openBattleById(id);
-  if (window.location.pathname !== links.battle) {
-    window.history.pushState(null, '', links.battle);
-    window.dispatchEvent(new PopStateEvent('popstate'));
-  }
-}
+const setActive = (id: string | null) => setActiveBattle('soztop', id);
 
 export function useSozjang() {
   const { account } = useAuth();
   const uid = account?.uid ?? '';
 
   const [battleId, setBattleId] = useState<string | null>(() =>
-    read<string | null>(ACTIVE_KEY, null),
+    readActive('soztop'),
   );
   const [battle, setBattle] = useState<BattleDoc | null>(null);
   const [searching, setSearching] = useState(false);
@@ -192,7 +120,7 @@ export function useSozjang() {
    *  yangilanganda ham o'qiladi: aks holda taxta ranglar bilan qolib,
    *  harflar yo'qolardi. */
   const [words, setWords] = useState<string[]>(() => {
-    const id = read<string | null>(ACTIVE_KEY, null);
+    const id = readActive('soztop');
     return id ? read<string[]>(wordsKey(id), []) : [];
   });
   const [message, setMessage] = useState<string | null>(null);
@@ -247,14 +175,7 @@ export function useSozjang() {
   }, []);
 
   // Chaqiruv qabul qilindi: sahifa ochiq bo'lsa jang shu zahoti ochiladi.
-  useEffect(() => {
-    const onOpen = (event: Event) => {
-      const id = (event as CustomEvent<string>).detail;
-      if (id) open(id);
-    };
-    window.addEventListener(OPEN_EVENT, onOpen);
-    return () => window.removeEventListener(OPEN_EVENT, onOpen);
-  }, [open]);
+  useEffect(() => onBattleOpen('soztop', open), [open]);
 
   const close = useCallback(() => {
     setBattleId(null);

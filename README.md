@@ -15,19 +15,22 @@ bilan aynan bir xil. Hisob ochilsa natija reytingga tushadi.
 | --- | --- |
 | Hero | Haqiqiy So‘ztop: kunlik va cheksiz rejim, hisob, ball, statistika |
 | So‘zjang | Do‘st bilan (kod orqali) va tezkor jang, reaksiyalar — `/sozjang` |
+| G‘uncha | Yettita harfdan so‘z yig‘ish: kunlik va mashq — `/guncha` |
+| G‘uncha jangi | Bir xil g‘uncha, uch daqiqa, kim ko‘p ball yig‘sa — `/gunchajang` |
 | Qoida | Ikki bosqichli avto-demo, rang legendasi ustiga kursor kelganda ajratiladi |
 | Alifbo | Yozilgan so‘zni jonli ravishda harf-kataklarga ajratadi |
 | Yozuv | Butun sayt lotin, yangi lotin yoki kirillda — sarlavhadagi `O‘` tugmasi |
-| Modullar | So‘ztop, So‘zjang, Yangso‘z, O‘rganish, Reyting, Qo‘llab-quvvatlash |
+| Modullar | So‘ztop, So‘zjang, Yangso‘z, G‘uncha, Reyting, Qo‘llab-quvvatlash |
 | Kategoriyalar | 10 mavzu + ilova afzalliklari |
 | Savollar | Akkordeon FAQ |
 | Yuklab olish | App Store va Google Play havolalari |
 
 Alohida sahifalar: `/oynash` (nimani o‘ynashni tanlash — sarlavhadagi
 «O‘ynash» tugmasi shu yerga olib keladi), `/oyin` (So‘ztop), `/sozjang`
-(bellashuv), `/oyinchi/{uid}` (o‘yinchining ochiq profili), `/privacy`
-(maxfiylik siyosati, o‘zbekcha + inglizcha) va `/contact` (aloqa
-ma’lumotlari + so‘rov formasi).
+(bellashuv), `/guncha` (g‘uncha), `/gunchajang` (g‘uncha jangi),
+`/oyinchi/{uid}` (o‘yinchining ochiq profili), `/privacy` (maxfiylik
+siyosati, o‘zbekcha + inglizcha) va `/contact` (aloqa ma’lumotlari +
+so‘rov formasi).
 
 React ilovadan tashqarida, `public/` ichida turadigan mustaqil sahifalar:
 `/ol` — ulashish uchun yuklab olish havolasi (telefonda qurilmaning
@@ -208,8 +211,8 @@ taklif qilinadi. So‘ztop natijasida ham, So‘zjang natijasida ham bor.
 
 ## Hisob
 
-Uch yo‘l: **mehmon** (anonim hisob), **yangi hisob** (email + parol) va
-**kirish**. Mehmon sifatida o‘ynagan odam keyin email qo‘shsa, hisob
+Uch yo‘l: **mehmon** (anonim hisob), **yangi hisob** (email yoki telefon
+raqam + parol) va **kirish**. Mehmon sifatida o‘ynagan odam keyin email qo‘shsa, hisob
 *bog‘lanadi* (`linkWithCredential`) — uid o‘zgarmaydi, ya’ni yig‘ilgan ball
 va streak joyida qoladi.
 
@@ -226,15 +229,38 @@ Taxallus tekshiruvi (`src/lib/nickname.ts`) ilovaning `nickname_filter.dart`
 ko‘chirmasi va Firestore qoidalaridagi ro‘yxat bilan bir xil — mos kelmasa
 yozuv **serverda** rad etiladi.
 
+### Telefon raqam bilan kirish
+
+Kirish maydoniga email ham, telefon raqam ham yozish mumkin: raqam
+jimgina `<raqam>@gmail.com` ko‘rinishiga o‘giriladi
+(`src/lib/loginId.ts`, ilovadagi `LoginIdentifier` ko‘chirmasi). Firebase
+uchun bu o‘sha email provayderi — alohida telefon provayderi ham, SMS
+kodi ham kerak emas.
+
+Qoida ilova bilan **belgima-belgi** bir xil bo‘lishi shart: telefonda
+raqam bilan ro‘yxatdan o‘tgan odam saytga ham o‘sha raqam bilan kirishi
+kerak. Kanonik shakl ham shuning uchun — `+998 90 123 45 67`,
+`998901234567` va `90-123-45-67` ayni bir hisobga tushadi.
+
+Bitta farq bor: **parolni tiklash** faqat email bilan ishlaydi. Raqamdan
+yasalgan manzil odamning o‘z pochtasi bo‘lmasligi mumkin, shuning uchun
+maydonda raqam turganda tiklash so‘ralmaydi.
+
+Ro‘yxatdan o‘tishda **tug‘ilgan sana va jins** ham so‘raladi (ilovadagi
+`ProfileDetails`): ular sozlama emas, hisobga tegishli va `users/{uid}`
+da turadi — odam boshqa qurilmadan kirsa qayta so‘ralmaydi. Eski hisoblar
+ularni profil oynasida to‘ldiradi. Sana `YYYY-MM-DD` satri bo‘lib
+yoziladi: har qanday vaqt zonasida bir xil o‘qiladi.
+
 ### Nima yoziladi
 
 Yo‘llar ilova bilan bir xil (`src/firebase/paths.ts`):
 
 ```
-users/{uid}                                  profil (nickname, email, platform: web)
+users/{uid}                                  profil (nickname, email, birthDate, gender, platform: web)
 users/{uid}/stats/{mode}_{length}            statistika nusxasi
 users/{uid}/found_words/{so'z}               topilgan so'zlar
-scores/{uid}                                 umumiy ball — umumiy reyting shundan
+scores/{uid}                                 ball kitobi — `games`, `totalScore`, `onlineScore`
 daily_results/{sana}_{n}/entries/{uid}       kunlik reyting
 ```
 
@@ -369,6 +395,140 @@ VITE_EMULATOR=1 npm run dev
 `src/firebase/config.ts` dagi `projectId` emulyator loyihasi bilan mos
 bo‘lishi shart. Ishlab chiqarish paketida emulyator shoxi butunlay yo‘q —
 `import.meta.env.DEV` uni olib tashlaydi.
+
+## G‘uncha
+
+`/guncha` — ilovadagi **G‘uncha** modulining veb ko‘rinishi. Ekranda gul
+shaklida yettita harf turadi: o‘rtada **yurak harf**, atrofida oltita
+barg. Vazifa — shu harflardan iloji boricha ko‘p so‘z yasash.
+
+Qoidalar ilovadagi bilan aynan bir xil (`docs/guncha.md`):
+
+1. so‘z kamida **4 harfdan** (`sh`, `ch`, `oʻ`, `gʻ` — bitta harf);
+2. **yurak harf** har bir so‘zda qatnashsin;
+3. faqat g‘unchadagi harflar, lekin har biri necha marta bo‘lsa ham;
+4. so‘z lug‘atning **javob so‘zlari** ro‘yxatida bo‘lsin;
+5. urinishlar cheklanmagan — xato so‘z uchun jarima yo‘q.
+
+Ball: 4 harfli so‘z — 1, undan uzuni o‘z uzunligicha, yettala harf
+ishlatilgan so‘z (**pangramma**) — qo‘shimcha 7 ball. Daraja esa
+**ballning ulushi** bo‘yicha beriladi (Urug‘ → … → Bog‘bon → Mukammal),
+ya’ni og‘ir g‘unchada ham, yengilida ham bir xil mehnat talab qiladi.
+
+| Rejim | Qayerdan keladi |
+| --- | --- |
+| Kunlik | Harflarni **server** beradi: `guncha/{sana}` hujjati |
+| Mashq | Butunlay brauzerda yasaladi, raqami brauzerda saqlanadi |
+
+Kunlik g‘unchani nega server tanlaydi: lug‘at yangilanganda tanlov
+natijasi ham o‘zgaradi, «kunlik» esa hamma uchun bir xil bo‘lishi kerak —
+kunlik so‘zdagi bilan bir xil sabab. Hujjat ochiq (`allow read: if true`),
+shuning uchun REST bilan o‘qiladi va brauzerda saqlanadi: aloqa uzilsa
+ham o‘sha kunning g‘unchasi ochilaveradi.
+
+Hujjatda **faqat harflar** bo‘ladi, so‘zlar ro‘yxati emas: so‘zlarni sayt
+o‘zining lug‘atidan yig‘adi (`uz_4`…`uz_7` ning javob so‘zlari), shuning
+uchun har topilgan so‘zning ma’nosi ham joyida turadi — modulning
+o‘rgatuvchi qismi shu.
+
+Tanlov algoritmi `src/lib/guncha.ts` da: u ilovadagi `GunchaLexicon` va
+`GunchaBuilder` ning, ya’ni `functions/src/guncha.ts` ning ko‘chirmasi.
+Natija belgima-belgi bir xil chiqishi shart va uni tekshirish oson —
+brauzerda hisoblangan kunlik g‘uncha serverdagi hujjat bilan mos
+tushishi kerak:
+
+```js
+// sahifa ochiq bo‘lganda, brauzer konsolida
+const g = await import('/src/lib/guncha.ts');
+const lex = await (await import('/src/lib/gunchaLexicon.ts')).gunchaLexicon();
+const d = await import('/src/lib/daily.ts');
+const server = await (await import('/src/lib/gunchaDaily.ts'))
+  .fetchDailyGuncha({ dateKey: d.dailyKey(), number: d.dailyNumber() });
+g.buildGuncha({ lexicon: lex, number: server.number, daily: true });
+// center va petals serverdagi bilan bir xil bo‘lsin
+```
+
+Topilgan so‘zlar har bir g‘uncha uchun alohida saqlanadi va **harflar
+imzosi** bilan tekshiriladi: lug‘at yangilanib g‘uncha o‘zgarib ketgan
+bo‘lsa, eski ro‘yxat tashlanadi.
+
+## G‘uncha jangi
+
+`/gunchajang` — ikkalangizga bir xil g‘uncha beriladi, uch daqiqa vaqt
+bo‘ladi va kim ko‘p ball yig‘sa, o‘sha yutadi (`docs/guncha_online.md`).
+Jang So‘zjang bilan **bitta to‘plamda** yashaydi (`battles`): juftlash,
+chaqiruv, muddati o‘tganini tozalash va tarix ikkalasiga umumiy, farq
+faqat `game` maydonida va o‘yinga xos qismda.
+
+Serverdagi funksiyalar: `gunchaCreate` (kod bilan chaqiruv), `gunchaWord`
+(so‘z) va `gunchaFinish` (yakunlash). Tezkor jang va kod bilan qo‘shilish
+So‘zjangnikini ishlatadi — `battleQuick` va `battleJoin` ga `game`
+yuboriladi.
+
+**Vaqt.** Ekrandagi teskari sanoq — ko‘rsatma, chegara emas: chegarani
+server hal qiladi va har so‘zni o‘z soati bo‘yicha tekshiradi. Shuning
+uchun sanoq `Date.now()` ga emas, `performance.now()` ga tayanadi —
+qurilma soati o‘yin o‘rtasida o‘zgartirilsa ham sakramaydi. Qolgan vaqt
+serverdan kelgan ikki sondan olinadi (`endsAt` − `serverNow`) va
+qaytadan so‘raladi: jang boshlanganda, har 30 soniyada, ilovaga
+qaytilganda va sanoq nolga yetganda. Sinxrondan keyin vaqt faqat
+**qisqaradi** — kamroq ko‘rsatish noqulaylik, ko‘proq ko‘rsatish esa
+aldov.
+
+**So‘z.** Har bir so‘z serverga boradi, lekin javob kutilmaydi: uch
+daqiqalik poygada har so‘z uchun borib kelish sezilarli. So‘z avval
+brauzerdagi lug‘at bilan baholanadi va ball darhol ko‘rinadi, server
+javobi kelgach hisob to‘g‘rilanadi — rad etilgan so‘z ekrandan olinadi.
+Ikkalasi deyarli har doim mos keladi; mos kelmaydigan holat — muddat
+o‘tib ketgani va u jangning oxirgi soniyasida bo‘ladi.
+
+Jang davomida raqibning faqat **bali va so‘zlar soni** ko‘rinadi
+(`score`, `wordCount`); topilgan so‘zlar jang tugagach ochiladi
+(`found`) — davomida ular tayyor javob bo‘lardi. Natijada ikkala
+ro‘yxat yonma-yon turadi va «buni qanday topding?» degan savol shu
+yerda tug‘iladi.
+
+Maydon nomlari haqida bitta qoida bor va u og‘ir tajribadan kelib
+chiqqan: **bitta to‘plamda bir nom ikki xil turda bo‘lmasin**. G‘uncha
+topilgan so‘zlar sonini `wordCount` ga yozadi, chunki `words` ostida
+So‘zjangda **ro‘yxat** yotadi — bir xil nom ostida son bo‘lsa, jang
+tarixini o‘qiyotgan mijoz qulab tushardi.
+
+## Ballar tizimi
+
+Uch xil son bor va ular bir-biridan **kelib chiqadi** (`docs/scores.md`):
+
+| Son | Nima | Qayerda |
+| --- | --- | --- |
+| O‘yin balli | O‘yinning o‘z shkalasidagi xom ball | `scores/{uid}.games.{oyin}` |
+| Umumiy ball | Barcha o‘yinlar, koeffitsient bilan | `scores/{uid}.totalScore` |
+| Onlayn ball | Shundan raqib bilan o‘ynab olingani | `scores/{uid}.onlineScore` |
+
+Shuning uchun `scores/{uid}` ga «o‘zimning ballim» deb yozib bo‘lmaydi:
+ilgari sayt `totalScore` ga faqat topilgan so‘zlar yig‘indisini yozardi
+va bu g‘unchada yig‘ilgan ballni hujjatdan uchirib yuborardi. Endi yozuv
+`src/lib/scores.ts` dan o‘tadi: hujjatdagi `games` o‘qiladi, faqat shu
+o‘yinning ulushi almashtiriladi, umumiy va onlayn ball qaytadan
+yig‘iladi.
+
+Ikkinchi qoida — **pasaytirmaslik**. Sayt topilgan so‘zlarning oxirgi
+500 tasini tiklaydi, ya’ni uning ro‘yxati telefondagidan qisqa bo‘lishi
+mumkin. Ilova to‘liq ro‘yxat bilan yozadi, shuning uchun sayt hujjatdagi
+qiymatni hech qachon kamaytirmaydi — ball kamayishi kerak bo‘lgan holatni
+ilovaning o‘zi to‘g‘rilaydi.
+
+G‘unchaning balli qurilmadagi ikkita sondan (`sozgir.guncha.total`)
+olinadi va `games.guncha.solo` ga yoziladi. Jangda yig‘ilgan ball
+hozircha umumiy hisobga qo‘shilmaydi — ilovada ham shunday
+(`GunchaScoreSource` faqat yakka o‘yinni sanaydi).
+
+## Janglar tarixi
+
+Kirilgan odam o‘zining oxirgi janglarini ko‘radi (`ArenaHistory`):
+`battles` to‘plami `players.{uid}.joinedAt` bo‘yicha saralanadi — bu
+ilovadagi maydon sahifasidagi so‘rovning o‘zi. Ro‘yxat o‘yinlarni
+ajratmaydi: qatorda qaysi o‘yin, kim bilan, qanday tugagani va reyting
+qancha o‘zgargani (`ratingBefore`/`ratingAfter` farqi) turadi.
 
 ## Firebase sozlamalari
 
@@ -510,6 +670,13 @@ src/
     GamePage.tsx  `/oyin` sahifasi: taxta + statistika + reyting
     PlayHub.tsx   `/oynash`: So‘ztop yoki So‘zjang tanlovi
     BattlePage.tsx  `/sozjang`: chaqiruv, tezkor jang va jangning o‘zi
+    GunchaPage.tsx  `/guncha`: gul, daraja va topilgan so‘zlar
+    GunchaBattlePage.tsx  `/gunchajang`: lobbi, taymerli jang va natija
+    GunchaFlower.tsx  yettita oltiburchak: yurak harf va olti barg
+    GunchaCard.tsx  `/oynash` dagi g‘uncha kartochkasi
+    ArenaHistory.tsx  janglar tarixi (ikkala o‘yin bitta ro‘yxatda)
+    CodeInput.tsx   olti katakli chaqiruv kodi (ikkala jangda)
+    Reactions.tsx   reaksiya tugmasi va kelgan belgi (ikkala jangda)
     BattleStats.tsx  So‘zjang reytingi kartochkasi (ilovadagi RatingCard)
     BattleBoard.tsx  So‘zjang reytingi jadvali (battle_ratings, robotlarsiz)
     Versus.tsx    arena afishasi: kutish, 3-2-1 va «kelmadi» holatlari
@@ -546,7 +713,18 @@ src/
     progress.ts statistika, topilgan so‘zlar, cloud yozuv va tiklash
     nickname.ts taxallus filtri (nickname_filter.dart porti)
     leaderboard.ts  kunlik va umumiy reyting jadvallari
-    battle.ts   So‘zjang chaqiruvlari va turlari
+    battle.ts   Jang hujjatining turlari va chaqiruvlari (`game` bilan)
+    activeBattle.ts  ochiq jang: qaysi o‘yin, qaysi sahifa, qaysi hujjat
+    battleHistory.ts  janglar tarixi (`players.{uid}.joinedAt` bo‘yicha)
+    scores.ts   ball kitobi: o‘yin ulushi, umumiy va onlayn ball
+    loginId.ts  telefon raqam → kirish emaili (`LoginIdentifier` porti)
+    guncha.ts   g‘uncha: lug‘at, yasash, ball, daraja va hukm
+    gunchaLexicon.ts  g‘uncha lug‘ati — bir marta yig‘iladi
+    gunchaDaily.ts  kunlik g‘unchaning harflari (`guncha/{sana}`)
+    gunchaProgress.ts  topilgan so‘zlar, yig‘ma hisob va cloud yozuvi
+    gunchaBattle.ts  g‘uncha jangining funksiyalari
+    useGuncha.ts  yakka g‘unchaning holati
+    useGunchaJang.ts  g‘uncha jangining holati: sanoq, so‘z, raqib
     reactions.ts  jangdagi reaksiyalar: ro‘yxat, yuborish va kuzatuv
     donor.ts    homiylik darajalari: donatlar yig‘indisi, halqa va chip uchun
     publicProfile.ts  ochiq profil: scores + battle_ratings + kunlik + donatlar
@@ -555,12 +733,13 @@ src/
     useGameChoice.ts  rejim va uzunlik tanlovi
     useSozTop.ts  o‘yin holati (kunlik + cheksiz)
     useReveal.ts  scroll animatsiyasi va mavzu almashtirish
-    useRoute.ts   kichik router (`/`, `/oynash`, `/oyin`, `/sozjang`, `/oyinchi/{uid}`, `/qollab`, `/privacy`, `/contact`)
+    useRoute.ts   kichik router (`/`, `/oynash`, `/oyin`, `/sozjang`, `/guncha`, `/gunchajang`, `/oyinchi/{uid}`, `/qollab`, `/privacy`, `/contact`)
     battleRating.ts  So‘zjang reytingi: darajalar va `battle_ratings/{uid}` kuzatuvi
   styles/
     theme.css   dizayn tokenlari (yorug‘ + tungi)
     landing.css bo‘lim uslublari
     play.css    hisob oynasi, o‘yin bo‘limlari va `/oyin`, `/sozjang`
+    guncha.css  gul, daraja, jang paneli, natija va janglar tarixi
 ```
 
 ### Brauzerda saqlanadigan kalitlar
@@ -580,6 +759,12 @@ src/
 | `sozgir.battle` | boshlangan jang |
 | `sozgir.battle.words.{id}` | o‘sha jangdagi taxminlarim |
 | `sozgir.battle.length` | So‘zjangdagi so‘z uzunligi |
+| `sozgir.guncha.daily.{sana}` | kunlik g‘unchaning harflari (oxirgi 3 kun) |
+| `sozgir.guncha.round.{id}` | bitta g‘unchada topilgan so‘zlar |
+| `sozgir.guncha.total` | g‘unchadagi yig‘ma ball va so‘zlar soni |
+| `sozgir.guncha.practice` | mashq g‘unchasining raqami |
+| `sozgir.guncha.battle` | boshlangan g‘uncha jangi |
+| `sozgir.guncha.battle.words.{id}` | o‘sha jangda topgan so‘zlarim |
 
 Store havolalari `src/data/site.ts` dagi `links.appStore` va
 `links.playStore` da — to‘ldirilgani tugma bo‘lib chiqadi, bo‘shi «Tez

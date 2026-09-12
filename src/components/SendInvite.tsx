@@ -17,9 +17,16 @@ import { createPortal } from 'react-dom';
 import { functionError } from '../firebase/functions';
 import type { Unsubscribe } from '../firebase/live';
 import { useAuth } from '../lib/auth';
-import { cancelInvite, sendInvite, watchInvite, type InviteKind } from '../lib/battle';
+import {
+  cancelInvite,
+  gameOf,
+  sendInvite,
+  watchInvite,
+  type BattleGame,
+  type InviteKind,
+} from '../lib/battle';
 import { DEFAULT_LENGTH } from '../lib/modes';
-import { showBattle } from '../lib/useSozjang';
+import { showBattle } from '../lib/activeBattle';
 import { pretty } from '../lib/uz';
 import Avatar from './Avatar';
 import { Close } from './Icons';
@@ -30,6 +37,8 @@ export interface InviteTarget {
   kind: InviteKind;
   /** So'z uzunligi — berilmasa ilovadagi asosiy rejim (5). */
   length?: number;
+  /** Qaysi o'yinga chaqiramiz — berilmasa So'zjang. */
+  game?: BattleGame;
 }
 
 /** Server chaqiruvga beradigan muddat — `INVITE_SECONDS`. Hujjatdagi
@@ -72,6 +81,7 @@ export default function SendInvite({
       nickname: account.nickname,
       length: target.length ?? DEFAULT_LENGTH,
       kind: target.kind,
+      game: target.game ?? 'soztop',
     })
       .then((reply) => {
         if (alive) setInviteId(reply.inviteId);
@@ -98,7 +108,9 @@ export default function SendInvite({
       if (invite.status === 'accepted' && invite.battleId) {
         if (closed.current) return;
         closed.current = true;
-        showBattle(invite.battleId);
+        // Qaysi ekran ochilishini chaqiruvning o'zi aytadi — maydoni
+        // yo'q chaqiruv So'zjangniki.
+        showBattle(gameOf(invite.game), invite.battleId);
         onClose();
       } else if (invite.status === 'declined') {
         setOutcome('declined');

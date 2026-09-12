@@ -5,6 +5,8 @@ export type Route =
   | '/oynash'
   | '/oyin'
   | '/sozjang'
+  | '/guncha'
+  | '/gunchajang'
   | '/qollab'
   | '/privacy'
   | '/contact'
@@ -15,6 +17,8 @@ const routes: Route[] = [
   '/oynash',
   '/oyin',
   '/sozjang',
+  '/guncha',
+  '/gunchajang',
   '/qollab',
   '/privacy',
   '/contact',
@@ -60,7 +64,8 @@ function read(): Route {
 }
 
 /** Bir necha sahifa uchun kichik router — paket qo'shmasdan.
- *  `/oynash` — nimani o'ynashni tanlash; `/oyin` va `/sozjang` — o'yinlar.
+ *  `/oynash` — nimani o'ynashni tanlash; `/oyin`, `/sozjang`, `/guncha` va
+ *  `/gunchajang` — o'yinlar.
  *  Langar (`#`) va boshqa domenga havolalarni brauzerning o'ziga qoldiradi,
  *  shuning uchun `/#qoida` ko'rinishidagi havolalar ham ishlaydi. */
 export function useRoute(): Route {
