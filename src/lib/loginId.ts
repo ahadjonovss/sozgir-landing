@@ -23,7 +23,8 @@ const PHONE_DOMAIN = 'gmail.com';
 const COUNTRY_CODE = '998';
 
 /** Milliy raqamning uzunligi: `90 123 45 67`. */
-const NATIONAL_LENGTH = 9;
+export const PHONE_LENGTH = 9;
+const NATIONAL_LENGTH = PHONE_LENGTH;
 
 /** Raqamda uchraydigan ajratgichlar. Bulardan boshqa belgi bo'lsa, matn
  *  telefon emas — email deb qaraladi. */
@@ -82,4 +83,17 @@ export function prettyLogin(email: string | null | undefined): string {
   const [name, domain] = value.split('@');
   if (domain !== PHONE_DOMAIN || !name || !/^\d{9}$/.test(name)) return value;
   return `+${COUNTRY_CODE} ${name.slice(0, 2)} ${name.slice(2, 5)} ${name.slice(5, 7)} ${name.slice(7)}`;
+}
+
+/** Ekran uchun guruhlab yozadi: `901234567` → `90 123 45 67`. Yarim
+ *  yozilgan raqam ham bo'linadi — maydon terilayotganda ham o'qiladi. */
+export function formatPhone(digits: string): string {
+  return [
+    digits.slice(0, 2),
+    digits.slice(2, 5),
+    digits.slice(5, 7),
+    digits.slice(7, 9),
+  ]
+    .filter(Boolean)
+    .join(' ');
 }

@@ -10,20 +10,7 @@
  *  `loginId.ts` uni shundan kanonik shaklga keltiradi. Ekranda esa
  *  o'qishga qulay guruhlarga bo'linadi: `90 123 45 67`. */
 import type { Ref } from 'react';
-
-/** Milliy raqamning uzunligi. */
-export const PHONE_LENGTH = 9;
-
-/** `901234567` → `90 123 45 67`. Yarim yozilgan raqam ham bo'linadi. */
-export function formatPhone(digits: string): string {
-  const parts = [
-    digits.slice(0, 2),
-    digits.slice(2, 5),
-    digits.slice(5, 7),
-    digits.slice(7, 9),
-  ].filter(Boolean);
-  return parts.join(' ');
-}
+import { formatPhone, PHONE_LENGTH } from '../lib/loginId';
 
 export default function PhoneField({
   value,
@@ -42,13 +29,13 @@ export default function PhoneField({
   return (
     <label className="field">
       <span>{label}</span>
-      <div className="phone">
-        <span className="phone__code" aria-hidden="true">
+      <div className="telfield">
+        <span className="telfield__code" aria-hidden="true">
           +998
         </span>
         <input
           ref={inputRef}
-          className="phone__input"
+          className="telfield__input"
           type="tel"
           inputMode="numeric"
           autoComplete={autoComplete}

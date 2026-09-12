@@ -12,9 +12,9 @@ import Avatar from './Avatar';
 import AvatarEditor from './AvatarEditor';
 import Modal from './Modal';
 import { nicknameError } from '../lib/nickname';
-import { prettyLogin } from '../lib/loginId';
+import { isValidLogin, looksLikePhone, PHONE_LENGTH, prettyLogin } from '../lib/loginId';
 import { loadDetails, MAX_AGE, MIN_AGE, type ProfileDetails } from '../firebase/profile';
-import PhoneField, { PHONE_LENGTH } from './PhoneField';
+import PhoneField from './PhoneField';
 import { toLatin } from '../lib/useScript';
 import { links, playerLink } from '../data/site';
 
@@ -31,6 +31,10 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
   const auth = useAuth();
   /** Faqat raqamlar — `+998` maydonning o'zida turadi. */
   const [phone, setPhone] = useState('');
+  /** Kirishda email yo'li. Yangi hisob faqat raqam bilan ochiladi, lekin
+   *  ilgari email bilan ro'yxatdan o'tganlar ham kira olishi kerak. */
+  const [byEmail, setByEmail] = useState(false);
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState(() => auth.nickname);
   const [birthDate, setBirthDate] = useState('');
@@ -70,8 +74,13 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
     setNote(null);
 
     const nameProblem = nicknameError(name);
-    const loginProblem =
-      phone.length === PHONE_LENGTH ? null : 'Telefon raqamni to‘liq kiriting';
+    const loginProblem = byEmail
+      ? isValidLogin(email)
+        ? null
+        : 'Email manzili noto‘g‘ri'
+      : phone.length === PHONE_LENGTH
+        ? null
+        : 'Telefon raqamni to‘liq kiriting';
     const passProblem =
       password.length >= 6 ? null : 'Parol kamida 6 belgidan iborat bo‘lsin';
 
@@ -93,7 +102,9 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
     if (mode === 'signIn') {
       if (loginProblem) return setInvalid(loginProblem);
       if (passProblem) return setInvalid(passProblem);
-      if (await auth.signIn({ email: phone, password })) close();
+      if (await auth.signIn({ email: byEmail ? email.trim() : phone, password })) {
+        close();
+      }
       return;
     }
     if (nameProblem) return setInvalid(nameProblem);
@@ -105,6 +116,20 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
     };
     if (details.birthDate || details.gender) await auth.saveDetails(details);
     setNote('Saqlandi');
+  }
+
+  /** Parolni tiklash. Raqamli hisobda pochta yo'q: manzil
+   *  `<raqam>@gmail.com` bo'lib chiqadi va xat begona qutiga ketardi. */
+  async function forgot() {
+    setInvalid(null);
+    setNote(null);
+    if (!byEmail || looksLikePhone(email)) {
+      return setInvalid('Raqamli hisobda parolni Telegram orqali tiklaymiz');
+    }
+    if (!isValidLogin(email)) return setInvalid('Avval email manzilini kiriting');
+    if (await auth.resetPassword(email.trim())) {
+      setNote('Parolni tiklash havolasi emailga yuborildi');
+    }
   }
 
   const nameField = (placeholder: string, ref = false) => (
@@ -261,12 +286,38 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
       onClose={close}
     >
       <form className="form" onSubmit={submit}>
-        <PhoneField
-          value={phone}
-          onChange={setPhone}
-          inputRef={first}
-          autoComplete="tel"
-        />
+        {byEmail ? (
+          <label className="field">
+            <span>Email</span>
+            <input
+              ref={first}
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="misol@mail.com"
+              autoComplete="email"
+            />
+          </label>
+        ) : (
+          <PhoneField
+            value={phone}
+            onChange={setPhone}
+            inputRef={first}
+            autoComplete="tel"
+          />
+        )}
+        {/* Yangi hisob faqat raqam bilan ochiladi, lekin ilgari email
+            bilan kirganlar yo'ldan qolmasligi kerak. */}
+        <button
+          type="button"
+          className="link form__swap"
+          onClick={() => {
+            setInvalid(null);
+            setByEmail((value) => !value);
+          }}
+        >
+          {byEmail ? 'Telefon raqam bilan kirish' : 'Email bilan kirish'}
+        </button>
         <label className="field">
           <span>Parol</span>
           <input
@@ -283,11 +334,17 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
       </form>
 
       <div className="modal__tabs">
-        {/* Hisob telefon raqamga bog'langan, ya'ni tiklash xatini
-            yuboradigan pochta yo'q — yordam jonli odam orqali beriladi. */}
-        <a className="link" href={links.telegram} target="_blank" rel="noreferrer">
-          Parolni unutdingizmi?
-        </a>
+        {byEmail ? (
+          <button className="link" onClick={forgot}>
+            Parolni unutdingizmi?
+          </button>
+        ) : (
+          /* Raqamli hisobda tiklash xatini yuboradigan pochta yo'q —
+             yordam jonli odam orqali beriladi. */
+          <a className="link" href={links.telegram} target="_blank" rel="noreferrer">
+            Parolni unutdingizmi?
+          </a>
+        )}
         <button className="link" onClick={() => open('register')}>
           Hisobim yo‘q
         </button>

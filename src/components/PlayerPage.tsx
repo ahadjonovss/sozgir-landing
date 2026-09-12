@@ -12,6 +12,7 @@
 import { useEffect, useState } from 'react';
 import { links } from '../data/site';
 import { useAuth } from '../lib/auth';
+import { recordProfileView } from '../lib/profileViews';
 import { isEmptyProfile, loadPublicProfile, type PublicProfile } from '../lib/publicProfile';
 import { routeParam } from '../lib/useRoute';
 import { pretty } from '../lib/uz';
@@ -56,6 +57,16 @@ export default function PlayerPage() {
       alive = false;
     };
   }, [uid]);
+
+  /* Profil ochilgani qayd etiladi: hujjat yaratilganda Cloud Function
+     egasiga push xabar yuboradi (birinchi ko'rishda, soatiga bir marta).
+     Ilovadagi bilan bir xil yozuv — saytdan kelgan tashrif ham sanaladi.
+     Mehmon yoza olmaydi, o'z profilini ochish esa sanalmaydi. */
+  const viewerUid = account?.uid;
+  useEffect(() => {
+    if (!uid || !viewerUid) return;
+    void recordProfileView({ ownerUid: uid, viewerUid });
+  }, [uid, viewerUid]);
 
   const isMe = !!account && account.uid === uid;
   const profile = state.kind === 'ready' ? state.profile : null;

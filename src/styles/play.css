@@ -3507,8 +3507,11 @@
 /* ── Telefon raqam maydoni ────────────────────────────────────────────── */
 
 /* `+998` yozuvning bir qismi emas, maydonning yorlig'i: odam faqat
-   to'qqiz raqamni teradi va kodni turli shaklda yozib xato qilmaydi. */
-.phone {
+   to'qqiz raqamni teradi va kodni turli shaklda yozib xato qilmaydi.
+
+   Klass nomi `telfield` — `phone` band: u Hero'dagi telefon maketiniki
+   va uning o'lchamlari maydonni cho'zib yuborardi. */
+.telfield {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -3519,15 +3522,15 @@
   transition: border-color 0.15s ease;
 }
 
-.phone:hover {
+.telfield:hover {
   border-color: var(--tile-border);
 }
 
-.phone:focus-within {
+.telfield:focus-within {
   border-color: var(--accent);
 }
 
-.phone__code {
+.telfield__code {
   color: var(--text-2);
   font-weight: 800;
   font-size: 15.5px;
@@ -3537,7 +3540,7 @@
 }
 
 /* Ichkaridagi maydonning o'z chegarasi yo'q — ramka `.phone` da. */
-.field .phone__input {
+.field .telfield__input {
   border: none;
   border-radius: 0 14px 14px 0;
   padding-left: 0;
@@ -3545,7 +3548,14 @@
   letter-spacing: 0.4px;
 }
 
-.field .phone__input:hover,
-.field .phone__input:focus-visible {
+.field .telfield__input:hover,
+.field .telfield__input:focus-visible {
   border: none;
+}
+
+/* Kirish yo'lini almashtiruvchi havola — maydon ostida, o'ngda. */
+.form__swap {
+  justify-self: end;
+  margin-top: -4px;
+  font-size: 13.5px;
 }
