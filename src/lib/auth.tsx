@@ -1,6 +1,11 @@
-/** Hisob: anonim «mehmon», email bilan ro'yxatdan o'tish va kirish.
+/** Hisob: anonim «mehmon», email yoki telefon raqam bilan ro'yxatdan
+ *  o'tish va kirish.
  *
  *  Ilovadagi mantiq saqlanadi:
+ *   * kirish maydoniga **telefon raqam** ham yozish mumkin — u
+ *     `loginId.ts` da `<raqam>@gmail.com` ga o'giriladi. Firebase uchun bu
+ *     o'sha email provayderi, ya'ni telefonda raqam bilan ro'yxatdan
+ *     o'tgan odam saytga ham o'sha raqam bilan kiradi;
  *   * mehmon sifatida o'ynagan odam keyin email qo'shsa, hisob **bog'lanadi**
  *     (`linkWithCredential`) — uid o'zgarmaydi, ya'ni ball va streak joyida
  *     qoladi;
@@ -24,8 +29,9 @@ import {
 import type { User } from 'firebase/auth';
 import { client } from '../firebase/client';
 import { authError } from '../firebase/errors';
-import { saveProfile } from '../firebase/profile';
+import { saveProfile, type ProfileDetails } from '../firebase/profile';
 import { patchBattleNickname } from './battleRating';
+import { toLoginEmail } from './loginId';
 import {
   clearStoredNickname,
   GUEST,
@@ -54,6 +60,8 @@ export interface Account {
 }
 
 interface Credentials {
+  /** Email yoki telefon raqam — `toLoginEmail` ikkalasini bitta shaklga
+   *  keltiradi. */
   email: string;
   password: string;
 }
@@ -70,10 +78,15 @@ export interface AuthValue {
   error: string | null;
   /** Brauzerda saqlangan nom — kirmagan holatda ham ishlatiladi. */
   nickname: string;
-  register: (input: Credentials & { nickname: string }) => Promise<boolean>;
+  register: (
+    input: Credentials & { nickname: string; details?: ProfileDetails },
+  ) => Promise<boolean>;
   signIn: (input: Credentials) => Promise<boolean>;
   resetPassword: (email: string) => Promise<boolean>;
   saveNickname: (nickname: string) => Promise<boolean>;
+  /** Tug'ilgan sana va jins — ro'yxatdan o'tishda so'raladi, eski
+   *  hisoblarda profil oynasidan to'ldiriladi. */
+  saveDetails: (details: ProfileDetails) => Promise<boolean>;
   signOut: () => Promise<void>;
   clearError: () => void;
   /** Ochiq oyna (yopiq bo'lsa `null`). */
@@ -186,7 +199,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    *  Tartib muhim: hozir mehmon sifatida o'ynayotgan bo'lsa hisobni
    *  **bog'laymiz** — uid o'zgarmaydi va yig'ilgan ball joyida qoladi. */
   const register = useCallback(
-    ({ email, password, nickname: name }: Credentials & { nickname: string }) =>
+    ({
+      email,
+      password,
+      nickname: name,
+      details,
+    }: Credentials & { nickname: string; details?: ProfileDetails }) =>
       run(async () => {
         const { auth } = await client();
         const {
@@ -199,14 +217,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const clean = sanitizeNickname(name);
         writeStoredNickname(clean);
         setNickname(clean);
+        const login = toLoginEmail(email);
         const current = auth.currentUser;
         const credential =
           current && current.isAnonymous
             ? await linkWithCredential(
                 current,
-                EmailAuthProvider.credential(email, password),
+                EmailAuthProvider.credential(login, password),
               )
-            : await createUserWithEmailAndPassword(auth, email, password);
+            : await createUserWithEmailAndPassword(auth, login, password);
 
         await updateProfile(credential.user, { displayName: clean });
         await credential.user.reload();
@@ -216,6 +235,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           uid: credential.user.uid,
           email: credential.user.email,
           nickname: clean,
+          details,
         });
       }),
     [run],
@@ -226,7 +246,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       run(async () => {
         const { auth } = await client();
         const { signInWithEmailAndPassword } = await import('firebase/auth');
-        const credential = await signInWithEmailAndPassword(auth, email, password);
+        const credential = await signInWithEmailAndPassword(
+          auth,
+          toLoginEmail(email),
+          password,
+        );
         // Ko'rinadigan nomni `onAuthStateChanged` hal qiladi — u kirishning
         // hamma yo'llarida (kirish, ro'yxatdan o'tish, sessiya tiklanishi)
         // bir marta ishlaydi, ya'ni qoida bitta joyda turadi.
@@ -245,7 +269,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       run(async () => {
         const { auth } = await client();
         const { sendPasswordResetEmail } = await import('firebase/auth');
-        await sendPasswordResetEmail(auth, email);
+        await sendPasswordResetEmail(auth, toLoginEmail(email));
       }),
     [run],
   );
@@ -272,6 +296,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     },
     [run, user],
+  );
+
+  /** Tug'ilgan sana va jinsni saqlaydi.
+   *
+   *  Faqat kirilgan hisobda ma'nosi bor: ma'lumot `users/{uid}` da
+   *  turadi va boshqa qurilmada qayta so'ralmaydi. */
+  const saveDetails = useCallback(
+    (details: ProfileDetails) =>
+      run(async () => {
+        const { auth } = await client();
+        const uid = auth.currentUser?.uid;
+        if (!uid) return;
+        await saveProfile({ uid, details });
+      }),
+    [run],
   );
 
   const signOut = useCallback(async () => {
@@ -310,6 +349,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signIn,
       resetPassword,
       saveNickname,
+      saveDetails,
       signOut,
       clearError: () => setError(null),
       prompt,
@@ -331,6 +371,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       ready,
       register,
       resetPassword,
+      saveDetails,
       saveNickname,
       signIn,
       signOut,
