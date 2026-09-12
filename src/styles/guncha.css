@@ -57,10 +57,18 @@
   transform: scale(0.92);
 }
 
+/* Fokus belgisi shaklning o'zida bo'ladi: `outline` SVG'da to'rtburchak
+   bo'lib chiziladi va bosilganda gulning ustiga katta ramka tushardi.
+   Chegara rangi esa yaproqning konturini kuzatadi. */
+.flower__petal:focus,
+.flower__heart:focus {
+  outline: none;
+}
+
 .flower__petal:focus-visible,
 .flower__heart:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  stroke: var(--accent);
+  stroke-width: 1.8;
 }
 
 /* Barglar orasidagi bezak — gulning «changchisi». */
