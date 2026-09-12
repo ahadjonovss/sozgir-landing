@@ -19,48 +19,75 @@
 /* ── Gul ──────────────────────────────────────────────────────────────── */
 
 .flower {
-  position: relative;
-  width: min(360px, 86vw);
+  display: block;
+  width: min(340px, 84vw);
   aspect-ratio: 1;
   margin: 6px auto 2px;
+  overflow: visible;
 }
 
-.flower__cell {
-  position: absolute;
-  /* Har bir katak o'z markazi bo'yicha joylashadi. */
-  transform: translate(-50%, -50%);
-  width: 31%;
-  aspect-ratio: 1 / 1.08;
-  /* Yassi tepali oltiburchak: qo'shnilar tepa-past va to'rt burchakda
-     turadi — `GunchaFlower` dagi burchaklar aynan shunga mos. */
-  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-  border: none;
-  background: var(--key-bg);
-  color: var(--text);
-  font: inherit;
-  font-weight: 900;
-  font-size: clamp(18px, 4.6vw, 26px);
-  letter-spacing: 0.5px;
+/* Barg va yurak harf — bosiladigan shakl. Hodisa aynan kontur ichida
+   ushlanadi, ya'ni qo'shni bargning to'rtburchagi ustma-ust tushsa ham
+   bosilish adashmaydi. */
+.flower__petal,
+.flower__heart {
   cursor: pointer;
-  transition: filter 0.14s ease, transform 0.08s ease;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.09s ease, filter 0.14s ease;
 }
 
-.flower__cell:hover:not(:disabled) {
-  filter: brightness(0.95);
+.flower__petal {
+  fill: var(--key-bg);
+  stroke: var(--tile-border);
+  stroke-width: 0.9;
 }
 
-.flower__cell:active:not(:disabled) {
-  transform: translate(-50%, -50%) scale(0.94);
+.flower__heart {
+  fill: var(--green);
 }
 
-.flower__cell:disabled {
-  opacity: 0.55;
+.flower__petal:hover,
+.flower__heart:hover {
+  filter: brightness(0.96);
+}
+
+.flower__petal:active,
+.flower__heart:active {
+  transform: scale(0.92);
+}
+
+.flower__petal:focus-visible,
+.flower__heart:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Barglar orasidagi bezak — gulning «changchisi». */
+.flower__dot {
+  fill: var(--yellow);
+  opacity: 0.75;
+}
+
+.flower__letter {
+  fill: var(--text);
+  font-family: inherit;
+  font-weight: 900;
+  text-anchor: middle;
+  dominant-baseline: central;
+  /* Harf bargning bosilishini to'sib qo'ymasin. */
+  pointer-events: none;
+  user-select: none;
+}
+
+.flower__letter--heart {
+  fill: #fff;
+}
+
+.flower--off .flower__petal,
+.flower--off .flower__heart {
   cursor: default;
-}
-
-.flower__cell--center {
-  background: var(--green);
-  color: #fff;
+  opacity: 0.55;
 }
 
 /* ── Taxta ────────────────────────────────────────────────────────────── */
