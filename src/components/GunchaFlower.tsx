@@ -5,10 +5,10 @@
  *  esa kichik bezaklar («changchi»). Ilgari saytda oltalasi ham
  *  oltiburchak edi va gul emas, g'isht terilgandek ko'rinardi.
  *
- *  SVG tanlangani ham shakl uchun: `<path>` bosilish yuzasini aynan o'z
- *  konturi bo'yicha oladi, ya'ni ikki bargning to'rtburchak chegarasi
- *  ustma-ust tushsa ham har biri faqat o'z yaprog'i ichida bosiladi —
- *  ilovada buni `ClipPath` qiladi.
+ *  Ko'rinish va bosilish ajratilgan: yaproq faqat chiziladi, bosilishni
+ *  esa uning ostidagi ko'rinmas bo'lak oladi. Sabab — yaproq nozik va
+ *  atrofida bo'sh joy bor, ya'ni barmoq bir oz chetga tushsa «tegmadi»
+ *  bo'lib qolardi. Bo'laklar gulning butun maydonini oltiga bo'ladi.
  *
  *  O'lchovlar 100×100 maydonga keltirilgan (ilovada 280 px edi), shuning
  *  uchun gul istalgan kenglikda bir xil nisbatda chiziladi. */
@@ -32,6 +32,15 @@ const PETAL_PATH = `M ${PETAL_W / 2} ${PETAL_H}
   C 0 ${PETAL_H * 0.78} 0 ${PETAL_H * 0.16} ${PETAL_W / 2} 0
   C ${PETAL_W} ${PETAL_H * 0.16} ${PETAL_W} ${PETAL_H * 0.78} ${PETAL_W / 2} ${PETAL_H}
   Z`;
+
+/** Bargning bosilish yuzasi — markazdan chiqadigan 60 gradusli bo'lak.
+ *
+ *  Ko'rinadigan yaproqning o'zi kichik va uning atrofida bo'sh joy bor:
+ *  odam yaproqning yoniga tekkanda hech narsa bo'lmasdi. Bo'laklar esa
+ *  gulning butun maydonini oltiga bo'lib oladi, ya'ni «tegmadi» degan
+ *  holat qolmaydi. O'rtasini yurak harf egallaydi — u oxirida
+ *  chizilgani uchun ustma-ust joyda o'zi yutadi. */
+const HIT_PATH = 'M 50 50 L 25 6.7 A 50 50 0 0 1 75 6.7 Z';
 
 const HEX_PATH = `M ${HEX_W * 0.25} 0
   L ${HEX_W * 0.75} 0
@@ -72,16 +81,22 @@ export default function GunchaFlower({
     const letter = display(unit);
     return (
       <g key={`${unit}-${index}`} transform={`rotate(${angle} 50 50)`}>
+        {/* Bosiladigan yuza yaprog'idan oldin turadi: yaproq uning
+            ustiga chiziladi, lekin hodisalarni o'tkazib yuboradi. */}
         <path
-          className="flower__petal"
-          d={PETAL_PATH}
-          transform={`translate(${50 - PETAL_W / 2} 0)`}
+          className="flower__hit"
+          d={HIT_PATH}
           role="button"
           tabIndex={disabled ? -1 : 0}
           aria-disabled={disabled || undefined}
           aria-label={letter}
           onClick={() => press(unit)}
           onKeyDown={(event) => onKey(event, unit)}
+        />
+        <path
+          className="flower__petal"
+          d={PETAL_PATH}
+          transform={`translate(${50 - PETAL_W / 2} 0)`}
         />
         {/* Barg burilgan, harf esa tik tursin. */}
         <text

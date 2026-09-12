@@ -124,8 +124,18 @@ export function keyAction(key: string, last: string | undefined): KeyAction | nu
       : null;
   }
 
-  if (char === 'h' && (last === 's' || last === 'c')) {
-    return { kind: 'combine', unit: `${last}h` };
+  // `c` o'zbek alifbosida yolg'iz kelmaydi — u faqat `ch` ning boshi.
+  // Shuning uchun u darhol `ch` bo'lib tushadi: ilgari `c` bosilganda
+  // hech narsa bo'lmasdi va `ch` ni umuman terib bo'lmasdi (`s` bilan
+  // `sh` ishlardi, chunki `s` alifboda bor).
+  if (char === 'c') return { kind: 'letter', unit: 'ch' };
+
+  // `ch` allaqachon tushgan bo'lsa, ketidan kelgan `h` yutiladi — odam
+  // «ch» deb terganda ikkinchi belgi qo'shimcha harf bo'lib qolmasin.
+  if (char === 'h' && last === 'ch') return null;
+
+  if (char === 'h' && last === 's') {
+    return { kind: 'combine', unit: 'sh' };
   }
   if (`'\`‘’${TOVUSH}${TUTUQ}`.includes(char)) {
     return last === 'o' || last === 'g'

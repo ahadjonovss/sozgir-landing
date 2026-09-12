@@ -3503,3 +3503,49 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* ── Telefon raqam maydoni ────────────────────────────────────────────── */
+
+/* `+998` yozuvning bir qismi emas, maydonning yorlig'i: odam faqat
+   to'qqiz raqamni teradi va kodni turli shaklda yozib xato qilmaydi. */
+.phone {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 15px;
+  border: 1.5px solid var(--divider);
+  border-radius: 14px;
+  background: var(--bg);
+  transition: border-color 0.15s ease;
+}
+
+.phone:hover {
+  border-color: var(--tile-border);
+}
+
+.phone:focus-within {
+  border-color: var(--accent);
+}
+
+.phone__code {
+  color: var(--text-2);
+  font-weight: 800;
+  font-size: 15.5px;
+  /* Yorliqni ajratib turadigan ingichka chiziq. */
+  padding-right: 8px;
+  border-right: 1.5px solid var(--divider);
+}
+
+/* Ichkaridagi maydonning o'z chegarasi yo'q — ramka `.phone` da. */
+.field .phone__input {
+  border: none;
+  border-radius: 0 14px 14px 0;
+  padding-left: 0;
+  background: transparent;
+  letter-spacing: 0.4px;
+}
+
+.field .phone__input:hover,
+.field .phone__input:focus-visible {
+  border: none;
+}

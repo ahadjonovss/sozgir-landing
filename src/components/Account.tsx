@@ -12,10 +12,11 @@ import Avatar from './Avatar';
 import AvatarEditor from './AvatarEditor';
 import Modal from './Modal';
 import { nicknameError } from '../lib/nickname';
-import { isValidLogin, looksLikePhone, prettyLogin } from '../lib/loginId';
+import { prettyLogin } from '../lib/loginId';
 import { loadDetails, MAX_AGE, MIN_AGE, type ProfileDetails } from '../firebase/profile';
+import PhoneField, { PHONE_LENGTH } from './PhoneField';
 import { toLatin } from '../lib/useScript';
-import { playerLink } from '../data/site';
+import { links, playerLink } from '../data/site';
 
 /** Sana tanlagichining chegaralari — ilovadagi `minAge`/`maxAge`. */
 function birthRange(now = new Date()) {
@@ -28,7 +29,8 @@ function birthRange(now = new Date()) {
  *  uchun maydonlar shu rejimga mos boshlang'ich qiymat bilan keladi. */
 function AuthDialog({ mode }: { mode: AuthPrompt }) {
   const auth = useAuth();
-  const [email, setEmail] = useState('');
+  /** Faqat raqamlar — `+998` maydonning o'zida turadi. */
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState(() => auth.nickname);
   const [birthDate, setBirthDate] = useState('');
@@ -68,9 +70,8 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
     setNote(null);
 
     const nameProblem = nicknameError(name);
-    const loginProblem = isValidLogin(email)
-      ? null
-      : 'Email yoki telefon raqamni to‘g‘ri kiriting';
+    const loginProblem =
+      phone.length === PHONE_LENGTH ? null : 'Telefon raqamni to‘liq kiriting';
     const passProblem =
       password.length >= 6 ? null : 'Parol kamida 6 belgidan iborat bo‘lsin';
 
@@ -81,7 +82,7 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
       if (!birthDate) return setInvalid('Tug‘ilgan sanani tanlang');
       if (!gender) return setInvalid('Jinsni tanlang');
       const joined = await auth.register({
-        email: email.trim(),
+        email: phone,
         password,
         nickname: name,
         details: { birthDate, gender },
@@ -92,7 +93,7 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
     if (mode === 'signIn') {
       if (loginProblem) return setInvalid(loginProblem);
       if (passProblem) return setInvalid(passProblem);
-      if (await auth.signIn({ email: email.trim(), password })) close();
+      if (await auth.signIn({ email: phone, password })) close();
       return;
     }
     if (nameProblem) return setInvalid(nameProblem);
@@ -104,21 +105,6 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
     };
     if (details.birthDate || details.gender) await auth.saveDetails(details);
     setNote('Saqlandi');
-  }
-
-  async function forgot() {
-    setInvalid(null);
-    setNote(null);
-    // Raqam bilan kirgan odamga tiklash havolasi yubora olmaymiz: u
-    // `<raqam>@gmail.com` ga ketadi, o'sha pochta esa uniki bo'lmasligi
-    // mumkin.
-    if (looksLikePhone(email)) {
-      return setInvalid('Parolni tiklash email orqali ishlaydi');
-    }
-    if (!isValidLogin(email)) return setInvalid('Avval email manzilini kiriting');
-    if (await auth.resetPassword(email.trim())) {
-      setNote('Parolni tiklash havolasi emailga yuborildi');
-    }
   }
 
   const nameField = (placeholder: string, ref = false) => (
@@ -208,10 +194,10 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
 
         {!auth.account.linked && (
           <p className="modal__hint">
-            Mehmon hisobi shu brauzerga bog‘langan. Email qo‘shsangiz
-            natijalaringiz boshqa qurilmadan ham ko‘rinadi —{' '}
+            Mehmon hisobi shu brauzerga bog‘langan. Telefon raqam
+            qo‘shsangiz natijalaringiz boshqa qurilmadan ham ko‘rinadi —{' '}
             <button className="link" onClick={() => open('register')}>
-              email qo‘shish
+              raqam qo‘shish
             </button>
             .
           </p>
@@ -236,22 +222,12 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
     return (
       <Modal
         title="Yangi hisob"
-        lead="Natijalaringiz saqlanadi, reytingda ko‘rinadi va boshqa qurilmadan ham ochiladi."
+        lead="Telefon raqamingiz bilan. Natijalaringiz saqlanadi, reytingda ko‘rinadi va boshqa qurilmadan ham ochiladi."
         onClose={close}
       >
         <form className="form" onSubmit={submit}>
           {nameField('Ismingiz yoki taxallusingiz', true)}
-          <label className="field">
-            <span>Email yoki telefon</span>
-            <input
-              type="text"
-              inputMode="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              placeholder="misol@mail.com yoki 90 123 45 67"
-              autoComplete="username"
-            />
-          </label>
+          <PhoneField value={phone} onChange={setPhone} autoComplete="tel" />
           <label className="field">
             <span>Parol</span>
             <input
@@ -285,18 +261,12 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
       onClose={close}
     >
       <form className="form" onSubmit={submit}>
-        <label className="field">
-          <span>Email yoki telefon</span>
-          <input
-            ref={first}
-            type="text"
-            inputMode="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            placeholder="misol@mail.com yoki 90 123 45 67"
-            autoComplete="username"
-          />
-        </label>
+        <PhoneField
+          value={phone}
+          onChange={setPhone}
+          inputRef={first}
+          autoComplete="tel"
+        />
         <label className="field">
           <span>Parol</span>
           <input
@@ -313,9 +283,11 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
       </form>
 
       <div className="modal__tabs">
-        <button className="link" onClick={forgot}>
+        {/* Hisob telefon raqamga bog'langan, ya'ni tiklash xatini
+            yuboradigan pochta yo'q — yordam jonli odam orqali beriladi. */}
+        <a className="link" href={links.telegram} target="_blank" rel="noreferrer">
           Parolni unutdingizmi?
-        </button>
+        </a>
         <button className="link" onClick={() => open('register')}>
           Hisobim yo‘q
         </button>

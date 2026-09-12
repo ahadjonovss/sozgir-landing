@@ -24,48 +24,54 @@
   aspect-ratio: 1;
   margin: 6px auto 2px;
   overflow: visible;
+  /* Telefonda ikki marta bosish bilan kattalashtirish kutilmasin —
+     harf darhol tushadi. */
+  touch-action: manipulation;
 }
 
-/* Barg va yurak harf — bosiladigan shakl. Hodisa aynan kontur ichida
-   ushlanadi, ya'ni qo'shni bargning to'rtburchagi ustma-ust tushsa ham
-   bosilish adashmaydi. */
+/* Bosiladigan yuza: markazdan chiqadigan bo'lak. Ko'rinmaydi, lekin
+   yaproqning atrofidagi bo'sh joyni ham o'z ichiga oladi. */
+.flower__hit {
+  fill: transparent;
+  cursor: pointer;
+  outline: none;
+}
+
 .flower__petal,
 .flower__heart {
-  cursor: pointer;
   transform-box: fill-box;
   transform-origin: center;
   transition: transform 0.09s ease, filter 0.14s ease;
 }
 
+/* Yaproqning o'zi hodisalarni ushlamaydi — ular ostidagi bo'lakka
+   o'tadi, ya'ni bosilish bir joydan boshqariladi. */
 .flower__petal {
   fill: var(--key-bg);
   stroke: var(--tile-border);
   stroke-width: 0.9;
+  pointer-events: none;
 }
 
 .flower__heart {
   fill: var(--green);
+  cursor: pointer;
+  outline: none;
 }
 
-.flower__petal:hover,
+.flower__hit:hover + .flower__petal,
 .flower__heart:hover {
   filter: brightness(0.96);
 }
 
-.flower__petal:active,
+.flower__hit:active + .flower__petal,
 .flower__heart:active {
   transform: scale(0.92);
 }
 
-/* Fokus belgisi shaklning o'zida bo'ladi: `outline` SVG'da to'rtburchak
-   bo'lib chiziladi va bosilganda gulning ustiga katta ramka tushardi.
-   Chegara rangi esa yaproqning konturini kuzatadi. */
-.flower__petal:focus,
-.flower__heart:focus {
-  outline: none;
-}
-
-.flower__petal:focus-visible,
+/* Fokus belgisi shaklning o'z konturida bo'ladi: `outline` SVG'da
+   to'rtburchak bo'lib chiziladi va gulning ustiga katta ramka tushardi. */
+.flower__hit:focus-visible + .flower__petal,
 .flower__heart:focus-visible {
   stroke: var(--accent);
   stroke-width: 1.8;
@@ -75,6 +81,7 @@
 .flower__dot {
   fill: var(--yellow);
   opacity: 0.75;
+  pointer-events: none;
 }
 
 .flower__letter {
@@ -83,7 +90,6 @@
   font-weight: 900;
   text-anchor: middle;
   dominant-baseline: central;
-  /* Harf bargning bosilishini to'sib qo'ymasin. */
   pointer-events: none;
   user-select: none;
 }
@@ -92,9 +98,13 @@
   fill: #fff;
 }
 
-.flower--off .flower__petal,
+.flower--off .flower__hit,
 .flower--off .flower__heart {
   cursor: default;
+}
+
+.flower--off .flower__petal,
+.flower--off .flower__heart {
   opacity: 0.55;
 }
 
