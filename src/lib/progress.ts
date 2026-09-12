@@ -16,6 +16,7 @@ import type { Account } from './auth';
 import { attemptsFor, DAILY_LENGTH, LENGTHS, type Mode } from './modes';
 import { readStoredNickname } from './nickname';
 import { scoreFor } from './score';
+import { EMPTY_TALLY, pushTally, type GameTally } from './scores';
 
 export interface GameStats {
   played: number;
@@ -125,6 +126,28 @@ export function foundSummary(
   };
 }
 
+/** So'ztopning xom balli — ilovadagi `SoztopScoreSource` ko'chirmasi.
+ *
+ *  So'zjangda topilgan so'z ham shu ro'yxatda turadi (ilova unga
+ *  `mode: 'battle'` yozadi), shuning uchun onlayn ball alohida hisob
+ *  emas — aynan shu ro'yxatning bir qismi. */
+export function soztopTally(
+  found: Record<string, FoundWord> = readFound(),
+): GameTally {
+  const words = Object.values(found);
+  if (words.length === 0) return EMPTY_TALLY;
+
+  let solo = 0;
+  let online = 0;
+  for (const word of words) {
+    const score = Number(word.score) || 0;
+    // Saytda jang rejimi yo'q, lekin ilovadan tiklangan ro'yxatda bor.
+    if (String(word.mode) === 'battle') online += score;
+    else solo += score;
+  }
+  return { solo, online, count: words.length };
+}
+
 /** Cheksiz rejimdagi keyingi o'yin raqami — har chaqirishda oshadi. */
 export function nextEndlessNumber(length: number): number {
   const next = read<number>(ENDLESS_KEY(length), 0) + 1;
@@ -215,7 +238,7 @@ export async function recordOutcome(
   const total = foundSummary(found);
 
   if (account) {
-    void pushToCloud({ account, outcome, points, stats, entry, total });
+    void pushToCloud({ account, outcome, points, stats, entry, found });
   } else {
     // Kirmasdan o'ynagan natija navbatda turadi: keyin kirilsa cloud'ga
     // o'zi yoziladi va reytingga tushadi.
@@ -231,14 +254,14 @@ async function pushToCloud({
   points,
   stats,
   entry,
-  total,
+  found,
 }: {
   account: Account;
   outcome: Outcome;
   points: number;
   stats: GameStats;
   entry: FoundWord | null;
-  total: FoundSummary;
+  found: Record<string, FoundWord>;
 }): Promise<void> {
   try {
     const { db } = await client();
@@ -273,16 +296,13 @@ async function pushToCloud({
           },
           { merge: true },
         ),
-        setDoc(
-          doc(db, PATHS.scores, uid),
-          {
-            nickname,
-            totalScore: total.totalScore,
-            wordsFound: total.count,
-            updatedAt: serverTimestamp(),
-          },
-          { merge: true },
-        ),
+      );
+
+      // Umumiy ball `scores.ts` orqali yoziladi: hujjatda boshqa
+      // o'yinlarning (g'uncha) ulushi ham turadi, uni bosib ketmaslik
+      // kerak.
+      writes.push(
+        pushTally({ uid, nickname, game: 'soztop', tally: soztopTally(found) }),
       );
     }
 
@@ -387,7 +407,6 @@ export async function flushPending(account: Account): Promise<void> {
   if (queue.length === 0) return;
   write(PENDING_KEY, []);
 
-  const total = foundSummary();
   const found = readFound();
   for (const { outcome, points } of queue) {
     await pushToCloud({
@@ -396,7 +415,7 @@ export async function flushPending(account: Account): Promise<void> {
       points,
       stats: readStats(outcome.mode, outcome.length),
       entry: outcome.won ? (found[outcome.answer] ?? null) : null,
-      total,
+      found,
     });
   }
 }
