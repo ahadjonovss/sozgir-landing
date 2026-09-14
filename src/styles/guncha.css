@@ -178,15 +178,21 @@
   font-size: 13px;
 }
 
-/* Yig'ilayotgan so'z. Balandligi qat'iy: xabar chiqqanda taxta
-   sakramasligi kerak. */
+/* Yig'ilayotgan so'z. Balandligi qat'iy: xabar chiqqanda ham, birinchi
+   harf tushib maslahat o'rnini egallaganda ham taxta sakramasligi kerak.
+   Shuning uchun balandlik eng baland holat — harf qatori — bo'yicha
+   o'lchanadi: harfning o'lchami va qator balandligi shu yerda belgilanib,
+   o'sha ifodaning o'zi `min-height` ga ham qo'yiladi. */
 .guncha__typed {
+  --unit: clamp(20px, 5vw, 26px);
+  --unit-line: 1.35;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 2px;
-  min-height: 44px;
+  /* 12px — tepa-past to'ldirish, 2px — pastki chiziq. */
+  min-height: calc(var(--unit) * var(--unit-line) + 14px);
   padding: 6px 12px;
   border-bottom: 2px solid var(--divider);
 }
@@ -202,7 +208,8 @@
 }
 
 .guncha__unit {
-  font-size: clamp(20px, 5vw, 26px);
+  font-size: var(--unit);
+  line-height: var(--unit-line);
   font-weight: 900;
   letter-spacing: 1px;
 }
@@ -214,6 +221,7 @@
 .guncha__hint {
   color: var(--text-2);
   font-size: 14px;
+  line-height: var(--unit-line);
 }
 
 /* Ball va xabar so'zning ustida chiqadi — joyni egallamaydi. */
