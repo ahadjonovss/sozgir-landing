@@ -37,11 +37,12 @@
   outline: none;
 }
 
+/* Bosilganda shakl qimirlamaydi: SVG'da `transform` ham xususiyat, ham
+   atribut — CSS dagi `scale` yaproqni joyiga qo'yadigan `translate` ni
+   almashtirib yuborar va gul bosilganda to'zib ketardi. */
 .flower__petal,
 .flower__heart {
-  transform-box: fill-box;
-  transform-origin: center;
-  transition: transform 0.09s ease, filter 0.14s ease;
+  transition: filter 0.14s ease;
 }
 
 /* Yaproqning o'zi hodisalarni ushlamaydi — ular ostidagi bo'lakka
@@ -60,13 +61,10 @@
 }
 
 .flower__hit:hover + .flower__petal,
-.flower__heart:hover {
-  filter: brightness(0.96);
-}
-
+.flower__heart:hover,
 .flower__hit:active + .flower__petal,
 .flower__heart:active {
-  transform: scale(0.92);
+  filter: brightness(0.96);
 }
 
 /* Fokus belgisi shaklning o'z konturida bo'ladi: `outline` SVG'da
