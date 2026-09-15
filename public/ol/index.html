@@ -20,10 +20,10 @@
      bor va hammasi `vercel.json` dagi rewrite bilan shu faylga
      yo'naltiriladi (`/t/ol` → Telegram, `/x/ol` → X, `/th/ol` →
      Threads, `/i/ol` → Instagram, `/tt/ol` → TikTok, `/y/ol` →
-     YouTube, `/f/ol` → Facebook,
-     `/ln/ol` → LinkedIn). Brauzerdagi manzil o'zgarmaydi,
-     shuning uchun manba `location.pathname` dan olinadi — sahifa
-     nusxalanmaydi.
+     YouTube, `/f/ol` → Facebook, `/ln/ol` → LinkedIn, `/ak/ol` →
+     Kulgili ovozlar kanalidagi reklama). Brauzerdagi manzil
+     o'zgarmaydi, shuning uchun manba `location.pathname` dan olinadi —
+     sahifa nusxalanmaydi.
 
      Sahifa ochilganda `/api/ol` ga bitta beacon ketadi: u Telegramga
      xabar yuboradi va `link_hits/{manba}_{sana}` hisoblagichini
@@ -250,7 +250,8 @@
       tt: 'tiktok',
       y: 'youtube',
       f: 'facebook',
-      ln: 'linkedin'
+      ln: 'linkedin',
+      ak: 'kulgili'
     };
 
     var parts = location.pathname.split('/').filter(Boolean);

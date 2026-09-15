@@ -19,6 +19,7 @@
  *    TELEGRAM_BOT_TOKEN   bot tokeni (contact.ts bilan bir xil)
  *    TELEGRAM_CHAT_ID     guruh yoki kanal ID
  *    TELEGRAM_OL_THREAD   havolalar uchun mavzu (topic) raqami
+ *    TELEGRAM_AK_THREAD   `/ak/ol` (Kulgili ovozlar reklamasi) mavzusi
  *
  *  Telegram sozlanmagan bo'lsa faqat hisoblagich yoziladi — sahifa
  *  baribir ishlaydi.
@@ -50,6 +51,7 @@ const SOURCES: Record<string, { name: string; emoji: string }> = {
   youtube: { name: 'YouTube', emoji: '▶️' },
   facebook: { name: 'Facebook', emoji: '📘' },
   linkedin: { name: 'LinkedIn', emoji: '💼' },
+  kulgili: { name: 'Kulgili ovozlar (reklama)', emoji: '😂' },
   other: { name: 'Boshqa', emoji: '🔗' },
 };
 
@@ -214,12 +216,22 @@ async function countHit(source: string, platform: Platform): Promise<void> {
   }
 }
 
-async function notify(text: string): Promise<void> {
+/** Qaysi manba qaysi mavzuga tushadi.
+ *
+ *  Pullik joylashtirishlar aralashib ketmasin uchun ularga alohida mavzu
+ *  beriladi (`TELEGRAM_AK_THREAD` — Kulgili ovozlar kanalidagi reklama).
+ *  Berilmasa xabar umumiy havolalar mavzusiga, u ham bo'lmasa guruhning
+ *  asosiy oqimiga tushadi. */
+function threadFor(source: string): number {
+  const own = source === 'kulgili' ? Number(process.env.TELEGRAM_AK_THREAD ?? 0) : 0;
+  return own > 0 ? own : Number(process.env.TELEGRAM_OL_THREAD ?? 0);
+}
+
+async function notify(text: string, threadId: number): Promise<void> {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
   if (!token || !chatId) return;
 
-  const threadId = Number(process.env.TELEGRAM_OL_THREAD ?? 0);
   const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json; charset=utf-8' },
@@ -308,7 +320,7 @@ export default async function handler(request: Request): Promise<Response> {
   ].join('\n');
 
   // Ikki ish bir-biriga bog'liq emas: biri yiqilsa, ikkinchisi bajariladi.
-  await Promise.allSettled([notify(text), countHit(source, platform)]);
+  await Promise.allSettled([notify(text, threadFor(source)), countHit(source, platform)]);
 
   return done();
 }

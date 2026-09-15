@@ -832,9 +832,10 @@ qaysi tarmoq qancha odam olib kelgani ko‘rinadi:
 | `sozgir.uz/y/ol` | `youtube` | YouTube |
 | `sozgir.uz/f/ol` | `facebook` | Facebook |
 | `sozgir.uz/ln/ol` | `linkedin` | LinkedIn |
+| `sozgir.uz/ak/ol` | `kulgili` | «Kulgili ovozlar» kanalidagi reklama |
 
 Sahifa **nusxalanmaydi**: hammasi `vercel.json` dagi bitta rewrite bilan
-`public/ol/index.html` ga yo‘naltiriladi (`/:channel(t|x|th|i|tt|y|f|ln)/ol`).
+`public/ol/index.html` ga yo‘naltiriladi (`/:channel(t|x|th|i|tt|y|f|ln|ak)/ol`).
 Brauzerdagi manzil o‘zgarmaydi, shuning uchun manba `location.pathname`
 dan olinadi. Ro‘yxatda yo‘q bo‘lak (`/zz/ol`) `other` bo‘lib qoladi.
 `canonical` va `og:url` esa doim `/ol` — ya’ni izlash tizimlari uchun bu
@@ -872,6 +873,18 @@ Kerakli muhit o‘zgaruvchisi — `TELEGRAM_OL_THREAD` (havolalar mavzusining
 raqami). Berilmasa xabar guruhning asosiy oqimiga tushadi; token yoki chat
 bo‘lmasa xabar yuborilmaydi, hisoblagich baribir yoziladi.
 
+Pullik joylashtirish aralashib ketmasin uchun `/ak/ol` ning o‘z mavzusi
+bor — `TELEGRAM_AK_THREAD`. Berilmasa u ham umumiy havolalar mavzusiga
+tushaveradi. Mavzuni ochib, raqamini olish (bot guruhda admin bo‘lsin):
+
+```bash
+curl -s "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/createForumTopic" \
+  -d chat_id="$TELEGRAM_CHAT_ID" -d name="Kulgili ovozlar (reklama)"
+```
+
+Javobdagi `message_thread_id` — o‘sha raqam; uni Vercel’ga
+`TELEGRAM_AK_THREAD` bo‘lib qo‘yiladi.
+
 ## Aloqa formasi va Telegram
 
 `/contact` dagi forma `api/contact.ts` (Vercel Edge Function) ga yuboriladi, u
@@ -888,6 +901,7 @@ Vercel muhit o‘zgaruvchilari (Project → Settings → Environment Variables):
 | `TELEGRAM_CHAT_ID` | guruh yoki kanal ID (masalan `-1001234567890`) |
 | `TELEGRAM_CONTACT_THREAD` | mavzu (topic) raqami, ixtiyoriy |
 | `TELEGRAM_OL_THREAD` | ulashish havolalari uchun mavzu raqami, ixtiyoriy |
+| `TELEGRAM_AK_THREAD` | `/ak/ol` reklamasi uchun alohida mavzu, ixtiyoriy |
 
 Token yoki chat berilmasa funksiya `503` qaytaradi, forma esa foydalanuvchiga
 pochta manzilini ko‘rsatadi. Lokalda `npm run dev` bilan faqat sahifalar

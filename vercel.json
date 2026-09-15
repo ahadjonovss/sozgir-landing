@@ -6,7 +6,7 @@
   "installCommand": "npm ci",
   "rewrites": [
     {
-      "source": "/:channel(t|x|th|i|tt|y|f|ln)/ol",
+      "source": "/:channel(t|x|th|i|tt|y|f|ln|ak)/ol",
       "destination": "/ol/index.html"
     },
     {
