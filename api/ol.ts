@@ -49,6 +49,7 @@ const SOURCES: Record<string, { name: string; emoji: string }> = {
   tiktok: { name: 'TikTok', emoji: '🎵' },
   youtube: { name: 'YouTube', emoji: '▶️' },
   facebook: { name: 'Facebook', emoji: '📘' },
+  linkedin: { name: 'LinkedIn', emoji: '💼' },
   other: { name: 'Boshqa', emoji: '🔗' },
 };
 

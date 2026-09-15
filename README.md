@@ -831,9 +831,10 @@ qaysi tarmoq qancha odam olib kelgani ko‘rinadi:
 | `sozgir.uz/tt/ol` | `tiktok` | TikTok |
 | `sozgir.uz/y/ol` | `youtube` | YouTube |
 | `sozgir.uz/f/ol` | `facebook` | Facebook |
+| `sozgir.uz/ln/ol` | `linkedin` | LinkedIn |
 
 Sahifa **nusxalanmaydi**: hammasi `vercel.json` dagi bitta rewrite bilan
-`public/ol/index.html` ga yo‘naltiriladi (`/:channel(t|x|th|i|tt|y|f)/ol`).
+`public/ol/index.html` ga yo‘naltiriladi (`/:channel(t|x|th|i|tt|y|f|ln)/ol`).
 Brauzerdagi manzil o‘zgarmaydi, shuning uchun manba `location.pathname`
 dan olinadi. Ro‘yxatda yo‘q bo‘lak (`/zz/ol`) `other` bo‘lib qoladi.
 `canonical` va `og:url` esa doim `/ol` — ya’ni izlash tizimlari uchun bu

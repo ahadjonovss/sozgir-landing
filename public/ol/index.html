@@ -20,7 +20,8 @@
      bor va hammasi `vercel.json` dagi rewrite bilan shu faylga
      yo'naltiriladi (`/t/ol` → Telegram, `/x/ol` → X, `/th/ol` →
      Threads, `/i/ol` → Instagram, `/tt/ol` → TikTok, `/y/ol` →
-     YouTube, `/f/ol` → Facebook). Brauzerdagi manzil o'zgarmaydi,
+     YouTube, `/f/ol` → Facebook,
+     `/ln/ol` → LinkedIn). Brauzerdagi manzil o'zgarmaydi,
      shuning uchun manba `location.pathname` dan olinadi — sahifa
      nusxalanmaydi.
 
@@ -248,7 +249,8 @@
       i: 'instagram',
       tt: 'tiktok',
       y: 'youtube',
-      f: 'facebook'
+      f: 'facebook',
+      ln: 'linkedin'
     };
 
     var parts = location.pathname.split('/').filter(Boolean);
