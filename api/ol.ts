@@ -216,14 +216,19 @@ async function countHit(source: string, platform: Platform): Promise<void> {
   }
 }
 
+/** `/ak/ol` — «Kulgili ovozlar» kanalidagi reklama uchun ochilgan mavzu
+ *  («So'zgir Alerts» guruhida). Raqam maxfiy emas, shuning uchun shu
+ *  yerda turadi; `TELEGRAM_AK_THREAD` berilsa, u ustun bo'ladi. */
+const AK_THREAD = 12809;
+
 /** Qaysi manba qaysi mavzuga tushadi.
  *
- *  Pullik joylashtirishlar aralashib ketmasin uchun ularga alohida mavzu
- *  beriladi (`TELEGRAM_AK_THREAD` — Kulgili ovozlar kanalidagi reklama).
- *  Berilmasa xabar umumiy havolalar mavzusiga, u ham bo'lmasa guruhning
- *  asosiy oqimiga tushadi. */
+ *  Pullik joylashtirishlar umumiy oqimga aralashib ketmasin uchun ularga
+ *  alohida mavzu beriladi. Qolgan hammasi — havolalar mavzusiga, u ham
+ *  bo'lmasa guruhning asosiy oqimiga. */
 function threadFor(source: string): number {
-  const own = source === 'kulgili' ? Number(process.env.TELEGRAM_AK_THREAD ?? 0) : 0;
+  const own =
+    source === 'kulgili' ? Number(process.env.TELEGRAM_AK_THREAD ?? 0) || AK_THREAD : 0;
   return own > 0 ? own : Number(process.env.TELEGRAM_OL_THREAD ?? 0);
 }
 

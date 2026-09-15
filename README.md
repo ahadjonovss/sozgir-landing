@@ -874,16 +874,16 @@ raqami). Berilmasa xabar guruhning asosiy oqimiga tushadi; token yoki chat
 bo‘lmasa xabar yuborilmaydi, hisoblagich baribir yoziladi.
 
 Pullik joylashtirish aralashib ketmasin uchun `/ak/ol` ning o‘z mavzusi
-bor — `TELEGRAM_AK_THREAD`. Berilmasa u ham umumiy havolalar mavzusiga
-tushaveradi. Mavzuni ochib, raqamini olish (bot guruhda admin bo‘lsin):
+bor — «Kulgili ovozlar (reklama)», raqami `api/ol.ts` dagi `AK_THREAD`
+(maxfiy emas). Mavzu boshqasiga ko‘chsa, kodga tegmay `TELEGRAM_AK_THREAD`
+bilan almashtirsa bo‘ladi. Yangi mavzu ochish (bot guruhda admin bo‘lsin):
 
 ```bash
 curl -s "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/createForumTopic" \
   -d chat_id="$TELEGRAM_CHAT_ID" -d name="Kulgili ovozlar (reklama)"
 ```
 
-Javobdagi `message_thread_id` — o‘sha raqam; uni Vercel’ga
-`TELEGRAM_AK_THREAD` bo‘lib qo‘yiladi.
+Javobdagi `message_thread_id` — o‘sha raqam.
 
 ## Aloqa formasi va Telegram
 
@@ -901,7 +901,7 @@ Vercel muhit o‘zgaruvchilari (Project → Settings → Environment Variables):
 | `TELEGRAM_CHAT_ID` | guruh yoki kanal ID (masalan `-1001234567890`) |
 | `TELEGRAM_CONTACT_THREAD` | mavzu (topic) raqami, ixtiyoriy |
 | `TELEGRAM_OL_THREAD` | ulashish havolalari uchun mavzu raqami, ixtiyoriy |
-| `TELEGRAM_AK_THREAD` | `/ak/ol` reklamasi uchun alohida mavzu, ixtiyoriy |
+| `TELEGRAM_AK_THREAD` | `/ak/ol` reklamasi mavzusi, ixtiyoriy (kodda `AK_THREAD`) |
 
 Token yoki chat berilmasa funksiya `503` qaytaradi, forma esa foydalanuvchiga
 pochta manzilini ko‘rsatadi. Lokalda `npm run dev` bilan faqat sahifalar
