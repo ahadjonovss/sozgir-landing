@@ -3,6 +3,7 @@
  *  Bosh sahifa — tanishtiruv: hero'da haqiqiy o'yin, so'ng qoida, alifbo,
  *  modullar va yuklab olish. Qolgan manzillar shu ramka ichida ochiladi. */
 import { useEffect, useLayoutEffect } from 'react';
+import { pageOf } from './data/pages';
 import Alphabet from './components/Alphabet';
 import Categories from './components/Categories';
 import Contact from './components/Contact';
@@ -29,19 +30,6 @@ import { prose, useScript } from './lib/useScript';
 import { useReveal } from './lib/useReveal';
 import { useRoute } from './lib/useRoute';
 
-const titles = {
-  '/': 'So‘zgir — o‘zbekcha so‘z o‘yinlari',
-  '/oynash': 'O‘ynash — So‘zgir',
-  '/oyin': 'So‘zgir — bugungi so‘zni toping',
-  '/sozjang': 'So‘zjang — do‘st bilan so‘z jangi | So‘zgir',
-  '/guncha': 'G‘uncha — yettita harfdan so‘z yig‘ing | So‘zgir',
-  '/gunchajang': 'G‘uncha jangi — uch daqiqa, bir g‘uncha | So‘zgir',
-  '/qollab': 'Qo‘llab-quvvatlash — So‘zgir',
-  '/privacy': 'Maxfiylik siyosati — So‘zgir',
-  '/contact': 'Aloqa — So‘zgir',
-  '/oyinchi': 'O‘yinchi — So‘zgir',
-};
-
 export default function App() {
   useReveal();
   const route = useRoute();
@@ -53,7 +41,9 @@ export default function App() {
   useLayoutEffect(() => startScriptDom(document.body), []);
 
   useEffect(() => {
-    document.title = prose(titles[route]);
+    // Sarlavhalar `data/pages.ts` da — build paytida yasaladigan statik
+    // HTML fayllar ham o'sha ro'yxatdan oziqlanadi.
+    document.title = prose(pageOf(route)?.title ?? '');
   }, [route, script]);
 
   return (

@@ -10,7 +10,19 @@
       "destination": "/ol/index.html"
     },
     {
-      "source": "/((?!api/|\\.well-known/|app-ads\\.txt|ads\\.txt|robots\\.txt).*)",
+      "source": "/:page(oynash|oyin|sozjang|guncha|gunchajang|qollab|privacy|contact)",
+      "destination": "/:page/index.html"
+    },
+    {
+      "source": "/oyinchi/:uid",
+      "destination": "/oyinchi/index.html"
+    },
+    {
+      "source": "/kunlik",
+      "destination": "/oyin/index.html"
+    },
+    {
+      "source": "/((?!api/|\\.well-known/|app-ads\\.txt|ads\\.txt|robots\\.txt|sitemap\\.xml).*)",
       "destination": "/index.html"
     }
   ],

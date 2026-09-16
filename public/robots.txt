@@ -3,3 +3,5 @@
 # birinchi so'raydi.
 User-agent: *
 Allow: /
+
+Sitemap: https://sozgir.uz/sitemap.xml

@@ -2,7 +2,10 @@
  *  topshirilgan asl hujjat, o'zbekchasi shuning tarjimasi.
  *  Blok `string` bo'lsa — xatboshi, `string[]` bo'lsa — ro'yxat. */
 
-import { email } from './site';
+// Kengaytma ataylab: bu fayl `vite/prerender.ts` orqali build
+// konfiguratsiyasiga ham kiradi, u yerdagi yuklovchi esa kengaytmasiz
+// yo'lni qo'llamaydi.
+import { email } from './site.ts';
 
 export type Block = string | string[];
 

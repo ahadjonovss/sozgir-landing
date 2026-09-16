@@ -818,6 +818,7 @@ src/
     Account.tsx   hisob tugmasi va kirish oynasi
   data/
     site.ts     barcha matn va havolalar — dizaynga tegmasdan tahrirlash uchun
+    pages.ts    sahifalar: manzil, sarlavha, tavsif va statik matn
     privacy.ts  maxfiylik siyosati matni (uz + en)
   firebase/
     config.ts   prod muhitining web konfiguratsiyasi
@@ -866,6 +867,8 @@ src/
     landing.css bo‘lim uslublari
     play.css    hisob oynasi, o‘yin bo‘limlari va `/oyin`, `/sozjang`
     guncha.css  gul, daraja, jang paneli, natija va janglar tarixi
+vite/
+  prerender.ts  build oxirida har manzilga HTML fayl va sitemap.xml
 ```
 
 ### Brauzerda saqlanadigan kalitlar
@@ -1032,6 +1035,55 @@ Vercel muhit o‘zgaruvchilari (Project → Settings → Environment Variables):
 Token yoki chat berilmasa funksiya `503` qaytaradi, forma esa foydalanuvchiga
 pochta manzilini ko‘rsatadi. Lokalda `npm run dev` bilan faqat sahifalar
 ishlaydi — funksiyani sinash uchun `vercel dev` kerak.
+
+## Statik HTML va sitemap
+
+Sayt — SPA, ya‘ni serverdan kelgan HTML‘da bir paytlar `<div
+id="root"></div>` dan boshqa hech narsa yo‘q edi: **hamma manzil bir xil
+2 KB fayl**, bir xil sarlavha, bir xil tavsif. JavaScript ishlatmaydigan
+har qanday o‘quvchi — qidiruv roboti, reklama tarmog‘ining moderatsiya
+tizimi, ijtimoiy tarmoqdagi havola ko‘rinishi — butun saytni bo‘sh deb
+ko‘rardi. `/sitemap.xml` ham o‘sha bo‘sh HTML‘ni qaytarardi.
+
+Endi build tugagach `dist/` ga har manzil uchun **o‘z fayli** yoziladi:
+
+```
+dist/index.html            /
+dist/oynash/index.html     /oynash
+dist/oyin/index.html       /oyin
+…
+dist/sitemap.xml
+```
+
+Har birida o‘z `<title>`, `<meta description>`, `<link canonical>`,
+`og:` yorliqlari va `#root` ichida o‘sha sahifaning matni. React
+`createRoot` o‘rnashayotganda konteynerni tozalaydi, ya‘ni statik matn
+ilova chizilishi bilan almashadi — sahifada takror ko‘rinmaydi. Sekin
+ulanishda esa u bir necha soniya ko‘rinib turadi, bu ham yutuq: odam
+bo‘sh oq sahifaga qarab o‘tirmaydi.
+
+**Manba bitta** — `src/data/pages.ts`. Undan uch narsa oziqlanadi:
+router bilgan manzillar (`useRoute.ts`), `document.title` (`App.tsx`) va
+build paytida yasaladigan fayllar (`vite/prerender.ts`). Statik matn
+sahifadagi `h1` va `section__lead` dan ko‘chirilgan, bosh sahifa va
+maxfiylik siyosati esa `data/site.ts` va `data/privacy.ts` dan
+generatsiya qilinadi — ya‘ni **odam ko‘radigan matnning aynan o‘zi**.
+Robotga boshqa, odamga boshqa matn ko‘rsatish klouking hisoblanadi va
+saytni qidiruvdan ham, reklama tarmog‘idan ham chiqarib yuboradi.
+
+Qolip topilmasa yoki `vercel.json` da manzilning qoidasi bo‘lmasa build
+**yiqiladi**. Jim o‘tib ketilsa `dist` ga noto‘g‘ri sarlavhali fayllar
+yozilardi yoki yangi sahifa bosh sahifaning matni bilan ochilaverardi —
+ikkalasini ham faqat qidiruvda sezardik.
+
+`/oyinchi/{uid}` parametrli, shuning uchun `sitemap.xml` ga tushmaydi,
+lekin o‘z HTML fayli bor: `vercel.json` dagi qoida barcha `uid` larni
+o‘shanga yo‘naltiradi, aks holda o‘yinchi profili bosh sahifaning matni
+bilan ochilardi. `/kunlik` ham shunday — u `/oyin` ning fayliga tushadi.
+
+`npm run preview` bu yerda Vercel‘ni to‘liq takrorlamaydi: vite‘ning
+preview serveri `/oynash` ga ham `index.html` ni beradi. Tekshirish
+uchun deploydan keyin `curl -s https://sozgir.uz/oynash | grep title`.
 
 ## Deploy
 

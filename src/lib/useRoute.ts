@@ -1,29 +1,12 @@
 import { useEffect, useState } from 'react';
+import { PAGES, type Route } from '../data/pages';
 
-export type Route =
-  | '/'
-  | '/oynash'
-  | '/oyin'
-  | '/sozjang'
-  | '/guncha'
-  | '/gunchajang'
-  | '/qollab'
-  | '/privacy'
-  | '/contact'
-  | '/oyinchi';
+export type { Route };
 
-const routes: Route[] = [
-  '/',
-  '/oynash',
-  '/oyin',
-  '/sozjang',
-  '/guncha',
-  '/gunchajang',
-  '/qollab',
-  '/privacy',
-  '/contact',
-  '/oyinchi',
-];
+/** Manzillar ro'yxati `src/data/pages.ts` da — u yerda har manzilning
+ *  sarlavhasi va statik matni ham turadi, ya'ni router bilan build
+ *  paytida yasaladigan HTML fayllar bir manbadan oziqlanadi. */
+const routes: readonly string[] = PAGES.map((page) => page.path);
 
 /** Yagona parametrli manzil: `/oyinchi/{uid}` — o'yinchining ochiq
  *  profili. Router uchun u `/oyinchi`, identifikator esa `routeParam`
@@ -55,7 +38,7 @@ const aliases: Record<string, Route> = { '/kunlik': '/oyin' };
  *  yo'q — ular serverdan keladi, ilova ularga tegmasligi kerak. */
 function known(path: string): Route | null {
   if (path.startsWith(PLAYER_PREFIX) && path.length > PLAYER_PREFIX.length) return '/oyinchi';
-  return aliases[path] ?? (routes.includes(path as Route) ? (path as Route) : null);
+  return aliases[path] ?? (routes.includes(path) ? (path as Route) : null);
 }
 
 function read(): Route {
