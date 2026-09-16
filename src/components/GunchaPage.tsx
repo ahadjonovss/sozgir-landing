@@ -12,6 +12,7 @@ import { useAuth } from '../lib/auth';
 import { pangramsOf } from '../lib/guncha';
 import { useGuncha } from '../lib/useGuncha';
 import { display, pretty } from '../lib/uz';
+import AdBanner from './AdBanner';
 import GunchaFlower from './GunchaFlower';
 import TelegramBanner from './TelegramBanner';
 
@@ -204,6 +205,10 @@ export default function GunchaPage() {
               G‘uncha jangiga o‘tish
             </a>
           </div>
+
+          {/* G'unchaning o'zi — harflar, topilgan so'zlar ro'yxati —
+              reklamasiz qoladi. */}
+          <AdBanner placement="guncha" />
         </aside>
       </div>
 

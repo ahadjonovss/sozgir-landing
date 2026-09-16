@@ -17,6 +17,7 @@ import { useSozjang, type Sozjang } from '../lib/useSozjang';
 import { display, pretty } from '../lib/uz';
 import { playerLink } from '../data/site';
 import Avatar from './Avatar';
+import AdBanner from './AdBanner';
 import BattleBoard from './BattleBoard';
 import BattleStats from './BattleStats';
 import { Board, Keyboard } from './Board';
@@ -188,6 +189,9 @@ function Lobby({ game }: { game: Sozjang }) {
       <aside className="lobby__side">
         <BattleBoard />
         <TelegramBanner compact />
+        {/* Faqat lobbida: qidiruv, jang va natija ekranlari reklamasiz.
+            Bu yerda odam hali o'ynamayapti — tanlab turibdi. */}
+        <AdBanner placement="battle" />
       </aside>
     </div>
   );

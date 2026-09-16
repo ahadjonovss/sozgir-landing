@@ -19,6 +19,7 @@ import { pretty } from '../lib/uz';
 import { formatSum } from '../lib/support';
 import { donorTier } from '../lib/donor';
 import DonorChip from './DonorChip';
+import AdBanner from './AdBanner';
 import Avatar from './Avatar';
 import BattleStats from './BattleStats';
 import { ChevronLeft, Heart, Person, Swords, Trophy } from './Icons';
@@ -219,6 +220,10 @@ export default function PlayerPage() {
                 )}
               </>
             )}
+
+            {/* Profil oxirida — ilovadagi `profile` joylashuvi kabi.
+                Sarlavha, chaqirish tugmasi va statistika tepada qoladi. */}
+            <AdBanner placement="profile" />
 
             <p className="panel__note player__private">
               Shaxsiy statistika faqat egasiga ko‘rinadi

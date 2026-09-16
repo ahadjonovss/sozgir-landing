@@ -3559,3 +3559,89 @@
   margin-top: -4px;
   font-size: 13.5px;
 }
+
+/* ── Reklama ──────────────────────────────────────────────────────────
+   Ramka sahifaning o'z kartochkalari bilan bir tilda: `surface` foni,
+   yumshoq burchak, ingichka chegara — reklama begona bo'lak bo'lib
+   turmasin. Ustida yorliq: nima ekani va nega turgani aytiladi.
+
+   Uch holat bor va ular `AdBanner` dagi bosqichlarga mos keladi:
+   * belgisiz — hali hech narsa so'ralmagan, ramka umuman chizilmaydi;
+   * `.ad--live` — joy band, lekin ramka ko'rinmaydi (shaffof);
+   * `.ad--on` — reklama keldi.
+
+   Joy reklama kelishidan oldin band qilingani uchun kelgan payt faqat
+   shaffoflik o'zgaradi: o'lcham o'sha-o'sha, ya'ni ostidagi kontent
+   qimirlamaydi. */
+
+.ad {
+  /* Ajratilgan balandlik. Blok undan past bo'lsa ramka ichida markazda
+     turadi, balandroq bo'lsa ramka o'sadi — shuning uchun Yandex'da
+     moslashuvchan (adaptiv) blok ochilgani ma'qul. */
+  --ad-h: 100px;
+}
+
+.ad__frame {
+  display: none;
+}
+
+.ad--live .ad__frame {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px 12px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--divider);
+  /* Reklama birdan «qars» etib chiqmasin: o'z o'rnida muloyim ko'rinadi.
+     O'rni esa allaqachon band. */
+  opacity: 0;
+  transition: opacity 0.26s ease-out;
+}
+
+.ad--on .ad__frame {
+  opacity: 1;
+}
+
+/* Yon ustunda ramka atrofidagi bo'shliqni grid'ning o'zi beradi, bo'lim
+   ichida esa banner o'z nafasini o'zi oladi. */
+.ad--edge .ad__frame {
+  margin-block: 6px;
+}
+
+.ad__label {
+  color: var(--text-2);
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1.2;
+  /* Balandlik o'zgarmaydi: uzun jumla bir qatorga qisqaradi, aks holda
+     ramka o'sib butun ustunni siljitardi. */
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ad__slot {
+  display: grid;
+  place-items: center;
+  /* Tor blok kelsa ham ramka ichida markazda turadi va balandlik
+     kamaymaydi. */
+  min-height: var(--ad-h);
+  /* Reklama ramkadan kengroq chiqib ketmasin — o'ng cheti kesilgan
+     banner tarmoq qoidasini buzadi, sig'dirilgani esa yo'q. */
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Dev serverdagi sinov ramkasi — haqiqiy reklama o'rnida. */
+.ad__demo {
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 700;
+  opacity: 0.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ad--live .ad__frame {
+    transition: none;
+  }
+}

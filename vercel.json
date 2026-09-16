@@ -10,7 +10,7 @@
       "destination": "/ol/index.html"
     },
     {
-      "source": "/((?!api/|\\.well-known/|app-ads\\.txt|robots\\.txt).*)",
+      "source": "/((?!api/|\\.well-known/|app-ads\\.txt|ads\\.txt|robots\\.txt).*)",
       "destination": "/index.html"
     }
   ],

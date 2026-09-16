@@ -9,6 +9,7 @@ import { links } from '../data/site';
 import { useAuth } from '../lib/auth';
 import { dailyKey, dailyNumber, untilNextWord } from '../lib/daily';
 import { DAILY_LENGTH, attemptsFor } from '../lib/modes';
+import AdBanner from './AdBanner';
 import AppMark from './AppMark';
 import { Clock, Swords } from './Icons';
 import GunchaCard from './GunchaCard';
@@ -157,6 +158,10 @@ export default function PlayHub() {
         </div>
 
         <TelegramBanner />
+
+        {/* Reklama bo'lim oxirida: odam nimani o'ynashni tanlab bo'lgan,
+            kartochkalar bilan tugma orasiga hech narsa qo'yilmagan. */}
+        <AdBanner placement="hub" fit="edge" />
 
         <p className="hub__more">
           Ilovada yana:

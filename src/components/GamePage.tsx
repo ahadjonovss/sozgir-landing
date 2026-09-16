@@ -16,6 +16,7 @@ import { useAuth } from '../lib/auth';
 import { dailyNumber } from '../lib/daily';
 import { useGameChoice } from '../lib/useGameChoice';
 import { useSozTop } from '../lib/useSozTop';
+import AdBanner from './AdBanner';
 import Leaderboard from './Leaderboard';
 import Play from './Play';
 import StatsPanel from './StatsPanel';
@@ -85,6 +86,10 @@ export default function GamePage() {
               Ilovani yuklab olish
             </a>
           </div>
+
+          {/* Yon ustunning eng oxirida: taxta, klaviatura va natija
+              reklamasiz qoladi. */}
+          <AdBanner placement="game" />
         </aside>
       </div>
 

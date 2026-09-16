@@ -188,6 +188,130 @@ hozircha bunday ko‘rinish yo‘q — ko‘chirilsa, yig‘indini serverda
 (`onDonationWrite` → `scores/{uid}.donated`) yozib qo‘ygan ma’qul, shunda
 ikkalasi bitta maydondan o‘qiydi.
 
+## Reklama
+
+Ilovadagi `lib/core/ads/` ning veb muqobili: `src/lib/ads.ts` (sozlama,
+o‘chirish kaliti, Yandex skripti) va `src/components/AdBanner.tsx`
+(ramka va bosqichlar). Tarmoq bitta — **Yandex Advertising Network**;
+ilovadagi kaskadning ikkinchi bo‘g‘ini (AdMob) bu yerda yo‘q, chunki
+AdSense alohida moderatsiya va alohida hisob talab qiladi.
+
+**Bitta tur — banner.** Oraliq oyna, video, pop-up, «sahifa ustidan
+chiqadigan» hech narsa yo‘q. Ilovadagi qoida bilan bir xil: o‘yin
+jarayoni to‘xtatilmaydi.
+
+### Qayerda turadi
+
+| Joylashuv | Sahifa | Qayerda | Tip |
+| --- | --- | --- | --- |
+| `hub` | `/oynash` | Kartochkalar va Telegram bannerdan keyin | `edge` |
+| `game` | `/oyin` | Yon ustunning eng oxirida | `inline` |
+| `guncha` | `/guncha` | Yon ustunning eng oxirida | `inline` |
+| `battle` | `/sozjang` | Faqat lobbida, jadval ostida | `inline` |
+| `profile` | `/oyinchi/{uid}` | Profil oxirida | `inline` |
+
+Bosh sahifada (`/`) reklama **yo‘q**: u tanishtiruv sahifasi va birinchi
+taassurot o‘sha yerda hosil bo‘ladi. O‘yin taxtasi, klaviatura, natija,
+so‘zjangning qidiruv va jang ekranlari, kirish oynasi, `/qollab`,
+`/privacy` va `/contact` ham reklamasiz.
+
+Blok id‘lari `src/lib/ads.ts` dagi `UNITS` da — oddiy konstanta, chunki
+id maxfiy emas (u baribir sahifa kodida ko‘rinadi). **Ilovadagi `R-M-…`
+bloklari yaramaydi**: ular mobil ilova uchun, saytga Yandex Partner
+interfeysida «Sayt» turidagi alohida bloklar ochiladi. Bo‘sh
+qoldirilgan joylashuvda banner umuman chizilmaydi va sahifa reklama
+yo‘qday ko‘rinadi — ya‘ni bloklar ochilgunicha kod hech narsani
+buzmaydi. O‘z bloki bo‘lmagan joylashuv `hub` blokidan foydalanadi.
+
+### Nega g‘ashga tegmaydi
+
+* **Ekran sakramaydi.** Joy reklama kelishidan **oldin** band qilinadi:
+  talab yuborilishi bilan ramka to‘liq o‘lchamida turadi, faqat
+  ko‘rinmaydi (`.ad--live`). Reklama kelganda faqat shaffoflik
+  o‘zgaradi (`.ad--on`, 260 ms).
+* **Tekshiruvlar oldin, joy keyin.** «Bu odamga ko‘rsatiladimi» degan
+  savol komponent o‘rnashishi bilan so‘raladi, joy esa javob «ha»
+  bo‘lgandagina band qilinadi — shuning uchun qo‘llagan odam bo‘sh
+  joyning paydo bo‘lib yo‘qolishini ko‘rmaydi.
+* **So‘ralmagan joyda so‘ralmaydi.** Talab banner ekranga
+  yaqinlashgandagina ketadi (`IntersectionObserver`, 400 px) va varaq
+  fonda turgan bo‘lsa kutiladi. Reklamagacha surmagan odamning
+  brauzeriga Yandex skripti umuman tushmaydi.
+* **To‘ldirish bo‘lmasa iz ham qolmaydi.** Reklama kelmasa (yoki
+  balandligi nol bo‘lsa) komponent butunlay yo‘qoladi — bo‘sh ramka
+  turib qolmaydi. Kutish 8 soniya: Yandex to‘ldirish topolmaganda har
+  doim ham xabar bermaydi.
+* **Yangilanish taymeri yo‘q.** Ilovada banner har 60 soniyada qayta
+  so‘raladi; saytda almashinishni blokning o‘zi (Yandex interfeysidagi
+  sozlama) hal qiladi. Qo‘lda qayta chizish ko‘z oldida
+  «o‘chib-yonadigan» reklama yasaydi.
+* **Yorliq.** Ramka ustida bitta jumla — `AD_LABELS` dan navbatdagisi,
+  tasodifiy joydan boshlanadi va banner umri davomida o‘zgarmaydi.
+  Ichida «reklama» so‘zi turishi **shart** (tarmoq reklamani sayt
+  kontentidan ajratishni talab qiladi) va hech biri bosishga
+  chaqirmaydi — bosishga undash hisobni bloklatadi.
+* **Mavzu bir xil.** `render` ga `darkTheme` uzatiladi
+  (`data-theme` dan): tungi saytdagi oq banner ko‘zni qamashtiradi va
+  aynan shu bezovta qiladi.
+* **Alifbo ko‘chiruvchisi tegmaydi.** Konteynerda `data-script="off"`:
+  `scriptDom.ts` butun sahifani kuzatib turadi va shu belgisiz reklama
+  matnini ham kirillga o‘girib yuborardi — begona kontentni o‘zgartirish
+  tarmoq qoidasini buzadi.
+
+### Kim ko‘rmaydi
+
+Loyihani qo‘llagan odam (`isAdFree`, `src/lib/donor.ts`) — shart
+ilovadagi `AdFreePlan` bilan aynan bir xil: oxirgi **7 kunlik**
+qo‘llovlar yig‘indisi **5 555 so‘m** ga yetsa, reklama umuman
+so‘ralmaydi, Yandex skripti ham yuklanmaydi. Bu obuna emas — eski
+qo‘llov oynadan chiqqach rejim o‘zi so‘nadi.
+
+Hisob-kitob `donations` ning o‘sha bitta REST so‘rovidan chiqadi
+(homiylik darajalari uchun baribir olinadi), natija `sozgir.donors`
+keshida yig‘indi bilan yonma-yon turadi.
+
+### O‘chirish kaliti
+
+Ilova bilan **bitta** hujjat — Firestore‘dagi `app/ads`:
+
+```
+app/ads
+  enabled: true
+  web:    { enabled: false }
+  yandex: { enabled: true, web: { enabled: false } }
+```
+
+`web` bo‘limi saytga tegishli va umumiy kalitning ustidan yoziladi:
+moderatsiya yoki nosoz reklama chiqsa saytni ilovaga tegmasdan
+o‘chirish mumkin (`ios`/`android` bo‘limlari ilovaniki). Qoida ilovadagi
+bilan bir xil — **faqat aniq `false` o‘chiradi**; hujjat yo‘q yoki
+Firestore javob bermasa reklama yoqiq qoladi. Sozlama sahifa umrida bir
+marta o‘qiladi.
+
+### Dev server
+
+`npm run dev` da haqiqiy reklama **hech qachon** so‘ralmaydi
+(`adsSupported`): o‘z reklamangni o‘zing yuklashing yoki bosishing
+hisobning bloklanishiga olib keladi. O‘rnida o‘sha o‘lchamdagi sinov
+ramkasi turadi, ya‘ni joylashuvni blok ochilmasdan ham ko‘rish mumkin.
+
+### ads.txt
+
+`https://sozgir.uz/ads.txt` — **sayt** uchun sotuvchilar ro‘yxati, unda
+faqat Yandex satrlari. Ilovaniki alohida: `/app-ads.txt`, unda Yandex
+bilan birga AdMob ham turadi. Ikkalasi ham `vercel.json` dagi SPA
+qayta yo‘naltirishidan chiqarib tashlangan — aks holda `/ads.txt` ga
+sahifaning HTML‘i qaytardi.
+
+Fayl ikki qismdan iborat: uzun ro‘yxat ilovanikidan ko‘chirilgan
+(Yandex‘ning umumiy resellerlari), oxiridagi qisqa bo‘lim esa aynan shu
+sayt uchun РСЯ interfeysi bergan ro‘yxat. `yandex.com, 306206921,
+DIRECT` ikkalasida ham bitta — sayt ham, ilova ham bir hisobda.
+Ortiqcha satr zarar qilmaydi (ads.txt — ruxsat ro‘yxati), yetishmagani
+esa daromadni yo‘qotadi. Yandex ro‘yxatni vaqti-vaqti bilan
+yangilaydi, shuning uchun uni interfeysdagi bilan solishtirib turish
+kerak.
+
 ## Telefon
 
 O‘yin sahifalari telefonda o‘ynash uchun moslangan (`play.css` oxiridagi
@@ -668,6 +792,7 @@ src/
     ScriptPicker.tsx  alifbo tanlash (ilovadagi `ScriptSheet`)
     Footer.tsx    ko‘p ustunli footer
     GamePage.tsx  `/oyin` sahifasi: taxta + statistika + reyting
+    AdBanner.tsx  banner reklama: yorliqli ramka, joyni oldindan band qilish
     PlayHub.tsx   `/oynash`: So‘ztop yoki So‘zjang tanlovi
     BattlePage.tsx  `/sozjang`: chaqiruv, tezkor jang va jangning o‘zi
     GunchaPage.tsx  `/guncha`: gul, daraja va topilgan so‘zlar
@@ -726,7 +851,8 @@ src/
     useGuncha.ts  yakka g‘unchaning holati
     useGunchaJang.ts  g‘uncha jangining holati: sanoq, so‘z, raqib
     reactions.ts  jangdagi reaksiyalar: ro‘yxat, yuborish va kuzatuv
-    donor.ts    homiylik darajalari: donatlar yig‘indisi, halqa va chip uchun
+    donor.ts    homiylik darajalari va reklamasiz rejim (bitta donatlar so‘rovidan)
+    ads.ts      reklama: bloklar, `app/ads` kaliti, Yandex skripti va yorliqlar
     publicProfile.ts  ochiq profil: scores + battle_ratings + kunlik + donatlar
     useSozjang.ts  So‘zjang holati (chaqiruv, navbat, jang)
     auth.tsx    hisob holati va amallari
