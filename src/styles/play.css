@@ -3021,6 +3021,10 @@
   --tone: var(--orange);
 }
 
+.hub-card--mardu {
+  --tone: var(--violet);
+}
+
 .hub-card::after {
   content: '';
   position: absolute;
@@ -3644,4 +3648,504 @@
   .ad--live .ad__frame {
     transition: none;
   }
+}
+/* ── Mardu maydon ─────────────────────────────────────────────────────── */
+
+/* Kutish xonasi `stage` ning o'zi: bitta karta, o'rtada sanoq yoki
+   havola, ostida ro'yxat. Ikkala yo'l (tezkor va do'stlar) bitta
+   ko'rinishda — maydon bitta narsa bo'lib ko'rinishi kerak. */
+.arena {
+  max-width: 560px;
+}
+
+/* Halqa sanoq: raqam ichida, halqa esa qolgan vaqtni ko'rsatadi.
+   Oxirgi o'n soniyada rangi o'zgaradi va tebranadi. */
+.arena__clock {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 150px;
+  height: 150px;
+  margin: 4px 0;
+}
+
+.arena__clock svg {
+  position: absolute;
+  inset: 0;
+  transform: rotate(-90deg);
+}
+
+.arena__ring {
+  fill: none;
+  stroke: var(--surface-2);
+  stroke-width: 9;
+}
+
+.arena__ring--on {
+  stroke: var(--accent);
+  stroke-linecap: round;
+  stroke-dasharray: 327;
+  transition: stroke-dashoffset 0.5s linear, stroke 0.3s;
+}
+
+.arena__clock strong {
+  font-size: 46px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.arena__clock span {
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.arena__clock--urgent .arena__ring--on {
+  stroke: var(--danger);
+}
+
+.arena__clock--urgent strong {
+  color: var(--danger);
+  animation: arena-pulse 1s ease-in-out infinite;
+}
+
+@keyframes arena-pulse {
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+.arena__wait {
+  margin: 10px 0;
+  color: var(--text-2);
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.arena__members {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.arena__member {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  text-align: start;
+  /* Yangi kelgani pastdan suriladi — kimdir qo'shilgani sezilsin. */
+  animation: rise 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.arena__member--me {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.arena__member--empty {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--divider);
+  opacity: 0.7;
+  animation: none;
+}
+
+.arena__member--empty i {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--surface-2);
+}
+
+.arena__name {
+  flex: 1;
+  font-weight: 800;
+  font-size: 14.5px;
+}
+
+.arena__member--empty .arena__name {
+  color: var(--text-2);
+  font-weight: 700;
+}
+
+.arena__host {
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 11.5px;
+  font-weight: 800;
+}
+
+/* ── Maydondagi poyga qatori ──────────────────────────────────────────── */
+
+/* Uchta qat'iy kartochka: o'zim, yetakchi va undan keyingisi. Suriladigan
+   qator emas — o'yin ketayotganda hech kim surmaydi. */
+.tiles {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+}
+
+.tiles__row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.atile {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 10px 6px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  box-shadow: inset 0 0 0 1px var(--divider);
+  text-align: center;
+  min-width: 0;
+}
+
+/* O'z kartochkam rangli — ko'z birinchi navbatda o'zinikini topsin. */
+.atile--me {
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.atile--spent {
+  opacity: 0.55;
+}
+
+.atile__who {
+  position: relative;
+}
+
+/* O'rin belgisi avatarning burchagida; yetakchiniki oltin rangda. */
+.atile__rank {
+  position: absolute;
+  right: -4px;
+  bottom: -3px;
+  display: grid;
+  place-items: center;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-size: 10.5px;
+  font-weight: 900;
+  font-style: normal;
+  box-shadow: 0 0 0 2px var(--bg);
+}
+
+.atile--me .atile__rank {
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+.atile--lead .atile__rank {
+  background: var(--donor-eskiBoylardan);
+  color: #1b1500;
+}
+
+.atile__name {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.atile__value {
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.atile__note {
+  color: var(--text-2);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.tiles__more {
+  margin: 0;
+  color: var(--text-2);
+  font-size: 11.5px;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* Maydondagi muddat — So'zjangda vaqt chegarasi faqat shu yerda bor. */
+.arena__time {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.arena__time strong {
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.arena__time span {
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.arena__time--urgent strong {
+  color: var(--danger);
+}
+
+/* ── Maydon natijasi ──────────────────────────────────────────────────── */
+
+.standings {
+  display: grid;
+  gap: 14px;
+  width: 100%;
+}
+
+/* Uchtalik poydevor: ikkinchi, birinchi, uchinchi — o'rtadagi baland. */
+.podium {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: end;
+  gap: 8px;
+}
+
+.podium__step {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  padding: 12px 6px 10px;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  background: var(--bg);
+  box-shadow: inset 0 0 0 1px var(--divider);
+  text-align: center;
+  min-width: 0;
+}
+
+.podium__step--1 {
+  padding-top: 20px;
+  background: color-mix(in srgb, var(--donor-eskiBoylardan) 14%, var(--bg));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--donor-eskiBoylardan) 45%, var(--divider));
+}
+
+.podium__step--me {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.podium__step b {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+}
+
+.podium__step span {
+  color: var(--text-2);
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.podium__step i {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin-top: 2px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 900;
+  font-style: normal;
+}
+
+.podium__step--1 i {
+  background: var(--donor-eskiBoylardan);
+  color: #1b1500;
+}
+
+.standings__list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.standings__row {
+  display: grid;
+  grid-template-columns: 26px 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  text-align: start;
+}
+
+.standings__row--me {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.standings__place {
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.standings__who {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.standings__who span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.standings__who:hover span {
+  text-decoration: underline;
+}
+
+.standings__score {
+  color: var(--text-2);
+  font-size: 12.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.standings__delta {
+  min-width: 34px;
+  color: var(--text-2);
+  font-size: 12.5px;
+  font-weight: 900;
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.standings__delta--up {
+  color: var(--green);
+}
+
+.standings__delta--down {
+  color: var(--danger);
+}
+
+@media (max-width: 480px) {
+  .standings__row {
+    grid-template-columns: 22px 1fr auto;
+    gap: 8px;
+  }
+
+  /* Tor ekranda reyting o'zgarishi ikkinchi qatorga tushadi — ism
+     qisqarib ketmasin. */
+  .standings__delta {
+    grid-column: 2 / -1;
+    text-align: start;
+  }
+}
+
+/* ── O'yin bitta ekranda ──────────────────────────────────────────────── */
+
+/* Telefonda o'yin **surilmaydi**: taxta va klaviatura ekranga birga
+   sig'adi, ilovadagidek. Ilgari klaviaturaning pastki qatori ekran
+   chetidan chiqib ketardi va o'ynayotgan odam har taxmindan keyin
+   sahifani surib turishga majbur edi.
+
+   Balandlik taxtaga beriladi: klaviatura o'z o'lchamida qoladi (barmoq
+   uchun kichraytirib bo'lmaydi), tepadagi qator ham. Taxta esa qolgan
+   joyga **sig'dirib** chiziladi: nisbati `--cols / --rows` (`Board.tsx`
+   beradi), ya'ni u ham eniga, ham balandligiga qarab kichrayadi va
+   kataklar kvadrat bo'lib qolaveradi. */
+@media (max-width: 900px) {
+  .oyin__board--fit {
+    display: flex;
+    flex-direction: column;
+    /* `dvh` — telefon brauzerining manzil qatori yig'ilganda ham
+       to'g'ri ishlaydi (`vh` unda ekrandan chiqib ketardi). */
+    min-height: calc(100dvh - var(--header-h) - 34px);
+  }
+
+  /* Grid o'rniga ustun: bo'sh joy **taxtaga** berilishi kerak, grid esa
+     uni barcha qatorlarga teng bo'lib yuborardi. */
+  .oyin__board--fit .play {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .oyin__board--fit .play__area {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    align-content: center;
+  }
+
+  /* Taxta kengligi **balandlikdan** chiqariladi. Kataklar eski qoidada
+     qoladi (eni bo'yicha kvadrat), lekin taxtaning eni shunday
+     cheklanadiki, balandligi qolgan joyga aynan sig'sin:
+
+         katak = (bo'sh joy − qatorlar orasidagi tirqishlar) / qatorlar
+         eni   = ustunlar × katak + ustunlar orasidagi tirqishlar
+
+     `--fit` — ekrandan sarlavha, tepadagi qator, klaviatura va havo
+     ayirilgani. Kam baholansa taxta bir oz kichik chiqadi (zarari yo'q,
+     klaviatura `margin-top: auto` bilan pastda qoladi), oshirib
+     yuborilsa ekran surilib ketardi — shuning uchun ehtiyot tomonga. */
+  .oyin__board--fit .game__board {
+    --gap: 6px;
+    --fit: calc(100dvh - var(--header-h) - 250px);
+    /* `width` aniq berilishi shart: `auto` chekka `margin` lar bilan
+       birga kataklarning **ichki** kengligiga tushib qolardi, u esa
+       nol (`flex: 1 1 0`) — taxta 24 piksel bo'lib g'oyib bo'lardi. */
+    width: 100%;
+    max-width: calc(
+      (var(--fit) - (var(--rows) - 1) * var(--gap)) / var(--rows) * var(--cols) +
+        (var(--cols) - 1) * var(--gap)
+    );
+    margin-inline: auto;
+  }
+
+  /* Klaviatura pastda qoladi. */
+  .oyin__board--fit .keyboard {
+    margin-top: auto;
+  }
+
+  /* O'yin ostidagi uchta son sahifaning o'zida ham bor (yon paneldagi
+     «Statistika»), ya'ni bu yerda ular faqat ekran balandligini yeydi. */
+  .oyin__board--fit .play__stats {
+    display: none;
+  }
+}
+
+/* Maydonda raqib taxtasi yo'q — taxta o'rtada yolg'iz qoladi. */
+.fight:has(.fight__side--foe[hidden]) {
+  grid-template-columns: minmax(0, 420px);
 }

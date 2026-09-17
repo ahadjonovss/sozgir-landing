@@ -9,6 +9,7 @@
  *  odam adashib chiqib ketsa, o'yin joyidan davom etadi. */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { functionError } from '../firebase/functions';
+import { arenaTiles, isMardu, rankArena } from './mardu';
 import type { Unsubscribe } from '../firebase/live';
 import {
   onBattleOpen,
@@ -284,6 +285,26 @@ export function useSozjang() {
 
   const boardLength = battle?.length ?? length;
   const maxAttempts = attemptsFor(boardLength);
+
+  /** Maydon jadvali — Mardu maydonda sakkiztagacha qator bo'lishi mumkin.
+   *  1v1 jangda ekran o'zgarmaydi: eski «men va raqib» ko'rinishi qoladi. */
+  const arena = useMemo(() => rankArena({ battle, uid }), [battle, uid]);
+  const mardu = isMardu(battle);
+  const tiles = useMemo(() => arenaTiles(arena), [arena]);
+
+  /** Maydonda muddat bor va u **shart**: bitta sekin o'yinchi yetti
+   *  kishini garovda ushlab turmasin. 1v1 So'zjangda qattiq muddat yo'q,
+   *  shuning uchun sanoq faqat maydonda ko'rinadi. */
+  const endsAt = battle?.endsAt?.seconds;
+  // Soat holatda, qolgan vaqt esa **hisoblanadi**: shunda muddat
+  // o'zgarganda sanoq bir render kechikmaydi.
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!endsAt) return;
+    const timer = window.setInterval(() => setNow(Date.now()), 500);
+    return () => window.clearInterval(timer);
+  }, [endsAt]);
+  const left = endsAt ? Math.max(0, Math.ceil(endsAt - now / 1000)) : 0;
 
   // Jang hujjati hali kelmagan bo'lsa holat noma'lum — «yuklanmoqda».
   // Ilgari bu payt ham 'playing' deb hisoblanardi: jang ochilishi bilan
@@ -622,6 +643,10 @@ export function useSozjang() {
     me,
     opponent,
     opponentUid,
+    arena,
+    tiles,
+    mardu,
+    left,
     length,
     boardLength,
     maxAttempts,

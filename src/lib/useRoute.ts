@@ -8,20 +8,45 @@ export type { Route };
  *  paytida yasaladigan HTML fayllar bir manbadan oziqlanadi. */
 const routes: readonly string[] = PAGES.map((page) => page.path);
 
-/** Yagona parametrli manzil: `/oyinchi/{uid}` — o'yinchining ochiq
- *  profili. Router uchun u `/oyinchi`, identifikator esa `routeParam`
- *  bilan olinadi. */
-const PLAYER_PREFIX = '/oyinchi/';
+/** Parametrli manzillar: `/<bo'lak>/<parametr>`.
+ *
+ *  Ro'yxatda ilova ulashadigan havolalar ham bor
+ *  (`lib/core/deeplink/deep_link.dart`): telefonda ular ilovani ochadi,
+ *  ilovasi yo'q odamda esa brauzerda qoladi — ya'ni saytda ham o'sha
+ *  narsa ochilishi kerak, bosh sahifa emas.
+ *
+ *  | Manzil | Sahifa |
+ *  | --- | --- |
+ *  | `/oyinchi/{uid}`, `/u/{uid}` | O'yinchining ochiq profili |
+ *  | `/jang/{kod}` | So'zjang — kod bilan darhol qo'shiladi |
+ *  | `/maydon/{kod}` | Mardu maydon — kod bilan darhol qo'shiladi |
+ *
+ *  Har birining `vercel.json` da o'z qoidasi bor: aks holda manzil
+ *  bo'sh `index.html` ni olib, robotga bosh sahifaning matnini
+ *  ko'rsatardi. */
+const PARAM_ROUTES: { prefix: string; route: Route }[] = [
+  { prefix: '/oyinchi/', route: '/oyinchi' },
+  { prefix: '/u/', route: '/oyinchi' },
+  { prefix: '/jang/', route: '/sozjang' },
+  { prefix: '/maydon/', route: '/maydon' },
+];
+
+function paramRouteOf(path: string): { route: Route; value: string } | null {
+  for (const { prefix, route } of PARAM_ROUTES) {
+    if (!path.startsWith(prefix) || path.length <= prefix.length) continue;
+    try {
+      return { route, value: decodeURIComponent(path.slice(prefix.length)) };
+    } catch {
+      return { route, value: '' };
+    }
+  }
+  return null;
+}
 
 /** Manzilning parametri (`/oyinchi/abc` → `abc`). Yo'q bo'lsa bo'sh. */
 export function routeParam(): string {
-  const path = window.location.pathname;
-  if (!path.startsWith(PLAYER_PREFIX)) return '';
-  try {
-    return decodeURIComponent(path.slice(PLAYER_PREFIX.length).replace(/\/+$/, ''));
-  } catch {
-    return '';
-  }
+  const path = window.location.pathname.replace(/\/+$/, '') || '/';
+  return paramRouteOf(path)?.value ?? '';
 }
 
 /** Ilova ulashadigan kunlik havola — o'sha o'yin sahifasi.
@@ -37,7 +62,8 @@ const aliases: Record<string, Route> = { '/kunlik': '/oyin' };
  *  `public/` ichidagi mustaqil sahifalar (`/ol`, `/donat`) bu ro'yxatda
  *  yo'q — ular serverdan keladi, ilova ularga tegmasligi kerak. */
 function known(path: string): Route | null {
-  if (path.startsWith(PLAYER_PREFIX) && path.length > PLAYER_PREFIX.length) return '/oyinchi';
+  const param = paramRouteOf(path);
+  if (param) return param.route;
   return aliases[path] ?? (routes.includes(path) ? (path as Route) : null);
 }
 

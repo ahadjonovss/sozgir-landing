@@ -36,6 +36,8 @@ const NAV: Item[] = [
 const MORE: Item[] = [
   { href: links.play, label: 'So‘ztop', route: '/oyin' },
   { href: links.battle, label: 'So‘zjang', route: '/sozjang' },
+  { href: links.guncha, label: 'G‘uncha', route: '/guncha' },
+  { href: links.mardu, label: 'Mardu maydon', route: '/maydon' },
   { href: '/#alifbo', label: 'Alifbo' },
   { href: '/#modullar', label: 'Modullar' },
   { href: '/#savollar', label: 'Savollar' },
@@ -107,7 +109,12 @@ export default function Header({ route }: { route: Route }) {
               className="btn btn--sm header__play"
               href={links.hub}
               aria-current={
-                route === '/oynash' || route === '/oyin' || route === '/sozjang'
+                route === '/oynash' ||
+                route === '/oyin' ||
+                route === '/sozjang' ||
+                route === '/guncha' ||
+                route === '/gunchajang' ||
+                route === '/maydon'
                   ? 'page'
                   : undefined
               }

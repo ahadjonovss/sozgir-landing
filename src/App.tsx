@@ -14,6 +14,7 @@ import BattlePage from './components/BattlePage';
 import GamePage from './components/GamePage';
 import GunchaBattlePage from './components/GunchaBattlePage';
 import GunchaPage from './components/GunchaPage';
+import MarduPage from './components/MarduPage';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import InviteOverlay from './components/InviteOverlay';
@@ -28,6 +29,7 @@ import { AccountDialog } from './components/Account';
 import { startScriptDom } from './lib/scriptDom';
 import { prose, useScript } from './lib/useScript';
 import { useReveal } from './lib/useReveal';
+import AccountDeletion from './components/AccountDeletion';
 import { useRoute } from './lib/useRoute';
 
 export default function App() {
@@ -68,8 +70,10 @@ export default function App() {
         {route === '/sozjang' && <BattlePage />}
         {route === '/guncha' && <GunchaPage />}
         {route === '/gunchajang' && <GunchaBattlePage />}
+        {route === '/maydon' && <MarduPage />}
         {route === '/qollab' && <SupportPage />}
         {route === '/privacy' && <Privacy />}
+        {route === '/hisob-ochirish' && <AccountDeletion />}
         {route === '/contact' && <Contact />}
         {route === '/oyinchi' && <PlayerPage />}
       </main>

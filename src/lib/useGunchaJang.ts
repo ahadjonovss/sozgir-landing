@@ -18,6 +18,7 @@
  *  ketgani va u jangning oxirgi soniyasida bo'ladi. */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { functionError } from '../firebase/functions';
+import { arenaTiles, isMardu, rankArena } from './mardu';
 import type { Unsubscribe } from '../firebase/live';
 import { onBattleOpen, readActive, setActive } from './activeBattle';
 import { useAuth } from './auth';
@@ -602,11 +603,24 @@ export function useGunchaJang() {
     [me?.found, mine, opponent?.found],
   );
 
+  /** Maydon jadvali — Mardu maydonda uch kishidan ko'p bo'lishi mumkin.
+   *
+   *  Ikki kishilik jangda ham tuziladi (ikki qator), lekin ekranda eski
+   *  «men va raqib» qatori qoladi: uni almashtirish 1v1 ni tekinga
+   *  o'zgartirgan bo'lardi. */
+  const arena = useMemo(() => rankArena({ battle, uid }), [battle, uid]);
+  const mardu = isMardu(battle);
+  /** Jang tepasidagi uchta kartochka: o'zim, yetakchi va undan keyingisi. */
+  const tiles = useMemo(() => arenaTiles(arena), [arena]);
+
   return {
     account,
     phase,
     battle,
     battleId,
+    arena,
+    tiles,
+    mardu,
     code: battle?.inviteCode ?? null,
     center,
     order,

@@ -11,7 +11,13 @@ import { watchDoc, type Unsubscribe } from '../firebase/live';
 import type { Verdict } from './uz';
 
 export type BattleStatus = 'waiting' | 'running' | 'finished' | 'expired';
-export type BattleType = 'quick' | 'challenge' | 'group';
+/** Jang qanday yig'ilgan.
+ *
+ *  `mardu` — Mardu maydon, ya'ni ikki kishidan ko'p (`mardu.ts`). Eski
+ *  ilovalar uni tanimaydi va `challenge` deb o'qiydi: zarari yo'q, faqat
+ *  yorlig'i noto'g'ri chiqadi. Shu sababli **yangi holat** (`status`)
+ *  qo'shilmaydi, yangi tur esa xavfsiz. */
+export type BattleType = 'quick' | 'challenge' | 'group' | 'mardu';
 
 /** Jang qaysi o'yinniki.
  *
@@ -190,6 +196,15 @@ export const watchQueue = (
 /** Chaqiruv havolasi — bosgan odam kodni terib o'tirmasligi uchun.
  *
  *  O'yin bo'yicha boshqa sahifaga olib boradi: g'uncha jangining kodi
- *  So'zjang sahifasida ishlamaydi (u boshqa funksiyani chaqiradi). */
+ *  So'zjang sahifasida ishlamaydi (u boshqa funksiyani chaqiradi).
+ *
+ *  So'zjangniki — ilova ulashadigan manzilning aynan o'zi
+ *  (`sozgir.uz/jang/AB12CD`, ilovadagi `DeepLink.battleUrl`): telefonda u
+ *  ilovani ochadi, ilovasi yo'q odamda esa saytda qoladi. G'unchada
+ *  bunday yo'l yo'q — kod ikkala o'yinda ham olti belgili va bitta
+ *  to'plamda yashaydi, ya'ni koddan turini bilib bo'lmaydi, shuning uchun
+ *  ilova `/jang/` ni har doim So'zjang deb ochadi. */
 export const inviteLink = (code: string, game: BattleGame = 'soztop') =>
-  `https://sozgir.uz${game === 'guncha' ? '/gunchajang' : '/sozjang'}?kod=${code}`;
+  game === 'guncha'
+    ? `https://sozgir.uz/gunchajang?kod=${code.toUpperCase()}`
+    : `https://sozgir.uz/jang/${code.toUpperCase()}`;

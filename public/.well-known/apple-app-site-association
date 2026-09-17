@@ -8,8 +8,10 @@
         ],
         "components": [
           { "/": "/jang/*", "comment": "Jang chaqiruvi: kod bilan qo'shilish" },
+          { "/": "/maydon/*", "comment": "Mardu maydon: kod bilan qo'shilish" },
           { "/": "/u/*", "comment": "O'yinchining ochiq profili" },
-          { "/": "/kunlik", "comment": "Kunlik so'z" }
+          { "/": "/kunlik", "comment": "Kunlik so'z" },
+          { "/": "/ilova", "comment": "Ilovani ochadi; o'rnatilmagan bo'lsa yuklab olish" }
         ]
       }
     ]

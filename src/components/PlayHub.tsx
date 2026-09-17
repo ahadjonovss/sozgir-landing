@@ -3,7 +3,11 @@
  *  Sarlavhada bitta «O'ynash» tugmasi bor; nimani o'ynashni odam shu
  *  yerda tanlaydi: So'ztop (bugungi so'z yoki cheksiz mashq) yoki
  *  So'zjang (do'st bilan yoki tezkor jang). Ilgari sarlavhada So'zjang
- *  alohida turardi, So'ztopga esa yo'l ko'rinmasdi. */
+ *  alohida turardi, So'ztopga esa yo'l ko'rinmasdi.
+ *
+ *  Mardu maydon kartochkasi qolganlaridan keyin turadi: u yangi o'yin
+ *  emas, **shakl** — ichida baribir So'zjang yoki G'uncha o'ynaladi,
+ *  shuning uchun avval o'yinlarning o'zi ko'rinishi kerak. */
 import { useEffect, useState } from 'react';
 import { links } from '../data/site';
 import { useAuth } from '../lib/auth';
@@ -11,7 +15,7 @@ import { dailyKey, dailyNumber, untilNextWord } from '../lib/daily';
 import { DAILY_LENGTH, attemptsFor } from '../lib/modes';
 import AdBanner from './AdBanner';
 import AppMark from './AppMark';
-import { Clock, Swords } from './Icons';
+import { Clock, Swords, Users } from './Icons';
 import GunchaCard from './GunchaCard';
 import TelegramBanner from './TelegramBanner';
 
@@ -155,6 +159,32 @@ export default function PlayHub() {
           </article>
 
           <GunchaCard />
+
+          <article className="hub-card hub-card--mardu">
+            <div className="hub-card__top">
+              <span className="hub-card__icon">
+                <Users size={26} />
+              </span>
+              <span className="hub-card__badge">8 kishigacha</span>
+            </div>
+            <h2>Mardu maydon</h2>
+            <p>
+              Yangi o‘yin emas — yangi shakl. O‘sha So‘zjang yoki G‘uncha,
+              lekin ikki kishi emas: sakkiztagacha odam bir vaqtda o‘ynaydi
+              va oxirida jadval tuziladi.
+            </p>
+            <div className="hub-card__status">
+              <span>
+                Tezkor maydonga kiring yoki bitta havola bilan butun davrani
+                yig‘ing
+              </span>
+            </div>
+            <div className="hub-card__actions">
+              <a className="btn" href={links.mardu}>
+                Maydonga kirish
+              </a>
+            </div>
+          </article>
         </div>
 
         <TelegramBanner />

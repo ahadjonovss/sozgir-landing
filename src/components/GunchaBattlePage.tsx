@@ -15,6 +15,8 @@ import { useGunchaJang, type GunchaJang } from '../lib/useGunchaJang';
 import { GUNCHA_SECONDS } from '../lib/gunchaBattle';
 import { display, pretty } from '../lib/uz';
 import ArenaHistory from './ArenaHistory';
+import ArenaStandings from './ArenaStandings';
+import ArenaTiles from './ArenaTiles';
 import Avatar from './Avatar';
 import CodeInput from './CodeInput';
 import GunchaFlower from './GunchaFlower';
@@ -275,24 +277,35 @@ function Playing({ game }: { game: GunchaJang }) {
           <strong>{clock(game.left)}</strong>
           <i style={{ width: `${share * 100}%` }} />
         </div>
-        <div className="gbar__rows">
-          <span className="gbar__row gbar__row--me">
-            <Avatar name={game.account?.nickname ?? 'Siz'} uid={game.account?.uid} size={24} />
-            <b>{pretty(game.account?.nickname ?? 'Siz')}</b>
-            <em>{game.score}</em>
-            <span>{game.mine.length} so‘z</span>
-          </span>
-          <span className="gbar__row">
-            <Avatar
-              name={game.opponent?.nickname ?? 'Raqib'}
-              uid={game.opponentUid ?? undefined}
-              size={24}
-            />
-            <b>{pretty(game.opponent?.nickname ?? 'Raqib')}</b>
-            <em>{game.opponent?.score ?? 0}</em>
-            <span>{game.opponent?.wordCount ?? 0} so‘z</span>
-          </span>
-        </div>
+        {/* Maydonda yonma-yon ikki qator o'rniga uchta qat'iy kartochka:
+            sakkiz kishilik ro'yxat ekranga sig'maydi. */}
+        {game.mardu ? (
+          <ArenaTiles
+            tiles={game.tiles}
+            game="guncha"
+            leader={game.arena[0]?.player.score ?? 0}
+            total={game.arena.length}
+          />
+        ) : (
+          <div className="gbar__rows">
+            <span className="gbar__row gbar__row--me">
+              <Avatar name={game.account?.nickname ?? 'Siz'} uid={game.account?.uid} size={24} />
+              <b>{pretty(game.account?.nickname ?? 'Siz')}</b>
+              <em>{game.score}</em>
+              <span>{game.mine.length} so‘z</span>
+            </span>
+            <span className="gbar__row">
+              <Avatar
+                name={game.opponent?.nickname ?? 'Raqib'}
+                uid={game.opponentUid ?? undefined}
+                size={24}
+              />
+              <b>{pretty(game.opponent?.nickname ?? 'Raqib')}</b>
+              <em>{game.opponent?.score ?? 0}</em>
+              <span>{game.opponent?.wordCount ?? 0} so‘z</span>
+            </span>
+          </div>
+        )}
       </div>
 
       {game.phase === 'finishing' && (
@@ -389,16 +402,27 @@ function Result({ game }: { game: GunchaJang }) {
       ? game.me.ratingAfter - game.me.ratingBefore
       : null;
 
-  const title = !winner
-    ? 'Durang'
-    : winner === uid
-      ? 'G‘alaba'
-      : 'Mag‘lubiyat';
-  const lead = !winner
-    ? `Ikkalangiz ham ${mineScore} ball`
-    : winner === uid
-      ? `Raqibingizdan ${mineScore - theirScore} ball ko‘p topdingiz`
-      : `${theirScore - mineScore} ball yetmadi`;
+  // Maydonda «g'alaba/mag'lubiyat» degan ikkilik yo'q: o'rin bor.
+  // Oxirgi o'rin ham mag'lubiyat emas — odam hali ikkinchi, uchinchi
+  // uchun o'ynagan.
+  const place = game.arena.find((row) => row.mine)?.rank ?? 0;
+
+  const title = game.mardu
+    ? place === 1
+      ? 'Maydon sizniki'
+      : `${place}-o‘rin`
+    : !winner
+      ? 'Durang'
+      : winner === uid
+        ? 'G‘alaba'
+        : 'Mag‘lubiyat';
+  const lead = game.mardu
+    ? `${game.arena.length} kishilik maydon · ${mineScore} ball`
+    : !winner
+      ? `Ikkalangiz ham ${mineScore} ball`
+      : winner === uid
+        ? `Raqibingizdan ${mineScore - theirScore} ball ko‘p topdingiz`
+        : `${theirScore - mineScore} ball yetmadi`;
 
   return (
     <div className="panel gresult">
@@ -412,23 +436,27 @@ function Result({ game }: { game: GunchaJang }) {
         )}
       </div>
 
-      <div className="gresult__cols">
-        <Column
-          name={pretty(game.account?.nickname ?? 'Siz')}
-          score={mineScore}
-          words={game.revealed.mine}
-        />
-        <Column
-          name={pretty(game.opponent?.nickname ?? 'Raqib')}
-          score={theirScore}
-          words={game.revealed.theirs}
-        />
-      </div>
+      {game.mardu ? (
+        <ArenaStandings rows={game.arena} game="guncha" />
+      ) : (
+        <div className="gresult__cols">
+          <Column
+            name={pretty(game.account?.nickname ?? 'Siz')}
+            score={mineScore}
+            words={game.revealed.mine}
+          />
+          <Column
+            name={pretty(game.opponent?.nickname ?? 'Raqib')}
+            score={theirScore}
+            words={game.revealed.theirs}
+          />
+        </div>
+      )}
 
       <div className="gresult__foot">
         {/* Qasos birinchi turadi: o'sha raqib bilan qayta o'ynash istagi
             natijani ko'rgan zahoti tug'iladi. */}
-        {game.opponentUid && game.opponent?.nickname && (
+        {!game.mardu && game.opponentUid && game.opponent?.nickname && (
           <button
             className="btn btn--sm"
             onClick={() =>
@@ -446,6 +474,11 @@ function Result({ game }: { game: GunchaJang }) {
         <button className="btn btn--sm btn--outline" onClick={game.again}>
           Yana o‘ynash
         </button>
+        {game.mardu && (
+          <a className="btn btn--sm btn--ghost" href={links.mardu}>
+            Maydonga qaytish
+          </a>
+        )}
         <a className="btn btn--sm btn--ghost" href={links.guncha}>
           Yakka g‘uncha
         </a>

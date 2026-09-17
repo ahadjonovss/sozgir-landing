@@ -15,7 +15,7 @@ import { useAuth } from '../lib/auth';
 import { inviteLink, verdictsOf, type BattlePlayer } from '../lib/battle';
 import { useSozjang, type Sozjang } from '../lib/useSozjang';
 import { display, pretty } from '../lib/uz';
-import { playerLink } from '../data/site';
+import { links, playerLink } from '../data/site';
 import Avatar from './Avatar';
 import AdBanner from './AdBanner';
 import BattleBoard from './BattleBoard';
@@ -31,10 +31,18 @@ import Versus from './Versus';
 import Modal from './Modal';
 import TelegramBanner from './TelegramBanner';
 import OpponentBoard from './OpponentBoard';
+import ArenaStandings from './ArenaStandings';
+import ArenaTiles from './ArenaTiles';
+import { routeParam } from '../lib/useRoute';
 
-/** Havoladagi `?kod=ABC123` — chaqiruvni bosib kelgan odam uchun. */
+/** Havoladagi kod — chaqiruvni bosib kelgan odam uchun.
+ *
+ *  Ikki ko'rinishi bor va ikkalasi ham o'qiladi: ilova ulashadigan
+ *  `sozgir.uz/jang/AB12CD` (telefonda u ilovani ochadi, ilovasi yo'qda
+ *  esa shu sahifani) va saytning o'z `?kod=AB12CD` si. */
 function codeFromUrl(): string {
-  const value = new URLSearchParams(window.location.search).get('kod') ?? '';
+  const value =
+    routeParam() || (new URLSearchParams(window.location.search).get('kod') ?? '');
   return value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
 }
 
@@ -529,13 +537,36 @@ function Scoreboard({ game }: { game: Sozjang }) {
   );
 }
 
+/** Maydondagi muddat — `mm:ss`. */
+const clock = (seconds: number) =>
+  `${Math.floor(seconds / 60)}:${String(Math.max(0, seconds % 60)).padStart(2, '0')}`;
+
 function Playing({ game }: { game: Sozjang }) {
   const opponentRows = (game.opponent?.rows ?? []).map(verdictsOf);
   const lastFoe = opponentRows.length;
 
   return (
     <div className="stage stage--fight">
-      <Scoreboard game={game} />
+      {/* Maydonda raqib bitta emas: ikki tomonlama hisob o'rnida uchta
+          kartochka va muddat turadi. */}
+      {game.mardu ? (
+        <>
+          {game.left > 0 && (
+            <div className={`arena__time${game.left <= 20 ? ' arena__time--urgent' : ''}`}>
+              <strong>{clock(game.left)}</strong>
+              <span>maydon muddati</span>
+            </div>
+          )}
+          <ArenaTiles
+            tiles={game.tiles}
+            game="soztop"
+            leader={0}
+            total={game.arena.length}
+          />
+        </>
+      ) : (
+        <Scoreboard game={game} />
+      )}
 
       <div className="fight">
         <div className="fight__side">
@@ -545,6 +576,8 @@ function Playing({ game }: { game: Sozjang }) {
               length={game.boardLength}
               flipRow={game.flipRow}
               shakeRow={game.shake ? (game.me?.rows?.length ?? 0) : -1}
+              winRow={game.me?.won ? (game.me.rows?.length ?? 0) - 1 : -1}
+              activeRow={game.me?.finished ? -1 : (game.me?.rows?.length ?? 0)}
             />
             {game.message && (
               <p className="play__msg" role="status">
@@ -562,10 +595,15 @@ function Playing({ game }: { game: Sozjang }) {
 
         {/* O'rash kerak: panelning o'zi har yangi qatorda qaytadan
             yaratiladi (`key`), reaksiya esa undan mustaqil yashashi
-            kerak. */}
+            kerak.
+
+            Maydonda raqib **taxtasi** ko'rsatilmaydi: sakkiztasi ekranga
+            sig'maydi va sakkizta rangli qator birga javob haqida
+            keragidan ko'p narsa aytardi. Reaksiya esa qoladi — jonli
+            efirning o'zi shu. */}
         <div className="fight__foe">
           <ReactionBurst event={game.incoming} />
-          <div className="fight__side fight__side--foe" key={lastFoe}>
+          <div className="fight__side fight__side--foe" key={lastFoe} hidden={game.mardu}>
             <div className="fight__who">
               <strong>{pretty(game.opponent?.nickname ?? 'Raqib')}</strong>
               <span>
@@ -629,18 +667,31 @@ function Result({ game }: { game: Sozjang }) {
   const meName = pretty(account?.nickname ?? 'Siz');
   const foeName = pretty(game.opponent?.nickname ?? 'Raqib');
 
+  // Maydonda «yutdi/yutqazdi» degan ikkilik yo'q — o'rin bor. Oxirgi
+  // o'rin ham mag'lubiyat emas: odam ikkinchi, uchinchi uchun o'ynagan.
+  const place = game.arena.find((row) => row.mine)?.rank ?? 0;
+  const first = game.mardu && place === 1;
+
   const title = expired
     ? 'Chaqiruv muddati o‘tdi'
-    : mine
-      ? 'Yutdingiz!'
-      : draw
-        ? 'Durang'
-        : 'Bu safar raqib tezroq bo‘ldi';
-  const emoji = expired ? '⌛' : mine ? '🏆' : draw ? '🤝' : '⚔️';
+    : game.mardu
+      ? first
+        ? 'Maydon sizniki!'
+        : `${place}-o‘rin`
+      : mine
+        ? 'Yutdingiz!'
+        : draw
+          ? 'Durang'
+          : 'Bu safar raqib tezroq bo‘ldi';
+  const emoji = expired ? '⌛' : game.mardu ? (first ? '🏆' : '🎯') : mine ? '🏆' : draw ? '🤝' : '⚔️';
 
   return (
-    <div className={`stage stage--result stage--${mine ? 'won' : draw ? 'draw' : 'lost'}`}>
-      {mine && (
+    <div
+      className={`stage stage--result stage--${
+        game.mardu ? (first ? 'won' : 'draw') : mine ? 'won' : draw ? 'draw' : 'lost'
+      }`}
+    >
+      {(mine || first) && (
         <div className="confetti" aria-hidden="true">
           {CONFETTI.map((index) => (
             <i key={index} style={{ '--n': index } as CSSProperties} />
@@ -673,9 +724,12 @@ function Result({ game }: { game: Sozjang }) {
         />
       )}
 
+      {/* Maydonda jadval: ikki ustun sakkiz kishiga yaramaydi. */}
+      {!expired && game.mardu && <ArenaStandings rows={game.arena} game="soztop" />}
+
       {/* Bitta uzun qator o'rniga ikki ustun: kim nechada topgani va
           necha ball olgani bir qarashda solishtiriladi. */}
-      {!expired && <div className="score">
+      {!expired && !game.mardu && <div className="score">
         <div className={`score__side${mine ? ' score__side--win' : ''}`}>
           <Avatar name={meName} uid={account?.uid} size={36} className="score__avatar" />
           <span className="score__who">{meName}</span>
@@ -707,7 +761,7 @@ function Result({ game }: { game: Sozjang }) {
         </div>
       </div>}
 
-      {!expired && <div className="fight fight--done">
+      {!expired && !game.mardu && <div className="fight fight--done">
         <div className="fight__side">
           <div className="fight__who">
             <strong>{meName}</strong>
@@ -743,7 +797,13 @@ function Result({ game }: { game: Sozjang }) {
           <Swords size={16} />
           {game.battle?.type === 'quick' ? 'Yangi raqib qidirish' : 'Yangi jang'}
         </button>
-        {!expired && game.opponentUid && (
+        {game.mardu && (
+          <a className="btn btn--outline" href={links.mardu}>
+            <Users size={16} />
+            Maydonga qaytish
+          </a>
+        )}
+        {!expired && !game.mardu && game.opponentUid && (
           <button
             className="btn btn--outline"
             onClick={() =>
@@ -851,7 +911,11 @@ export default function BattlePage() {
                   </div>
                 ) : (
                   <div className="jang__keys">
-                    <Keyboard keyState={game.keyState} onPress={game.press} />
+                    <Keyboard
+                      keyState={game.keyState}
+                      onPress={game.press}
+                      cols={game.boardLength}
+                    />
                   </div>
                 )}
                 {/* Reaksiya jang ketayotganda ham, o'z navbatim tugab
