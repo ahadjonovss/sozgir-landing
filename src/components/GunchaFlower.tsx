@@ -12,7 +12,7 @@
  *
  *  O'lchovlar 100×100 maydonga keltirilgan (ilovada 280 px edi), shuning
  *  uchun gul istalgan kenglikda bir xil nisbatda chiziladi. */
-import type { KeyboardEvent } from 'react';
+import { useState, type KeyboardEvent } from 'react';
 import { display } from '../lib/uz';
 
 /** Birinchi barg tepadan shuncha og'adi: tepada barg emas, ikki
@@ -65,8 +65,18 @@ export default function GunchaFlower({
   onPress: (unit: string) => void;
   disabled?: boolean;
 }) {
+  /** Oxirgi bosilgan harf — bosilish javobini ko'rsatish uchun.
+   *
+   *  Raqam ham saqlanadi: bitta harf ketma-ket bosilsa ham animatsiya
+   *  qaytadan boshlanishi kerak, buning uchun esa bo'lak `key` i
+   *  o'zgarishi shart (SVG'da animatsiyani boshqa yo'l bilan
+   *  qayta ishga tushirib bo'lmaydi). */
+  const [hit, setHit] = useState<{ unit: string; n: number } | null>(null);
+
   const press = (unit: string) => {
-    if (!disabled) onPress(unit);
+    if (disabled) return;
+    setHit((previous) => ({ unit, n: (previous?.n ?? 0) + 1 }));
+    onPress(unit);
   };
 
   /** Klaviatura: `<path>` tugma bo'lgani uchun bosilishni o'zimiz
@@ -94,7 +104,10 @@ export default function GunchaFlower({
           onKeyDown={(event) => onKey(event, unit)}
         />
         <path
-          className="flower__petal"
+          key={hit?.unit === unit ? `petal-${hit.n}` : 'petal'}
+          className={`flower__petal${
+            hit?.unit === unit ? ' flower__petal--hit' : ''
+          }`}
           d={PETAL_PATH}
           transform={`translate(${50 - PETAL_W / 2} 0)`}
         />
@@ -141,7 +154,10 @@ export default function GunchaFlower({
 
       <g>
         <path
-          className="flower__heart"
+          key={hit?.unit === center ? `heart-${hit.n}` : 'heart'}
+          className={`flower__heart${
+            hit?.unit === center ? ' flower__heart--hit' : ''
+          }`}
           d={HEX_PATH}
           transform={`translate(${50 - HEX_W / 2} ${50 - HEX_H / 2})`}
           role="button"

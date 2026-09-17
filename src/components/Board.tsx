@@ -42,17 +42,37 @@ export function Board({
   length,
   flipRow,
   shakeRow,
+  winRow = -1,
+  activeRow = -1,
 }: {
   rows: TileRow[];
   length: number;
   flipRow: number;
   shakeRow: number;
+  /** Topilgan so'z turgan qator — ochilib bo'lgach sakraydi. */
+  winRow?: number;
+  /** Hozir yozilayotgan qator — hoshiyasi ravshanroq bo'ladi.
+   *
+   *  Bo'sh taxtada barcha qatorlar bir xil ko'rinardi va «qayerdaman»
+   *  degan savol paydo bo'lardi — ayniqsa o'yin o'rtasida ekranga
+   *  qaytganda. */
+  activeRow?: number;
 }) {
   return (
-    <div className="game__board" aria-label="So‘ztop taxtasi" data-script="word">
+    // Ustun va qator soni CSS'ga ham beriladi: telefonda taxta bo'sh
+    // joyga **sig'dirib** chiziladi (`aspect-ratio`), ya'ni kataklar
+    // balandlikka qarab kichrayadi va baribir kvadrat qoladi.
+    <div
+      className="game__board"
+      aria-label="So‘ztop taxtasi"
+      data-script="word"
+      style={{ '--cols': length, '--rows': rows.length } as CSSProperties}
+    >
       {rows.map((row, r) => (
         <div
-          className={`board__row${r === shakeRow ? ' board__row--shake' : ''}`}
+          className={`board__row${r === shakeRow ? ' board__row--shake' : ''}${
+            r === winRow ? ' board__row--win' : ''
+          }${r === activeRow ? ' board__row--now' : ''}`}
           key={r}
         >
           {Array.from({ length }, (_, i) => (
@@ -73,14 +93,23 @@ export function Board({
 export function Keyboard({
   keyState,
   onPress,
+  cols,
 }: {
   keyState: Map<string, string>;
   onPress: (key: string) => void;
+  /** So'z uzunligi — tugmalarning rangi kataklar ochilib bo'lgach
+   *  almashishi uchun (`--cols` orqali kechikish hisoblanadi). */
+  cols?: number;
 }) {
   // Ilovadagi tartib: o'chirish ikkinchi qatorning oxirida, tasdiqlash
   // uchinchi qatorning oxirida (kengroq tugma).
   return (
-    <div className="keyboard" aria-label="O‘zbek klaviaturasi" data-script="word">
+    <div
+      className="keyboard"
+      aria-label="O‘zbek klaviaturasi"
+      data-script="word"
+      style={cols ? ({ '--cols': cols } as CSSProperties) : undefined}
+    >
       {KEYBOARD_ROWS.map((row, r) => (
         <div className="keyboard__row" key={r}>
           {row.map((key) => (

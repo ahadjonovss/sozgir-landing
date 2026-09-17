@@ -256,6 +256,11 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
                 length={game.puzzle.length}
                 flipRow={game.flipRow}
                 shakeRow={game.shake ? game.activeRow : -1}
+                /* Topilgan qator ochilib bo'lgach sakraydi — natija
+                   kartochkasi chiqishidan oldin taxtaning o'zi
+                   quvonadi. */
+                winRow={game.phase === 'won' ? game.activeRow - 1 : -1}
+                activeRow={game.phase === 'playing' ? game.activeRow : -1}
               />
               {game.message && (
                 <p className="play__msg" role="status">
@@ -345,7 +350,11 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
               <ReportWord word={game.puzzle.answer} length={game.puzzle.length} mode={mode} />
             </div>
           ) : (
-            <Keyboard keyState={game.keyState} onPress={game.press} />
+            <Keyboard
+              keyState={game.keyState}
+              onPress={game.press}
+              cols={game.puzzle.length}
+            />
           )}
 
           {stats.played > 0 && (

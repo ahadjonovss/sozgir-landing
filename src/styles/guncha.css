@@ -67,6 +67,43 @@
   filter: brightness(0.96);
 }
 
+/* Bosilgan barg bir lahza yashil chaqnaydi.
+ *
+ *  `transform` bu yerda ishlatilmaydi (yuqoridagi izohga qarang: SVG'da
+ *  u atribut bilan to'qnashadi), shuning uchun javob **rang** bilan
+ *  beriladi. Animatsiya `React` bo'lakni qaytadan yaratganda boshlanadi
+ *  — shu sabab bosilgan bargning `key` i o'zgaradi. */
+.flower__petal--hit {
+  animation: petal-hit 0.34s ease;
+}
+
+@keyframes petal-hit {
+  0% {
+    fill: var(--green);
+    stroke: var(--green);
+  }
+  100% {
+    fill: var(--key-bg);
+    stroke: var(--tile-border);
+  }
+}
+
+.flower__heart--hit {
+  animation: heart-hit 0.34s ease;
+}
+
+@keyframes heart-hit {
+  0% {
+    fill: var(--green-deep, var(--green));
+  }
+  40% {
+    fill: var(--yellow);
+  }
+  100% {
+    fill: var(--green);
+  }
+}
+
 /* Fokus belgisi shaklning o'z konturida bo'ladi: `outline` SVG'da
    to'rtburchak bo'lib chiziladi va gulning ustiga katta ramka tushardi. */
 .flower__hit:focus-visible + .flower__petal,
@@ -212,6 +249,20 @@
   line-height: var(--unit-line);
   font-weight: 900;
   letter-spacing: 1px;
+  /* Yangi harf pastdan «tushadi». Eski harflar qayta chizilmaydi, ya'ni
+     animatsiya faqat qo'shilganida ishlaydi. */
+  animation: guncha-unit-in 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes guncha-unit-in {
+  from {
+    transform: translateY(5px) scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
 }
 
 .guncha__unit--center {
@@ -234,6 +285,35 @@
   font-size: 12.5px;
   font-weight: 800;
   animation: guncha-pop 0.24s ease;
+}
+
+/* Ball ko'tarilib so'nadi — o'yinda eng yoqimli lahza shu, uni
+   bir zumda yo'qotib yubormaslik kerak. Davomiyligi `useGuncha` dagi
+   1400 ms bilan bir xil: ikkalasi bir vaqtda tugaydi. */
+.guncha__praise {
+  animation: guncha-praise 1.4s ease forwards;
+}
+
+@keyframes guncha-praise {
+  0% {
+    transform: translateY(8px) scale(0.9);
+    opacity: 0;
+  }
+  14% {
+    transform: translateY(0) scale(1.06);
+    opacity: 1;
+  }
+  24% {
+    transform: translateY(0) scale(1);
+  }
+  72% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-18px);
+    opacity: 0;
+  }
 }
 
 .guncha__praise {

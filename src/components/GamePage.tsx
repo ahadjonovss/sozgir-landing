@@ -30,7 +30,10 @@ export default function GamePage() {
   return (
     <section className="oyin">
       <div className="wrap oyin__grid">
-        <div className="oyin__board">
+        {/* `--fit`: telefonda taxta va klaviatura bitta ekranga sig'adi —
+            o'ynash uchun surish kerak emas (ilovadagidek). Hero'dagi
+            taxtaga bu tegmaydi: u sahifa oqimining bir qismi. */}
+        <div className="oyin__board oyin__board--fit">
           <Play choice={choice} game={game} />
         </div>
 

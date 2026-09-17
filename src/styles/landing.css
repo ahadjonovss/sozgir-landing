@@ -596,21 +596,37 @@
 
 .tile--filled {
   box-shadow: inset 0 0 0 2px var(--tile-border-filled);
-  animation: pop 0.1s ease;
+  animation: pop 0.16s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
+/* Harf tushganda katak bir «nafas» oladi. Prujinali egri chiziq ataylab:
+   chiziqli o'sish mexanik tuyulardi, bu esa barmoq ostida jonli. */
 @keyframes pop {
-  50% {
-    transform: scale(1.07);
+  40% {
+    transform: scale(1.09);
+  }
+  100% {
+    transform: scale(1);
   }
 }
 
+/* Ochilgan katak «ko'tariladi»: o'z rangidan olingan yumshoq soya uni
+   bo'sh kataklardan ajratib turadi. Rang o'zgarmaydi — faqat chuqurlik
+   qo'shiladi, ya'ni taxta ilovadagidek o'qiladi. */
 .tile--correct,
 .tile--present,
 .tile--absent {
-  box-shadow: none;
+  box-shadow: 0 2px 8px -2px var(--tile-glow, transparent);
   color: #fff;
   animation: none;
+}
+
+.tile--correct {
+  --tile-glow: color-mix(in srgb, var(--green) 65%, transparent);
+}
+
+.tile--present {
+  --tile-glow: color-mix(in srgb, var(--yellow) 60%, transparent);
 }
 
 .tile--correct {
@@ -635,11 +651,28 @@
   opacity: 0.22;
 }
 
+/* Hozir yozilayotgan qator: hoshiyasi bir pog'ona ravshanroq. Bo'sh
+   taxtada ko'z shu qatorni birinchi topadi — ayniqsa o'yin o'rtasida
+   ekranga qaytganda.
+
+   `--lock` chetda qoladi: So'zjangda oldingi taxmindan o'tgan harf yashil
+   hoshiya bilan turadi va u faol qatorda bo'ladi — bu yerdagi qoida uni
+   bosib ketardi. */
+.board__row--now .tile:not(.tile--lock) {
+  box-shadow: inset 0 0 0 2px var(--tile-border-filled);
+}
+
 .tile--flip {
   animation: flip 0.5s ease backwards;
   animation-delay: calc(var(--i, 0) * 130ms);
 }
 
+/* Katak o'z o'qi atrofida ag'darilib rangini ochadi.
+ *
+ *  Yarmigacha eski ko'rinish (oq fon, qora harf) turadi — rang aynan
+ *  katak «yon tomoni» bilan turganda almashadi, ya'ni o'zgarish
+ *  ko'rinmaydi. Oxirida kichik ortiqcha burilish: katak joyiga «tushadi»,
+ *  shundan harakat tirik tuyuladi. */
 @keyframes flip {
   0% {
     transform: rotateX(0);
@@ -648,16 +681,49 @@
     box-shadow: inset 0 0 0 2px var(--tile-border-filled);
   }
   49% {
-    transform: rotateX(90deg);
+    transform: rotateX(90deg) scale(1.04);
     background: transparent;
     color: var(--text);
     box-shadow: inset 0 0 0 2px var(--tile-border-filled);
   }
   50% {
-    transform: rotateX(90deg);
+    transform: rotateX(90deg) scale(1.04);
+  }
+  78% {
+    transform: rotateX(-9deg) scale(1.01);
   }
   100% {
-    transform: rotateX(0);
+    transform: rotateX(0) scale(1);
+  }
+}
+
+/* ── G'alaba to'lqini ─────────────────────────────────────────────────── */
+
+/* So'z topilganda qator chapdan o'ngga sakraydi.
+ *
+ *  Kechikish ochilishdan **keyin** boshlanadi: oxirgi katak
+ *  `(--cols − 1) × 130 ms` da ag'darila boshlaydi va 500 ms da tugaydi.
+ *  Aks holda sakrash hali ochilmagan kataklarni quvib o'tib ketardi. */
+.board__row--win .tile {
+  animation: win-bounce 0.58s cubic-bezier(0.3, 1.5, 0.5, 1) backwards;
+  animation-delay: calc(
+    (var(--cols, 5) - 1) * 130ms + 500ms + var(--i, 0) * 85ms
+  );
+}
+
+@keyframes win-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  32% {
+    transform: translateY(-17px) scale(1.07);
+  }
+  62% {
+    transform: translateY(0) scale(0.97);
+  }
+  82% {
+    transform: translateY(-5px) scale(1.01);
   }
 }
 
@@ -670,6 +736,23 @@
 
 .board__row--shake {
   animation: shake 0.4s ease;
+}
+
+/* Silkinish bilan birga hoshiya bir lahza qizaradi: nima bo'lganini
+   ko'rish uchun xabarni o'qish shart bo'lmasin. */
+.board__row--shake .tile {
+  animation: tile-wrong 0.4s ease;
+}
+
+@keyframes tile-wrong {
+  0%,
+  100% {
+    box-shadow: inset 0 0 0 2px var(--tile-border-filled);
+  }
+  25%,
+  70% {
+    box-shadow: inset 0 0 0 2px var(--danger);
+  }
 }
 
 @keyframes shake {
@@ -713,6 +796,9 @@
   border: none;
   border-radius: 7px;
   background: var(--key-bg);
+  /* Pastdagi ingichka soya tugmani «jismoniy» qiladi — bosilganda u
+     yo'qoladi va tugma haqiqatan bosilgandek tuyuladi. */
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.16);
   color: var(--text);
   font: inherit;
   font-size: 12.5px;
@@ -729,8 +815,13 @@
 .key:hover {
   filter: brightness(0.96);
 }
+
+/* Bosilganda tugma barmoq ostiga «cho'kadi». Qaytishi prujinali:
+   chiziqli qaytish sust tuyulardi. */
 .key:active {
-  transform: scale(0.94);
+  transform: translateY(2px) scale(0.94);
+  box-shadow: none;
+  transition-duration: 0.04s;
 }
 
 .key--wide {
@@ -751,6 +842,20 @@
 
 .key--enter {
   flex: 1.8 1 0;
+}
+
+/* Tugma rangi kataklar ochilib **bo'lgach** almashadi.
+ *
+ *  Ilgari u darhol o'zgarardi va klaviatura javobni kataklardan oldin
+ *  aytib qo'yardi: o'yinchi qatorning ag'darilishini kuzatib turganda
+ *  pastda allaqachon yashil harflar yonardi. Kechikish so'z uzunligidan
+ *  hisoblanadi (`--cols` — `Keyboard` beradi), chunki yetti harfli so'z
+ *  besh harflidan uzoqroq ochiladi. */
+.key--correct,
+.key--present,
+.key--absent {
+  transition: background 0.25s ease, color 0.25s ease;
+  transition-delay: calc((var(--cols, 5) - 1) * 130ms + 520ms);
 }
 
 .key--correct {
