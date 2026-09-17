@@ -138,7 +138,14 @@ export function DonateForm({
   }
 
   // Tayyor summalar — darajalar pastdan yuqoriga.
-  const presets = [...DONOR_TIERS].reverse();
+  //
+  // Eng past darajaning chegarasi (5 000) eng kam donatdan past, ya'ni uni
+  // o'z holicha qo'ysak tugma serverdan xato olib qaytardi. Shuning uchun
+  // summa ko'tariladi — daraja o'sha-o'sha qoladi.
+  const presets = [...DONOR_TIERS].reverse().map((level) => ({
+    ...level,
+    amount: Math.max(level.min, DONATION_MIN),
+  }));
 
   return (
     <div className="form donate">
@@ -148,15 +155,15 @@ export function DonateForm({
             key={level.tier}
             type="button"
             className={`donate__preset donate__preset--${level.tier}${
-              value === level.min ? ' donate__preset--on' : ''
+              value === level.amount ? ' donate__preset--on' : ''
             }`}
             onClick={() => {
-              setAmount(String(level.min));
+              setAmount(String(level.amount));
               setError('');
             }}
           >
             <i aria-hidden="true" />
-            <strong>{formatSum(level.min)}</strong>
+            <strong>{formatSum(level.amount)}</strong>
             <span>{level.label}</span>
           </button>
         ))}

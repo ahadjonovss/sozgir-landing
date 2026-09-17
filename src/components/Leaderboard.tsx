@@ -1,11 +1,16 @@
-/** Reyting: kunlik va umumiy.
+/** Reyting: kunlik so'z, bugungi ball va umumiy.
+ *
+ *  Uchtasi uch xil savolga javob beradi va ilovada ham shunday:
+ *  «Kunlik» — bugungi so'zni kim necha urinishda topdi (`daily_results`);
+ *  «Bugun» — shu kunda barcha o'yinlarda kim ko'p ball ishladi
+ *  (`daily_scores`); «Umumiy» — butun tarix (`scores`).
  *
  *  Jadval kirmagan odamga ham ko'rinadi — o'zining o'rnini ko'rish uchun
  *  esa kirish kerak, shuning uchun kirmaganlarga qisqa eslatma chiqadi. */
 import { useEffect, useState } from 'react';
 import { useAuth } from '../lib/auth';
 import { dailyKey } from '../lib/daily';
-import { dailyTop, totalTop, type Entry } from '../lib/leaderboard';
+import { dailyTop, todayTop, totalTop, type Entry } from '../lib/leaderboard';
 import Avatar from './Avatar';
 import { Swords } from './Icons';
 import SendInvite, { type InviteTarget } from './SendInvite';
@@ -13,7 +18,15 @@ import { DAILY_LENGTH } from '../lib/modes';
 import { pretty } from '../lib/uz';
 import { playerLink } from '../data/site';
 
-type Tab = 'daily' | 'total';
+type Tab = 'daily' | 'today' | 'total';
+
+const TABS: Tab[] = ['daily', 'today', 'total'];
+
+const TAB_LABEL: Record<Tab, string> = {
+  daily: 'Kunlik',
+  today: 'Bugun',
+  total: 'Umumiy',
+};
 
 export default function Leaderboard() {
   const { account, openPrompt } = useAuth();
@@ -26,7 +39,10 @@ export default function Leaderboard() {
   const rows = cache[tab] ?? null;
   /** Ekranda ko'rinadigan qatorlar: bu bo'limniki, bo'lmasa (hali
    *  yuklanmoqda) boshqa bo'limning qatorlari — o'sha balandlikda. */
-  const shown = rows ?? cache[tab === 'daily' ? 'total' : 'daily'] ?? null;
+  const fallback = TABS.map((item) => (item === tab ? undefined : cache[item])).find(
+    (entries) => entries !== undefined,
+  );
+  const shown = rows ?? fallback ?? null;
   const loading = rows === null;
   /** Jadvaldan chaqirilayotgan raqib — ilovadagi ochiq profildagi
    *  «So'zjangga chaqirish». Jadvalda ko'rgan odamni darhol jangga
@@ -50,7 +66,9 @@ export default function Leaderboard() {
       const entries =
         tab === 'daily'
           ? await dailyTop({ dateKey: dailyKey(), length: DAILY_LENGTH })
-          : await totalTop({});
+          : tab === 'today'
+            ? await todayTop({ dateKey: dailyKey() })
+            : await totalTop({});
       if (alive) setCache((current) => ({ ...current, [tab]: entries }));
     })();
 
@@ -69,7 +87,7 @@ export default function Leaderboard() {
       <div className="panel__head">
         <h3>Reyting</h3>
         <div className="play__modes" role="tablist" aria-label="Reyting turi">
-          {(['daily', 'total'] as Tab[]).map((item) => (
+          {TABS.map((item) => (
             <button
               key={item}
               role="tab"
@@ -77,7 +95,7 @@ export default function Leaderboard() {
               className={`play__mode${tab === item ? ' play__mode--on' : ''}`}
               onClick={() => setTab(item)}
             >
-              {item === 'daily' ? 'Kunlik' : 'Umumiy'}
+              {TAB_LABEL[item]}
             </button>
           ))}
         </div>
@@ -100,9 +118,9 @@ export default function Leaderboard() {
 
       {rows !== null && rows.length === 0 && (
         <p className="panel__note">
-          {tab === 'daily'
-            ? 'Bugun hali natija yo‘q — birinchi bo‘ling!'
-            : 'Hozircha natija yo‘q.'}
+          {tab === 'total'
+            ? 'Hozircha natija yo‘q.'
+            : 'Bugun hali natija yo‘q — birinchi bo‘ling!'}
         </p>
       )}
 
@@ -125,7 +143,9 @@ export default function Leaderboard() {
                   ? row.won
                     ? `${row.count} urinish`
                     : 'topilmadi'
-                  : `${row.count} so‘z`}
+                  : tab === 'today'
+                    ? 'bugun'
+                    : `${row.count} so‘z`}
               </span>
               <span className="rank__points">{row.points}</span>
               {row.uid !== account?.uid && (

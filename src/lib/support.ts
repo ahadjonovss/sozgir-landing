@@ -13,12 +13,21 @@
 import { callFunction } from '../firebase/functions';
 import { listDocs, readDoc } from '../firebase/rest';
 
-/** inPAY 1 000 so'mdan past to'lovni qabul qilmaydi. */
-export const DONATION_MIN = 1000;
+/** Eng kam donat — reklamasiz rejim narxi bilan bir xil (ilovadagi
+ *  `AdFreePlan.price`).
+ *
+ *  inPAY texnik chegarasi 1 000 so'm, bu esa **bizning** chegaramiz:
+ *  har qanday qo'llov kamida bir haftalik reklamasizlikka yetsin. Kichik
+ *  summa na qo'llovchiga sezilarli narsa beradi, na to'lov komissiyasidan
+ *  keyin loyihaga qoladi.
+ *
+ *  Serverda ham shu son turadi (`DONATION_MIN`): bu yerdagi tekshiruv
+ *  faqat odamga darhol aytish uchun, qaror serverniki. */
+export const DONATION_MIN = 5555;
 export const DONATION_MAX = 10_000_000;
 
 /** Tayyor summalar — ko'pchilik shulardan birini tanlaydi (ilovadagidek). */
-export const PRESETS = [5000, 10000, 25000, 50000] as const;
+export const PRESETS = [DONATION_MIN, 10000, 25000, 50000] as const;
 
 export interface Donation {
   name: string;

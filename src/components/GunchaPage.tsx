@@ -27,6 +27,7 @@ export default function GunchaPage() {
     order,
     typed,
     foundWords,
+    foundTargets,
     score,
     maxScore,
     rank,
@@ -145,7 +146,8 @@ export default function GunchaPage() {
                       : `Mashq №${puzzle.number}`}
                   </span>
                   <span>
-                    {puzzle.words.length} so‘z · {pangramsOf(puzzle)} pangramma
+                    {foundTargets} / {puzzle.words.length} so‘z ·{' '}
+                    {pangramsOf(puzzle)} pangramma
                   </span>
                   <button className="link" onClick={guncha.newPractice}>
                     Yangi g‘uncha

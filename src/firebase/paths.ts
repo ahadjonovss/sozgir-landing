@@ -10,6 +10,10 @@ export const PATHS = {
   foundWords: 'found_words',
   scores: 'scores',
   dailyResults: 'daily_results',
+  /** Bugun ishlab topilgan ball — `daily_scores/{sana}/entries/{uid}`.
+   *  Yig'indi hujjatidan ajratilgan: u butun tarixni saqlaydi va undan
+   *  «bugun qancha» degan savolga javob chiqmaydi. */
+  dailyScores: 'daily_scores',
   entries: 'entries',
   /** So'zjang reytingi — `battle_ratings/{uid}`, hammaga o'qish ochiq. */
   battleRatings: 'battle_ratings',

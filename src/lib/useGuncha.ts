@@ -16,6 +16,7 @@ import {
   judge,
   lettersOf,
   maxScoreOf,
+  targetsIn,
   nextRank,
   rankOf,
   scoreForRank,
@@ -170,7 +171,16 @@ export function useGuncha() {
     [found, puzzle],
   );
   const maxScore = useMemo(() => (puzzle ? maxScoreOf(puzzle) : 0), [puzzle]);
-  const allFound = puzzle !== null && found.length === puzzle.words.length;
+  /** Nishondan topilganlari — hisob va tugash shu bo'yicha.
+   *
+   *  Qo'shimcha so'zlar (So'ztopda qabul qilinadigan, lekin g'unchaning
+   *  ro'yxatiga kirmaydiganlari) bunga qo'shilmaydi: aks holda «18 / 18»
+   *  bo'lib, g'uncha yarmida tugagandek ko'rinardi. */
+  const foundTargets = useMemo(
+    () => (puzzle ? targetsIn(puzzle, found) : 0),
+    [found, puzzle],
+  );
+  const allFound = puzzle !== null && foundTargets === puzzle.words.length;
   const rank = useMemo(
     () => rankOf({ score, maxScore, allFound }),
     [allFound, maxScore, score],
@@ -222,7 +232,7 @@ export function useGuncha() {
       entry.pangram ? 'Pangramma! +' + entry.score : `+${entry.score}`,
     );
     later(() => setPraise(null), 1400);
-    if (next.length === puzzle.words.length) {
+    if (targetsIn(puzzle, next) === puzzle.words.length) {
       later(() => bump('Barcha so‘zlar topildi!'), 400);
     }
   }, [account, bump, found, later, puzzle, setFound, setTyped, typed]);
@@ -297,6 +307,7 @@ export function useGuncha() {
     order,
     typed,
     found,
+    foundTargets,
     foundWords,
     score,
     maxScore,

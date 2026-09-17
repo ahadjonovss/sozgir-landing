@@ -129,23 +129,17 @@ export function foundSummary(
 /** So'ztopning xom balli — ilovadagi `SoztopScoreSource` ko'chirmasi.
  *
  *  So'zjangda topilgan so'z ham shu ro'yxatda turadi (ilova unga
- *  `mode: 'battle'` yozadi), shuning uchun onlayn ball alohida hisob
- *  emas — aynan shu ro'yxatning bir qismi. */
+ *  `mode: 'battle'` yozadi), ya'ni yakka va raqib bilan o'ynalgani
+ *  **ajratilmaydi**: ikkalasi ham shu o'yinning balli. */
 export function soztopTally(
   found: Record<string, FoundWord> = readFound(),
 ): GameTally {
   const words = Object.values(found);
   if (words.length === 0) return EMPTY_TALLY;
 
-  let solo = 0;
-  let online = 0;
-  for (const word of words) {
-    const score = Number(word.score) || 0;
-    // Saytda jang rejimi yo'q, lekin ilovadan tiklangan ro'yxatda bor.
-    if (String(word.mode) === 'battle') online += score;
-    else solo += score;
-  }
-  return { solo, online, count: words.length };
+  let score = 0;
+  for (const word of words) score += Number(word.score) || 0;
+  return { score, count: words.length };
 }
 
 /** Cheksiz rejimdagi keyingi o'yin raqami — har chaqirishda oshadi. */

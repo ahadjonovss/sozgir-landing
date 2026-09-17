@@ -46,6 +46,36 @@ export async function dailyTop({
   }));
 }
 
+/** Bugun barcha o'yinlarda ishlab topilgan ball — ilovadagi «Bugun»
+ *  jadvalining o'zi (`daily_scores/{sana}/entries`).
+ *
+ *  Kunlik jadvaldan farqi: u faqat bugungi **so'z** natijasi, bu esa shu
+ *  kunda So'ztop, G'uncha va jangda yig'ilgan ballning yig'indisi. Yozuvni
+ *  har o'yinchining o'zi qo'yadi (`scores.ts`), ya'ni kun boshidan beri
+ *  qancha ishlagani shu yerda turadi. */
+export async function todayTop({
+  dateKey,
+  limit = 10,
+}: {
+  dateKey: string;
+  limit?: number;
+}): Promise<Entry[]> {
+  const documents = await listDocs(
+    `${PATHS.dailyScores}/${dateKey}/${PATHS.entries}`,
+    { orderBy: 'points desc', pageSize: limit },
+  );
+
+  return documents.map((document) => ({
+    uid: document.id,
+    nickname: text(document.fields.nickname, GUEST),
+    // Urinish ham, topilgan so'z ham yo'q: hujjat faqat shu kunda
+    // yig'ilgan ballni saqlaydi — u bitta so'zniki emas.
+    count: 0,
+    points: int(document.fields.points),
+    won: true,
+  }));
+}
+
 /** Umumiy (all-time) reyting — jamlangan ball bo'yicha. */
 export async function totalTop({ limit = 10 }: { limit?: number } = {}): Promise<
   Entry[]

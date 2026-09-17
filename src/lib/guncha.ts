@@ -9,7 +9,8 @@
  *   1. So'z kamida **4 harfdan** (`sh`, `ch`, `oʻ`, `gʻ` — bitta harf);
  *   2. **yurak harf** albatta qatnashsin;
  *   3. faqat g'unchadagi harflar, lekin har biri necha marta bo'lsa ham;
- *   4. so'z lug'atning **javob so'zlari** ro'yxatida bo'lsin;
+ *   4. so'z lug'atda bo'lsin — javob so'zlari ham, `valid` ro'yxatidagi
+ *      qolgan so'zlar ham hisoblanadi (pastdagi `extras`);
  *   5. urinishlar cheklanmagan — xato so'z uchun jarima yo'q.
  *
  *  Harf niqoblari (`mask`) alifbodagi tartibga tayanadi: `uz.ts` dagi
@@ -70,8 +71,18 @@ export interface GunchaWord {
 export interface GunchaPuzzle {
   center: string;
   petals: string[];
-  /** Topilishi mumkin bo'lgan so'zlar (alifbo tartibida). */
+  /** G'unchaning **nishoni**: topilishi kutilgan so'zlar (alifbo
+   *  tartibida). Eng yuqori ball, darajalar va «topilgan / jami» hisobi
+   *  shulardan. */
   words: GunchaWord[];
+  /** Qabul qilinadigan, lekin nishonga kirmaydigan so'zlar.
+   *
+   *  So'ztop va So'zjangda qabul qilinadigan har qanday so'z g'unchada ham
+   *  o'tishi kerak — aks holda o'yinchi «bu so'z bor-ku» deb haqli
+   *  ravishda hayron bo'ladi. Lekin ular nishonni **kengaytirmaydi**: aks
+   *  holda kunlik g'unchada yuzlab noma'lum so'z «topilmadi» bo'lib
+   *  qolardi va daraja ulushi hech kimga yetmasdi. */
+  extras: GunchaWord[];
   daily: boolean;
   /** Kunlik o'yin raqami yoki mashq raqami. */
   number: number;
@@ -97,8 +108,27 @@ export const maxScoreOf = (puzzle: GunchaPuzzle) =>
 export const pangramsOf = (puzzle: GunchaPuzzle) =>
   puzzle.words.filter((word) => word.pangram).length;
 
+/** So'zni ro'yxatdan topadi (yo'q bo'lsa `null`).
+ *
+ *  Nishon ham, qo'shimcha so'zlar ham qaraladi: ikkalasi ham qabul
+ *  qilinadi va ball beradi. */
 export const wordOf = (puzzle: GunchaPuzzle, word: string) =>
-  puzzle.words.find((candidate) => candidate.word === word) ?? null;
+  puzzle.words.find((candidate) => candidate.word === word) ??
+  puzzle.extras.find((candidate) => candidate.word === word) ??
+  null;
+
+/** So'z nishondagilardanmi — «topilgan / jami» hisobi shunga qaraydi. */
+export const isTarget = (puzzle: GunchaPuzzle, word: string) =>
+  puzzle.words.some((candidate) => candidate.word === word);
+
+/** Topilganlardan nishonga kirganlari — g'uncha tugagani shu bo'yicha
+ *  o'lchanadi. Qo'shimcha so'zlar qo'shilsa «18 / 18» bo'lib, g'uncha
+ *  yarmida tugagandek ko'rinardi. */
+export const targetsIn = (puzzle: GunchaPuzzle, found: Iterable<string>) => {
+  let count = 0;
+  for (const word of found) if (isTarget(puzzle, word)) count++;
+  return count;
+};
 
 /** Dart'dagi `String.compareTo` — UTF-16 kod birliklari bo'yicha.
  *
@@ -130,6 +160,43 @@ interface Seed {
   mask: number;
 }
 
+/** Qabul qilinadigan qo'shimcha so'z — eng zarur uch maydon.
+ *
+ *  `Entry` dan farqi: harflar ro'yxati ham, ta'rifi ham saqlanmaydi.
+ *  Ro'yxat 70 mingdan oshadi, ya'ni har so'z uchun massiv tutish
+ *  brauzerda sezilarli bo'lardi; pangramma esa niqobdagi birlar soni
+ *  bilan aniqlanadi. */
+interface Extra {
+  word: string;
+  length: number;
+  mask: number;
+  /** So'zdagi **xil** harflar soni — niqobdagi birlar soni. */
+  distinct: number;
+}
+
+/** Niqobdagi birlar soni (Kernighan). */
+function popcount(mask: number): number {
+  let bits = mask;
+  let count = 0;
+  while (bits !== 0) {
+    bits &= bits - 1;
+    count++;
+  }
+  return count;
+}
+
+/** So'z qo'shimcha ro'yxatga yaraydimi — yaramasa `null`. */
+function extraOf(word: string): Extra | null {
+  const normalized = normalize(word);
+  const units = split(normalized);
+  if (units.length < MIN_LENGTH || units.length > LETTER_COUNT) return null;
+  if (units.includes(TUTUQ)) return null;
+  if (!units.every((unit) => LETTER_INDEX.has(unit))) return null;
+
+  const mask = maskOf(new Set(units));
+  return { word: normalized, length: units.length, mask, distinct: popcount(mask) };
+}
+
 /** So'z g'unchaga yaraydimi — yaramasa `null`.
  *
  *  Tutuq belgisi (`ʼ`) bor so'zlar umuman kirmaydi: u harf emas, uni
@@ -152,18 +219,29 @@ function entryOf(word: string, meaning?: string): Entry | null {
 }
 
 export interface GunchaLexicon {
+  /** Javob so'zlar — g'unchaning nishoni: harflar shulardan tanlanadi,
+   *  ro'yxat va darajalar ham shulardan. */
   entries: Entry[];
   seeds: Seed[];
+  /** Lug'atning `valid` ro'yxatidagi qolgan so'zlar: ball beradi, lekin
+   *  nishonga kirmaydi (`GunchaPuzzle.extras`). */
+  extras: Extra[];
 }
 
 /** Lug'atlardan g'uncha uchun so'zlar va bo'lajak harf to'plamlari.
  *
- *  Faqat **javob so'zlar** ishlatiladi: `valid` ataylab kengaytirilgan
- *  ro'yxat, unda `addy`, `abab` kabi so'z bo'lmagan yozuvlar ham bor —
- *  ular g'unchada «to'g'ri so'z» bo'lib chiqib qolardi. */
+ *  G'unchani **tanlash** faqat javob so'zlarga qaraydi: `valid` ataylab
+ *  kengaytirilgan ro'yxat va unda so'z bo'lmagan yozuvlar ham bor — agar
+ *  g'uncha undan yasalsa, ro'yxatda «topilmadi» bo'lib yuzlab noma'lum
+ *  so'z qolardi va daraja ulushi hech kimga yetmasdi.
+ *
+ *  Lekin ular **qabul qilinadi**: So'ztopda o'tadigan so'z g'unchada ham
+ *  o'tishi kerak. Shuning uchun `valid` dan javoblar chiqarilib,
+ *  qolgani `extras` bo'lib saqlanadi. */
 export function buildLexicon(dictionaries: Dictionary[]): GunchaLexicon {
   const entries: Entry[] = [];
   const seeds: Seed[] = [];
+  const extras: Extra[] = [];
   const seedMasks = new Set<number>();
   // Ilova lug'atlarni bitta xaritaga yig'adi, ya'ni takroriy so'z bir
   // marta hisoblanadi. Bu yerda ro'yxatlar qo'shiladi, shuning uchun
@@ -188,10 +266,51 @@ export function buildLexicon(dictionaries: Dictionary[]): GunchaLexicon {
     }
   }
 
+  // Javob so'zlar ikkinchi marta qo'shilmaydi: ular allaqachon nishonda
+  // va ta'rifi bilan turibdi. `valid` ichida javoblar ham bor
+  // (`dictionary.ts` ularni qo'shib qo'yadi), shuning uchun `seen`
+  // to'plami shu yerda ham ishlaydi.
+  for (const dictionary of dictionaries) {
+    for (const word of dictionary.valid) {
+      const extra = extraOf(word);
+      if (extra === null || seen.has(extra.word)) continue;
+      seen.add(extra.word);
+      extras.push(extra);
+    }
+  }
+
   // Tartib lug'at faylidagi tartibga bog'liq bo'lib qolmasin.
   seeds.sort((a, b) => compare(a.letters.join(''), b.letters.join('')));
   entries.sort((a, b) => compare(a.word, b.word));
-  return { entries, seeds };
+  return { entries, seeds, extras };
+}
+
+/** Berilgan harflarga mos qo'shimcha so'zlar.
+ *
+ *  G'unchani **tanlash** bunga qaramaydi (u faqat javob so'zlar bo'yicha):
+ *  shusiz kunlik g'uncha ham, mashq g'unchasi ham butunlay boshqacha
+ *  chiqib ketardi va saqlangan o'yinlar buzilardi. */
+function extrasFor(
+  lexicon: GunchaLexicon,
+  { letters, center }: { letters: Set<string>; center: string },
+): GunchaWord[] {
+  if (lexicon.extras.length === 0) return [];
+  const mask = maskOf(letters);
+  const centerMask = maskOf([center]);
+
+  const words: GunchaWord[] = [];
+  for (const extra of lexicon.extras) {
+    if ((extra.mask | mask) !== mask) continue;
+    if ((extra.mask & centerMask) === 0) continue;
+    const pangram = extra.distinct === letters.size;
+    words.push({
+      word: extra.word,
+      length: extra.length,
+      pangram,
+      score: wordScore({ length: extra.length, pangram }),
+    });
+  }
+  return words.sort((a, b) => compare(a.word, b.word));
 }
 
 interface Candidate {
@@ -241,6 +360,7 @@ function pickCenter(lexicon: GunchaLexicon, seed: Seed): Candidate | null {
 }
 
 function toPuzzle(
+  lexicon: GunchaLexicon,
   candidate: Candidate,
   { number, daily, petals }: { number: number; daily: boolean; petals?: string[] },
 ): GunchaPuzzle {
@@ -267,7 +387,12 @@ function toPuzzle(
       number * 31 + (daily ? 5 : 11),
     );
 
-  return { center: candidate.center, petals: order, words, daily, number };
+  // Nishondan tashqari qabul qilinadigan so'zlar: So'ztopda o'tadigan so'z
+  // g'unchada ham o'tsin. Ular ro'yxatga kirmaydi, ya'ni «topilmadi» bo'lib
+  // ham chiqmaydi.
+  const extras = extrasFor(lexicon, { letters, center: candidate.center });
+
+  return { center: candidate.center, petals: order, words, extras, daily, number };
 }
 
 /** Lug'atdan g'uncha yasaydi — mashq rejimi shundan.
@@ -310,11 +435,11 @@ export function buildGuncha({
 
   if (playable.length === 0) {
     if (fallback === null) throw new Error('Mos g‘uncha topilmadi');
-    return toPuzzle(fallback, { number, daily });
+    return toPuzzle(lexicon, fallback, { number, daily });
   }
 
   const index = (number - 1) % playable.length;
-  return toPuzzle(playable[index < 0 ? index + playable.length : index]!, {
+  return toPuzzle(lexicon, playable[index < 0 ? index + playable.length : index]!, {
     number,
     daily,
   });
@@ -353,6 +478,7 @@ export function gunchaFromLetters({
   }
 
   return toPuzzle(
+    lexicon,
     {
       center,
       letters: [...new Set(letters)],
@@ -388,10 +514,10 @@ export const VERDICT_TEXT: Record<Exclude<GunchaVerdict, 'accepted'>, string> = 
  *  Avval o'zi tuzatishi mumkin bo'lgan xatolar, oxirida esa lug'at
  *  haqidagi xabar.
  *
- *  Ilgari `valid` ro'yxatidagi so'zga alohida xabar berilardi («to'g'ri
- *  so'z, lekin bu g'unchada hisoblanmaydi») — u olib tashlangan: kunlik
- *  g'unchalarda bunday so'zlar javoblardan o'rtacha 17 barobar ko'p
- *  chiqardi va ko'pi umuman so'z emas edi. */
+ *  `valid` ro'yxatidagi so'z ham qabul qilinadi (`GunchaPuzzle.extras`):
+ *  So'ztopda o'tadigan so'z g'unchada rad etilsa, o'yinchi haqli ravishda
+ *  hayron bo'lardi — jangda esa u telefondagi raqibga ball berib, saytdagi
+ *  o'yinchiga bermasdi. */
 export function judge({
   puzzle,
   word,

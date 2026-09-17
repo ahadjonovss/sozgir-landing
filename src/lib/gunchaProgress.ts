@@ -126,7 +126,7 @@ function pushGunchaScore(account: Account, totals: GunchaTotals): Promise<void> 
     uid: account.uid,
     nickname: readStoredNickname() || account.nickname,
     game: 'guncha',
-    tally: { solo: totals.score, online: 0, count: totals.words },
+    tally: { score: totals.score, count: totals.words },
   });
 }
 
