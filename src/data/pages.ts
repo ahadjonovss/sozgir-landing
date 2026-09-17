@@ -129,6 +129,20 @@ export const PAGES = [
     ],
   },
   {
+    path: '/maydon',
+    title: 'Mardu maydon — sakkiz kishilik so‘z jangi | So‘zgir',
+    description:
+      'Bir xil so‘z yoki bir xil g‘uncha, lekin ikki kishi emas: sakkiztagacha odam bir vaqtda o‘ynaydi va oxirida jadval tuziladi.',
+    nav: 'Mardu maydon',
+    h1: 'Mardu maydon',
+    lead:
+      'Yangi o‘yin emas — yangi shakl. O‘sha So‘zjang yoki G‘uncha, lekin ikki kishi emas: sakkiztagacha odam bir vaqtda o‘ynaydi va oxirida jadval tuziladi.',
+    body: [
+      'Ikki yo‘l bor: tezkor maydonga kirib notanish odamlar bilan o‘ynaysiz (ikkinchi odam kirgach 60 soniyalik sanoq boshlanadi) yoki bitta havola bilan butun davrani bir joyga yig‘asiz.',
+      'O‘yin o‘zgarmaydi — o‘sha so‘z yoki o‘sha g‘uncha, faqat raqib ko‘p. Vaqtni server hisoblaydi, oxirida jadval tuziladi va reyting o‘rin bo‘yicha o‘zgaradi.',
+    ],
+  },
+  {
     path: '/qollab',
     title: 'Qo‘llab-quvvatlash — So‘zgir',
     description:
@@ -150,6 +164,20 @@ export const PAGES = [
     h1: 'Maxfiylik siyosati',
     lead:
       'Ilova va sayt qanday ma’lumot yig‘adi, nima uchun yig‘adi va uni qanday o‘chirish mumkin.',
+  },
+  {
+    path: '/hisob-ochirish',
+    title: 'Hisobni o‘chirish — So‘zgir',
+    description:
+      'So‘zgir hisobini va u bilan bog‘liq ma’lumotni qanday o‘chirish mumkin — ilova orqali ham, ilovasiz ham.',
+    nav: 'Hisobni o‘chirish',
+    h1: 'Hisobni o‘chirish',
+    lead:
+      'Bu sahifada So‘zgir ilovasining hisobini va u bilan bog‘liq ma’lumotni qanday o‘chirish mumkinligi yozilgan.',
+    body: [
+      'Eng tez yo‘l — ilovaning o‘zidan: profil bo‘limini oching, «Hisobni o‘chirish» tugmasini bosing va so‘ralgan tasdiqni bering.',
+      'Telefoningizda ilova qolmagan bo‘lsa, hisob qaysi pochtaga ro‘yxatdan o‘tgan bo‘lsa o‘sha pochtadan bizga yozing — so‘rovni 30 kun ichida bajaramiz.',
+    ],
   },
   {
     path: '/contact',

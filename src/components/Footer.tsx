@@ -26,6 +26,7 @@ const COLUMNS = [
     items: [
       { href: links.contact, label: 'Aloqa' },
       { href: links.privacy, label: 'Maxfiylik siyosati' },
+      { href: links.deletion, label: 'Hisobni o‘chirish' },
       { href: links.support, label: email },
       { href: links.telegram, label: 'Telegram kanal', external: true },
     ],

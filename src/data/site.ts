@@ -24,10 +24,14 @@ export const links = {
   guncha: '/guncha',
   /** G'uncha jangi: bir xil g'uncha, uch daqiqa, kim ko'p ball yig'sa. */
   gunchaBattle: '/gunchajang',
+  /** Mardu maydon — yangi o'yin emas, yangi shakl: o'sha So'zjang yoki
+   *  G'uncha, lekin sakkiztagacha odam bir vaqtda o'ynaydi. */
+  mardu: '/maydon',
   /** Ulashilgan natija bosilganda odam darhol o'ynay olishi kerak —
    *  tanishtiruv sahifasi emas, o'yinning o'zi ochiladi. */
   share: `${site}/oyin`,
   privacy: '/privacy',
+  deletion: '/hisob-ochirish',
   contact: '/contact',
   /** Ulashish uchun qisqa havola — `public/ol/index.html`. Telefonda
    *  ochilganda o'sha qurilmaning do'koni birinchi tugma bo'ladi. */

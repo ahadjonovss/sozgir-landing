@@ -6,11 +6,15 @@
   "installCommand": "npm ci",
   "rewrites": [
     {
+      "source": "/ilova",
+      "destination": "/ol/index.html"
+    },
+    {
       "source": "/:channel(t|x|th|i|tt|y|f|ln|ak)/ol",
       "destination": "/ol/index.html"
     },
     {
-      "source": "/:page(oynash|oyin|sozjang|guncha|gunchajang|qollab|privacy|contact)",
+      "source": "/:page(oynash|oyin|sozjang|guncha|gunchajang|maydon|qollab|privacy|hisob-ochirish|contact)",
       "destination": "/:page/index.html"
     },
     {
@@ -18,8 +22,24 @@
       "destination": "/oyinchi/index.html"
     },
     {
+      "source": "/u/:uid",
+      "destination": "/oyinchi/index.html"
+    },
+    {
+      "source": "/jang/:code",
+      "destination": "/sozjang/index.html"
+    },
+    {
+      "source": "/maydon/:code",
+      "destination": "/maydon/index.html"
+    },
+    {
       "source": "/kunlik",
       "destination": "/oyin/index.html"
+    },
+    {
+      "source": "/ilova",
+      "destination": "/ol/index.html"
     },
     {
       "source": "/((?!api/|\\.well-known/|app-ads\\.txt|ads\\.txt|robots\\.txt|sitemap\\.xml).*)",
