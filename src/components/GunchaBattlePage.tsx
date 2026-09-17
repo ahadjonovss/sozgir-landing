@@ -14,6 +14,7 @@ import { inviteLink } from '../lib/battle';
 import { useGunchaJang, type GunchaJang } from '../lib/useGunchaJang';
 import { GUNCHA_SECONDS } from '../lib/gunchaBattle';
 import { display, pretty } from '../lib/uz';
+import { useLongPress } from '../lib/useLongPress';
 import ArenaHistory from './ArenaHistory';
 import ArenaStandings from './ArenaStandings';
 import ArenaTiles from './ArenaTiles';
@@ -344,9 +345,11 @@ function Playing({ game }: { game: GunchaJang }) {
       )}
 
       <div className="guncha__controls">
-        <button className="btn btn--sm btn--ghost" onClick={game.clear}>
-          O‘chirish
-        </button>
+        <DeleteButton
+          onBackspace={() => game.press('back')}
+          onClear={game.clear}
+          disabled={game.typed.length === 0 || game.phase !== 'playing'}
+        />
         <button className="btn btn--sm btn--ghost" onClick={game.shuffle}>
           Aralashtirish
         </button>
@@ -524,5 +527,35 @@ function Column({
         </ul>
       )}
     </div>
+  );
+}
+
+/** «O'chirish» — ilovadagi qoidada: bosilsa **bitta harf**, uzoq bosilsa
+ *  butun so'z (`GunchaPillButton` ning `onTap`/`onLongPress` i).
+ *
+ *  Ilgari saytda bosilishi bilan hammasi o'chardi: bitta xato harf
+ *  uchun so'zni boshidan terishga to'g'ri kelardi. Hech narsa
+ *  yozilmagan bo'lsa tugma o'chiq — ilovada ham shunday. */
+function DeleteButton({
+  onBackspace,
+  onClear,
+  disabled,
+}: {
+  onBackspace: () => void;
+  onClear: () => void;
+  disabled: boolean;
+}) {
+  const hold = useLongPress(onClear);
+
+  return (
+    <button
+      className="btn btn--sm btn--ghost"
+      onClick={hold.onClick(onBackspace)}
+      disabled={disabled}
+      title="Bosing — bitta harf, uzoq bosing — butun so‘z"
+      {...hold.handlers}
+    >
+      O‘chirish
+    </button>
   );
 }
