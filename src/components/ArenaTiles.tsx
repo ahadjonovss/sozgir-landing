@@ -13,7 +13,7 @@
 import type { ArenaRow } from '../lib/mardu';
 import type { BattleGame } from '../lib/battle';
 import Avatar from './Avatar';
-import { pretty } from '../lib/uz';
+import PlayerName from './PlayerName';
 
 /** Kartochkadagi katta raqam va uning ostidagi izoh. */
 function figure(
@@ -79,7 +79,9 @@ export default function ArenaTiles({
                 <Avatar name={row.nickname} uid={row.uid} size={30} />
                 <i className="atile__rank">{row.rank}</i>
               </span>
-              <b className="atile__name">{pretty(row.nickname)}</b>
+              <b className="atile__name">
+                <PlayerName uid={row.uid} name={row.nickname} size={13} />
+              </b>
               <strong className="atile__value">{value}</strong>
               <span className="atile__note">{note}</span>
             </div>

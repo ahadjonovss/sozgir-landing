@@ -11,6 +11,7 @@ import { useAuth, type AuthPrompt } from '../lib/auth';
 import Avatar from './Avatar';
 import AvatarEditor from './AvatarEditor';
 import Modal from './Modal';
+import { VerifiedMark } from './PlayerName';
 import { nicknameError } from '../lib/nickname';
 import { isValidLogin, looksLikePhone, PHONE_LENGTH, prettyLogin } from '../lib/loginId';
 import { loadDetails, MAX_AGE, MIN_AGE, type ProfileDetails } from '../firebase/profile';
@@ -193,7 +194,10 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
 
         <div className="modal__row">
           <div>
-            <strong>{auth.account.nickname}</strong>
+            <strong>
+              {auth.account.nickname}
+              <VerifiedMark uid={auth.account.uid} size={15} />
+            </strong>
             <p className="modal__lead">
               {auth.account.linked
                 ? prettyLogin(auth.account.email)
@@ -374,7 +378,10 @@ export default function Account() {
           title={prettyLogin(auth.account.email) || 'Mehmon rejimi'}
         >
           <Avatar name={auth.account.nickname} uid={auth.account.uid} size={26} />
-          <span className="account__name">{auth.account.nickname}</span>
+          <span className="account__name">
+            {auth.account.nickname}
+            <VerifiedMark uid={auth.account.uid} size={14} />
+          </span>
         </button>
       ) : (
         <button

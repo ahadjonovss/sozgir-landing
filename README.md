@@ -680,6 +680,15 @@ zinapoyasini yuritadi va ekranda birliksiz turadi. Jangda yig‘ilgani
 hozircha umumiy hisobga qo‘shilmaydi — ilovada ham shunday
 (`GunchaScoreSource` faqat yakka o‘yinni sanaydi).
 
+### Tasdiqlangan hisoblar
+
+Mashhur odamlarning nomi yonida tasdiq belgisi turadi
+(`src/lib/verified.ts`, `public/verified.png`). Ro'yxat **uid bo'yicha**:
+taxallusni har kim o'ziga qo'yishi mumkin, uid esa o'zgarmaydi — «Serobov»
+deb yozib olgan boshqa odam belgini olmaydi. Belgi nom turgan hamma
+joyda chiqadi (jadval, jang, tarix, maydon, hisob menyusi); profilda esa
+u bosiladi va «bu haqiqatan ham o'sha odam» degan izoh chiqadi.
+
 ### Belgilar
 
 Aqcha va o‘lja raqamli joylarda **belgi bilan** ko‘rsatiladi

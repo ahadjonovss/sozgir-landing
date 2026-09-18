@@ -26,6 +26,7 @@ import CodeInput from './CodeInput';
 import { Check, Clock, Copy, Send, Swords, Users } from './Icons';
 import { ReactionBurst, ReactionPicker } from './Reactions';
 import ReportWord from './ReportWord';
+import { VerifiedMark } from './PlayerName';
 import RotatingLine from './RotatingLine';
 import ScoreRules from './ScoreRules';
 import SendInvite, { type InviteTarget } from './SendInvite';
@@ -607,7 +608,10 @@ function Playing({ game }: { game: Sozjang }) {
           <ReactionBurst event={game.incoming} />
           <div className="fight__side fight__side--foe" key={lastFoe} hidden={game.mardu}>
             <div className="fight__who">
-              <strong>{pretty(game.opponent?.nickname ?? 'Raqib')}</strong>
+              <strong>
+                {pretty(game.opponent?.nickname ?? 'Raqib')}
+                <VerifiedMark uid={game.opponentUid} size={14} />
+              </strong>
               <span>
                 {game.opponent?.finished ? 'tugatdi' : `${lastFoe}/${game.maxAttempts}`}
                 {game.opponent?.hintUsed ? ' · maslahat oldi' : ''}
@@ -738,7 +742,10 @@ function Result({ game }: { game: Sozjang }) {
       {!expired && !game.mardu && <div className="score">
         <div className={`score__side${mine ? ' score__side--win' : ''}`}>
           <Avatar name={meName} uid={account?.uid} size={36} className="score__avatar" />
-          <span className="score__who">{meName}</span>
+          <span className="score__who">
+            {meName}
+            <VerifiedMark uid={account?.uid} size={14} />
+          </span>
           <strong className="score__points">{game.me?.score ?? 0}</strong>
           <span className="score__meta">
             {game.me?.won ? `${game.me.attempts ?? 0} urinishda topdi` : 'topa olmadi'}
@@ -754,6 +761,7 @@ function Result({ game }: { game: Sozjang }) {
           {game.opponentUid ? (
             <a className="score__who score__who--link" href={playerLink(game.opponentUid)}>
               {foeName}
+              <VerifiedMark uid={game.opponentUid} size={14} />
             </a>
           ) : (
             <span className="score__who">{foeName}</span>

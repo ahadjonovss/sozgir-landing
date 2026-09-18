@@ -19,11 +19,11 @@ import { useMardu, type Mardu } from '../lib/useMardu';
 import { marduLink, MARDU_CAPACITY, MARDU_MIN_PLAYERS } from '../lib/mardu';
 import type { BattleGame } from '../lib/battle';
 import { routeParam } from '../lib/useRoute';
-import { pretty } from '../lib/uz';
 import ArenaHistory from './ArenaHistory';
 import Avatar from './Avatar';
 import CodeInput from './CodeInput';
 import ScoreRules from './ScoreRules';
+import PlayerName from './PlayerName';
 import { Check, Copy, Swords, Users } from './Icons';
 import TelegramBanner from './TelegramBanner';
 
@@ -212,7 +212,9 @@ function Lobby({ mardu }: { mardu: Mardu }) {
             className={`arena__member${row.mine ? ' arena__member--me' : ''}`}
           >
             <Avatar name={row.nickname} uid={row.uid} size={34} />
-            <span className="arena__name">{pretty(row.nickname)}</span>
+            <span className="arena__name">
+              <PlayerName uid={row.uid} name={row.nickname} size={14} />
+            </span>
             {row.uid === (mardu.battle?.host ?? mardu.battle?.createdBy) && (
               <span className="arena__host">yaratuvchi</span>
             )}

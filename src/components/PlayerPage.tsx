@@ -23,6 +23,7 @@ import AdBanner from './AdBanner';
 import Avatar from './Avatar';
 import BattleStats from './BattleStats';
 import { Aqcha } from './Units';
+import { VerifiedBadge } from './PlayerName';
 import { ChevronLeft, Heart, Person, Swords, Trophy } from './Icons';
 import SendInvite, { type InviteTarget } from './SendInvite';
 
@@ -110,7 +111,13 @@ export default function PlayerPage() {
           <>
             <header className="panel player__head">
               <Avatar name={name} uid={profile.uid} size={72} />
-              <h1 className="player__name">{name}</h1>
+              {/* Belgi sarlavhadan tashqarida: `player__name` uzun nomni
+                  kesadi (`overflow: hidden`) va u bilan birga ochiladigan
+                  izohni ham kesib qo'yardi. */}
+              <div className="player__title">
+                <h1 className="player__name">{name}</h1>
+                <VerifiedBadge uid={profile.uid} size={24} />
+              </div>
               {/* Daraja yorlig'i bu yerda takrorlanmaydi — u bellashuv
                   kartochkasining o'zida turadi. */}
               <div className="player__chips">

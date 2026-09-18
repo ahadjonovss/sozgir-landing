@@ -15,6 +15,7 @@ import Avatar from './Avatar';
 import { Swords } from './Icons';
 import SendInvite, { type InviteTarget } from './SendInvite';
 import { Aqcha } from './Units';
+import PlayerName from './PlayerName';
 import { DAILY_LENGTH } from '../lib/modes';
 import { pretty } from '../lib/uz';
 import { playerLink } from '../data/site';
@@ -137,7 +138,9 @@ export default function Leaderboard() {
                   (ilovada ham jadval qatori profilga olib boradi). */}
               <a className="rank__who" href={playerLink(row.uid)}>
                 <Avatar name={row.nickname} uid={row.uid} size={28} />
-                <span className="rank__name">{pretty(row.nickname)}</span>
+                <span className="rank__name">
+                  <PlayerName uid={row.uid} name={row.nickname} />
+                </span>
               </a>
               <span className="rank__meta">
                 {tab === 'daily'

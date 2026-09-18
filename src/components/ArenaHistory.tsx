@@ -12,6 +12,7 @@ import { myBattles, type ArenaBattle } from '../lib/battleHistory';
 import { pretty } from '../lib/uz';
 import Avatar from './Avatar';
 import { OljaDelta } from './Units';
+import { VerifiedMark } from './PlayerName';
 
 const OUTCOME: Record<ArenaBattle['outcome'], string> = {
   win: 'G‘alaba',
@@ -76,7 +77,10 @@ export default function ArenaHistory() {
               {row.opponentUid ? (
                 <a className="history__who" href={playerLink(row.opponentUid)}>
                   <Avatar name={row.opponent || '?'} uid={row.opponentUid} size={26} />
-                  <span>{pretty(row.opponent) || 'Raqib'}</span>
+                  <span>
+                    {pretty(row.opponent) || 'Raqib'}
+                    <VerifiedMark uid={row.opponentUid} size={14} />
+                  </span>
                 </a>
               ) : (
                 <span className="history__who">

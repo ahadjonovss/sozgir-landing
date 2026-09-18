@@ -12,10 +12,10 @@ import { tierName } from '../lib/battleRating';
 import { battleTop, type BattleEntry } from '../lib/leaderboard';
 import { pretty } from '../lib/uz';
 import Avatar from './Avatar';
+import PlayerName from './PlayerName';
 import { Swords } from './Icons';
 import SendInvite, { type InviteTarget } from './SendInvite';
-import { Olja } from './Units';
-import { TierBadge } from './Units';
+import { Olja, TierBadge } from './Units';
 
 export default function BattleBoard() {
   const { account, openPrompt } = useAuth();
@@ -77,7 +77,9 @@ export default function BattleBoard() {
               <span className="rank__place">{index + 1}</span>
               <a className="rank__who" href={playerLink(row.uid)}>
                 <Avatar name={row.nickname} uid={row.uid} size={28} />
-                <span className="rank__name">{pretty(row.nickname)}</span>
+                <span className="rank__name">
+                  <PlayerName uid={row.uid} name={row.nickname} />
+                </span>
               </a>
               {/* Faqat daraja: g'alaba soni bilan ism kesilib qolardi. */}
               <span className="rank__meta rank__meta--tier">

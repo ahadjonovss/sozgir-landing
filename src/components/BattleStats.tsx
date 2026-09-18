@@ -20,8 +20,7 @@ import {
 } from '../lib/battleRating';
 import { useDonorTier } from '../lib/donor';
 import DonorChip from './DonorChip';
-import { Olja } from './Units';
-import { TierBadge } from './Units';
+import { Olja, TierBadge } from './Units';
 
 export default function BattleStats({ uid, compact = false }: { uid: string; compact?: boolean }) {
   const [value, setValue] = useState<BattleRating | null>(null);

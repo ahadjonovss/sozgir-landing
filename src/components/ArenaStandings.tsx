@@ -9,8 +9,8 @@ import type { ArenaRow } from '../lib/mardu';
 import { oljaDelta } from '../lib/aqcha';
 import type { BattleGame } from '../lib/battle';
 import Avatar from './Avatar';
+import PlayerName from './PlayerName';
 import { OljaDelta } from './Units';
-import { pretty } from '../lib/uz';
 
 /** Poydevordagi tartib: ikkinchi, birinchi, uchinchi — o'rtadagi baland. */
 const PODIUM = [1, 0, 2];
@@ -53,7 +53,9 @@ export default function ArenaStandings({
               }`}
             >
               <Avatar name={row.nickname} uid={row.uid} size={46} />
-              <b>{pretty(row.nickname)}</b>
+              <b>
+                <PlayerName uid={row.uid} name={row.nickname} size={15} />
+              </b>
               <span>{scoreText(row, game)}</span>
               <i>{row.rank}</i>
             </div>
@@ -72,7 +74,9 @@ export default function ArenaStandings({
               <span className="standings__place">{row.rank}</span>
               <a className="standings__who" href={playerLink(row.uid)}>
                 <Avatar name={row.nickname} uid={row.uid} size={26} />
-                <span>{pretty(row.nickname)}</span>
+                <span>
+                  <PlayerName uid={row.uid} name={row.nickname} size={14} />
+                </span>
               </a>
               <span className="standings__score">{scoreText(row, game)}</span>
               {delta !== null && (

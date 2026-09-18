@@ -27,10 +27,10 @@ import {
   type SupportBalance,
   type TopDonor,
 } from '../lib/support';
-import { pretty } from '../lib/uz';
 import Avatar from './Avatar';
 import DonorChip from './DonorChip';
 import { DonorBadge } from './Units';
+import PlayerName from './PlayerName';
 import { Heart } from './Icons';
 import { Balance, DonateForm, Donors } from './Support';
 
@@ -108,7 +108,9 @@ function Top({ donors, uid }: { donors: TopDonor[] | null; uid?: string }) {
         const who = (
           <>
             <Avatar name={donor.name} uid={donor.uid} size={28} />
-            <span className="rank__name">{pretty(donor.name)}</span>
+            <span className="rank__name">
+              <PlayerName uid={donor.uid} name={donor.name} />
+            </span>
           </>
         );
         return (

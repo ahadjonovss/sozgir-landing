@@ -24,6 +24,7 @@ import GunchaFlower from './GunchaFlower';
 import { Check, Copy, Swords, Users } from './Icons';
 import Modal from './Modal';
 import { ReactionBurst, ReactionPicker } from './Reactions';
+import { VerifiedMark } from './PlayerName';
 import ScoreRules from './ScoreRules';
 import SendInvite, { type InviteTarget } from './SendInvite';
 import TelegramBanner from './TelegramBanner';
@@ -293,7 +294,10 @@ function Playing({ game }: { game: GunchaJang }) {
           <div className="gbar__rows">
             <span className="gbar__row gbar__row--me">
               <Avatar name={game.account?.nickname ?? 'Siz'} uid={game.account?.uid} size={24} />
-              <b>{pretty(game.account?.nickname ?? 'Siz')}</b>
+              <b>
+                {pretty(game.account?.nickname ?? 'Siz')}
+                <VerifiedMark uid={game.account?.uid} size={13} />
+              </b>
               <em>{game.score}</em>
               <span>{game.mine.length} so‘z</span>
             </span>
@@ -303,7 +307,10 @@ function Playing({ game }: { game: GunchaJang }) {
                 uid={game.opponentUid ?? undefined}
                 size={24}
               />
-              <b>{pretty(game.opponent?.nickname ?? 'Raqib')}</b>
+              <b>
+                {pretty(game.opponent?.nickname ?? 'Raqib')}
+                <VerifiedMark uid={game.opponentUid} size={13} />
+              </b>
               <em>{game.opponent?.score ?? 0}</em>
               <span>{game.opponent?.wordCount ?? 0} so‘z</span>
             </span>
@@ -447,11 +454,13 @@ function Result({ game }: { game: GunchaJang }) {
         <div className="gresult__cols">
           <Column
             name={pretty(game.account?.nickname ?? 'Siz')}
+            uid={game.account?.uid}
             score={mineScore}
             words={game.revealed.mine}
           />
           <Column
             name={pretty(game.opponent?.nickname ?? 'Raqib')}
+            uid={game.opponentUid}
             score={theirScore}
             words={game.revealed.theirs}
           />
@@ -506,17 +515,22 @@ function Result({ game }: { game: GunchaJang }) {
  *  bo'lardi. */
 function Column({
   name,
+  uid,
   score,
   words,
 }: {
   name: string;
+  uid?: string | null;
   score: number;
   words: string[];
 }) {
   return (
     <div className="gresult__col">
       <div className="gresult__who">
-        <strong>{name}</strong>
+        <strong>
+          {name}
+          <VerifiedMark uid={uid} size={14} />
+        </strong>
         <em>{score}</em>
       </div>
       {words.length === 0 ? (
