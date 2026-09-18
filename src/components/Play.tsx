@@ -17,6 +17,8 @@ import type { Game } from '../lib/useSozTop';
 import { puzzleKey, useHint } from '../lib/useHint';
 import { pretty } from '../lib/uz';
 import { Board, Keyboard } from './Board';
+import { Chart } from './Icons';
+import StatsPanel from './StatsPanel';
 import DownloadPromo from './DownloadPromo';
 import Leaderboard from './Leaderboard';
 import Modal from './Modal';
@@ -70,6 +72,10 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
   /** Reyting oynasi. Telefonda jadval taxtadan ancha pastda qolardi —
    *  endi taxtaning o'zidan bir bosishda ochiladi. */
   const [ranksOpen, setRanksOpen] = useState(false);
+  /** Statistika oynasi. Ilovada bu alohida sahifa (Reyting bilan yonma-yon
+   *  turadigan «Statistika» kartochkasi); saytda esa panel yon ustunda
+   *  qolib ketardi — telefonda uni umuman ko'rmaslik mumkin edi. */
+  const [statsOpen, setStatsOpen] = useState(false);
   /** Mehmon chegarasi oynasi — taxta yopilganda bir marta ochiladi,
    *  yopilsa ostidagi panel qoladi. */
   const [gateOpen, setGateOpen] = useState(true);
@@ -138,6 +144,15 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
           <button
             type="button"
             className="play__ranks"
+            onClick={() => setStatsOpen(true)}
+            aria-label="Statistika"
+            title="Statistika"
+          >
+            <Chart size={20} />
+          </button>
+          <button
+            type="button"
+            className="play__ranks"
             onClick={() => setRanksOpen(true)}
             aria-label="Reyting"
             title="Reyting"
@@ -155,6 +170,12 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
       {ranksOpen && (
         <Modal title="Reyting" onClose={() => setRanksOpen(false)}>
           <Leaderboard />
+        </Modal>
+      )}
+
+      {statsOpen && (
+        <Modal title="Statistika" onClose={() => setStatsOpen(false)}>
+          <StatsPanel choice={choice} stats={stats} total={game.total} bare />
         </Modal>
       )}
 

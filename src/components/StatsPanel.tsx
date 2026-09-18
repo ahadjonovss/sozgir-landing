@@ -55,18 +55,22 @@ export default function StatsPanel({
   choice,
   stats,
   total,
+  bare = false,
 }: {
   choice: GameChoice;
   stats: GameStats;
   total: FoundSummary;
+  /** Oyna ichida: sarlavha oynaning o'zida turadi, panel esa hoshiyasiz
+   *  bo'ladi — bitta kartochka ikkinchisining ichida ko'rinmasin. */
+  bare?: boolean;
 }) {
   const { mode, length } = choice;
   const winRate = stats.played === 0 ? 0 : Math.round((stats.wins / stats.played) * 100);
 
   return (
-    <div className="panel">
+    <div className={bare ? 'panel panel--bare' : 'panel'}>
       <div className="panel__head">
-        <h3>Statistika</h3>
+        {!bare && <h3>Statistika</h3>}
         <span className="panel__tag">
           {mode === 'daily' ? 'Kunlik' : `Cheksiz · ${length} harf`}
         </span>

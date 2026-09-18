@@ -149,3 +149,18 @@ export async function fetchDailyAnswer({
   const answer = data?.answer;
   return typeof answer === 'string' && answer.length > 0 ? normalize(answer) : null;
 }
+
+/** So'zning ma'nosi — lug'atdagi ta'rif. Topilmasa (yoki lug'at
+ *  yuklanmasa) `null`.
+ *
+ *  Jang tugagach javob so'zi ochiq turadi; ilovadagi natija ekranida
+ *  uning ma'nosi ham shu yerda bo'ladi, ya'ni lug'atga alohida kirishning
+ *  hojati yo'q. Sayt shu paytgacha faqat so'zning o'zini ko'rsatardi. */
+export async function wordMeaning(word: string, length: number): Promise<string | null> {
+  try {
+    const dictionary = await loadDictionary(length);
+    return dictionary.words[normalize(word)]?.d ?? null;
+  } catch {
+    return null;
+  }
+}

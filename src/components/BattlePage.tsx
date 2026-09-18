@@ -13,6 +13,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { useAuth } from '../lib/auth';
 import { inviteLink, verdictsOf, type BattlePlayer } from '../lib/battle';
+import { useMeaning } from '../lib/useMeaning';
 import { useSozjang, type Sozjang } from '../lib/useSozjang';
 import { display, pretty } from '../lib/uz';
 import { links, playerLink } from '../data/site';
@@ -671,6 +672,9 @@ function Result({ game }: { game: Sozjang }) {
   // o'rin ham mag'lubiyat emas: odam ikkinchi, uchinchi uchun o'ynagan.
   const place = game.arena.find((row) => row.mine)?.rank ?? 0;
   const first = game.mardu && place === 1;
+  /** Javob so'zining ma'nosi — ilovadagi natija ekranidagidek, so'z
+   *  ostida. Jang tugagan, yashirishdan ma'no yo'q. */
+  const meaning = useMeaning(game.battle?.answer, game.boardLength);
 
   const title = expired
     ? 'Chaqiruv muddati o‘tdi'
@@ -708,6 +712,7 @@ function Result({ game }: { game: Sozjang }) {
           <>
             <p className="verdict__label">Yashirin so‘z</p>
             <p className="result__word" data-script="word">{display(game.battle.answer)}</p>
+            {meaning && <p className="result__def">{pretty(meaning)}</p>}
           </>
         )}
       </div>

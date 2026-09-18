@@ -38,6 +38,7 @@ import {
   type ReactionKey,
 } from './reactions';
 import { EMOJI, keyAction, lengthOf, normalize, split, type Verdict } from './uz';
+import { useSettings } from './settings';
 import { gameKey } from './useScript';
 import { links, site } from '../data/site';
 
@@ -127,6 +128,8 @@ export function useSozjang() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  /** Avto to'ldirish — sarlavhadagi «Sozlamalar»dan. */
+  const settings = useSettings();
   const [hint, setHint] = useState<{ index: number; unit: string } | null>(null);
   /** Raqibdan endigina kelgan reaksiya. `token` — bayroq emas, sanoq:
    *  raqib ketma-ket ikki marta bir xil belgini yuborsa ham ekran
@@ -328,14 +331,20 @@ export function useSozjang() {
   const myRows = useMemo(() => me?.rows ?? [], [me]);
   const finished = me?.finished === true;
 
-  /** Faol qator: topilgan harflar qulflangan, qolgani yozilgan harflar. */
+  /** Faol qator: topilgan harflar qulflangan, qolgani yozilgan harflar.
+   *
+   *  Avto to'ldirish endi sozlamaga bo'ysunadi (ilovadagidek): o'chiq
+   *  bo'lsa qator bo'sh qoladi. Serverdan kelgan maslahat esa baribir
+   *  o'z katagiga tushadi — u alohida narsa, odam uni ataylab olgan. */
   const locked = useMemo(() => {
-    const out = autoFill(myRows, words, boardLength);
+    const out = settings.autoFill
+      ? autoFill(myRows, words, boardLength)
+      : Array.from({ length: boardLength }, () => '');
     // Server bergan maslahat (60 % harf topilgach bitta harf) ham keyingi
     // qatorga tushadi — ilovadagi topilgan harflar kabi qulflanadi.
     if (hint && hint.index < boardLength && !out[hint.index]) out[hint.index] = hint.unit;
     return out;
-  }, [boardLength, hint, myRows, words]);
+  }, [boardLength, hint, myRows, settings.autoFill, words]);
   const current = useMemo(() => {
     const fresh = typed.row === myRows.length ? typed.units : [];
     return locked.map((unit, index) => unit || fresh[index] || '');

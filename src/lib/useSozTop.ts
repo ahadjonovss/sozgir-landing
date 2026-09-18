@@ -12,6 +12,7 @@ import { links } from '../data/site';
 import { useAuth } from './auth';
 import { dailyKey, dailyNumber, selectDailyWord } from './daily';
 import { fetchDailyAnswer, loadDictionary, type Dictionary } from './dictionary';
+import { hardModeError, knownLetters } from './hardMode';
 import { attemptsFor, type Mode } from './modes';
 import {
   ensureRestored,
@@ -37,6 +38,7 @@ import {
   split,
   type Verdict,
 } from './uz';
+import { useSettings } from './settings';
 import { gameKey } from './useScript';
 
 export interface Puzzle {
@@ -55,6 +57,13 @@ export type Phase = 'loading' | 'playing' | 'won' | 'lost' | 'error';
 export interface Row {
   units: string[];
   verdicts: Verdict[] | null;
+}
+
+/** Taxtaga beriladigan qator. Faol qatorda `lock` ham bo'lishi mumkin:
+ *  avto to'ldirishda o'zi qo'yilgan, o'chirib bo'lmaydigan harf. */
+export interface BoardRow {
+  units: string[];
+  verdicts: ReadonlyArray<Verdict | 'lock' | null> | null;
 }
 
 export interface Result {
@@ -115,6 +124,19 @@ function describe(dictionary: Dictionary, answer: string) {
   };
 }
 
+/** Oxirgi qo'lda terilgan katak: joyi va harfi. Qulflangan (avto
+ *  to'ldirilgan) kataklar hisobga olinmaydi — ularni odam termagan. */
+function lastTypedCell(
+  typed: string[],
+  locks: Map<number, string>,
+  length: number,
+): { index: number; unit: string } | null {
+  for (let i = length - 1; i >= 0; i--) {
+    if (!locks.has(i) && typed[i]) return { index: i, unit: typed[i] };
+  }
+  return null;
+}
+
 /** Kunlik topishmoq: serverdagi so'z ustun, bo'lmasa lokal tanlov. */
 async function dailyPuzzle(length: number): Promise<Puzzle> {
   const dictionary = await loadDictionary(length);
@@ -161,7 +183,9 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
   const [puzzle, setPuzzle] = useState<Puzzle | null>(null);
   const [phase, setPhase] = useState<Phase>('loading');
   const [past, setPast] = useState<Row[]>([]);
-  const [current, setCurrent] = useState<string[]>([]);
+  /** Odam tergan harflar — katak bo'yicha. Avto to'ldirishda qator
+   *  boshidan to'lmaydi: bo'sh kataklar o'rtada ham qolishi mumkin. */
+  const [typed, setTyped] = useState<string[]>([]);
   const [flipRow, setFlipRow] = useState(-1);
   const [shake, setShake] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -171,6 +195,8 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
    *  ko'rsatiladi, shuning uchun holatda turadi. */
   const [total, setTotal] = useState<FoundSummary>(foundSummary);
   const [round, setRound] = useState(0);
+  /** Qattiq rejim va avto to'ldirish — sarlavhadagi «Sozlamalar»dan. */
+  const settings = useSettings();
 
   const accountRef = useRef(account);
   useEffect(() => {
@@ -311,7 +337,7 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
 
         setPuzzle(next);
         setPast(rows);
-        setCurrent([]);
+        setTyped([]);
         setMessage(null);
         setFlipRow(-1);
         setResult(null);
@@ -390,7 +416,7 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
       });
 
       setPast([]);
-      setCurrent([]);
+      setTyped([]);
       setPhase(entry.won ? 'won' : 'lost');
       setResult({
         points: entry.points,
@@ -420,18 +446,45 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
   const locked =
     !account && phase === 'playing' && guestGamesPlayed() >= GUEST_GAME_LIMIT;
 
+  /** Avto to'ldirish — ilovadagi `_autoFilledInput`: joyi aniq bo'lgan
+   *  harflar keyingi qatorga o'zi qo'yiladi va o'chirilmaydi. Sozlama
+   *  o'chiq bo'lsa qator bo'sh qoladi, harflarni odam o'zi teradi. */
+  const boardLength = puzzle?.length ?? length;
+  const locks = useMemo(
+    () =>
+      settings.autoFill && phase === 'playing'
+        ? knownLetters(past)
+        : new Map<number, string>(),
+    [past, phase, settings.autoFill],
+  );
+
+  /** Faol qator: qulflangan harflar va odam tergani bir qatorda. */
+  const current = useMemo(
+    () => Array.from({ length: boardLength }, (_, i) => locks.get(i) ?? typed[i] ?? ''),
+    [boardLength, locks, typed],
+  );
+
   const press = useCallback(
     (key: string) => {
       if (phase !== 'playing' || !puzzle || locked) return;
       const answer = puzzle.units;
 
       if (key === 'back') {
-        setCurrent((units) => units.slice(0, -1));
+        // Qulflangan katak o'chirilmaydi — ilovadagi `onBackspace`.
+        setTyped((units) => {
+          for (let i = answer.length - 1; i >= 0; i--) {
+            if (locks.has(i) || !units[i]) continue;
+            const next = [...units];
+            next[i] = '';
+            return next;
+          }
+          return units;
+        });
         return;
       }
 
       if (key === 'enter') {
-        if (current.length < answer.length) {
+        if (current.some((unit) => !unit)) {
           bump('Yetarli harf yo‘q');
           return;
         }
@@ -439,6 +492,14 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
         if (!dictionary.current?.valid.has(word)) {
           bump('Bu so‘z lug‘atda yo‘q');
           return;
+        }
+        // Qattiq rejim: ochilgan harflarni ishlatish shart.
+        if (settings.hardMode) {
+          const violation = hardModeError(past, current);
+          if (violation) {
+            bump(violation);
+            return;
+          }
         }
 
         const verdicts = evaluate(current, answer);
@@ -448,7 +509,7 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
         const lost = !won && attempts >= attemptsFor(puzzle.length);
 
         setPast((rows) => [...rows, { units: current, verdicts }]);
-        setCurrent([]);
+        setTyped([]);
         setFlipRow(rowIndex);
 
         const session = readSession(puzzle.mode, puzzle.length);
@@ -469,14 +530,24 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
         return;
       }
 
-      if (current.length >= answer.length) {
+      // Harf birinchi bo'sh katakka tushadi: qulflangani oralab o'tiladi.
+      const free = current.findIndex((unit) => !unit);
+      if (free === -1) {
         bump('Katak to‘lgan');
         return;
       }
-      setCurrent((units) => [...units, key]);
+      setTyped((units) => {
+        const next = [...units];
+        next[free] = key;
+        return next;
+      });
     },
-    [bump, current, later, locked, past.length, phase, puzzle],
+    [bump, current, later, locked, locks, past, phase, puzzle, settings.hardMode],
   );
+
+  /** Oxirgi qo'lda terilgan katak — `sh`, `oʻ` kabi birikmalar uchun.
+   *  Qulflangan harf hisobga olinmaydi: uni odam termagan. */
+  const lastTyped = lastTypedCell(typed, locks, current.length);
 
   /** Fizik klaviatura — qoida `uz.ts` dagi `keyAction` da. */
   useEffect(() => {
@@ -487,19 +558,27 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
         return;
       }
 
-      const action = keyAction(gameKey(event.key), current.at(-1));
+      const action = keyAction(gameKey(event.key), lastTyped?.unit);
       if (!action) return;
       event.preventDefault();
 
       if (action.kind === 'enter') press('enter');
       else if (action.kind === 'back') press('back');
       else if (action.kind === 'letter') press(action.unit);
-      else setCurrent((units) => [...units.slice(0, -1), action.unit]);
+      else if (lastTyped) {
+        // Birikma: oxirgi harf o'rniga `sh`, `oʻ` tushadi.
+        const { index } = lastTyped;
+        setTyped((units) => {
+          const next = [...units];
+          next[index] = action.unit;
+          return next;
+        });
+      }
     };
 
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [current, press]);
+  }, [lastTyped, press]);
 
   /** Klaviatura tugmalarining rangi — eng yaxshi natija saqlanadi. */
   const keyState = useMemo(() => {
@@ -515,13 +594,21 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
     return map;
   }, [past]);
 
-  const rows = useMemo<Row[]>(() => {
+  const rows = useMemo<BoardRow[]>(() => {
     const total = attemptsFor(puzzle?.length ?? length);
-    const out: Row[] = [...past];
-    if (phase === 'playing') out.push({ units: current, verdicts: null });
+    const out: BoardRow[] = [...past];
+    if (phase === 'playing') {
+      out.push({
+        units: current,
+        // Qulflangan kataklar ajratib turadi — So'zjangdagidek.
+        verdicts: locks.size
+          ? current.map((_, index) => (locks.has(index) ? 'lock' : null))
+          : null,
+      });
+    }
     while (out.length < total) out.push({ units: [], verdicts: null });
     return out.slice(0, total);
-  }, [current, length, past, phase, puzzle]);
+  }, [current, length, locks, past, phase, puzzle]);
 
   /** Cheksiz rejimda yangi so'z. Kunlik o'yin bir kunda bitta. */
   const playAgain = useCallback(() => {
