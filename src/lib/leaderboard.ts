@@ -46,7 +46,7 @@ export async function dailyTop({
   }));
 }
 
-/** Bugun barcha o'yinlarda ishlab topilgan ball — ilovadagi «Bugun»
+/** Bugun barcha o'yinlarda ishlangan aqcha — ilovadagi «Bugun»
  *  jadvalining o'zi (`daily_scores/{sana}/entries`).
  *
  *  Kunlik jadvaldan farqi: u faqat bugungi **so'z** natijasi, bu esa shu

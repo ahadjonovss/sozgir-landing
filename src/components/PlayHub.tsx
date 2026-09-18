@@ -18,6 +18,7 @@ import AppMark from './AppMark';
 import { Clock, Swords, Users } from './Icons';
 import GunchaCard from './GunchaCard';
 import TelegramBanner from './TelegramBanner';
+import { Aqcha } from './Units';
 
 /** Bugungi o'yin holati — saqlangan sessiyadan.
  *
@@ -96,7 +97,8 @@ export default function PlayHub() {
                   <span>
                     {daily.won ? (
                       <>
-                        <b>{daily.guesses}/{max}</b> urinishda · <b>+{daily.points}</b> ball
+                        <b>{daily.guesses}/{max}</b> urinishda ·{' '}
+                        <b><Aqcha tiyin={daily.points} size="sm" sign /></b>
                       </>
                     ) : (
                       'Bugun topa olmadingiz'

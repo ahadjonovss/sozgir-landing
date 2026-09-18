@@ -1,4 +1,4 @@
-/** Homiylik darajasi chipi — ♥, nom va burchagida kichik ⓘ.
+/** Homiylik darajasi chipi — nishon, nom va burchagida kichik ⓘ.
  *
  *  Belgi raqibda yoki jadvalda ko'ringanda odam «bu nima?» deb qoladi —
  *  chip (yoki ⓘ) bosilsa tepasida bir jumlalik izoh chiqadi: bu ko'rinish
@@ -7,7 +7,7 @@
  *  ichida tugma bo'lmaydi), ⓘ shunchaki belgi. */
 import { useEffect, useRef, useState } from 'react';
 import { donorLabel, type DonorTier } from '../lib/donor';
-import { Heart } from './Icons';
+import { DonorBadge } from './Units';
 
 export const DONOR_HINT = 'Bu ko‘rinish loyihaga donat qilganlarda chiqadi. Daraja donat summasiga bog‘liq.';
 
@@ -57,7 +57,7 @@ export default function DonorChip({
         }
       }}
     >
-      <Heart size={13} />
+      <DonorBadge tier={tier} size={16} />
       {donorLabel(tier)}
       <span className="donor-chip__info" aria-hidden="true">
         i

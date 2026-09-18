@@ -907,6 +907,59 @@
   background: var(--surface);
 }
 
+/* ── Aqcha va o'lja belgisi ──────────────────────────────────────────── */
+
+/* Daraja nishoni — jangdagi pog'ona va homiylik darajasi. */
+.badge {
+  flex: none;
+  object-fit: contain;
+  vertical-align: middle;
+}
+
+.rank__meta--tier {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Ikki sinf ataylab: `.metrics li span` kabi qoidalar belgini o'z
+   o'lchamiga tortib olardi — birlik esa har doim **o'zi turgan matn**
+   bilan bir xil bo'lishi kerak (`font: inherit`). */
+.unit.unit--sm,
+.unit.unit--md,
+.unit.unit--lg {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.34em;
+  font: inherit;
+  color: inherit;
+  white-space: nowrap;
+}
+
+/* Belgi matn bilan birga o'sadi: u qayerga qo'yilsa, o'sha yerning
+   shriftiga moslashadi — alohida o'lcham berish kerak emas. */
+.unit__icon {
+  width: 1.05em;
+  height: 1.05em;
+  flex: none;
+  object-fit: contain;
+  /* Rasmning o'z pastki chegarasi bor, shuning uchun u raqamdan bir oz
+     baland turadi — yarim piksel pastga tushiriladi. */
+  transform: translateY(0.02em);
+}
+
+/* Kichik matnda belgi nisbatan kattaroq bo'lishi kerak: o'lja belgisi
+   (qilich va qalqon) ichida tafsilot ko'p, 1em da u dog'ga aylanadi. */
+.unit--sm .unit__icon {
+  width: 1.3em;
+  height: 1.3em;
+}
+
+.unit--lg .unit__icon {
+  width: 0.92em;
+  height: 0.92em;
+}
+
 /* Oyna ichidagi panel: fon va ichki bo'shliq oynanikidan takrorlanmaydi. */
 .panel--bare {
   padding: 0;
@@ -3206,7 +3259,7 @@
   width: 100%;
 }
 
-/* Umumiy ball — ekrandagi eng katta raqam, sariq (ilovadagi `present`). */
+/* Yig'ilgan aqcha — ekrandagi eng katta raqam, sariq (ilovadagi `present`). */
 .player__score {
   display: grid;
   gap: 4px;

@@ -27,12 +27,12 @@ export type DonorTier =
   | 'oqsuyak';
 
 /** Darajalar — yuqoridan pastga: birinchi mos kelgani olinadi. */
-export const DONOR_TIERS: { tier: DonorTier; min: number; label: string }[] = [
-  { tier: 'oqsuyak', min: 500_000, label: 'Oqsuyak' },
-  { tier: 'zodagon', min: 150_000, label: 'Zodagon' },
-  { tier: 'eskiBoylardan', min: 50_000, label: 'Eski boylardan' },
-  { tier: 'boyvachcha', min: 20_000, label: 'Boyvachcha' },
-  { tier: 'saxovatpesha', min: 5_000, label: 'Saxovatpesha' },
+export const DONOR_TIERS: { tier: DonorTier; min: number; label: string; slug: string }[] = [
+  { tier: 'oqsuyak', min: 500_000, label: 'Oqsuyak', slug: 'oqsuyak' },
+  { tier: 'zodagon', min: 150_000, label: 'Zodagon', slug: 'zodagon' },
+  { tier: 'eskiBoylardan', min: 50_000, label: 'Eski boylardan', slug: 'eski-boylardan' },
+  { tier: 'boyvachcha', min: 20_000, label: 'Boyvachcha', slug: 'boyvachcha' },
+  { tier: 'saxovatpesha', min: 5_000, label: 'Saxovatpesha', slug: 'saxovatpesha' },
 ];
 
 export function donorTier(amount: number): DonorTier | null {
@@ -42,6 +42,11 @@ export function donorTier(amount: number): DonorTier | null {
 
 export function donorLabel(tier: DonorTier): string {
   return DONOR_TIERS.find((level) => level.tier === tier)?.label ?? '';
+}
+
+/** Daraja nishonining fayli: `public/homiy/{slug}.png`. */
+export function donorSlug(tier: DonorTier): string {
+  return DONOR_TIERS.find((level) => level.tier === tier)?.slug ?? '';
 }
 
 /** Keyingi daraja — donatga sabab. Eng yuqorida `null`. */

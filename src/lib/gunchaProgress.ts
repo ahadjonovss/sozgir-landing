@@ -9,9 +9,17 @@
  *  ballni ikkilantirmaydi va eski raund yozuvi o'chirilsa ham yig'ma
  *  hisob joyida qoladi.
  *
+ *  G'unchaning **o'z balli o'yin ichida qoladi** (4 harfli so'z 1, uzuni
+ *  uzunligicha, pangramma +7): u daraja zinapoyasini yuritadi. Hamyonga
+ *  esa raundning **ulushi** tushadi — to'liq yechilgan g'uncha 20 aqcha,
+ *  yarmi 10 (`docs/aqcha.md`, 4.2). Ilgari xom yig'indining o'zi
+ *  tushardi va kunlik mukofotni o'yinchi emas, o'sha kungi harflar
+ *  belgilardi: lug'atda qancha so'z chiqishiga qarab 3 dan 21 aqchagacha.
+ *
  *  Umumiy ballga g'uncha `scores.ts` orqali tushadi: `scores/{uid}` ning
  *  yozuvchisi bitta bo'lishi kerak, aks holda bir o'yin ikkinchisining
  *  hissasini o'chirib yuborardi. */
+import { tiyin } from './aqcha';
 import type { Account } from './auth';
 import { maxScoreOf, puzzleId, signatureOf, wordOf, type GunchaPuzzle } from './guncha';
 import { readStoredNickname } from './nickname';
@@ -28,13 +36,28 @@ interface Round {
   signature: string;
   words: string[];
   /** Shu yozuv yig'ma hisobga nima qo'shgani — keyingi saqlashda aynan
-   *  shu ayiriladi. */
-  applied: { score: number; words: number };
+   *  shu ayiriladi.
+   *
+   *  `paid` — to'langan tiyin. Islohotdan oldingi yozuvlarda u yo'q:
+   *  o'shalarda hisobga xom ball (`score`) tushgan, ya'ni ayiriladigani
+   *  ham o'sha. Shu tufayli ko'chirish kerak emas. */
+  applied: { score: number; words: number; paid?: number };
 }
 
 export interface GunchaTotals {
+  /** Hamyondagi ulush — **tiyinda** (ekranda aqcha bo'lib ko'rinadi). */
   score: number;
   words: number;
+}
+
+/** To'liq yechilgan g'uncha uchun mukofot — aqchada. */
+const GUNCHA_BASE = 20;
+
+/** Raundning hamyonga tushadigan ulushi — tiyinda. */
+export function roundPaid(puzzle: GunchaPuzzle, score: number): number {
+  const max = maxScoreOf(puzzle);
+  if (max <= 0 || score <= 0) return 0;
+  return tiyin(Math.floor((GUNCHA_BASE * score) / max));
 }
 
 function read<T>(key: string, fallback: T): T {
@@ -99,16 +122,19 @@ export function saveRound({
   const score = words.reduce((sum, word) => sum + (wordOf(puzzle, word)?.score ?? 0), 0);
 
   const applied = previous?.applied ?? { score: 0, words: 0 };
+  const paid = roundPaid(puzzle, score);
   const totals = readTotals();
   const next: GunchaTotals = {
-    score: Math.max(0, totals.score - applied.score + score),
+    // Avval nima to'langan bo'lsa, o'sha ayiriladi: yangi yozuvlarda
+    // `paid`, eskilarida xom ball.
+    score: Math.max(0, totals.score - (applied.paid ?? applied.score) + paid),
     words: Math.max(0, totals.words - applied.words + words.length),
   };
 
   write(ROUND_KEY(id), {
     signature: signatureOf(puzzle),
     words,
-    applied: { score, words: words.length },
+    applied: { score, words: words.length, paid },
   } satisfies Round);
   write(TOTAL_KEY, next);
 
@@ -116,7 +142,7 @@ export function saveRound({
   return next;
 }
 
-/** G'unchaning xom balli — umumiy hisobga shu tushadi.
+/** G'unchaning hamyondagi ulushi — umumiy hisobga shu tushadi.
  *
  *  Hammasi yakka o'yin: jangdagi ball hozircha alohida yuritilmaydi
  *  (ilovada ham shunday — `GunchaScoreSource` faqat yakka o'yinni

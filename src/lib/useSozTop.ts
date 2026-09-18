@@ -13,6 +13,7 @@ import { useAuth } from './auth';
 import { dailyKey, dailyNumber, selectDailyWord } from './daily';
 import { fetchDailyAnswer, loadDictionary, type Dictionary } from './dictionary';
 import { hardModeError, knownLetters } from './hardMode';
+import type { HintLevel } from './score';
 import { attemptsFor, type Mode } from './modes';
 import {
   ensureRestored,
@@ -208,6 +209,11 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
   /** «Yana bir so'z» bosilganmi — shundagina yangi raqam olinadi.
    *  Aks holda uzunlik almashtirilganda ham raqam behuda o'sardi. */
   const wantsNew = useRef(false);
+  /** Shu so'zda olingan yordam bosqichi — mukofot chegarasi shunga
+   *  bog'liq (`score.ts`). Yordam `useHint` da, ya'ni komponentda
+   *  yashaydi; bu yerga `noteHint` orqali yetib keladi va har yangi
+   *  so'zda nolga qaytadi. */
+  const hintLevel = useRef<HintLevel>(0);
 
   const later = useCallback((action: () => void, delay: number) => {
     timers.current.push(window.setTimeout(action, delay));
@@ -245,6 +251,7 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
           number: target.number,
           dateKey: target.dateKey,
           answer: target.answer,
+          hint: hintLevel.current,
           ...(target.categoryId ? { categoryId: target.categoryId } : {}),
         },
         account,
@@ -335,6 +342,7 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
           ? !won
           : !won && rows.length >= attemptsFor(length);
 
+        hintLevel.current = 0;
         setPuzzle(next);
         setPast(rows);
         setTyped([]);
@@ -619,6 +627,13 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
 
   const retry = useCallback(() => setRound((value) => value + 1), []);
 
+  /** Olingan yordamni eslab qo'yadi — natija yozilganda mukofot
+   *  chegarasi shundan olinadi. Faqat o'sadi: ochilgan yordam
+   *  yopilmaydi. */
+  const noteHint = useCallback((level: HintLevel) => {
+    if (level > hintLevel.current) hintLevel.current = level;
+  }, []);
+
   /** Ulashish uchun spoylersiz matn — ilovadagi shakl bilan bir xil. */
   const shareText = useCallback(() => {
     if (!puzzle) return 'So‘ztop';
@@ -649,6 +664,7 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
     press,
     playAgain,
     retry,
+    noteHint,
     shareText,
   };
 }

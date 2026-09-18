@@ -1,7 +1,7 @@
 /** G'uncha jangi — `/gunchajang`.
  *
  *  Ikkalangizga bir xil g'uncha beriladi, uch daqiqa vaqt bo'ladi va kim
- *  ko'p ball yig'sa — o'sha yutadi. Jang ekrani yakka g'unchadan **shakl
+ *  ko'p to'plasa — o'sha yutadi. Jang ekrani yakka g'unchadan **shakl
  *  jihatidan farq qilmaydi**: o'sha gul, o'sha tugmalar, faqat tepasiga
  *  taymer va raqib qatori qo'shiladi — o'rganish qaytadan boshlanmasin.
  *
@@ -24,6 +24,7 @@ import GunchaFlower from './GunchaFlower';
 import { Check, Copy, Swords, Users } from './Icons';
 import Modal from './Modal';
 import { ReactionBurst, ReactionPicker } from './Reactions';
+import ScoreRules from './ScoreRules';
 import SendInvite, { type InviteTarget } from './SendInvite';
 import TelegramBanner from './TelegramBanner';
 
@@ -50,8 +51,8 @@ export default function GunchaBattlePage() {
           <div className="panel panel--call">
             <h3>Jang uchun hisob kerak</h3>
             <p className="panel__note">
-              Raqibingiz taxallusingizni ko‘radi va natija reytingga
-              yoziladi — shuning uchun g‘uncha jangi hisobsiz o‘ynalmaydi.
+              Raqibingiz taxallusingizni ko‘radi va jang o‘lja beradi —
+              shuning uchun g‘uncha jangi hisobsiz o‘ynalmaydi.
             </p>
             <button className="btn btn--sm" onClick={() => openPrompt('signIn')}>
               Kirish
@@ -112,7 +113,7 @@ function Lobby({ game }: { game: GunchaJang }) {
           </button>
           <p className="panel__note lobby__hint">
             Ikkalangizga bir xil g‘uncha beriladi va uch daqiqa vaqt bo‘ladi.
-            Kim ko‘p ball yig‘sa — o‘sha yutadi.
+            Kim ko‘p to‘plasa — o‘sha yutadi.
           </p>
 
           <div className="lobby__friend">
@@ -149,9 +150,10 @@ function Lobby({ game }: { game: GunchaJang }) {
           <h3>Qoidalar</h3>
           <ol className="guncha__rules">
             <li>So‘z kamida 4 harfdan bo‘lsin va yurak harf qatnashsin.</li>
-            <li>Uzun so‘z ko‘p ball beradi, pangramma — qo‘shimcha 7 ball.</li>
+            <li>Uzun so‘z ko‘proq beradi, pangramma — qo‘shimcha 7.</li>
             <li>Vaqtni server hisoblaydi: muddat o‘tgach so‘z hisoblanmaydi.</li>
-            <li>Ball teng bo‘lsa — durang.</li>
+            <li>Hisob teng bo‘lsa — durang.</li>
+            <ScoreRules game="gunchajang" bare />
           </ol>
         </div>
       </div>
@@ -365,7 +367,7 @@ function Playing({ game }: { game: GunchaJang }) {
       <div className="guncha__foot">
         <ReactionPicker sent={game.sentReaction} onReact={game.react} />
         <span>
-          {game.mine.length} so‘z · {game.score} ball
+          {game.mine.length} so‘z · {game.score}
         </span>
         <button className="link" onClick={() => setConfirm(true)}>
           Chiqish
@@ -420,12 +422,12 @@ function Result({ game }: { game: GunchaJang }) {
         ? 'G‘alaba'
         : 'Mag‘lubiyat';
   const lead = game.mardu
-    ? `${game.arena.length} kishilik maydon · ${mineScore} ball`
+    ? `${game.arena.length} kishilik maydon · ${mineScore} to‘pladingiz`
     : !winner
-      ? `Ikkalangiz ham ${mineScore} ball`
+      ? `Ikkalangiz ham ${mineScore} to‘pladingiz`
       : winner === uid
-        ? `Raqibingizdan ${mineScore - theirScore} ball ko‘p topdingiz`
-        : `${theirScore - mineScore} ball yetmadi`;
+        ? `Raqibingizdan ${mineScore - theirScore} ko‘p to‘pladingiz`
+        : `${theirScore - mineScore} yetmadi`;
 
   return (
     <div className="panel gresult">
@@ -498,7 +500,7 @@ function Result({ game }: { game: GunchaJang }) {
   );
 }
 
-/** Natijadagi bitta ustun: ball va topilgan so'zlar.
+/** Natijadagi bitta ustun: hisob va topilgan so'zlar.
  *
  *  So'zlar jang tugagach ochiladi — davomida ular raqibga tayyor javob
  *  bo'lardi. */
@@ -515,7 +517,7 @@ function Column({
     <div className="gresult__col">
       <div className="gresult__who">
         <strong>{name}</strong>
-        <em>{score} ball</em>
+        <em>{score}</em>
       </div>
       {words.length === 0 ? (
         <p className="panel__note">Hech narsa topilmadi</p>

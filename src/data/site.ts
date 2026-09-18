@@ -22,7 +22,7 @@ export const links = {
   battle: '/sozjang',
   /** G'uncha — yettita harfdan so'z yig'ish. */
   guncha: '/guncha',
-  /** G'uncha jangi: bir xil g'uncha, uch daqiqa, kim ko'p ball yig'sa. */
+  /** G'uncha jangi: bir xil g'uncha, uch daqiqa, kim ko'p to'plasa. */
   gunchaBattle: '/gunchajang',
   /** Mardu maydon — yangi o'yin emas, yangi shakl: o'sha So'zjang yoki
    *  G'uncha, lekin sakkiztagacha odam bir vaqtda o'ynaydi. */
@@ -72,6 +72,7 @@ export const modules: Module[] = [
       'Cheksiz — 4 dan 7 harfgacha, xohlagancha mashq',
       'Kategoriya — mavzu tanlab o‘ynash',
       'Qattiq rejim: ochilgan harfni keyingi taxminda ishlatish shart',
+      'Kunlik so‘z — 20 aqchagacha, cheksiz rejimda 8 aqchagacha',
     ],
     accent: 'green',
   },
@@ -84,7 +85,7 @@ export const modules: Module[] = [
       'Saytda ham o‘ynaladi: do‘stga kod yuboring yoki tasodifiy raqib toping',
       'Tezkor jang: tasodifiy raqib, 90 soniya',
       'Raqibning kataklari harfsiz — faqat ranglar ko‘rinadi',
-      'Elo reytingi bilan kuchingiz o‘lchanadi',
+      'O‘lja bilan kuchingiz o‘lchanadi: bir jangda eng ko‘pi ±10',
     ],
     accent: 'orange',
   },
@@ -109,7 +110,8 @@ export const modules: Module[] = [
     points: [
       'Saytda ham o‘ynaladi: kunlik g‘uncha va cheksiz mashq',
       'O‘rtadagi yurak harf har bir so‘zda qatnashadi',
-      'Yettala harf ishlatilgan so‘z — pangramma, qo‘shimcha ball',
+      'Yettala harf ishlatilgan so‘z — pangramma: qo‘shimcha hisob',
+      'To‘liq yechilgan kunlik g‘uncha — 20 aqcha',
       'Har topilgan so‘zning ma’nosi shu yerda: o‘ynab turib lug‘at boyitasiz',
     ],
     accent: 'teal',
@@ -118,10 +120,10 @@ export const modules: Module[] = [
     id: 'reyting',
     emoji: '🏆',
     name: 'Reyting',
-    tagline: 'Kam urinish — ko‘p ball. Ballar reytingga yig‘iladi.',
+    tagline: 'Kam urinish — ko‘p aqcha. Aqcha reytingga yig‘iladi.',
     points: [
-      'Kunlik reyting — bugungi ball bo‘yicha',
-      'Umumiy reyting — jamlangan ball bo‘yicha',
+      'Kunlik reyting — bugun ishlangan aqcha bo‘yicha',
+      'Umumiy reyting — jamlangan aqcha bo‘yicha',
       'Statistika: g‘alaba foizi, streak, urinishlar taqsimoti',
       'Natijani spoylersiz ulashish',
     ],
@@ -172,11 +174,15 @@ export const faq = [
     a: 'Ilova bepul. Bosh ekran ostida bitta reklama banneri turadi — o‘yin taxtasiga, kategoriyalarga va reytingga reklama tushmaydi. Oraliq reklama, video reklama, ilova ichi xaridlari va obuna yo‘q. Xohlovchilar «Qo‘llab-quvvatlash» bo‘limi orqali hissa qo‘shishi mumkin.',
   },
   {
+    q: 'Ballarim qayerga ketdi?',
+    a: 'Hech qayerga — ular aqchaga aylandi: 10 ball = 1 aqcha, ya’ni 5 980 ball endi 598 aqcha bo‘lib ko‘rinadi. Saqlangan natijalarga tegilmadi. Onlayn jang reytingi esa o‘lja deb ataladi — u yo‘qdan paydo bo‘lmaydi, raqibdan olinadi.',
+  },
+  {
     q: 'Kunlik so‘z hammaga bir xilmi?',
     a: 'Ha. Bir kunga bitta so‘z va u barcha qurilmalarda bir xil — shu sababli kunlik reyting adolatli bo‘ladi.',
   },
   {
-    q: 'Ball qanday hisoblanadi?',
-    a: 'Qancha kam urinishda topsangiz, shuncha ko‘p ball. So‘z uzunligi ham hisobga olinadi, takroriy o‘ynashda koeffitsiyent pasayadi.',
+    q: 'Aqcha qanday hisoblanadi?',
+    a: 'Kunlik so‘z birinchi urinishda 20 aqcha beradi, keyingi urinishlarda kamayadi: 17, 13, 10, 7, 3. Cheksiz rejimda qancha urinish qolsa — shuncha aqcha, eng ko‘pi 8. Avval topilgan so‘z 60 % beradi, yordam olinsa shift 6 yoki 4 aqchaga tushadi. Jang esa aqcha emas, o‘lja beradi: bir jangda eng ko‘pi ±10.',
   },
 ];

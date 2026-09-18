@@ -1,7 +1,7 @@
 /** Mardu maydon — `/maydon`.
  *
  *  Yangi o'yin emas, **yangi shakl**: ichida o'ynaladigani baribir
- *  So'zjang yoki G'uncha, qoidalari va ball hisobi o'sha. Farqi bitta —
+ *  So'zjang yoki G'uncha, qoidalari va hisobi o'sha. Farqi bitta —
  *  raqib bittadan ko'p, sakkiztagacha.
  *
  *  Ikki yo'l bor va ikkalasi bitta kutish xonasiga olib keladi:
@@ -23,6 +23,7 @@ import { pretty } from '../lib/uz';
 import ArenaHistory from './ArenaHistory';
 import Avatar from './Avatar';
 import CodeInput from './CodeInput';
+import ScoreRules from './ScoreRules';
 import { Check, Copy, Swords, Users } from './Icons';
 import TelegramBanner from './TelegramBanner';
 
@@ -40,7 +41,7 @@ const GAMES: { id: BattleGame; label: string; hint: string }[] = [
   {
     id: 'guncha',
     label: 'G‘uncha',
-    hint: 'Hammaga bir xil g‘uncha, uch daqiqa. Kim ko‘p ball yig‘sa — o‘sha yuqorida.',
+    hint: 'Hammaga bir xil g‘uncha, uch daqiqa. Kim ko‘p to‘plasa — o‘sha yuqorida.',
   },
   {
     id: 'soztop',
@@ -60,8 +61,8 @@ export default function MarduPage() {
           <div className="panel panel--call">
             <h3>Maydon uchun hisob kerak</h3>
             <p className="panel__note">
-              Maydondagilar taxallusingizni ko‘radi va natija reytingga
-              yoziladi — shuning uchun maydon hisobsiz o‘ynalmaydi.
+              Maydondagilar taxallusingizni ko‘radi va o‘rin o‘lja
+              beradi — shuning uchun maydon hisobsiz o‘ynalmaydi.
             </p>
             <button className="btn btn--sm" onClick={() => openPrompt('signIn')}>
               Kirish
@@ -174,7 +175,7 @@ function Hub({ mardu }: { mardu: Mardu }) {
             <li>Maydonga {MARDU_CAPACITY} kishigacha yig‘iladi, kamida {MARDU_MIN_PLAYERS}.</li>
             <li>O‘yin o‘zgarmaydi — o‘sha so‘z yoki o‘sha g‘uncha, faqat raqib ko‘p.</li>
             <li>Vaqtni server hisoblaydi: muddat o‘tgach natija yakunlanadi.</li>
-            <li>Oxirida jadval tuziladi; reyting o‘rin bo‘yicha o‘zgaradi.</li>
+            <ScoreRules game="mardu" bare />
           </ol>
         </div>
       </div>

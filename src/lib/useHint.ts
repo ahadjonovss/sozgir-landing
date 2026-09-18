@@ -12,6 +12,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PATHS } from '../firebase/paths';
 import { readDoc } from '../firebase/rest';
+import type { HintLevel } from './score';
 import type { Puzzle, Phase } from './useSozTop';
 
 /** Mavzu shuncha vaqtdan keyin — ilovadagi `hintDelayFor`. */
@@ -56,6 +57,9 @@ export async function categoryLabel(id: string): Promise<CategoryLabel | null> {
 export interface Hint {
   /** Yordam umuman bormi (kunlikda va tugagan o'yinda — yo'q). */
   enabled: boolean;
+  /** Olingan yordam bosqichi: 0 — yo'q, 1 — mavzu, 2 — ma'no ham.
+   *  Mukofotning yuqori chegarasi shunga qarab tushadi (`score.ts`). */
+  used: HintLevel;
   /** Hozir bosib ochish mumkin. */
   ready: boolean;
   /** Keyingi yordam paydo bo'ladigan payt (ms) — sanoq uchun; yo'q bo'lsa `null`. */
@@ -131,6 +135,7 @@ export function useHint(puzzle: Puzzle | null, phase: Phase): Hint {
 
   return {
     enabled: allowed,
+    used: allowed ? (descriptionShown ? 2 : categoryShown ? 1 : 0) : 0,
     ready: playing && (canCategory || canDescription),
     nextAt,
     line: allowed ? line : null,

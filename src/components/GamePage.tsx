@@ -43,7 +43,7 @@ export default function GamePage() {
               <h3>Natijangiz saqlanmayapti</h3>
               <p className="panel__note">
                 Hozir hisobsiz o‘ynayapsiz — natija faqat shu brauzerda
-                qoladi. Kirsangiz ball reytingga tushadi va boshqa
+                qoladi. Kirsangiz aqcha reytingga tushadi va boshqa
                 qurilmadan ham ko‘rinadi.
               </p>
               <button className="btn btn--sm" onClick={() => openPrompt('signIn')}>

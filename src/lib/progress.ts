@@ -1,4 +1,7 @@
-/** Natija, statistika va ball — brauzerda va (kirilgan bo'lsa) cloud'da.
+/** Natija, statistika va aqcha — brauzerda va (kirilgan bo'lsa) cloud'da.
+ *
+ *  Saqlanadigan son **tiyin**: aqcha uning o'ni (`lib/aqcha.ts`). Hujjatga
+ *  ham, `localStorage` ga ham tiyin tushadi — ko'rsatishdagina bo'linadi.
  *
  *  Ilovadagi tartib saqlanadi: **asosiy manba — qurilma**, cloud esa
  *  nusxa va boshqa qurilmada tiklash uchun. Shu sabab natija darhol
@@ -15,7 +18,7 @@ import { readDoc } from '../firebase/rest';
 import type { Account } from './auth';
 import { attemptsFor, DAILY_LENGTH, LENGTHS, type Mode } from './modes';
 import { readStoredNickname } from './nickname';
-import { scoreFor } from './score';
+import { scoreFor, type HintLevel } from './score';
 import { EMPTY_TALLY, pushTally, type GameTally } from './scores';
 
 export interface GameStats {
@@ -53,6 +56,9 @@ export interface Outcome {
   dateKey: string;
   answer: string;
   categoryId?: string;
+  /** Yakka o'yinda olingan yordam: 0 — yo'q, 1 — mavzu, 2 — ma'no ham.
+   *  Mukofotning yuqori chegarasini tushiradi (`score.ts`). */
+  hint?: HintLevel;
 }
 
 export interface Recorded {
@@ -126,7 +132,7 @@ export function foundSummary(
   };
 }
 
-/** So'ztopning xom balli — ilovadagi `SoztopScoreSource` ko'chirmasi.
+/** So'ztopning xom hisobi (tiyin) — ilovadagi `SoztopScoreSource` ko'chirmasi.
  *
  *  So'zjangda topilgan so'z ham shu ro'yxatda turadi (ilova unga
  *  `mode: 'battle'` yozadi), ya'ni yakka va raqib bilan o'ynalgani
@@ -190,10 +196,10 @@ export async function recordOutcome(
   const points = won
     ? scoreFor({
         mode,
-        length,
         attempts,
         maxAttempts: attemptsFor(length),
         repeated: Boolean(previous),
+        hint: outcome.hint ?? 0,
       })
     : 0;
 

@@ -43,13 +43,13 @@ const uz: Policy = {
         'Agar hisob ochsangiz:',
         [
           'elektron pochta — hisobga kirish va unga qayta kirishni tiklash uchun;',
-          'taxallus — reytingda ballingiz yonida ko‘rinadi (uni o‘zingiz tanlaysiz);',
+          'taxallus — reytingda aqchangiz yonida ko‘rinadi (uni o‘zingiz tanlaysiz);',
           'foydalanuvchi identifikatori — hisobingizni o‘yin ma’lumotlaringizga bog‘lovchi anonim ID.',
         ],
         'O‘yin ma’lumotlari:',
         [
-          'topgan so‘zlaringiz, yig‘ilgan ballar, urinishlar soni, statistika va kunlik streaklar;',
-          'kunlik va umumiy reytingni tuzish uchun ishlatiladigan natijalar (taxallusingiz va ballingiz boshqa o‘yinchilarga ko‘rinadi);',
+          'topgan so‘zlaringiz, yig‘ilgan aqcha, urinishlar soni, statistika va kunlik streaklar;',
+          'kunlik va umumiy reytingni tuzish uchun ishlatiladigan natijalar (taxallusingiz va aqchangiz boshqa o‘yinchilarga ko‘rinadi);',
           'Yangso‘z tanloviga yuborgan so‘zlaringiz va izohlaringiz hamda bergan ovozlaringiz (takliflar ovoz berish uchun boshqa o‘yinchilarga ko‘rsatiladi; g‘olib so‘z muallifi taxallusi bilan qayd etiladi).',
         ],
         'Texnik ma’lumotlar:',
@@ -70,14 +70,14 @@ const uz: Policy = {
           'yiqilish va xatoliklarni topib tuzatish uchun;',
           'ilova umumiy holda qanday ishlatilayotganini tushunish uchun.',
         ],
-        'O‘yin ma’lumotlaringiz — topilgan so‘zlar, ballar, statistika — reklama tanlash uchun ishlatilmaydi. Ma’lumotlaringiz sotilmaydi va marketing maqsadida uchinchi tomonlarga berilmaydi. Reklama qanday ko‘rsatilishi 9-bo‘limda yozilgan.',
+        'O‘yin ma’lumotlaringiz — topilgan so‘zlar, aqcha, statistika — reklama tanlash uchun ishlatilmaydi. Ma’lumotlaringiz sotilmaydi va marketing maqsadida uchinchi tomonlarga berilmaydi. Reklama qanday ko‘rsatilishi 9-bo‘limda yozilgan.',
       ],
     },
     {
       title: '4. Ma’lumot kim bilan bo‘lishiladi',
       blocks: [
         'Ma’lumotlar Google Firebase xizmatlarida (Authentication, Cloud Firestore, Analytics, Crashlytics) saqlanadi va qayta ishlanadi. Google bu ma’lumotni bizning nomimizdan, xizmat ko‘rsatuvchi sifatida qayta ishlaydi: https://firebase.google.com/support/privacy',
-        'Taxallusingiz va ballingiz reytingda boshqa o‘yinchilarga ko‘rinadi, Yangso‘zga yuborgan so‘zlaringiz esa ovoz berish uchun boshqalarga ko‘rsatiladi. Elektron pochtangiz boshqa foydalanuvchilarga hech qachon ko‘rsatilmaydi.',
+        'Taxallusingiz va aqchangiz reytingda boshqa o‘yinchilarga ko‘rinadi, Yangso‘zga yuborgan so‘zlaringiz esa ovoz berish uchun boshqalarga ko‘rsatiladi. Elektron pochtangiz boshqa foydalanuvchilarga hech qachon ko‘rsatilmaydi.',
         'Reklama Google AdMob orqali ko‘rsatiladi — bu yerda Google mustaqil ravishda, o‘z siyosati bo‘yicha ish ko‘radi (9-bo‘lim).',
       ],
     },

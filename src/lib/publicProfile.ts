@@ -36,7 +36,7 @@ export interface PublicProfile {
   wordsFound: number;
   /** Umumiy reytingdagi o'rni (1 — birinchi). Sanab bo'lmasa `null`. */
   scoreRank: number | null;
-  /** Bellashuv reytingi. Jang o'ynamagan bo'lsa `null` — 1000 ball
+  /** O'lja (hujjatda xom reyting). Jang o'ynamagan bo'lsa `null` — 1000
    *  «qozonilgan» reyting taassurotini bermasin. */
   battle: BattleRating | null;
   battleRank: number | null;

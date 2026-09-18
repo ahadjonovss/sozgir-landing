@@ -13,10 +13,10 @@ bilan aynan bir xil. Hisob ochilsa natija reytingga tushadi.
 
 | Bo‘lim | Nima qiladi |
 | --- | --- |
-| Hero | Haqiqiy So‘ztop: kunlik va cheksiz rejim, hisob, ball, statistika |
+| Hero | Haqiqiy So‘ztop: kunlik va cheksiz rejim, hisob, aqcha, statistika |
 | So‘zjang | Do‘st bilan (kod orqali) va tezkor jang, reaksiyalar — `/sozjang` |
 | G‘uncha | Yettita harfdan so‘z yig‘ish: kunlik va mashq — `/guncha` |
-| G‘uncha jangi | Bir xil g‘uncha, uch daqiqa, kim ko‘p ball yig‘sa — `/gunchajang` |
+| G‘uncha jangi | Bir xil g‘uncha, uch daqiqa, kim ko‘p to‘plasa — `/gunchajang` |
 | Qoida | Ikki bosqichli avto-demo, rang legendasi ustiga kursor kelganda ajratiladi |
 | Alifbo | Yozilgan so‘zni jonli ravishda harf-kataklarga ajratadi |
 | Yozuv | Butun sayt lotin, yangi lotin yoki kirillda — sarlavhadagi `O‘` tugmasi |
@@ -142,8 +142,8 @@ yagona parametrli manzil: `useRoute` uni `/oyinchi` deb biladi,
 identifikator `routeParam()` bilan olinadi.
 
 Faqat **ochiq** ma’lumot yig‘iladi — qoidalar begona odam haqida shuni
-beradi: `scores/{uid}` (umumiy ball, topilgan so‘zlar), `battle_ratings/
-{uid}` (bellashuv reytingi; jang o‘ynamagan bo‘lsa 1000 ball
+beradi: `scores/{uid}` (yig‘ilgan aqcha, topilgan so‘zlar), `battle_ratings/
+{uid}` (o‘lja; jang o‘ynamagan bo‘lsa 1000
 ko‘rsatilmaydi), bugungi `daily_results/{sana}_5/entries/{uid}` va
 `donations` (`uid` bo‘yicha). Shaxsiy statistika (`users/{uid}`) o‘qilmaydi,
 shu sabab ketma-ketlik va urinishlar taqsimoti yo‘q — sahifa buni
@@ -337,7 +337,7 @@ taklif qilinadi. So‘ztop natijasida ham, So‘zjang natijasida ham bor.
 
 Uch yo‘l: **mehmon** (anonim hisob), **yangi hisob** (email yoki telefon
 raqam + parol) va **kirish**. Mehmon sifatida o‘ynagan odam keyin email qo‘shsa, hisob
-*bog‘lanadi* (`linkWithCredential`) — uid o‘zgarmaydi, ya’ni yig‘ilgan ball
+*bog‘lanadi* (`linkWithCredential`) — uid o‘zgarmaydi, ya’ni yig‘ilgan aqcha
 va streak joyida qoladi.
 
 Ilovadan bitta farqi bor va u ataylab: **sayt hech kimni avtomatik anonim
@@ -384,7 +384,7 @@ Yo‘llar ilova bilan bir xil (`src/firebase/paths.ts`):
 users/{uid}                                  profil (nickname, email, birthDate, gender, platform: web)
 users/{uid}/stats/{mode}_{length}            statistika nusxasi
 users/{uid}/found_words/{so'z}               topilgan so'zlar
-scores/{uid}                                 ball kitobi — `games`, `totalScore`, `onlineScore`
+scores/{uid}                                 hisob kitobi (tiyinda) — `games`, `totalScore`, `onlineScore`
 daily_results/{sana}_{n}/entries/{uid}       kunlik reyting
 ```
 
@@ -535,8 +535,8 @@ Qoidalar ilovadagi bilan aynan bir xil (`docs/guncha.md`):
 5. urinishlar cheklanmagan — xato so‘z uchun jarima yo‘q.
 
 Ball: 4 harfli so‘z — 1, undan uzuni o‘z uzunligicha, yettala harf
-ishlatilgan so‘z (**pangramma**) — qo‘shimcha 7 ball. Daraja esa
-**ballning ulushi** bo‘yicha beriladi (Urug‘ → … → Bog‘bon → Mukammal),
+ishlatilgan so‘z (**pangramma**) — qo‘shimcha 7. Daraja esa
+**hisobning ulushi** bo‘yicha beriladi (Urug‘ → … → Bog‘bon → Mukammal),
 ya’ni og‘ir g‘unchada ham, yengilida ham bir xil mehnat talab qiladi.
 
 | Rejim | Qayerdan keladi |
@@ -579,7 +579,7 @@ bo‘lsa, eski ro‘yxat tashlanadi.
 ## G‘uncha jangi
 
 `/gunchajang` — ikkalangizga bir xil g‘uncha beriladi, uch daqiqa vaqt
-bo‘ladi va kim ko‘p ball yig‘sa, o‘sha yutadi (`docs/guncha_online.md`).
+bo‘ladi va kim ko‘p to‘plasa, o‘sha yutadi (`docs/guncha_online.md`).
 Jang So‘zjang bilan **bitta to‘plamda** yashaydi (`battles`): juftlash,
 chaqiruv, muddati o‘tganini tozalash va tarix ikkalasiga umumiy, farq
 faqat `game` maydonida va o‘yinga xos qismda.
@@ -601,7 +601,7 @@ aldov.
 
 **So‘z.** Har bir so‘z serverga boradi, lekin javob kutilmaydi: uch
 daqiqalik poygada har so‘z uchun borib kelish sezilarli. So‘z avval
-brauzerdagi lug‘at bilan baholanadi va ball darhol ko‘rinadi, server
+brauzerdagi lug‘at bilan baholanadi va hisob darhol ko‘rinadi, server
 javobi kelgach hisob to‘g‘rilanadi — rad etilgan so‘z ekrandan olinadi.
 Ikkalasi deyarli har doim mos keladi; mos kelmaydigan holat — muddat
 o‘tib ketgani va u jangning oxirgi soniyasida bo‘ladi.
@@ -618,33 +618,82 @@ topilgan so‘zlar sonini `wordCount` ga yozadi, chunki `words` ostida
 So‘zjangda **ro‘yxat** yotadi — bir xil nom ostida son bo‘lsa, jang
 tarixini o‘qiyotgan mijoz qulab tushardi.
 
-## Ballar tizimi
+## Aqcha va o‘lja
 
-Uch xil son bor va ular bir-biridan **kelib chiqadi** (`docs/scores.md`):
+Ekranda ikkita birlik bor, saqlanadigan son esa uchinchisi —
+**tiyin** (`docs/aqcha.md`, `soztop/docs/aqcha_tz_web.md`):
+
+```
+aqcha  = floor(tiyin / 10)                — har doim butun son
+o‘lja  = 1000 + floor((reyting − 1000) / 2)
+```
+
+Firestore’da hech narsa o‘zgarmadi: `totalScore`, `points`,
+`found_words.score` — hammasi o‘sha-o‘sha tiyinda, `battle_ratings`da
+esa xom Elo. Bo‘lish faqat chizish paytida bo‘ladi (`src/lib/aqcha.ts`),
+tartiblash esa har doim xom qiymat bo‘yicha qoladi — aks holda
+yaxlitlangan sonlar o‘nlab «teng» qator yasardi.
+
+Mukofot **butun aqchada** hisoblanadi va saqlashga `aqcha × 10` bo‘lib
+tushadi (`src/lib/score.ts`):
+
+| Qayerda | Eng ko‘pi |
+| --- | --- |
+| Kunlik so‘z | 20 aqcha (urinishlar bo‘yicha 20 · 17 · 13 · 10 · 7 · 3) |
+| Cheksiz rejim | qancha urinish qolsa — shuncha aqcha, eng ko‘pi 8 |
+| Kunlik g‘uncha | `floor(20 × hisob / eng ko‘pi)` — to‘liq yechilsa 20 |
+| Onlayn jang | aqcha bermaydi, ±10 o‘ljagacha |
+
+Cheksiz rejimda yordam shiftni tushiradi: mavzu ochilsa 6, ma’no ham
+ochilsa 4 aqcha. Shift — yuqori chegara, ayirma emas; avval takror
+koeffitsienti (60 %, eng kami 1), keyin chegara. Kunlik o‘yinda yordam
+yo‘q.
+
+Sayt mukofot hisoblaydigan **o‘yin mijozi**, shuning uchun bu jadval
+ilovaniki bilan bir xil bo‘lishi shart: ikkalasi bir maydonga yozadi
+(`scores/{uid}`, `daily_scores`, `found_words`).
+
+### Uch xil son
 
 | Son | Nima | Qayerda |
 | --- | --- | --- |
-| O‘yin balli | O‘yinning o‘z shkalasidagi xom ball | `scores/{uid}.games.{oyin}` |
-| Umumiy ball | Barcha o‘yinlar, koeffitsient bilan | `scores/{uid}.totalScore` |
-| Onlayn ball | Shundan raqib bilan o‘ynab olingani | `scores/{uid}.onlineScore` |
+| O‘yin hisobi | O‘yinning o‘z shkalasidagi xom son | `scores/{uid}.games.{oyin}` |
+| Umumiy hisob | Barcha o‘yinlar, koeffitsient bilan | `scores/{uid}.totalScore` |
+| Onlayn hisob | Shundan raqib bilan o‘ynab olingani | `scores/{uid}.onlineScore` |
 
-Shuning uchun `scores/{uid}` ga «o‘zimning ballim» deb yozib bo‘lmaydi:
-ilgari sayt `totalScore` ga faqat topilgan so‘zlar yig‘indisini yozardi
-va bu g‘unchada yig‘ilgan ballni hujjatdan uchirib yuborardi. Endi yozuv
+Shuning uchun `scores/{uid}` ga «o‘zimniki» deb yozib bo‘lmaydi: ilgari
+sayt `totalScore` ga faqat topilgan so‘zlar yig‘indisini yozardi va bu
+g‘unchada yig‘ilganini hujjatdan uchirib yuborardi. Endi yozuv
 `src/lib/scores.ts` dan o‘tadi: hujjatdagi `games` o‘qiladi, faqat shu
-o‘yinning ulushi almashtiriladi, umumiy va onlayn ball qaytadan
+o‘yinning ulushi almashtiriladi, umumiy va onlayn hisob qaytadan
 yig‘iladi.
 
 Ikkinchi qoida — **pasaytirmaslik**. Sayt topilgan so‘zlarning oxirgi
 500 tasini tiklaydi, ya’ni uning ro‘yxati telefondagidan qisqa bo‘lishi
 mumkin. Ilova to‘liq ro‘yxat bilan yozadi, shuning uchun sayt hujjatdagi
-qiymatni hech qachon kamaytirmaydi — ball kamayishi kerak bo‘lgan holatni
+qiymatni hech qachon kamaytirmaydi — kamayishi kerak bo‘lgan holatni
 ilovaning o‘zi to‘g‘rilaydi.
 
-G‘unchaning balli qurilmadagi ikkita sondan (`sozgir.guncha.total`)
-olinadi va `games.guncha.solo` ga yoziladi. Jangda yig‘ilgan ball
+G‘unchada hamyonga raundning **ulushi** tushadi, xom yig‘indi emas:
+o‘yin ichidagi hisob (4 harfli so‘z 1, pangramma +7) daraja
+zinapoyasini yuritadi va ekranda birliksiz turadi. Jangda yig‘ilgani
 hozircha umumiy hisobga qo‘shilmaydi — ilovada ham shunday
 (`GunchaScoreSource` faqat yakka o‘yinni sanaydi).
+
+### Belgilar
+
+Aqcha va o‘lja raqamli joylarda **belgi bilan** ko‘rsatiladi
+(`src/components/Units.tsx`): jadvalda o‘n qatorda «aqcha» so‘zi
+takrorlansa, u ma’no bermay qo‘yadi. Matn ichida (qoidalar, savollar)
+esa so‘zning o‘zi qoladi. Rasmlar `public/aqcha.png` va
+`public/olja.png` — 128 px, shaffof fonda; belgi o‘zi turgan matn bilan
+birga o‘sadi (`font: inherit`, `1em` o‘lcham).
+
+### Darajalar
+
+O‘lja bo‘yicha o‘nta pog‘ona, chegaralar **xom reytingda**
+(`src/lib/battleRating.ts`): Chopar, Cherik, Navkar, O‘nboshi,
+Yuzboshi, Mingboshi, Botir, Bahodir, Tarxon, Alp.
 
 ## Janglar tarixi
 
@@ -835,16 +884,17 @@ src/
     modes.ts    rejim, uzunliklar, urinishlar soni
     daily.ts    kunlik raqam, sana kaliti va deterministik so‘z tanlovi
     dictionary.ts  lug‘at (REST + localStorage kesh + versiya tekshiruvi)
-    score.ts    ball formulasi (ScoreCalculator porti)
+    aqcha.ts    aqcha va o‘lja — ko‘rsatish birliklari
+    score.ts    mukofot formulasi (ScoreCalculator porti)
     progress.ts statistika, topilgan so‘zlar, cloud yozuv va tiklash
     nickname.ts taxallus filtri (nickname_filter.dart porti)
     leaderboard.ts  kunlik va umumiy reyting jadvallari
     battle.ts   Jang hujjatining turlari va chaqiruvlari (`game` bilan)
     activeBattle.ts  ochiq jang: qaysi o‘yin, qaysi sahifa, qaysi hujjat
     battleHistory.ts  janglar tarixi (`players.{uid}.joinedAt` bo‘yicha)
-    scores.ts   ball kitobi: o‘yin ulushi, umumiy va onlayn ball
+    scores.ts   hisob kitobi: o‘yin ulushi, umumiy va onlayn hisob
     loginId.ts  telefon raqam → kirish emaili (`LoginIdentifier` porti)
-    guncha.ts   g‘uncha: lug‘at, yasash, ball, daraja va hukm
+    guncha.ts   g‘uncha: lug‘at, yasash, hisob, daraja va hukm
     gunchaLexicon.ts  g‘uncha lug‘ati — bir marta yig‘iladi
     gunchaDaily.ts  kunlik g‘unchaning harflari (`guncha/{sana}`)
     gunchaProgress.ts  topilgan so‘zlar, yig‘ma hisob va cloud yozuvi
@@ -878,10 +928,12 @@ vite/
 | `sozgir.theme` | mavzu tanlovi (admin panel bilan bir xil) |
 | `sozgir.session` | oldingi tashrifda kirilganmi (SDK’ni darhol yuklash uchun) |
 | `sozgir.nickname` | ko‘rinadigan nom |
+| `sozgir.script` | tanlangan alifbo (lotin / yangi lotin / kirill) |
+| `sozgir.settings` | qattiq rejim va avto to‘ldirish |
 | `sozgir.dict.{4..7}` | lug‘at keshi |
 | `sozgir.game.{mode}.{length}` | boshlangan o‘yin |
 | `sozgir.stats.{mode}.{length}` | statistika |
-| `sozgir.found` | topilgan so‘zlar va ballari |
+| `sozgir.found` | topilgan so‘zlar va ularning tiyini |
 | `sozgir.endless.{length}` | cheksiz rejim o‘yin raqami |
 | `sozgir.pending` | kirilmagan holda o‘ynalgan, hali yozilmagan natijalar |
 | `sozgir.length` | cheksiz rejimdagi so‘z uzunligi |
@@ -890,7 +942,7 @@ vite/
 | `sozgir.battle.length` | So‘zjangdagi so‘z uzunligi |
 | `sozgir.guncha.daily.{sana}` | kunlik g‘unchaning harflari (oxirgi 3 kun) |
 | `sozgir.guncha.round.{id}` | bitta g‘unchada topilgan so‘zlar |
-| `sozgir.guncha.total` | g‘unchadagi yig‘ma ball va so‘zlar soni |
+| `sozgir.guncha.total` | g‘unchadan yig‘ilgan tiyin va so‘zlar soni |
 | `sozgir.guncha.practice` | mashq g‘unchasining raqami |
 | `sozgir.guncha.battle` | boshlangan g‘uncha jangi |
 | `sozgir.guncha.battle.words.{id}` | o‘sha jangda topgan so‘zlarim |

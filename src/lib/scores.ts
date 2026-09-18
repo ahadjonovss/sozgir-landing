@@ -5,8 +5,11 @@
  *
  *  | Son | Nima | Qayerda |
  *  | --- | --- | --- |
- *  | O'yin balli | O'yinning o'z shkalasidagi xom ball | `scores/{uid}.games.{oyin}.score` |
- *  | Umumiy ball | Barcha o'yinlar, koeffitsient bilan | `scores/{uid}.totalScore` |
+ *  | O'yin hisobi | O'yinning o'z shkalasidagi xom son | `scores/{uid}.games.{oyin}.score` |
+ *  | Umumiy hisob | Barcha o'yinlar, koeffitsient bilan | `scores/{uid}.totalScore` |
+ *
+ *  Ikkalasi ham **tiyinda**: ekranda ular aqcha bo'lib ko'rinadi
+ *  (`lib/aqcha.ts`), hujjatdagi son esa o'zgarmaydi.
  *
  *  Uchinchisi ham bor edi — «onlayn ball» (`onlineScore`, har o'yinda
  *  `solo`/`online` ustunlari). U umumiy ballning bir qismi bo'lgani uchun

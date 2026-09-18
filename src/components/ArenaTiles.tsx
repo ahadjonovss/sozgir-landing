@@ -57,7 +57,7 @@ export default function ArenaTiles({
 }: {
   tiles: ArenaRow[];
   game: BattleGame;
-  /** Yetakchining balli — o'z kartochkamdagi farq shundan hisoblanadi. */
+  /** Yetakchining hisobi — o'z kartochkamdagi farq shundan hisoblanadi. */
   leader: number;
   /** Maydondagi jami odam — «yana N kishi» izohi uchun. */
   total: number;

@@ -19,6 +19,7 @@ import { pretty } from '../lib/uz';
 import { Board, Keyboard } from './Board';
 import { Chart } from './Icons';
 import StatsPanel from './StatsPanel';
+import { Aqcha } from './Units';
 import DownloadPromo from './DownloadPromo';
 import Leaderboard from './Leaderboard';
 import Modal from './Modal';
@@ -84,6 +85,13 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
   const winRate = stats.played === 0 ? 0 : Math.round((stats.wins / stats.played) * 100);
   const hint = useHint(game.puzzle, game.phase);
   const hintLeft = useHintCountdown(hint.nextAt);
+
+  // Olingan yordam mukofot chegarasini tushiradi — natija yozilishidan
+  // oldin o'yin holati buni bilishi kerak (`score.ts`).
+  const { noteHint } = game;
+  useEffect(() => {
+    noteHint(hint.used);
+  }, [hint.used, noteHint]);
 
   async function share() {
     const text = game.shareText();
@@ -315,7 +323,9 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
               )}
 
               {game.result && game.result.points > 0 && (
-                <p className="result__points">+{game.result.points} ball</p>
+                <p className="result__points">
+                  <Aqcha tiyin={game.result.points} size="lg" sign />
+                </p>
               )}
 
               <div className="result__actions">

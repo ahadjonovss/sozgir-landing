@@ -9,6 +9,7 @@
  *  xarita bo'lib yotadi, ya'ni «mening janglarim» aynan shu yo'l bilan
  *  topiladi va alohida indeks kerak emas. */
 import { client } from '../firebase/client';
+import { oljaDelta } from './aqcha';
 import { gameOf, type BattleGame } from './battle';
 
 /** Jang natijasi — ikkala o'yin uchun ham bir xil uchta holat. */
@@ -23,8 +24,11 @@ export interface ArenaBattle {
   /** O'yinga xos qisqa izoh: g'unchada hisob («41 : 17»), So'ztopda
    *  yashirin so'z — jang tugagach u eng yaxshi eslatma bo'ladi. */
   detail: string;
-  /** Reyting shu jangda qancha o'zgargani. Hisoblanmagan bo'lsa `null`. */
-  ratingDelta: number | null;
+  /** Jangda olingan (yoki berilgan) o'lja. Hisoblanmagan bo'lsa `null`.
+   *
+   *  Hujjatda xom reyting turadi, ekranga esa ikki o'ljaning **ayirmasi**
+   *  chiqadi — o'zgarishning yarmi emas (`docs/aqcha.md`). */
+  oljaDelta: number | null;
 }
 
 const int = (value: unknown) =>
@@ -68,7 +72,7 @@ export function arenaBattleFrom(
         : typeof data.answer === 'string'
           ? data.answer
           : '',
-    ratingDelta: before === null || after === null ? null : after - before,
+    oljaDelta: before === null || after === null ? null : oljaDelta(before, after),
   };
 }
 

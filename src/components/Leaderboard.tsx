@@ -1,8 +1,8 @@
-/** Reyting: kunlik so'z, bugungi ball va umumiy.
+/** Reyting: kunlik so'z, bugungi aqcha va umumiy.
  *
  *  Uchtasi uch xil savolga javob beradi va ilovada ham shunday:
  *  «Kunlik» — bugungi so'zni kim necha urinishda topdi (`daily_results`);
- *  «Bugun» — shu kunda barcha o'yinlarda kim ko'p ball ishladi
+ *  «Bugun» — shu kunda barcha o'yinlarda kim ko'p aqcha ishladi
  *  (`daily_scores`); «Umumiy» — butun tarix (`scores`).
  *
  *  Jadval kirmagan odamga ham ko'rinadi — o'zining o'rnini ko'rish uchun
@@ -14,6 +14,7 @@ import { dailyTop, todayTop, totalTop, type Entry } from '../lib/leaderboard';
 import Avatar from './Avatar';
 import { Swords } from './Icons';
 import SendInvite, { type InviteTarget } from './SendInvite';
+import { Aqcha } from './Units';
 import { DAILY_LENGTH } from '../lib/modes';
 import { pretty } from '../lib/uz';
 import { playerLink } from '../data/site';
@@ -147,7 +148,9 @@ export default function Leaderboard() {
                     ? 'bugun'
                     : `${row.count} so‘z`}
               </span>
-              <span className="rank__points">{row.points}</span>
+              <span className="rank__points">
+                <Aqcha tiyin={row.points} size="sm" />
+              </span>
               {row.uid !== account?.uid && (
                 <button
                   type="button"

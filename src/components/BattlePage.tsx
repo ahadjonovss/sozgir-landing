@@ -2,7 +2,7 @@
  *
  *  Ikki rejim: do'stga chaqiruv (kod bilan) va tezkor jang (tasodifiy
  *  raqib). Ikkalasi ham hisob talab qiladi — raqib kim bilan
- *  o'ynayotganini bilishi kerak va natija reytingga yoziladi.
+ *  o'ynayotganini bilishi kerak va jang o'lja beradi.
  *
  *  Saytda yaratilgan chaqiruvga telefondan qo'shilish mumkin va aksincha:
  *  jang bir xil hujjatlarda, bir xil server funksiyalari orqali ketadi.
@@ -27,6 +27,7 @@ import { Check, Clock, Copy, Send, Swords, Users } from './Icons';
 import { ReactionBurst, ReactionPicker } from './Reactions';
 import ReportWord from './ReportWord';
 import RotatingLine from './RotatingLine';
+import ScoreRules from './ScoreRules';
 import SendInvite, { type InviteTarget } from './SendInvite';
 import Versus from './Versus';
 import Modal from './Modal';
@@ -88,11 +89,11 @@ function Head() {
 function Rules() {
   return (
     <details className="lobby__rules">
-      <summary>Qoidalar va reyting</summary>
+      <summary>Qoidalar va o‘lja</summary>
       <ul>
         <li>Raqibning taxtasida harflar yo‘q — faqat ranglar ko‘rinadi.</li>
         <li>Urinishlar bir xil: 5 harf — 6 urinish. Kamroq urinishda topgan yutadi.</li>
-        <li>Natija Elo reytingga yoziladi: 1000 dan boshlanadi, darajalar — Yangi, Havaskor, Tajribali, Ustoz, So‘z ustasi.</li>
+        <ScoreRules game="sozjang" bare />
         <li>Saytda yaratilgan chaqiruvga telefondagi ilovadan ham qo‘shilish mumkin.</li>
       </ul>
     </details>
@@ -109,8 +110,8 @@ function Gate() {
         <Head />
         <div className="panel lobby__card lobby__gate">
           <p>
-            Jang uchun hisob kerak: raqib taxallusingizni ko‘radi, natija
-            reytingga yoziladi.
+            Jang uchun hisob kerak: raqib taxallusingizni ko‘radi, jang
+            o‘lja beradi.
           </p>
           <div className="result__actions">
             <button className="btn btn--lg" onClick={() => openPrompt('signIn')}>
@@ -137,7 +138,7 @@ function Gate() {
  *  Haqiqiy `input` ko'rinmaydi, lekin klaviatura va joylashtirish unga
  *  tushadi — shu sabab telefon klaviaturasi ham ishlaydi. */
 /** Lobbi: bitta asosiy tugma («Raqib qidirish»), ostida do'st bilan
- *  o'ynash yo'li, o'z reytingi va yonida So'zjang jadvali. */
+ *  o'ynash yo'li, o'z o'ljasi va yonida So'zjang jadvali. */
 function Lobby({ game }: { game: Sozjang }) {
   const [code, setCode] = useState(codeFromUrl);
   const joined = useRef(false);
@@ -733,7 +734,7 @@ function Result({ game }: { game: Sozjang }) {
       {!expired && game.mardu && <ArenaStandings rows={game.arena} game="soztop" />}
 
       {/* Bitta uzun qator o'rniga ikki ustun: kim nechada topgani va
-          necha ball olgani bir qarashda solishtiriladi. */}
+          nechada topgani bir qarashda solishtiriladi. */}
       {!expired && !game.mardu && <div className="score">
         <div className={`score__side${mine ? ' score__side--win' : ''}`}>
           <Avatar name={meName} uid={account?.uid} size={36} className="score__avatar" />

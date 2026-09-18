@@ -14,6 +14,8 @@ import { pretty } from '../lib/uz';
 import Avatar from './Avatar';
 import { Swords } from './Icons';
 import SendInvite, { type InviteTarget } from './SendInvite';
+import { Olja } from './Units';
+import { TierBadge } from './Units';
 
 export default function BattleBoard() {
   const { account, openPrompt } = useAuth();
@@ -44,7 +46,7 @@ export default function BattleBoard() {
   return (
     <div className="panel">
       <div className="panel__head">
-        <h3>So‘zjang reytingi</h3>
+        <h3>O‘lja jadvali</h3>
         <span className="panel__tag">Eng yaxshi 10</span>
       </div>
 
@@ -78,8 +80,13 @@ export default function BattleBoard() {
                 <span className="rank__name">{pretty(row.nickname)}</span>
               </a>
               {/* Faqat daraja: g'alaba soni bilan ism kesilib qolardi. */}
-              <span className="rank__meta">{tierName(row.rating)}</span>
-              <span className="rank__points">{row.rating}</span>
+              <span className="rank__meta rank__meta--tier">
+                <TierBadge rating={row.rating} size={18} />
+                {tierName(row.rating)}
+              </span>
+              <span className="rank__points">
+                <Olja rating={row.rating} size="sm" />
+              </span>
               {row.uid !== account?.uid && (
                 <button
                   type="button"

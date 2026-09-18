@@ -282,7 +282,7 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
   return (
     <Modal
       title="Hisobga kirish"
-      lead="Statistika, ball va reytingdagi o‘rningiz tiklanadi."
+      lead="Statistika, aqcha va jadvaldagi o‘rningiz tiklanadi."
       onClose={close}
     >
       <form className="form" onSubmit={submit}>

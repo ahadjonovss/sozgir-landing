@@ -1,14 +1,16 @@
 /** Statistika paneli — ilovadagi statistika sahifasining veb ko'rinishi.
  *
  *  Ko'rsatkichlar tanlangan rejim va uzunlik uchun (`sozgir.stats.*`),
- *  umumiy ball esa barcha rejimlar bo'yicha (`sozgir.found`). Shuning
+ *  yig'ilgan aqcha esa barcha rejimlar bo'yicha (`sozgir.found`). Shuning
  *  uchun rejim tanlovi sahifada — panel va taxta bir xil narsani
  *  ko'rsatishi kerak. */
 import { attemptsFor } from '../lib/modes';
+import { formatAqcha } from '../lib/aqcha';
+import ScoreRules from './ScoreRules';
 import type { GameChoice } from '../lib/useGameChoice';
 import type { FoundSummary, GameStats } from '../lib/progress';
 
-function Metric({ value, label }: { value: string | number; label: string }) {
+function Metric({ value, label }: { value: React.ReactNode; label: string }) {
   return (
     <li>
       <strong>{value}</strong>
@@ -96,9 +98,15 @@ export default function StatsPanel({
       )}
 
       <ul className="metrics metrics--split">
-        <Metric value={total.totalScore} label="Jamlangan ball" />
+        {/* Bu yerda belgi qo'yilmaydi: yonida «Aqcha» yozuvi turibdi va
+            panel ko'rsatkichlar uchun — belgi qatorni band qiladi. */}
+        <Metric value={formatAqcha(total.totalScore)} label="Aqcha" />
         <Metric value={total.count} label="Topilgan so‘z" />
       </ul>
+
+      {/* «Bu raqam qayerdan chiqdi?» degan savol aynan shu yerda tug'iladi
+          — javob ham shu yerda tursin. */}
+      <ScoreRules game="soztop" />
     </div>
   );
 }

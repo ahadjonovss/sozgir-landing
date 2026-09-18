@@ -6,6 +6,7 @@
  *  Holat brauzerdagi yozuvdan o'qiladi (`gunchaProgress`), lekin unga
  *  tegilmaydi — kartochka faqat ko'rsatadi. */
 import { links } from '../data/site';
+import { Aqcha } from './Units';
 import { readTotals } from '../lib/gunchaProgress';
 
 export default function GunchaCard() {
@@ -28,7 +29,7 @@ export default function GunchaCard() {
       <div className="hub-card__status">
         {totals.words > 0 ? (
           <span>
-            Jami <b>{totals.words}</b> so‘z · <b>{totals.score}</b> ball
+            Jami <b>{totals.words}</b> so‘z · <b><Aqcha tiyin={totals.score} size="sm" /></b>
           </span>
         ) : (
           <span>Kunlik g‘uncha hamma uchun bir xil</span>

@@ -1,9 +1,13 @@
-/** So'zjang reytingi kartochkasi — ilovadagi `RatingCard`.
+/** O'lja kartochkasi — ilovadagi `RatingCard`.
  *
  *  Raqam asosiy, qolgani unga izoh: daraja, keyingi darajaga qolgan yo'l
  *  va jang / g'alaba / mag'lubiyat soni. Ma'lumot jonli: jang tugagach
- *  server yozadi, kartochka o'zi yangilanadi. */
+ *  server yozadi, kartochka o'zi yangilanadi.
+ *
+ *  Hujjatda xom reyting turadi, ekranda esa o'lja: chegaralar xom sonda
+ *  tekshiriladi, ko'rsatiladigan farq esa o'ljada (`lib/aqcha.ts`). */
 import { useEffect, useState } from 'react';
+import { olja } from '../lib/aqcha';
 import {
   EMPTY_RATING,
   nextTierAt,
@@ -16,7 +20,8 @@ import {
 } from '../lib/battleRating';
 import { useDonorTier } from '../lib/donor';
 import DonorChip from './DonorChip';
-import { Trophy } from './Icons';
+import { Olja } from './Units';
+import { TierBadge } from './Units';
 
 export default function BattleStats({ uid, compact = false }: { uid: string; compact?: boolean }) {
   const [value, setValue] = useState<BattleRating | null>(null);
@@ -49,11 +54,13 @@ export default function BattleStats({ uid, compact = false }: { uid: string; com
       }`}
     >
       <div className="rating__main">
-        <span className="rating__label">Bellashuv reytingi</span>
-        <strong className="rating__value">{rating.rating}</strong>
+        <span className="rating__label">O‘lja</span>
+        <strong className="rating__value">
+          <Olja rating={rating.rating} size="lg" />
+        </strong>
         <span className="rating__tiers">
           <span className="rating__tier">
-            <Trophy size={14} />
+            <TierBadge rating={rating.rating} size={20} />
             {tierName(rating.rating)}
           </span>
           {donor && <DonorChip tier={donor} className="rating__tier rating__donor" />}
@@ -64,7 +71,7 @@ export default function BattleStats({ uid, compact = false }: { uid: string; com
         <span className="rating__next">
           {next === null
             ? 'Eng yuqori daraja'
-            : `Keyingi darajaga ${next - rating.rating} ball`}
+            : `Keyingi darajaga ${olja(next) - olja(rating.rating)} O‘lja`}
         </span>
       </div>
 

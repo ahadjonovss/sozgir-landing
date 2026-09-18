@@ -6,23 +6,28 @@
  *  saqlanadi. */
 import { playerLink } from '../data/site';
 import type { ArenaRow } from '../lib/mardu';
+import { oljaDelta } from '../lib/aqcha';
 import type { BattleGame } from '../lib/battle';
 import Avatar from './Avatar';
+import { OljaDelta } from './Units';
 import { pretty } from '../lib/uz';
 
 /** Poydevordagi tartib: ikkinchi, birinchi, uchinchi — o'rtadagi baland. */
 const PODIUM = [1, 0, 2];
 
 function scoreText(row: ArenaRow, game: BattleGame): string {
-  if (game === 'guncha') return `${row.player.score ?? 0} ball`;
+  // G'unchaning jangdagi hisobi — o'yinning ichki o'lchovi, hamyon
+  // emas: birliksiz turadi (`docs/aqcha.md`).
+  if (game === 'guncha') return `${row.player.score ?? 0}`;
   if (row.player.won === true) return `${row.player.attempts ?? 0} urinish`;
   return 'topilmadi';
 }
 
+/** Jangda olingan o'lja — ikki o'ljaning ayirmasi. */
 function deltaOf(row: ArenaRow): number | null {
   const { ratingBefore, ratingAfter } = row.player;
   if (ratingBefore === undefined || ratingAfter === undefined) return null;
-  return ratingAfter - ratingBefore;
+  return oljaDelta(ratingBefore, ratingAfter);
 }
 
 export default function ArenaStandings({
@@ -80,7 +85,7 @@ export default function ArenaStandings({
                         : ''
                   }`}
                 >
-                  {delta > 0 ? `+${delta}` : delta}
+                  <OljaDelta value={delta} />
                 </span>
               )}
             </li>

@@ -8,6 +8,7 @@
  *  o'rganmasin. */
 import { useState } from 'react';
 import { links } from '../data/site';
+import ScoreRules from './ScoreRules';
 import { useAuth } from '../lib/auth';
 import { pangramsOf } from '../lib/guncha';
 import { useGuncha } from '../lib/useGuncha';
@@ -71,17 +72,21 @@ export default function GunchaPage() {
                 <li>So‘z kamida 4 harfdan bo‘lsin.</li>
                 <li>Yurak harf (o‘rtadagi) har bir so‘zda qatnashsin.</li>
                 <li>Harflar takrorlanishi mumkin.</li>
-                <li>Yettala harf ishlatilgan so‘z — pangramma, +7 ball.</li>
+                <li>Yettala harf ishlatilgan so‘z — pangramma: +7.</li>
+                <ScoreRules game="guncha" bare />
               </ol>
             )}
 
-            {/* Daraja — ballning ulushi bo'yicha: og'ir g'unchada ham,
-                yengilida ham «Bog'bon» bir xil mehnat talab qiladi. */}
+            {/* Daraja — yig'ilgan hisobning ulushi bo'yicha: og'ir
+                g'unchada ham, yengilida ham «Bog'bon» bir xil mehnat
+                talab qiladi. Bu son g'unchaning **ichki** o'lchovi —
+                hamyonga raundning ulushi tushadi (`docs/aqcha.md`),
+                shuning uchun u birliksiz turadi. */}
             <div className="guncha__rank">
               <div className="guncha__rankrow">
                 <strong>{rank.label}</strong>
                 <span>
-                  {score} / {maxScore} ball
+                  {score} / {maxScore}
                 </span>
               </div>
               <div className="guncha__bar">
@@ -91,7 +96,7 @@ export default function GunchaPage() {
                 {allFound
                   ? 'Barcha so‘zlar topildi — mukammal!'
                   : toNext > 0
-                    ? `Keyingi darajagacha ${toNext} ball`
+                    ? `Keyingi darajaga ${toNext} qoldi`
                     : 'Boshlash uchun bitta so‘z yozing'}
               </p>
             </div>
@@ -166,8 +171,9 @@ export default function GunchaPage() {
             <div className="panel panel--call">
               <h3>Natijangiz saqlanmayapti</h3>
               <p className="panel__note">
-                Hozir hisobsiz o‘ynayapsiz — g‘unchadagi ball faqat shu
-                brauzerda qoladi. Kirsangiz u umumiy reytingga qo‘shiladi.
+                Hozir hisobsiz o‘ynayapsiz — g‘unchada yig‘ilgan aqcha
+                faqat shu brauzerda qoladi. Kirsangiz u umumiy reytingga
+                qo‘shiladi.
               </p>
               <button className="btn btn--sm" onClick={() => openPrompt('signIn')}>
                 Kirish
@@ -204,7 +210,7 @@ export default function GunchaPage() {
             <h3>Raqib bilan o‘ynash</h3>
             <p className="panel__note">
               G‘uncha jangida ikkalangizga bir xil g‘uncha beriladi va uch
-              daqiqa vaqt bo‘ladi. Kim ko‘p ball yig‘sa — o‘sha yutadi.
+              daqiqa vaqt bo‘ladi. Kim ko‘p so‘z yig‘sa — o‘sha yutadi.
             </p>
             <a className="btn btn--sm" href={links.gunchaBattle}>
               G‘uncha jangiga o‘tish

@@ -30,6 +30,7 @@ import {
 import { pretty } from '../lib/uz';
 import Avatar from './Avatar';
 import DonorChip from './DonorChip';
+import { DonorBadge } from './Units';
 import { Heart } from './Icons';
 import { Balance, DonateForm, Donors } from './Support';
 
@@ -83,7 +84,7 @@ function Tiers() {
     <ol className="sp__tiers">
       {[...DONOR_TIERS].reverse().map((level) => (
         <li key={level.tier} className={`sp__tier sp__tier--${level.tier}`}>
-          <i className="sp__tier-ring" aria-hidden="true" />
+          <DonorBadge tier={level.tier} size={34} />
           <div className="sp__tier-text">
             <strong>{level.label}</strong>
             <span>{TIER_NOTES[level.tier]}</span>
@@ -123,7 +124,16 @@ function Top({ donors, uid }: { donors: TopDonor[] | null; uid?: string }) {
             ) : (
               <span className="rank__who">{who}</span>
             )}
-            <span className="rank__meta">{tier ? donorLabel(tier) : `${donor.count} marta`}</span>
+            <span className="rank__meta rank__meta--tier">
+            {tier ? (
+              <>
+                <DonorBadge tier={tier} size={18} />
+                {donorLabel(tier)}
+              </>
+            ) : (
+              `${donor.count} marta`
+            )}
+          </span>
             <span className="rank__points">{formatSum(donor.total)}</span>
           </li>
         );

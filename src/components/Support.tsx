@@ -28,6 +28,7 @@ import {
 import { pretty } from '../lib/uz';
 import { links, playerLink } from '../data/site';
 import { DONOR_TIERS, donorLabel, donorTier, forgetDonorTotals, nextDonorTier } from '../lib/donor';
+import { DonorBadge } from './Units';
 import Modal from './Modal';
 
 export function Balance({ balance }: { balance: SupportBalance }) {
@@ -162,7 +163,7 @@ export function DonateForm({
               setError('');
             }}
           >
-            <i aria-hidden="true" />
+            <DonorBadge tier={level.tier} size={24} />
             <strong>{formatSum(level.amount)}</strong>
             <span>{level.label}</span>
           </button>

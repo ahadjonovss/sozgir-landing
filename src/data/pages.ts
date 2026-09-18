@@ -84,7 +84,7 @@ export const PAGES = [
       'Kunlik so‘z butun O‘zbekistonda bir xil va ilovadagi bilan aynan bitta. Cheksiz rejimda esa 4 dan 7 harfgacha xohlagancha mashq qilasiz.',
     body: [
       'Har taxmindan keyin kataklar rang oladi: yashil — harf o‘z joyida, sariq — so‘zda bor lekin boshqa joyda, kulrang — yo‘q.',
-      'Sahifada o‘z statistikangiz, kunlik va umumiy reyting ham ko‘rinadi. Hisobga kirsangiz ball reytingga tushadi va boshqa qurilmadan ham ko‘rinadi.',
+      'Sahifada o‘z statistikangiz, kunlik va umumiy reyting ham ko‘rinadi. Hisobga kirsangiz aqcha reytingga tushadi va boshqa qurilmadan ham ko‘rinadi.',
     ],
   },
   {
@@ -97,7 +97,7 @@ export const PAGES = [
     lead: 'Ikkalangizga bir xil yashirin so‘z. Kim kamroq urinishda topsa — yutadi.',
     body: [
       'Raqibning taxtasida harflar ko‘rinmaydi — faqat ranglar, ya’ni javobni undan o‘qib bo‘lmaydi.',
-      'Natija Elo reytingiga yoziladi: 1000 dan boshlanadi, darajalar — Yangi, Havaskor, Tajribali, Ustoz, So‘z ustasi.',
+      'Jang o‘lja beradi: 1000 dan boshlanadi, bir jangda eng ko‘pi ±10. Darajalar — Chopar, Cherik, Navkar, O‘nboshi, Yuzboshi, Mingboshi, Botir, Bahodir, Tarxon, Alp.',
       'Saytda yaratilgan chaqiruvga telefondagi ilovadan ham qo‘shilish mumkin.',
     ],
   },
@@ -111,7 +111,7 @@ export const PAGES = [
     lead:
       'O‘rtadagi yurak harf har bir so‘zda qatnashadi, qolgan oltitasi xohlagancha takrorlanadi. Topilgan har bir so‘zning ma’nosi ham shu yerda — o‘ynab turib lug‘at boyitasiz.',
     body: [
-      'Yettala harf ishlatilgan so‘z — pangramma, u qo‘shimcha ball beradi.',
+      'Yettala harf ishlatilgan so‘z — pangramma, u qo‘shimcha hisob beradi. To‘liq yechilgan kunlik g‘uncha 20 aqcha beradi.',
       'Kunlik g‘uncha hamma uchun bir xil; undan tashqari cheksiz mashq rejimi ham bor.',
     ],
   },
@@ -119,11 +119,11 @@ export const PAGES = [
     path: '/gunchajang',
     title: 'G‘uncha jangi — uch daqiqa, bir g‘uncha | So‘zgir',
     description:
-      'Ikki o‘yinchiga bir xil g‘uncha va uch daqiqa vaqt: kim ko‘p ball yig‘sa — o‘sha yutadi.',
+      'Ikki o‘yinchiga bir xil g‘uncha va uch daqiqa vaqt: kim ko‘p to‘plasa — o‘sha yutadi.',
     nav: 'G‘uncha jangi',
     h1: 'G‘uncha jangi',
     lead:
-      'Ikkalangizga bir xil g‘uncha beriladi va uch daqiqa vaqt bo‘ladi. Kim ko‘p ball yig‘sa — o‘sha yutadi.',
+      'Ikkalangizga bir xil g‘uncha beriladi va uch daqiqa vaqt bo‘ladi. Kim ko‘p to‘plasa — o‘sha yutadi.',
     body: [
       'Do‘stingizni olti raqamli kod bilan chaqirishingiz yoki tezkor jangda tasodifiy raqib topishingiz mumkin.',
     ],
@@ -139,7 +139,7 @@ export const PAGES = [
       'Yangi o‘yin emas — yangi shakl. O‘sha So‘zjang yoki G‘uncha, lekin ikki kishi emas: sakkiztagacha odam bir vaqtda o‘ynaydi va oxirida jadval tuziladi.',
     body: [
       'Ikki yo‘l bor: tezkor maydonga kirib notanish odamlar bilan o‘ynaysiz (ikkinchi odam kirgach 60 soniyalik sanoq boshlanadi) yoki bitta havola bilan butun davrani bir joyga yig‘asiz.',
-      'O‘yin o‘zgarmaydi — o‘sha so‘z yoki o‘sha g‘uncha, faqat raqib ko‘p. Vaqtni server hisoblaydi, oxirida jadval tuziladi va reyting o‘rin bo‘yicha o‘zgaradi.',
+      'O‘yin o‘zgarmaydi — o‘sha so‘z yoki o‘sha g‘uncha, faqat raqib ko‘p. Vaqtni server hisoblaydi, oxirida jadval tuziladi va o‘lja o‘rin bo‘yicha taqsimlanadi.',
     ],
   },
   {
@@ -193,11 +193,11 @@ export const PAGES = [
     path: '/oyinchi',
     title: 'O‘yinchi — So‘zgir',
     description:
-      'O‘yinchining ochiq profili: umumiy ball, bugungi kunlik natija, bellashuv reytingi va loyihaga qo‘shgan hissasi.',
+      'O‘yinchining ochiq profili: yig‘ilgan aqcha, bugungi kunlik natija, o‘lja va loyihaga qo‘shgan hissasi.',
     nav: 'O‘yinchi profili',
     h1: 'O‘yinchi profili',
     lead:
-      'Umumiy ball, bugungi kunlik natija, bellashuv reytingi va loyihaga qo‘shgan hissasi. Shaxsiy statistika faqat egasiga ko‘rinadi.',
+      'Yig‘ilgan aqcha, bugungi kunlik natija, o‘lja va loyihaga qo‘shgan hissasi. Shaxsiy statistika faqat egasiga ko‘rinadi.',
     // Manzil parametrli (`/oyinchi/{uid}`) — oldindan yasab bo'lmaydi.
     listed: false,
   },

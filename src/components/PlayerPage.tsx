@@ -6,8 +6,8 @@
  *  javob oladi va darrov «unda o'ynaymiz» deya oladi: «So'zjangga
  *  chaqirish» sarlavhaning ostida turadi.
  *
- *  Faqat ochiq ma'lumot: umumiy ball, bugungi kunlik natija, bellashuv
- *  reytingi va loyihaga hissasi. Ketma-ketlik va urinishlar taqsimoti
+ *  Faqat ochiq ma'lumot: yig'ilgan aqcha, bugungi kunlik natija, o'lja
+ *  va loyihaga hissasi. Ketma-ketlik va urinishlar taqsimoti
  *  yo'q — ular shaxsiy hujjatda turadi va begonaga ochiq emas. */
 import { useEffect, useState } from 'react';
 import { links } from '../data/site';
@@ -22,6 +22,7 @@ import DonorChip from './DonorChip';
 import AdBanner from './AdBanner';
 import Avatar from './Avatar';
 import BattleStats from './BattleStats';
+import { Aqcha } from './Units';
 import { ChevronLeft, Heart, Person, Swords, Trophy } from './Icons';
 import SendInvite, { type InviteTarget } from './SendInvite';
 
@@ -147,13 +148,15 @@ export default function PlayerPage() {
 
             {isEmptyProfile(profile) ? (
               <p className="panel panel__note player__msg">
-                Bu o‘yinchi hali natija yozmagan — birinchi ballini kutamiz
+                Bu o‘yinchi hali natija yozmagan — birinchi aqchasini kutamiz
               </p>
             ) : (
               <>
                 <div className="player__score">
-                  <span className="player__score-label">Umumiy ball</span>
-                  <strong>{profile.totalScore}</strong>
+                  <span className="player__score-label">Aqcha</span>
+                  <strong>
+                    <Aqcha tiyin={profile.totalScore} size="lg" />
+                  </strong>
                   <span className="player__score-label">
                     {profile.wordsFound} topilgan so‘z
                   </span>
@@ -171,8 +174,10 @@ export default function PlayerPage() {
                         <span>Kunlik</span>
                       </li>
                       <li className="metrics__cell--accent">
-                        <strong>{profile.today.points}</strong>
-                        <span>Ball</span>
+                        <strong>
+                          <Aqcha tiyin={profile.today.points} size="sm" />
+                        </strong>
+                        <span>Aqcha</span>
                       </li>
                       <li>
                         <strong>{profile.today.attempts}</strong>
@@ -186,7 +191,7 @@ export default function PlayerPage() {
                     bilan keladi — ular takrorlanmaydi; yoniga faqat durang
                     va jadvaldagi o'rin qo'shiladi. */}
                 {profile.battle === null ? (
-                  <Block title="Bellashuv reytingi">
+                  <Block title="O‘lja">
                     <Empty text="Hali bellashuvda o‘ynamagan" />
                   </Block>
                 ) : (
