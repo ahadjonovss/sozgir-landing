@@ -854,6 +854,26 @@ Birinchi tashrifda sanoq **chiqmaydi**: saytga endi kirgan odamga
 Ro‘yxatga faqat odam sezadigan o‘zgarish tushadi va bir kun bitta yozuv
 bo‘ladi — kun ichida o‘nta commit bo‘lsa ham.
 
+## Ilova taklifi (telefonda)
+
+Telefondan ochilgan har qanday sahifada pastdan varaq ko‘tariladi:
+«So‘zgir ilovasi» (`AppPopup.tsx`). Kompyuterda u umuman chizilmaydi —
+u yerda sayt o‘zi to‘liq o‘yin.
+
+Uchta chegara bilan:
+
+* **Sahifa avval ochiladi** — oyna 4 soniyadan keyin chiqadi, ya’ni
+  odam nimani rad etayotganini ko‘radi;
+* **kuniga bir marta** (`sozgir.app.promo`) — har sahifada qayta chiqsa
+  u reklama emas, to‘siq bo‘lardi;
+* **yopish oson** — ✕, fon, Escape va «Saytda davom etish».
+
+Qurilma sensorli ekran, tor oyna va mobil `userAgent` uchtasi birga
+bo‘lganda telefon deb hisoblanadi: sensorli monitorli kompyuter ham,
+oynasi toraytirilgan brauzer ham bu shartga tushmaydi. Do‘kon qurilmaga
+qarab tanlanadi — iPhone‘da App Store, qolganida Google Play birinchi
+turadi.
+
 ## Nishonlar
 
 `/nishonlar` — yigirmata nishon (`src/lib/badges.ts`,

@@ -4331,6 +4331,7 @@
     min-height: calc(100dvh - var(--header-h) - 34px);
   }
 
+
   /* Grid o'rniga ustun: bo'sh joy **taxtaga** berilishi kerak, grid esa
      uni barcha qatorlarga teng bo'lib yuborardi. */
   .oyin__board--fit .play {
@@ -4940,3 +4941,86 @@
   text-align: center;
 }
 
+/* ── Ilova taklifi (telefonda) ────────────────────────────────────────
+   Pastdan ko'tariladigan varaq: telefonda oyna ekranning o'rtasida
+   emas, barmoq yetadigan joyda turishi kerak. */
+
+.app-promo {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.app-promo__veil {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(16, 18, 22, 0.5);
+  animation: veil 0.2s ease;
+}
+
+.app-promo__card {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 460px;
+  padding: 26px 22px calc(22px + env(safe-area-inset-bottom));
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background: var(--bg);
+  text-align: center;
+  animation: promo-in 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes promo-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+.app-promo__close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.app-promo__icon {
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+}
+
+.app-promo__title {
+  font-size: 19px;
+  font-weight: 900;
+}
+
+.app-promo__text {
+  max-width: 38ch;
+  color: var(--text-2);
+  font-size: 14.5px;
+  line-height: 1.55;
+}
+
+.app-promo__stores {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  margin-top: 6px;
+}
+
+.app-promo__store {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.app-promo__stay {
+  margin-top: 4px;
+  font-size: 13.5px;
+}

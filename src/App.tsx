@@ -13,6 +13,7 @@ import Download from './components/Download';
 import Faq from './components/Faq';
 import Footer from './components/Footer';
 import AnswersPage from './components/AnswersPage';
+import AppPopup from './components/AppPopup';
 import EndlessPage from './components/EndlessPage';
 import GuidePage, { GuidesPage } from './components/GuidePage';
 import UpdatesPage from './components/UpdatesPage';
@@ -106,6 +107,11 @@ export default function App() {
           ko'rinadi, shuning uchun ular ramkaning o'zida turadi. */}
       <AccountDialog />
       <InviteOverlay />
+      {/* Telefonda ochilgan har qanday sahifada — ilova taklifi. Oyna
+          o'zi qaror qiladi: kompyuterda umuman chizilmaydi, telefonda
+          esa kuniga bir marta va sahifa ochilgandan bir necha soniya
+          keyin chiqadi. */}
+      <AppPopup />
     </>
   );
 }
