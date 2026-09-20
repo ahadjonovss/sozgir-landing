@@ -917,6 +917,12 @@ Chegaralar:
   endigina boshlagan odam natijadan keyin ikkinchi oynani ko‘rmaydi;
 * **yopish oson** — ✕, fon, Escape va «Saytda davom etish».
 
+Ko‘rinishi ilovaning afishasidan olingan: tepada nishon, nom va shior,
+o‘rtada uchta afzallik (har biri o‘z rangidagi doira ichida — bilim,
+reyting, nishonlar), pastda qora do‘kon tugmalari ikki qatorlik yozuv
+bilan. Reklama bo‘lgani uchun u bezakka haqli, lekin ranglar faqat
+ikonkalarda qoladi: matn ustidagi bezak uni o‘qilmas qiladi.
+
 Qurilma sensorli ekran, tor oyna va mobil `userAgent` uchtasi birga
 bo‘lganda telefon deb hisoblanadi: sensorli monitorli kompyuter ham,
 oynasi toraytirilgan brauzer ham bu shartga tushmaydi. Do‘kon qurilmaga

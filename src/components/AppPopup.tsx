@@ -33,7 +33,7 @@ import {
   type PromoReason,
 } from '../lib/appPromo';
 import { AppleIcon, PlayIcon } from './StoreIcons';
-import { Close } from './Icons';
+import { Bulb, Chart, Close, Trophy } from './Icons';
 
 /** Ochilishdagi taklif shuncha kutadi — sahifa ochilib, birinchi ekran
  *  ko'ringandan keyin. */
@@ -48,14 +48,14 @@ const RESULT_DELAY_MS = 1600;
  *  gap aytish ikkinchisini bekorga sarflash bo'lardi. */
 const COPY: Record<PromoReason, { title: string; text: string }> = {
   open: {
-    title: 'So‘zgir ilovasi',
+    title: 'Mantiq. Bilim. G‘alaba.',
     text:
-      'Telefonda o‘ynayapsizmi? Ilovada qulayroq: internetsiz ham ishlaydi, kunlik so‘z esdan chiqmasligi uchun eslatma keladi va Yangso‘z, kategoriyalar, g‘uncha — hammasi bir joyda.',
+      'Telefonda o‘ynayapsizmi? Ilovada qulayroq: internetsiz ham ishlaydi va kunlik so‘z esdan chiqmasligi uchun eslatma keladi.',
   },
   result: {
     title: 'O‘yin yoqdimi?',
     text:
-      'Ilovada natijangiz saqlanadi va boshqa qurilmadan ham ko‘rinadi, kunlik so‘z uchun eslatma keladi, o‘yin esa internetsiz ham ishlaydi.',
+      'Ilovada natijangiz saqlanadi, kunlik so‘z uchun eslatma keladi va o‘yin internetsiz ham ishlaydi.',
   },
 };
 
@@ -125,8 +125,20 @@ export default function AppPopup() {
   const copy = COPY[reason];
   const ios = isIos();
   const stores = [
-    { href: links.appStore, label: 'App Store', icon: <AppleIcon size={18} />, first: ios },
-    { href: links.playStore, label: 'Google Play', icon: <PlayIcon size={18} />, first: !ios },
+    {
+      href: links.appStore,
+      label: 'App Store',
+      lead: 'Yuklab oling',
+      icon: <AppleIcon size={22} />,
+      first: ios,
+    },
+    {
+      href: links.playStore,
+      label: 'Google Play',
+      lead: 'Yuklab oling',
+      icon: <PlayIcon size={22} />,
+      first: !ios,
+    },
   ].sort((a, b) => Number(b.first) - Number(a.first));
 
   return createPortal(
@@ -142,29 +154,65 @@ export default function AppPopup() {
           <Close size={18} />
         </button>
 
-        <img
-          className="app-promo__icon"
-          src="/icon.png"
-          alt=""
-          width={64}
-          height={64}
-          decoding="async"
-        />
+        {/* Brend qatori — afishadagi kabi: nishon, nom va bir qatorlik
+            shior. Nishon `public/icon.png`, ya'ni do'kondagi bilan
+            bir xil rasm. */}
+        <div className="app-promo__brand">
+          <img
+            className="app-promo__icon"
+            src="/icon.png"
+            alt=""
+            width={56}
+            height={56}
+            decoding="async"
+          />
+          <span className="app-promo__name">
+            <strong>So‘zgir</strong>
+            <span>So‘zlar olamida sinovdan o‘t!</span>
+          </span>
+        </div>
+
         <strong className="app-promo__title">{copy.title}</strong>
         <p className="app-promo__text">{copy.text}</p>
+
+        {/* Uchta afzallik — afishadagi uchtasi. Har biri bitta jumla:
+            ro'yxat uzaygani sari o'qilmay qoladi. */}
+        <ul className="app-promo__perks">
+          <li>
+            <span className="app-promo__perk-icon app-promo__perk-icon--green">
+              <Bulb size={18} />
+            </span>
+            Bilimingizni sinang
+          </li>
+          <li>
+            <span className="app-promo__perk-icon app-promo__perk-icon--yellow">
+              <Chart size={18} />
+            </span>
+            Reytingda yuksalang
+          </li>
+          <li>
+            <span className="app-promo__perk-icon app-promo__perk-icon--blue">
+              <Trophy size={18} />
+            </span>
+            Maxsus nishonlarni qo‘lga kiriting
+          </li>
+        </ul>
 
         <div className="app-promo__stores">
           {stores.map((store) => (
             <a
               key={store.label}
-              className={`btn${store.first ? '' : ' btn--ghost'} app-promo__store`}
+              className="app-promo__store"
               href={store.href}
               target="_blank"
               rel="noreferrer"
               onClick={close}
             >
               {store.icon}
-              {store.label}
+              <span>
+                <small>{store.lead}</small>
+                {store.label}
+              </span>
             </a>
           ))}
         </div>

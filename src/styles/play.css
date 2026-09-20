@@ -4943,7 +4943,13 @@
 
 /* ── Ilova taklifi (telefonda) ────────────────────────────────────────
    Pastdan ko'tariladigan varaq: telefonda oyna ekranning o'rtasida
-   emas, barmoq yetadigan joyda turishi kerak. */
+   emas, barmoq yetadigan joyda turishi kerak.
+
+   Ko'rinishi ilovaning afishasidan olingan: tepada nishon va shior,
+   o'rtada uchta afzallik (har biri o'z rangidagi doira ichida), pastda
+   do'kon tugmalari. Reklama bo'lgani uchun u bezakka haqli — lekin
+   bezak matnni bosib ketmasligi kerak, shuning uchun ranglar faqat
+   ikonkalarda. */
 
 .app-promo {
   position: fixed;
@@ -4958,21 +4964,23 @@
   position: absolute;
   inset: 0;
   border: 0;
-  background: rgba(16, 18, 22, 0.5);
+  background: rgba(16, 18, 22, 0.55);
   animation: veil 0.2s ease;
 }
 
 .app-promo__card {
   position: relative;
   display: grid;
-  justify-items: center;
-  gap: 10px;
+  gap: 14px;
   width: 100%;
   max-width: 460px;
-  padding: 26px 22px calc(22px + env(safe-area-inset-bottom));
+  /* Balandligi cheklangan: past telefonda ham do'kon tugmalari
+     ko'rinib turishi kerak, qolgani esa surilib o'qiladi. */
+  max-height: 92dvh;
+  overflow-y: auto;
+  padding: 22px 20px calc(18px + env(safe-area-inset-bottom));
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   background: var(--bg);
-  text-align: center;
   animation: promo-in 0.26s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -4988,39 +4996,161 @@
   right: 10px;
 }
 
+/* Brend qatori: nishon, nom va shior — afishaning boshidagi kabi. */
+.app-promo__brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Nishon do'kondagi rasm — u shaffof fonda, shuning uchun ostiga
+   ilovadagidek yumaloq plitka qo'yiladi: aks holda oq varaqda «osilib»
+   turgandek ko'rinadi. */
 .app-promo__icon {
-  border-radius: 16px;
-  box-shadow: var(--shadow);
+  flex: none;
+  padding: 6px;
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--divider);
+}
+
+.app-promo__name {
+  display: grid;
+  gap: 1px;
+}
+
+.app-promo__name strong {
+  font-size: 19px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.app-promo__name span {
+  color: var(--text-2);
+  font-size: 12.5px;
+  font-weight: 600;
 }
 
 .app-promo__title {
-  font-size: 19px;
+  font-size: 22px;
   font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
 }
 
 .app-promo__text {
-  max-width: 38ch;
   color: var(--text-2);
   font-size: 14.5px;
   line-height: 1.55;
 }
 
+/* Afzalliklar: ikonka o'z rangidagi doirada, yonida bitta jumla. */
+.app-promo__perks {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+.app-promo__perks li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14.5px;
+  font-weight: 700;
+}
+
+.app-promo__perk-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border-radius: 50%;
+}
+
+.app-promo__perk-icon--green {
+  background: var(--green-soft);
+  color: var(--green-deep);
+}
+
+.app-promo__perk-icon--yellow {
+  background: var(--yellow-soft);
+  /* To'q qilingan: `--yellow` ning o'zi och fonda yaxshi ko'rinmaydi. */
+  color: color-mix(in srgb, var(--yellow) 75%, #4a3708);
+}
+
+.app-promo__perk-icon--blue {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* Do'kon tugmalari — afishadagi kabi qora, ikki qatorlik yozuv bilan.
+   Qurilmaning do'koni birinchi turadi (`AppPopup` saralaydi). */
 .app-promo__stores {
   display: grid;
   gap: 8px;
-  width: 100%;
-  margin-top: 6px;
 }
 
 .app-promo__store {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
+  gap: 12px;
+  padding: 10px 18px;
+  border-radius: 14px;
+  background: #101318;
+  color: #fff;
+  text-decoration: none;
+  transition: transform 0.08s ease, filter 0.15s ease;
+}
+
+.app-promo__store:hover {
+  filter: brightness(1.15);
+}
+
+.app-promo__store:active {
+  transform: scale(0.98);
+}
+
+.app-promo__store span {
+  display: grid;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.15;
+  text-align: start;
+}
+
+.app-promo__store small {
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.7;
+}
+
+/* Tungi mavzuda qora tugma fonga qo'shilib ketadi — chegarasi
+   ko'rinib tursin. */
+:root[data-theme='dark'] .app-promo__store {
+  background: #1d2128;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 .app-promo__stay {
-  margin-top: 4px;
+  justify-self: center;
   font-size: 13.5px;
+}
+
+/* Past ekranda (masalan 667 px) matn qisqaradi: afzalliklar va shior
+   ketadi, do'kon tugmalari esa qoladi — oynaning butun maqsadi
+   o'shalar. */
+@media (max-height: 700px) {
+  .app-promo__perks {
+    gap: 8px;
+    padding: 10px 12px;
+  }
+  .app-promo__perks li {
+    font-size: 13.5px;
+  }
+  .app-promo__text {
+    font-size: 13.5px;
+  }
 }
