@@ -8,22 +8,29 @@
  *  Ikkita sabab bor:
  *
  *  * **`open`** — sahifa ochilgan zahoti (bir necha soniyadan keyin);
- *  * **`result`** — birinchi o'yin tugagach. Aynan shu payt taklif eng
- *    o'rinli: odam o'yinni sinab ko'rdi, yoqdi yoki yoqmadi degan
- *    qarorini allaqachon qildi. Ochilishdagi taklif esa hali hech
+ *  * **`result`** — o'yin tugagach, har safar. Aynan shu payt taklif eng
+ *    o'rinli: odam o'ynab bo'ldi, yoqdi yoki yoqmadi degan qarorini
+ *    allaqachon qildi va hozir bo'sh. Ochilishdagi taklif esa hali hech
  *    narsa ko'rmagan odamga aytiladi.
  *
- *  Har sababning **o'z kunlik hisobi** bor: ikkalasi bir kunda bir
- *  martadan chiqadi. Ustiga umumiy chegara — oyna endigina yopilgan
- *  bo'lsa (`QUIET_MS`), yangi sabab bilan ham qayta ochilmaydi: «yo'q»
- *  degan odamdan uch daqiqada ikkinchi marta so'rash reklama emas,
- *  bosim bo'lardi. */
+ *  Chegaralar ikki sabab uchun ikki xil:
+ *
+ *  * **`open` — kuniga bir marta.** Sahifa har ochilganda chiqsa, u
+ *    reklama emas, to'siq bo'lardi: odam hali hech narsa qilmagan.
+ *    Ustiga oyna endigina yopilgan bo'lsa (`QUIET_MS`) u ham
+ *    ochilmaydi — «yo'q» degan odamdan uch daqiqada qayta so'rash
+ *    bosim bo'lardi.
+ *  * **`result` — har o'yindan keyin.** Bu ongli qaror: o'yin tugagani
+ *    taklif uchun eng kuchli payt va u har safar takrorlanadi. Odam
+ *    nima qilayotganini biladi — o'yinni o'zi tugatdi, oyna esa uning
+ *    ustiga chiqadi, ishini bo'lmaydi. */
 
 export type PromoReason = 'open' | 'result';
 
-const KEYS: Record<PromoReason, string> = {
+/** Kunlik hisobi bor sabablar. `result` bu yerda yo'q: u har o'yindan
+ *  keyin chiqadi, ya'ni sanab turishning ma'nosi yo'q. */
+const KEYS: Partial<Record<PromoReason, string>> = {
   open: 'sozgir.app.promo',
-  result: 'sozgir.app.promo.game',
 };
 
 /** Oxirgi yopilgan vaqt — sabablarning hammasi uchun umumiy. */
@@ -50,9 +57,12 @@ function write(key: string, value: string): void {
   }
 }
 
-/** Shu sabab bugun ishlatilganmi. */
-export const promoShown = (reason: PromoReason): boolean =>
-  read(KEYS[reason]) === new Date().toDateString();
+/** Shu sabab bugun ishlatilganmi. Kunlik hisobi yo'q sabab — hech
+ *  qachon «ishlatilgan» bo'lmaydi. */
+export const promoShown = (reason: PromoReason): boolean => {
+  const key = KEYS[reason];
+  return !!key && read(key) === new Date().toDateString();
+};
 
 /** Oyna endigina yopilganmi. */
 function justClosed(): boolean {
@@ -60,13 +70,20 @@ function justClosed(): boolean {
   return Number.isFinite(at) && at > 0 && Date.now() - at < QUIET_MS;
 }
 
-/** Shu sabab bilan hozir ko'rsatsa bo'ladimi. */
+/** Shu sabab bilan hozir ko'rsatsa bo'ladimi.
+ *
+ *  O'yin natijasi chegarasiz: u har tugagan o'yinda chiqadi. Sahifa
+ *  ochilishi esa kuniga bir marta va oyna endigina yopilgan bo'lsa
+ *  umuman chiqmaydi. */
 export const canShowPromo = (reason: PromoReason): boolean =>
-  !promoShown(reason) && !justClosed();
+  reason === 'result' || (!promoShown(reason) && !justClosed());
 
-/** Sabab ishlatilgani yozib qo'yiladi — oyna ochilganda. */
-export const markPromoShown = (reason: PromoReason): void =>
-  write(KEYS[reason], new Date().toDateString());
+/** Sabab ishlatilgani yozib qo'yiladi — oyna ochilganda. Kunlik hisobi
+ *  yo'q sababda yozadigan narsa ham yo'q. */
+export function markPromoShown(reason: PromoReason): void {
+  const key = KEYS[reason];
+  if (key) write(key, new Date().toDateString());
+}
 
 /** Oyna yopildi — jim turish muddati shundan boshlanadi. */
 export const markPromoClosed = (): void => write(CLOSED_KEY, String(Date.now()));

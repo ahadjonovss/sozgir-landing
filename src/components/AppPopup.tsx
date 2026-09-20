@@ -6,10 +6,10 @@
  *  sayt o'zi to'liq o'yin, shuning uchun oyna umuman chizilmaydi.
  *
  *  **Ikki payt.** Birinchisi — sahifa ochilgandan bir necha soniya
- *  keyin. Ikkinchisi — **birinchi o'yin tugagach**: aynan o'shanda
- *  taklif eng o'rinli, chunki odam o'yinni sinab ko'rdi va yoqqan-
- *  yoqmaganini allaqachon biladi. Matn ham ikki xil: ochilishda
- *  «bu nima», natijadan keyin «natijangiz saqlansinmi».
+ *  keyin, kuniga bir marta. Ikkinchisi — **har o'yin tugagach**: aynan
+ *  o'shanda taklif eng o'rinli, chunki odam o'ynab bo'ldi va hozir
+ *  bo'sh. Matn ham ikki xil: ochilishda «bu nima», natijadan keyin
+ *  «natijangiz saqlansinmi».
  *
  *  Qachon chiqishini `lib/appPromo.ts` hal qiladi: har sabab kuniga bir
  *  marta, ustiga oyna yopilgandan keyin uch daqiqa jimlik — «yo'q»

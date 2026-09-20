@@ -896,10 +896,10 @@ u yerda sayt o‘zi to‘liq o‘yin.
 
 **Ikki payt** (`src/lib/appPromo.ts`):
 
-| Sabab | Qachon | Matni |
-| --- | --- | --- |
-| `open` | sahifa ochilgandan 4 soniya keyin | «So‘zgir ilovasi» — bu nima |
-| `result` | **o‘yin tugagach**, 1,6 soniyadan keyin | «O‘yin yoqdimi?» — natija saqlansinmi |
+| Sabab | Qachon | Necha marta | Matni |
+| --- | --- | --- | --- |
+| `open` | sahifa ochilgandan 4 soniya keyin | kuniga bir marta | «Mantiq. Bilim. G‘alaba.» |
+| `result` | **har o‘yin tugagach**, 1,6 soniyadan keyin | chegarasiz | «O‘yin yoqdimi?» |
 
 Ikkinchisi muhimroq: o‘shanda odam o‘yinni sinab ko‘rgan va yoqqan-
 yoqmaganini allaqachon biladi, ochilishdagi taklif esa hali hech narsa
@@ -907,15 +907,16 @@ ko‘rmagan odamga aytiladi. Chaqiruv o‘yin tugagan joydan keladi
 (`Play.tsx`), lekin o‘yin oynani bilmaydi — u faqat «tugadi» deydi,
 qolgan qarorlar `appPromo.ts` da.
 
-Chegaralar:
+Chegaralar ikki sabab uchun ikki xil:
 
-* **har sabab kuniga bir marta** (`sozgir.app.promo`,
-  `sozgir.app.promo.game`) — har sahifada qayta chiqsa u reklama emas,
-  to‘siq bo‘lardi;
-* **yopilgandan keyin uch daqiqa jimlik** (`sozgir.app.promo.at`):
-  «yo‘q» degan odamdan darrov ikkinchi marta so‘ralmaydi, ya’ni o‘yinni
-  endigina boshlagan odam natijadan keyin ikkinchi oynani ko‘rmaydi;
-* **yopish oson** — ✕, fon, Escape va «Saytda davom etish».
+* **`open` — kuniga bir marta** (`sozgir.app.promo`). Sahifa har
+  ochilganda chiqsa u reklama emas, to‘siq bo‘lardi: odam hali hech
+  narsa qilmagan. Ustiga oyna endigina yopilgan bo‘lsa
+  (`sozgir.app.promo.at`, uch daqiqa) u ham ochilmaydi.
+* **`result` — chegarasiz**: har tugagan o‘yindan keyin chiqadi. Bu
+  ongli qaror — o‘yin tugagani taklif uchun eng kuchli payt va odam
+  o‘shanda bo‘sh.
+* **Yopish oson** — ✕, fon, Escape va «Saytda davom etish».
 
 Ko‘rinishi ilovaning afishasidan olingan: tepada nishon, nom va shior,
 o‘rtada uchta afzallik (har biri o‘z rangidagi doira ichida — bilim,
