@@ -27,6 +27,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../lib/auth';
 import { isAdFree } from '../lib/donor';
+import { isVerifiedAsync } from '../lib/verified';
 import {
   adUnit,
   adsEnabled,
@@ -148,8 +149,15 @@ export default function AdBanner({
        javob «yo'q» bo'lsa komponent hali surib kelinmasidan yo'qoladi va
        sahifada bo'sh joy paydo bo'lib qolmaydi. */
     void (async () => {
-      // Qo'llagan odamga talab **umuman** yuborilmaydi.
-      if (await isAdFree(account?.uid)) return finish('gone');
+      // Qo'llagan odamga ham, tasdiqlangan hisobga ham talab **umuman**
+      // yuborilmaydi. Ikkalasi ham hisobga bog'liq, shuning uchun javob
+      // birga kutiladi: `Promise` ataylab — ro'yxat kelmasidan avval
+      // so'ralgan banner belgi egasiga ko'rinib ketardi.
+      const [adFree, verified] = await Promise.all([
+        isAdFree(account?.uid),
+        isVerifiedAsync(account?.uid),
+      ]);
+      if (adFree || verified) return finish('gone');
       if (!alive) return;
       // Adminkadagi kalit. O'chiq bo'lsa Yandex skripti ham yuklanmaydi:
       // shunda hech qanday so'rov ham, kuzatuv ham bo'lmaydi.

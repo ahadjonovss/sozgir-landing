@@ -270,6 +270,12 @@ Hisob-kitob `donations` ning o‘sha bitta REST so‘rovidan chiqadi
 (homiylik darajalari uchun baribir olinadi), natija `sozgir.donors`
 keshida yig‘indi bilan yonma-yon turadi.
 
+Ikkinchisi — **tasdiqlangan hisob** (`isVerifiedAsync`,
+`src/lib/verified.ts`): nishon bilan birga reklamasizlik keladi va u
+muddatsiz, ro‘yxatdan chiqmaguncha turadi. Ikkala javob ham banner
+talabni yuborishdan **oldin** kutiladi, aks holda belgi egasi bir lahza
+bo‘lsa ham reklama ko‘rib qolardi.
+
 ### O‘chirish kaliti
 
 Ilova bilan **bitta** hujjat — Firestore‘dagi `app/ads`:
@@ -683,11 +689,34 @@ hozircha umumiy hisobga qo‘shilmaydi — ilovada ham shunday
 ### Tasdiqlangan hisoblar
 
 Mashhur odamlarning nomi yonida tasdiq belgisi turadi
-(`src/lib/verified.ts`, `public/verified.png`). Ro'yxat **uid bo'yicha**:
-taxallusni har kim o'ziga qo'yishi mumkin, uid esa o'zgarmaydi — «Serobov»
+(`src/lib/verified.ts`, `public/verified.png`). Ro‘yxat **uid bo‘yicha**:
+taxallusni har kim o‘ziga qo‘yishi mumkin, uid esa o‘zgarmaydi — «Serobov»
 deb yozib olgan boshqa odam belgini olmaydi. Belgi nom turgan hamma
 joyda chiqadi (jadval, jang, tarix, maydon, hisob menyusi); profilda esa
-u bosiladi va «bu haqiqatan ham o'sha odam» degan izoh chiqadi.
+u bosiladi va nishon nimaligi aytiladi. Egasining o‘zi bossa oyna
+boshqacha bo‘ladi: u belgisining nimaligini so‘ramaydi, unga
+minnatdorchilik va imtiyozlar ro‘yxati chiqadi.
+
+Ro‘yxat ilgari shu faylda qo‘lda yozilgan edi, endi u bulutdagi bitta
+hujjatda — `config/verified` (`{ uids: [...] }`) va ilova ham o‘shani
+o‘qiydi: belgi adminkadan qo‘yiladi, sayt qaytadan yig‘ilmaydi. Hujjatni
+faqat admin yozadi, o‘qish hammaga ochiq. Sahifa umrida bir marta
+o‘qiladi va `sozgir.verified` keshida qoladi — birinchi kadrda belgi
+joyida bo‘lsin.
+
+Nishon uchta narsa beradi va uchalasi ham **haqiqatan bor** imtiyoz:
+
+| Imtiyoz | Qayerda |
+| --- | --- |
+| Reklama ko‘rsatilmaydi | `AdBanner.tsx` — talab umuman yuborilmaydi |
+| Ochiq profil premium ko‘rinishda | `PlayerPage.tsx` — grafit maydon, shampan chiziq, avatar chetidagi nishon (ilovadagi `ProfileSkin.verified`) |
+| Begonalar jangga chaqira olmaydi | chaqiruv tugmasi profilda ham, reyting qatorida ham chizilmaydi (ilovadagi `canInviteToBattle`) |
+
+Uchinchisining sababi: nishon taniqli shaxslarga beriladi va ularning
+profiliga kuniga yuzlab odam kiradi — har biri chaqirsa, egasining
+ekrani chaqiruv oynalaridan iborat bo‘lib qolardi. Tugma **yashiriladi**,
+bosilib «bo‘lmaydi» deyilmaydi: bajarib bo‘lmaydigan amalni taklif
+qilishning ma’nosi yo‘q.
 
 ### Belgilar
 

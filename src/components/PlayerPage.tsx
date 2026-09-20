@@ -24,6 +24,7 @@ import Avatar from './Avatar';
 import BattleStats from './BattleStats';
 import { Aqcha } from './Units';
 import { VerifiedBadge } from './PlayerName';
+import { VERIFIED, useVerified } from '../lib/verified';
 import { ChevronLeft, Heart, Person, Swords, Trophy } from './Icons';
 import SendInvite, { type InviteTarget } from './SendInvite';
 
@@ -74,6 +75,11 @@ export default function PlayerPage() {
   const isMe = !!account && account.uid === uid;
   const profile = state.kind === 'ready' ? state.profile : null;
   const name = pretty(profile?.nickname || 'O‘yinchi');
+  /** Tasdiqlangan hisobning profili «premium» ko'rinishda ochiladi —
+   *  ilovadagi `ProfileSkin.verified` bilan bir xil qaror: grafit
+   *  maydon, bitta shampan rangidagi chiziq va nishonning o'zi.
+   *  Yaltiroq bezak qimmatbaho emas, bayramona ko'rinadi. */
+  const premium = useVerified(uid);
 
   const invite = () => {
     // Jang hisobga bog'lanadi, shuning uchun mehmon avval kiradi.
@@ -85,7 +91,7 @@ export default function PlayerPage() {
   };
 
   return (
-    <section className="oyin player">
+    <section className={`oyin player${premium ? ' player--premium' : ''}`}>
       <div className="wrap player__wrap">
         <a className="player__back" href={links.play}>
           <ChevronLeft size={18} />
@@ -110,14 +116,34 @@ export default function PlayerPage() {
         {profile && (
           <>
             <header className="panel player__head">
-              <Avatar name={name} uid={profile.uid} size={72} />
-              {/* Belgi sarlavhadan tashqarida: `player__name` uzun nomni
-                  kesadi (`overflow: hidden`) va u bilan birga ochiladigan
-                  izohni ham kesib qo'yardi. */}
+              {/* Tasdiqlangan hisobda maydon tepasida yorliq turadi:
+                  nishon nimaligini ism bilan birga o'qish kerak, aks
+                  holda u shunchaki bezakka o'xshaydi. */}
+              {premium && (
+                <p className="player__eyebrow">
+                  <img src="/verified.png" alt="" width={14} height={14} />
+                  {VERIFIED.title}
+                </p>
+              )}
+              {/* Belgi avatarning chetida — ilovadagi «medalon». U bir
+                  vaqtning o'zida tugma ham: bosilsa nishon nimaligi
+                  aytiladi. Tasdiqlanmagan hisobda umuman chizilmaydi,
+                  ya'ni bu o'ram oddiy profilda ham bir xil turadi. */}
+              <div className="player__face">
+                <Avatar name={name} uid={profile.uid} size={premium ? 92 : 72} />
+                <VerifiedBadge uid={profile.uid} size={28} />
+              </div>
+              {/* Nom sarlavhasi alohida: `player__name` uzun nomni kesadi
+                  (`overflow: hidden`). */}
               <div className="player__title">
                 <h1 className="player__name">{name}</h1>
-                <VerifiedBadge uid={profile.uid} size={24} />
               </div>
+              {premium && (
+                <p className="player__honorific">
+                  <span className="player__ribbon">{VERIFIED.ribbon}</span>
+                  {VERIFIED.honorific}
+                </p>
+              )}
               {/* Daraja yorlig'i bu yerda takrorlanmaydi — u bellashuv
                   kartochkasining o'zida turadi. */}
               <div className="player__chips">
@@ -140,8 +166,16 @@ export default function PlayerPage() {
 
             {/* Chaqiruv sarlavhaning ostida. Profil bo'sh bo'lsa ham chaqirsa
                 bo'ladi: jang o'ynamagan odam aynan shu yo'l bilan birinchi
-                jangiga tortiladi. */}
-            {!isMe && (
+                jangiga tortiladi.
+
+                Tasdiqlangan hisobda tugma umuman chizilmaydi (ilovadagi
+                `canInviteToBattle`): nishon taniqli shaxslarga beriladi va
+                ularning profiliga kuniga yuzlab odam kiradi — har biri
+                chaqirsa, nishon egasining ekrani chaqiruv oynalaridan
+                iborat bo'lib qolardi. Tugma yashiriladi, bosilib
+                «bo'lmaydi» deyilmaydi: bajarib bo'lmaydigan amalni
+                taklif qilishning ma'nosi yo'q. */}
+            {!isMe && !premium && (
               <div className="player__invite">
                 <button className="btn btn--lg" onClick={invite}>
                   <Swords size={18} />
@@ -236,6 +270,11 @@ export default function PlayerPage() {
             {/* Profil oxirida — ilovadagi `profile` joylashuvi kabi.
                 Sarlavha, chaqirish tugmasi va statistika tepada qoladi. */}
             <AdBanner placement="profile" />
+
+            {/* Nishon sotib olinadigan narsa emasligi aynan shu yerda
+                aytiladi: premium ko'rinishni ko'rgan odamda «buni qanday
+                olsa bo'ladi?» degan savol tug'iladi. */}
+            {premium && <p className="panel__note player__private">{VERIFIED.profileNote}</p>}
 
             <p className="panel__note player__private">
               Shaxsiy statistika faqat egasiga ko‘rinadi

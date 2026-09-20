@@ -16,9 +16,11 @@
  *  o'ynamayotgan joyda turadi: nimani o'ynashni tanlayotgan sahifa, yon
  *  ustun, boshqa o'yinchining profili, jang lobbisi.
  *
- *  **Kim ko'rmaydi.** Loyihani qo'llagan odam ([useAdFree]) — ilovadagi
+ *  **Kim ko'rmaydi.** Loyihani qo'llagan odam ([isAdFree]) — ilovadagi
  *  bilan aynan bir xil shart: oxirgi 7 kunlik qo'llovlar 5 555 so'mga
- *  yetsa, reklama umuman so'ralmaydi.
+ *  yetsa, reklama umuman so'ralmaydi. Tasdiqlangan hisob ham
+ *  ([isVerifiedAsync]): nishon bilan birga reklamasizlik keladi va u
+ *  muddatsiz — ro'yxatdan chiqmaguncha turadi.
  *
  *  **Qachon so'raladi.** Faqat banner ekranga yaqinlashganda va varaq
  *  ko'rinib turganda. Shu sababli Yandex skripti sahifa ochilishida

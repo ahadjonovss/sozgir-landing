@@ -918,33 +918,76 @@
   vertical-align: -0.15em;
 }
 
-/* Profildagi belgi bosiladi: izoh tepasida chiqadi. */
+/* Profildagi belgi bosiladi: nishon nimaligi oynada aytiladi. Ilgari
+   izoh belgining tepasida chiqardi — endi u imtiyozlar ro'yxati bilan
+   keladi va tor joyga sig'maydi. */
 .verified-badge {
-  position: relative;
   display: inline-flex;
   align-items: center;
+  padding: 0;
+  border: 0;
+  background: none;
   cursor: pointer;
 }
 
-.verified-badge__tip {
-  position: absolute;
-  bottom: calc(100% + 8px);
-  left: 50%;
-  z-index: 60;
-  width: max-content;
-  max-width: 260px;
-  padding: 9px 12px;
-  transform: translateX(-50%);
-  border: 1px solid var(--divider);
-  border-radius: 14px;
-  background: var(--bg);
-  box-shadow: 0 18px 36px -18px rgba(15, 17, 20, 0.55);
-  font-size: 12.5px;
-  font-weight: 500;
-  line-height: 1.4;
+/* Oyna ichidagi nishon: ostida ikki qavat yorug'lik — keng va xira
+   tashqarisi, ustida to'yinganroq ichkarisi. Bitta doira bilan chekkasi
+   keskin ko'rinardi: nishon yonayotgandek emas, yopishtirilgandek
+   turardi. */
+.verified-sheet {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.verified-sheet__glow {
+  display: grid;
+  place-items: center;
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(211, 175, 78, 0.22) 0%,
+    rgba(211, 175, 78, 0) 70%
+  );
+}
+
+.verified-sheet__lead {
+  font-size: 15px;
+  line-height: 1.55;
   color: var(--text-2);
-  white-space: normal;
+}
+
+/* Minnatdorchilik va imtiyoz ikki xil gap: bir xil ko'rinishda tursa
+   ikkalasi ham o'qilmay ketardi. */
+.verified-sheet__perk {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--yellow-soft);
+  border-radius: var(--radius-sm);
+  background: var(--yellow-soft);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
   text-align: start;
+}
+
+.verified-sheet__perks {
+  display: grid;
+  gap: 10px;
+  padding-inline-start: 18px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--text-2);
+  text-align: start;
+}
+
+.verified-sheet__perks li {
+  list-style: disc;
 }
 
 /* Daraja nishoni — jangdagi pog'ona va homiylik darajasi. */
@@ -3269,6 +3312,88 @@
   justify-content: center;
   gap: 8px;
   max-width: 100%;
+}
+
+/* Avatar va uning chetidagi nishon. Tasdiqlanmagan hisobda nishon
+   chizilmaydi, ya'ni o'ram oddiy profilda hech narsani o'zgartirmaydi. */
+.player__face {
+  position: relative;
+  display: inline-flex;
+}
+
+.player__face .verified-badge {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  padding: 3px;
+  border-radius: 50%;
+  background: var(--surface);
+}
+
+/* ── Tasdiqlangan hisobning profili ──────────────────────────────────
+   Ilovadagi `ProfileSkin.verified` ning o'zi: grafit maydon, bitta
+   shampan rangidagi ingichka chiziq va nishon. Homiylik darajalaridan
+   **kamroq** bezak bilan ajraladi, ko'proq bilan emas — nur va yulduz
+   beshta darajani bir-biridan farqlash uchun kerak edi, tasdiq esa
+   bitta va u o'zini isbotlamaydi. Animatsiya ham yo'q: ekran ochilib,
+   tinch turadi. */
+.player--premium {
+  --premium-ink: #f2f1ee;
+  --premium-ornament: #cbb183;
+}
+
+.player--premium .player__head {
+  border: 1px solid rgba(203, 177, 131, 0.3);
+  background: linear-gradient(155deg, #14161c 0%, #272b34 100%);
+  color: var(--premium-ink);
+}
+
+.player--premium .player__name {
+  color: var(--premium-ink);
+}
+
+.player--premium .player__face .verified-badge {
+  background: #1b1e25;
+}
+
+.player__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--premium-ornament);
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.player__honorific {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+  color: rgba(242, 241, 238, 0.72);
+}
+
+/* Yorliqlar maydonning o'z ohangida: oq fonli chip grafit maydonda
+   yamoqdek turardi. */
+.player--premium .player__chips .versus__tag {
+  background: rgba(242, 241, 238, 0.07);
+  box-shadow: inset 0 0 0 1px rgba(203, 177, 131, 0.28);
+  color: rgba(242, 241, 238, 0.78);
+}
+
+.player__ribbon {
+  padding: 3px 10px;
+  border: 1px solid rgba(203, 177, 131, 0.45);
+  border-radius: 999px;
+  color: var(--premium-ornament);
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .player__name {

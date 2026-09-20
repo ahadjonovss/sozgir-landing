@@ -7,11 +7,16 @@
  *
  *  Jadvalda belgi shunchaki rasm: bosilsa qator havolasi ochilishi
  *  kerak, tugma ichida tugma bo'lmaydi. Profilda esa u bosiladi va
- *  tepasida bir jumlalik izoh chiqadi — «bu kim?» degan savol aynan
- *  o'sha yerda tug'iladi (`DonorChip` bilan bir xil xulq). */
-import { useEffect, useRef, useState } from 'react';
-import { verifiedNote, verifiedOf } from '../lib/verified';
+ *  oyna ochiladi — «bu kim?» degan savol aynan o'sha yerda tug'iladi.
+ *  Egasining o'zi bosgan bo'lsa oyna boshqacha: u belgisining nimaligini
+ *  so'ramaydi, unga aytiladigan gap boshqa (ilovadagi
+ *  `VerifiedThanksSheet`). */
+import { useState } from 'react';
+import { useAuth } from '../lib/auth';
+import { VERIFIED, useVerified } from '../lib/verified';
 import { pretty } from '../lib/uz';
+import Modal from './Modal';
+import { Person } from './Icons';
 
 /** Faqat belgi — nomi boshqa joyda chizilgan bo'lsa. */
 export function VerifiedMark({
@@ -21,14 +26,14 @@ export function VerifiedMark({
   uid: string | null | undefined;
   size?: number;
 }) {
-  const person = verifiedOf(uid);
-  if (!person) return null;
+  const verified = useVerified(uid);
+  if (!verified) return null;
   return (
     <img
       className="verified"
       src="/verified.png"
-      alt="Tasdiqlangan hisob"
-      title={verifiedNote(person)}
+      alt={VERIFIED.title}
+      title={VERIFIED.title}
       width={size}
       height={size}
       loading="lazy"
@@ -37,7 +42,7 @@ export function VerifiedMark({
   );
 }
 
-/** Profildagi belgi: bosilsa izoh chiqadi. */
+/** Profildagi belgi: bosilsa oyna ochiladi. */
 export function VerifiedBadge({
   uid,
   size = 22,
@@ -45,61 +50,70 @@ export function VerifiedBadge({
   uid: string | null | undefined;
   size?: number;
 }) {
-  const person = verifiedOf(uid);
+  const verified = useVerified(uid);
+  const { account } = useAuth();
   const [open, setOpen] = useState(false);
-  const root = useRef<HTMLSpanElement>(null);
+  const mine = !!uid && account?.uid === uid;
 
-  useEffect(() => {
-    if (!open) return;
-    const onDown = (event: MouseEvent | TouchEvent) => {
-      if (!root.current?.contains(event.target as Node)) setOpen(false);
-    };
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setOpen(false);
-    };
-    document.addEventListener('mousedown', onDown);
-    document.addEventListener('touchstart', onDown);
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('mousedown', onDown);
-      document.removeEventListener('touchstart', onDown);
-      document.removeEventListener('keydown', onKey);
-    };
-  }, [open]);
-
-  if (!person) return null;
-  const toggle = () => setOpen((value) => !value);
+  if (!verified) return null;
 
   return (
-    <span
-      ref={root}
-      className={`verified-badge${open ? ' verified-badge--open' : ''}`}
-      role="button"
-      tabIndex={0}
-      aria-label={`${person.name} — tasdiqlangan hisob haqida`}
-      aria-expanded={open}
-      onClick={toggle}
-      onKeyDown={(event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
-          toggle();
-        }
-      }}
-    >
-      <img
-        className="verified"
-        src="/verified.png"
-        alt="Tasdiqlangan hisob"
-        width={size}
-        height={size}
-        decoding="async"
-      />
-      {open && (
-        <span className="verified-badge__tip" role="tooltip">
-          {verifiedNote(person)}
+    <>
+      <button
+        className="verified-badge"
+        type="button"
+        aria-label={`${VERIFIED.title} haqida`}
+        onClick={() => setOpen(true)}
+      >
+        <img
+          className="verified"
+          src="/verified.png"
+          alt={VERIFIED.title}
+          width={size}
+          height={size}
+          decoding="async"
+        />
+      </button>
+      {open && <VerifiedSheet mine={mine} onClose={() => setOpen(false)} />}
+    </>
+  );
+}
+
+/** Belgining izohi.
+ *
+ *  Ikki ko'rinishi bor va ikkalasi bitta oynada: begona odam «bu nima?»
+ *  deb so'raydi, egasi esa buni biladi — unga nishon nima berishi
+ *  aytiladi. Imtiyozlar bittalab sanaladi: «premium» so'zining o'zi
+ *  nimadan ozod bo'lganini aytmaydi. */
+function VerifiedSheet({ mine, onClose }: { mine: boolean; onClose: () => void }) {
+  return (
+    <Modal title={mine ? VERIFIED.thanksTitle : VERIFIED.title} onClose={onClose}>
+      <div className="verified-sheet">
+        <span className="verified-sheet__glow" aria-hidden="true">
+          <img src="/verified.png" alt="" width={76} height={76} decoding="async" />
         </span>
-      )}
-    </span>
+
+        <p className="verified-sheet__lead">
+          {mine ? VERIFIED.thanksBody : VERIFIED.body}
+        </p>
+
+        {mine ? (
+          <>
+            <p className="verified-sheet__perk">
+              <Person size={18} />
+              {VERIFIED.thanksPerk}
+            </p>
+            <ul className="verified-sheet__perks">
+              {VERIFIED.perks.map((perk) => (
+                <li key={perk}>{perk}</li>
+              ))}
+            </ul>
+          </>
+        ) : (
+          <p className="panel__note">{VERIFIED.note}</p>
+        )}
+      </div>
+    </Modal>
   );
 }
 

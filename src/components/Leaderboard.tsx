@@ -18,6 +18,7 @@ import { Aqcha } from './Units';
 import PlayerName from './PlayerName';
 import { DAILY_LENGTH } from '../lib/modes';
 import { pretty } from '../lib/uz';
+import { useVerifiedList } from '../lib/verified';
 import { playerLink } from '../data/site';
 
 type Tab = 'daily' | 'today' | 'total';
@@ -32,6 +33,10 @@ const TAB_LABEL: Record<Tab, string> = {
 
 export default function Leaderboard() {
   const { account, openPrompt } = useAuth();
+  /** Tasdiqlangan hisobni jadvaldan chaqirib bo'lmaydi — ilovadagi
+   *  `canInviteToBattle` bilan bir xil qoida: nishon egasining ekrani
+   *  chaqiruv oynalaridan iborat bo'lib qolmasin. */
+  const verified = useVerifiedList();
   const [tab, setTab] = useState<Tab>('daily');
   /** Har bo'limning yuklangan jadvali alohida saqlanadi: qaytib
    *  almashilganda darrov chiqadi, yuklanish paytida esa oldingi bo'limning
@@ -154,7 +159,7 @@ export default function Leaderboard() {
               <span className="rank__points">
                 <Aqcha tiyin={row.points} size="sm" />
               </span>
-              {row.uid !== account?.uid && (
+              {row.uid !== account?.uid && !verified(row.uid) && (
                 <button
                   type="button"
                   className="rank__invite"
