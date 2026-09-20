@@ -1,7 +1,8 @@
 import Play from './Play';
 import { useGameChoice } from '../lib/useGameChoice';
 import { useSozTop } from '../lib/useSozTop';
-import { formatPlayers, useTodayPlayers } from '../lib/players';
+import { dailyNumber } from '../lib/daily';
+import { Today } from './Icons';
 import { links, stats } from '../data/site';
 
 /** Orqa fondagi bezak kataklar — «so'z» harflari va ranglar. Faqat
@@ -32,9 +33,13 @@ const CONFETTI: { unit: string; verdict: 'correct' | 'present' | 'absent' }[] = 
  *  «ilovaning ko'rinishi» qilib ko'rsatardi, holbuki u shu yerda,
  *  brauzerda o'ynaladigan haqiqiy o'yin. */
 export default function Hero() {
-  const choice = useGameChoice();
+  // Bosh sahifa **cheksiz** rejimdan boshlanadi. Sabab ikkita: kunlik
+  // so'z endi hisob talab qiladi (u reytingga tushadi), ya'ni birinchi
+  // marta kelgan odam bosh sahifada darrov to'siqqa urilardi; ikkinchidan
+  // kunlik so'zning o'z sahifasi bor va tepadagi banner aynan o'sha
+  // yerga olib boradi.
+  const choice = useGameChoice({ mode: 'endless' });
   const game = useSozTop(choice);
-  const players = useTodayPlayers();
 
   return (
     <section className="hero" id="top">
@@ -50,23 +55,29 @@ export default function Hero() {
 
       <div className="wrap hero__inner">
         <div className="hero__play">
-          {/* Sanoq serverdagi haqiqiy son: bugun ball yozgan odamlar.
-              Kelmaguncha qator umuman chizilmaydi — joy band qilib
-              turgan bo'sh yorliq sonning o'zidan yomonroq. */}
-          {players !== null && (
-            <p className="hero__live">
-              <i aria-hidden="true" />
-              Bugun <strong>{formatPlayers(players)}</strong> kishi o‘ynadi
-            </p>
-          )}
+          {/* Kunlik so'z — sahifaning eng muhim havolasi, shuning uchun u
+              taxtaning tepasida alohida qatorda turadi. Bosh sahifadagi
+              taxta esa cheksiz rejim: u hisobsiz ham o'ynaladi. */}
+          <a className="daily-card" href={links.play}>
+            <span className="daily-card__icon" aria-hidden="true">
+              <Today size={20} />
+            </span>
+            <span className="daily-card__text">
+              <strong>Kunlik so‘z №{dailyNumber()}</strong>
+              <span>Butun O‘zbekiston uchun bitta so‘z</span>
+            </span>
+            <span className="btn btn--sm daily-card__go">O‘ynash</span>
+          </a>
 
           <div className="hero__board">
             <Play choice={choice} game={game} />
           </div>
 
+          {/* Jonli sanoq endi sarlavhaning o'rtasida — u butun saytga
+              tegishli, faqat bosh sahifaga emas. */}
           <p className="hero__playnote">
-            Bu haqiqiy o‘yin: bugungi so‘z ilovadagi bilan bir xil, natija
-            reytingga tushadi.{' '}
+            Bu haqiqiy o‘yin: lug‘at ilovadagi bilan bir xil, natija reytingga
+            tushadi.{' '}
             <a className="link" href={links.play}>
               To‘liq sahifa →
             </a>

@@ -778,7 +778,22 @@ Yuzboshi, Mingboshi, Botir, Bahodir, Tarxon, Alp.
 ## Bosh sahifa o‘yindan boshlanadi
 
 `/` ochilishi bilan taxta va klaviatura turadi, tanishtiruv matni esa
-ularning **ostida**. Ilgari hero ikki ustunli edi: chapda sarlavha va
+ularning **ostida**. Tepada — kunlik so‘z banneri (`/oyin` ga olib
+boradi), ostida cheksiz rejimdagi taxta.
+
+Bosh sahifadagi taxta **cheksiz** rejimda: kunlik so‘z endi hisob talab
+qiladi (pastdagi bo‘lim), ya‘ni birinchi marta kelgan odam bosh
+sahifada darrov to‘siqqa urilardi. Cheksiz rejim esa hisobsiz ochiq va
+yangi mehmon aynan o‘sha yerda o‘yinni sinab ko‘radi.
+
+Taxtada rejim va uzunlik tanlovi yo‘q — ular birinchi ekrandan joy
+yeydi, holbuki kunlik so‘z banner orqali, uzunliklar esa
+`/cheksiz/{n}-harf` sahifalari va menyu orqali ochiladi.
+
+Sarlavhaning o‘rtasida sayt nomi va **bugun necha kishi o‘ynadi**
+(`src/lib/players.ts`). Ilgari u yerda uchta havola turardi — ular endi
+menyuda, chunki menyu saytning xaritasi bo‘ldi va uchta havola baribir
+bo‘limlarning uchdan birini ham ko‘rsatmasdi. Ilgari hero ikki ustunli edi: chapda sarlavha va
 gap, o‘ngda telefon ramkasidagi taxta. Telefonda ustunlar ustma-ust
 tushardi, ya‘ni o‘ynash uchun avval butun matnni surib o‘tish kerak
 bo‘lardi — qaytib kelgan o‘yinchi esa buni har safar qilardi.
@@ -791,13 +806,32 @@ holbuki u shu yerda o‘ynaladigan haqiqiy o‘yin.
 Taxta **har qanday ekranda** birinchi ekranga sig‘adi: hisob
 `/oyin` dagi `--fit` bilan bir xil (`landing.css` dagi `.hero__board`),
 farqi shundaki bu yerda u kompyuterda ham ishlaydi — o‘yinni yuqoriga
-ko‘tarishning butun ma’nosi uning ko‘rinib turishida.
+ko‘tarishning butun ma’nosi uning ko‘rinib turishida. `--reserve`
+ekrandan sarlavha, banner, holat qatori, klaviatura va havoni ayiradi;
+kam baholansa taxta bir oz kichik chiqadi (zarari yo‘q), oshirib
+yuborilsa klaviatura birinchi ekrandan chiqib ketardi.
 
-Sarlavha ostida bitta qator: **bugun necha kishi o‘ynadi**
-(`src/lib/players.ts`). Son o‘ylab topilmaydi — u `daily_scores/{sana}/
-entries` dagi yozuvlar soni, ya‘ni bugun ball yozgan odamlar. Bitta
-`count()` so‘rovi, ro‘yxatning o‘zi o‘qilmaydi. Nol bo‘lsa (yoki so‘rov
-yiqilsa) qator umuman chizilmaydi.
+Sanoq o‘ylab topilmaydi — u `daily_scores/{sana}/entries` dagi yozuvlar
+soni, ya‘ni bugun ball yozgan odamlar. Bitta `count()` so‘rovi,
+ro‘yxatning o‘zi o‘qilmaydi. Nol bo‘lsa (yoki so‘rov yiqilsa) qator
+umuman chizilmaydi.
+
+## Kunlik so‘z uchun hisob kerak
+
+Kunlik o‘yin — hamma uchun bitta so‘z va natija reytingga tushadi:
+natijasi saqlanmaydigan o‘yinchi jadvalda ham yo‘q, ya‘ni kunlik
+o‘yinning yarmi u uchun ishlamaydi. Shuning uchun kirmagan odamga
+taxta o‘rniga to‘siq ko‘rinadi: sabab, «Kirish» va «Hisob ochish».
+
+Cheksiz rejim, g‘uncha va mashq **hisobsiz ochiq** qolaveradi — mashq
+uchun kirish talab qilishning ma’nosi yo‘q va yangi mehmon aynan o‘sha
+yerda o‘yinni sinab ko‘radi. To‘siqning ostida o‘sha yo‘l ko‘rsatiladi:
+«Hisobsiz cheksiz rejimda o‘ynash».
+
+To‘siq `auth.ready` ni kutadi: hisob holati aniqlanmaguncha u
+ko‘rsatilmaydi, aks holda kirgan odam ham bir lahza uni ko‘rib qolardi.
+Mehmonlar uchun eski chegara (`GUEST_GAME_LIMIT` — beshta o‘yin) cheksiz
+rejimda o‘z joyida qoladi.
 
 ## Javoblar arxivi
 

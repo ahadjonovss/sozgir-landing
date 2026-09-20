@@ -11,6 +11,7 @@ import { useEffect, useState } from 'react';
 import { links } from '../data/site';
 import { toggleTheme } from '../lib/useReveal';
 import { useUnreadUpdates } from '../lib/updates';
+import { formatPlayers, useTodayPlayers } from '../lib/players';
 import type { Route } from '../lib/useRoute';
 import Account from './Account';
 import Logo from './Logo';
@@ -25,16 +26,6 @@ interface Item {
   /** O'qilmagan yangiliklar soni shu qatorda chiqadi. */
   badge?: boolean;
 }
-
-/* Tepada faqat asosiylari: qoida, qo'llab-quvvatlash va yuklab olish.
-   O'yinlarga yo'l bitta — «O'ynash» tugmasi: u nimani o'ynashni tanlash
-   sahifasini ochadi (So'ztop yoki So'zjang). Qolgan bo'limlar telefon
-   menyusida va footerda. */
-const NAV: Item[] = [
-  { href: '/#qoida', label: 'Qoida' },
-  { href: links.donate, label: 'Qo‘llab-quvvatlash', route: '/qollab' },
-  { href: '/#yuklab-olish', label: 'Yuklab olish' },
-];
 
 /** Menyu — saytning xaritasi.
  *
@@ -81,6 +72,7 @@ const GROUPS: { title: string; items: Item[] }[] = [
 
 export default function Header({ route }: { route: Route }) {
   const unread = useUnreadUpdates();
+  const players = useTodayPlayers();
   const [dark, setDark] = useState(
     () => document.documentElement.dataset.theme === 'dark',
   );
@@ -119,13 +111,18 @@ export default function Header({ route }: { route: Route }) {
             <Logo height={26} />
           </a>
 
-          <nav className="header__nav" aria-label="Bo‘limlar">
-            {NAV.map((item) => (
-              <a key={item.label} href={item.href} aria-current={current(item)}>
-                {item.label}
-              </a>
-            ))}
-          </nav>
+          {/* Sarlavhaning o'rtasi: sayt nimaligi va bugungi holat. Ilgari
+              bu yerda uchta havola turardi — ular endi menyuda, chunki
+              menyu saytning xaritasi bo'ldi va uchta havola baribir
+              bo'limlarning uchdan birini ham ko'rsatmasdi. */}
+          <div className="header__title">
+            <a href="/#top">So‘zgir — o‘zbekcha so‘z o‘yinlari</a>
+            {players !== null && (
+              <span className="header__live">
+                Bugun {formatPlayers(players)} kishi o‘ynadi
+              </span>
+            )}
+          </div>
 
           <div className="header__actions">
             <Settings />

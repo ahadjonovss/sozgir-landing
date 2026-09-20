@@ -82,6 +82,19 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
    *  yopilsa ostidagi panel qoladi. */
   const [gateOpen, setGateOpen] = useState(true);
 
+  /** Kunlik so'z uchun hisob kerak.
+   *
+   *  Kunlik o'yin — hamma uchun bitta so'z va u reytingga tushadi:
+   *  natijasi saqlanmaydigan o'yinchi jadvalda ham yo'q, ya'ni kunlik
+   *  o'yinning yarmi u uchun ishlamaydi. Cheksiz rejim esa hisobsiz
+   *  ochiq qolaveradi — mashq uchun kirish talab qilishning ma'nosi
+   *  yo'q va yangi mehmon aynan o'sha yerda o'yinni sinab ko'radi.
+   *
+   *  `ready` kutiladi: hisob holati aniqlanmaguncha to'siq
+   *  ko'rsatilmaydi, aks holda kirgan odam ham bir lahza uni ko'rib
+   *  qolardi. */
+  const needsAccount = mode === 'daily' && auth.ready && !auth.account;
+
   const { stats } = game;
   const winRate = stats.played === 0 ? 0 : Math.round((stats.wins / stats.played) * 100);
   const hint = useHint(game.puzzle, game.phase);
@@ -207,7 +220,7 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
         </div>
       )}
 
-      {game.phase === 'loading' && (
+      {!needsAccount && game.phase === 'loading' && (
         <div className="play__wait" role="status">
           <div className="play__skeleton" aria-hidden="true">
             {Array.from({ length }, (_, i) => (
@@ -218,7 +231,7 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
         </div>
       )}
 
-      {game.phase === 'error' && (
+      {!needsAccount && game.phase === 'error' && (
         <div className="play__wait play__wait--err" role="alert">
           <p>Lug‘atni yuklab bo‘lmadi. Internet aloqasini tekshiring.</p>
           <button className="btn btn--sm" onClick={game.retry}>
@@ -282,7 +295,37 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
         </>
       )}
 
-      {game.puzzle && game.phase !== 'loading' && game.phase !== 'error' && !game.locked && (
+      {needsAccount && (
+        <div className="gate" role="status">
+          <span className="gate__icon" aria-hidden="true">🔒</span>
+          <h3>Kunlik so‘z uchun hisob kerak</h3>
+          <p>
+            Kunlik so‘z butun O‘zbekiston uchun bitta va natija reytingga
+            tushadi — shuning uchun u hisobga bog‘lanadi. Kirish bir daqiqa
+            oladi, natijalaringiz esa saqlanadi va boshqa qurilmadan ham
+            ko‘rinadi.
+          </p>
+          <div className="result__actions">
+            <button className="btn btn--sm" onClick={() => auth.openPrompt('signIn')}>
+              Kirish
+            </button>
+            <button
+              className="btn btn--sm btn--ghost"
+              onClick={() => auth.openPrompt('register')}
+            >
+              Hisob ochish
+            </button>
+          </div>
+          {/* Hisobsiz ham o'ynash yo'li ochiq qoladi: «bo'lmaydi» deb
+              qo'yib yuborishning o'rniga darrov o'ynaydigan rejim
+              taklif qilinadi. */}
+          <button className="link gate__skip" onClick={() => setMode('endless')}>
+            Hisobsiz cheksiz rejimda o‘ynash →
+          </button>
+        </div>
+      )}
+
+      {!needsAccount && game.puzzle && game.phase !== 'loading' && game.phase !== 'error' && !game.locked && (
         <>
           {!elsewhere && (
             <div className="play__area">

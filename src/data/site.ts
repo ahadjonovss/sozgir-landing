@@ -183,7 +183,7 @@ export const faq = [
   },
   {
     q: 'Hisob ochish shartmi?',
-    a: 'Yo‘q. O‘yin hisobsiz ham to‘liq ishlaydi, natija brauzerda saqlanadi. Hisob ochsangiz natija reytingga tushadi, boshqa qurilmada ham ko‘rinadi va so‘zjangda o‘ynay olasiz.',
+    a: 'Kunlik so‘z uchun — ha: u butun O‘zbekiston uchun bitta so‘z va natija reytingga tushadi, shuning uchun hisobga bog‘lanadi. Cheksiz rejim, g‘uncha va mashq esa hisobsiz ham ochiq: natija brauzeringizda qoladi.',
   },
   {
     q: 'Saytdagi o‘yin ilovadagisi bilan bir xilmi?',

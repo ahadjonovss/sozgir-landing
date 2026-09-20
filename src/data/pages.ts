@@ -57,7 +57,7 @@ const BASE_PAGES = [
       'Yashirin so‘zni oltita urinishda toping, do‘stingiz bilan jonli jang qiling va har topgan so‘zingizning ma’nosini o‘rganing. SH, CH, O‘ va G‘ — bitta harf, xuddi maktabda o‘rgangandek.',
     body: [
       'So‘zgir — bitta o‘yin emas, o‘zbek tilidagi so‘z o‘yinlari to‘plami: So‘ztop (yashirin so‘zni topish), So‘zjang (ikki o‘yinchi bir so‘z ustida bellashadi), G‘uncha (yettita harfdan so‘z yig‘ish), Yangso‘z (tilda yo‘q tushunchaga yangi so‘z o‘ylab topish) va reyting.',
-      'Kunlik so‘z butun mamlakatda bir xil va u telefondagi ilovada ham, saytda ham aynan bitta. Hisob ochmasdan ham o‘ynash mumkin — natija shunda faqat brauzeringizda qoladi.',
+      'Kunlik so‘z butun mamlakatda bir xil va u telefondagi ilovada ham, saytda ham aynan bitta. Uni o‘ynash uchun hisob kerak — natija reytingga tushadi; cheksiz rejim esa hisobsiz ham ochiq.',
       'O‘yin o‘zbek alifbosiga moslangan: SH, CH, O‘ va G‘ bitta tovush, shuning uchun bitta katakcha va klaviaturada bitta tugma. Yozuvni lotin, yangi lotin yoki kirillga almashtirish mumkin.',
     ],
   },
@@ -65,7 +65,7 @@ const BASE_PAGES = [
     path: '/oynash',
     title: 'O‘ynash — So‘zgir',
     description:
-      'Bugungi so‘zni yolg‘iz toping, harflardan so‘z yig‘ing yoki do‘stingiz bilan bellashing — hammasi brauzerda, ro‘yxatdan o‘tmasdan.',
+      'Bugungi so‘zni yolg‘iz toping, harflardan so‘z yig‘ing yoki do‘stingiz bilan bellashing — hammasi brauzerda.',
     nav: 'O‘ynash',
     h1: 'Nimani o‘ynaymiz?',
     lead:
