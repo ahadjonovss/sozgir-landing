@@ -68,7 +68,7 @@ interface Credentials {
 
 /** Hisob oynasining ko'rinishi. Holat provayderda turadi, chunki oynani
  *  sarlavhadagi tugma ham, o'yin natijasi ham chaqiradi. */
-export type AuthPrompt = 'register' | 'signIn' | 'profile';
+export type AuthPrompt = 'register' | 'signIn' | 'profile' | 'password';
 
 export interface AuthValue {
   account: Account | null;
@@ -83,6 +83,10 @@ export interface AuthValue {
   ) => Promise<boolean>;
   signIn: (input: Credentials) => Promise<boolean>;
   resetPassword: (email: string) => Promise<boolean>;
+  /** Parolni yangilash — kirgan holatda. Joriy parol ham so'raladi:
+   *  Firebase parolni almashtirishdan oldin yaqinda kirilgan bo'lishini
+   *  talab qiladi. */
+  updatePassword: (input: { current: string; next: string }) => Promise<boolean>;
   saveNickname: (nickname: string) => Promise<boolean>;
   /** Tug'ilgan sana va jins — ro'yxatdan o'tishda so'raladi, eski
    *  hisoblarda profil oynasidan to'ldiriladi. */
@@ -274,6 +278,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [run],
   );
 
+  /** Parolni yangilaydi.
+   *
+   *  Ikki qadam: avval **qaytadan autentifikatsiya**, so'ng yangi parol.
+   *  Firebase parolni almashtirishni «yaqinda kirilgan» sessiyaga
+   *  bog'laydi (`auth/requires-recent-login`) — uzoq ochiq turgan
+   *  sahifada bu shart bajarilmaydi. Joriy parolni so'rash ikkala
+   *  savolni birdan yopadi: sessiya yangilanadi va o'g'irlangan
+   *  qurilmadan parol almashtirib bo'lmaydi.
+   *
+   *  Telefon raqamli hisobda ham ishlaydi: kirish nomi `loginId.ts`
+   *  orqali baribir pochta shakliga keltiriladi va hisobda o'sha
+   *  saqlanadi. */
+  const updatePassword = useCallback(
+    ({ current, next }: { current: string; next: string }) =>
+      run(async () => {
+        const { auth } = await client();
+        const {
+          EmailAuthProvider,
+          reauthenticateWithCredential,
+          updatePassword: applyPassword,
+        } = await import('firebase/auth');
+
+        const person = auth.currentUser;
+        if (!person?.email) {
+          throw Object.assign(new Error('Hisob topilmadi'), {
+            code: 'auth/user-not-found',
+          });
+        }
+
+        await reauthenticateWithCredential(
+          person,
+          EmailAuthProvider.credential(person.email, current),
+        );
+        await applyPassword(person, next);
+      }),
+    [run],
+  );
+
   /** Taxallusni saqlaydi. Kirmagan holatda ham ishlaydi — nom brauzerda
    *  qoladi va keyin kirilganda hisobga ko'chadi. */
   const saveNickname = useCallback(
@@ -348,6 +390,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       register,
       signIn,
       resetPassword,
+      updatePassword,
       saveNickname,
       saveDetails,
       signOut,
@@ -371,6 +414,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       ready,
       register,
       resetPassword,
+      updatePassword,
       saveDetails,
       saveNickname,
       signIn,
