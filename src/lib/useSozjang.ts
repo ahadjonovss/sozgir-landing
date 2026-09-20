@@ -128,6 +128,12 @@ export function useSozjang() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  /** Taslim bo'lib chiqdim, raqib esa hali o'ynayapti.
+   *
+   *  Jang hujjati shu payt hali yopilmagan (uni raqib tugatganda yoki
+   *  muddat o'tganda server yopadi), ya'ni holatdan «yutqazdim» degan
+   *  javob chiqmaydi — javob shu bayroqdan olinadi. */
+  const [forfeited, setForfeited] = useState(false);
   /** Avto to'ldirish — sarlavhadagi «Sozlamalar»dan. */
   const settings = useSettings();
   const [hint, setHint] = useState<{ index: number; unit: string } | null>(null);
@@ -176,6 +182,7 @@ export function useSozjang() {
     setMessage(null);
     setError(null);
     setIncoming(null);
+    setForfeited(false);
   }, []);
 
   // Chaqiruv qabul qilindi: sahifa ochiq bo'lsa jang shu zahoti ochiladi.
@@ -184,6 +191,7 @@ export function useSozjang() {
   const close = useCallback(() => {
     setBattleId(null);
     setBattle(null);
+    setForfeited(false);
     setWords([]);
     setTyped({ row: 0, units: [] });
     setFlipRow(-1);
@@ -320,7 +328,11 @@ export function useSozjang() {
       : 'lobby'
     : !battle
       ? 'loading'
-      : battle.status === 'finished' || battle.status === 'expired'
+      // Taslim bo'lgan odam uchun jang tugadi: hujjat hali ochiq
+      // bo'lsa ham u yerda kutadigan narsa qolmagan.
+      : forfeited ||
+          battle.status === 'finished' ||
+          battle.status === 'expired'
         ? 'finished'
         : battle.status === 'waiting'
           ? 'waiting'
@@ -573,6 +585,29 @@ export function useSozjang() {
     await leaveQueue().catch(() => undefined);
   }, []);
 
+  /** Taslim bo'lish: natija shu zahoti ochiladi.
+   *
+   *  Ilgari «Jangdan chiqish» taslim bilan birga lobbiga qaytarardi va
+   *  odam o'zi nima bilan tugatganini ko'rmasdi. Kutishning ham,
+   *  qaytarishning ham ma'nosi yo'q: taslim bo'lganning natijasi
+   *  allaqachon ma'lum — u yutqazdi. Noma'lumi faqat raqibniki, uni
+   *  bilish uchun esa jangda o'tirish shart emas: natija janglar
+   *  tarixida chiqadi.
+   *
+   *  Server javobidan **keyin** belgilanadi: so'rov yiqilsa jang hamon
+   *  ketayotgan bo'ladi va «yutqazdingiz» deb turish yolg'on bo'lardi.
+   *
+   *  Faol jang belgisi darrov o'chiriladi — sahifa yangilansa odam
+   *  o'zi chiqib bo'lgan jangga qaytib tushmasin. */
+  const surrender = useCallback(async () => {
+    const id = battleId;
+    if (!id) return;
+    await forfeit(id).catch(() => undefined);
+    lastLeft.current = id;
+    setActive(null);
+    setForfeited(true);
+  }, [battleId]);
+
   /** Jangdan chiqish. Boshlangan jangda taslim bo'lamiz: raqib cheksiz
    *  kutib qolmasligi kerak. */
   const leave = useCallback(async () => {
@@ -679,6 +714,8 @@ export function useSozjang() {
     quick,
     cancelSearch,
     leave,
+    surrender,
+    forfeited,
     again,
     press,
     incoming,

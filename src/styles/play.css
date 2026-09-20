@@ -2657,6 +2657,15 @@
   color: var(--danger);
 }
 
+/* Javob so'zi o'rnidagi izoh — taslim bo'lganda u hali ochilmagan. */
+.verdict__note {
+  max-width: 34ch;
+  margin: 10px auto 0;
+  color: var(--text-2);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
 .verdict__label {
   margin-top: 10px;
   color: var(--text-2);

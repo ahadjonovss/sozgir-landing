@@ -474,6 +474,19 @@ Jang ketayotganda «Jangdan chiqish» avval tasdiq so‘raydi (ilovadagi
 sifatida yoziladi» → «Mag‘lub bo‘lib chiqish» / «Qolish»). O‘zi tugatib
 raqibni kutayotgan odam so‘roqsiz chiqadi — bu taslim emas.
 
+Taslimdan keyin **natija ekrani ochiladi**, lobbi emas (ilovadagi
+`_forfeit`): taslim bo‘lganning natijasi allaqachon ma’lum — u
+yutqazdi. Noma’lumi faqat raqibniki va uni bilish uchun jangda o‘tirish
+shart emas — natija janglar tarixida chiqadi. Shuning uchun ekran
+hujjatdan emas, `forfeited` bayrog‘idan o‘qiydi: jang hujjati hali
+yopilmagan (uni raqib tugatganda server yopadi), ya’ni `winnerUid` ham,
+javob so‘zi ham yo‘q. Raqib kartochkasida «o‘ynayapti» turadi,
+«topa olmadi» emas — u hali topishi mumkin; javob so‘zining o‘rnida esa
+sabab yoziladi, aks holda ekran chala chizilgandek ko‘rinardi. Revansh
+tugmasi **o‘chiq**: chaqiruv raqibning hali ketayotgan jangi ustidan
+tushardi — raqib tugatgach u o‘zi yonadi va javob so‘zi ham joyiga
+tushadi (ekran kuzatuvda qoladi).
+
 Boshlangan jang brauzerda eslab qolinadi (`sozgir.battle`), o‘z
 taxminlarim ham (`sozgir.battle.words.{id}`) — server ularni jang
 tugamaguncha yashiradi, shuning uchun sahifa yangilanganda harflar

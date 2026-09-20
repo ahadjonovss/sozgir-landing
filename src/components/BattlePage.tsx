@@ -666,8 +666,20 @@ function Result({ game }: { game: Sozjang }) {
    *  jang shu sahifada ochiladi. */
   const [rematch, setRematch] = useState<InviteTarget | null>(null);
   const winner = game.battle?.winnerUid;
-  const mine = !!winner && !!account && winner === account.uid;
-  const draw = !winner;
+  /** Taslim bo'lib chiqdim, raqib esa hali o'ynayapti.
+   *
+   *  Jang hujjati shu payt hali yopilmagan: `winnerUid` ham, javob so'zi
+   *  ham yo'q — ikkalasini server jangni yopganda yozadi. Shuning uchun
+   *  natija hujjatdan emas, shu bayroqdan olinadi: chiqib ketgan odam
+   *  yutqazadi, raqibning natijasi esa bu ekranga umuman kirmaydi. */
+  const gaveUp = game.forfeited;
+  /** Taslimdan keyin jang hujjati hali ochiq: raqib o'ynayapti, javob
+   *  so'zi esa yozilmagan — ikkalasini server jangni yopganda qo'yadi.
+   *  Raqib tugatgach kuzatuvchi hujjatni yangilaydi va ekran to'ladi. */
+  const pending =
+    gaveUp && game.battle?.status !== 'finished' && game.battle?.status !== 'expired';
+  const mine = !gaveUp && !!winner && !!account && winner === account.uid;
+  const draw = !gaveUp && !winner;
   const expired = game.battle?.status === 'expired';
   const opponentRows = (game.opponent?.rows ?? []).map(verdictsOf);
   const meName = pretty(account?.nickname ?? 'Siz');
@@ -681,7 +693,9 @@ function Result({ game }: { game: Sozjang }) {
    *  ostida. Jang tugagan, yashirishdan ma'no yo'q. */
   const meaning = useMeaning(game.battle?.answer, game.boardLength);
 
-  const title = expired
+  const title = gaveUp
+    ? 'Taslim bo‘ldingiz'
+    : expired
     ? 'Chaqiruv muddati o‘tdi'
     : game.mardu
       ? first
@@ -692,7 +706,19 @@ function Result({ game }: { game: Sozjang }) {
         : draw
           ? 'Durang'
           : 'Bu safar raqib tezroq bo‘ldi';
-  const emoji = expired ? '⌛' : game.mardu ? (first ? '🏆' : '🎯') : mine ? '🏆' : draw ? '🤝' : '⚔️';
+  const emoji = gaveUp
+    ? '🏳️'
+    : expired
+      ? '⌛'
+      : game.mardu
+        ? first
+          ? '🏆'
+          : '🎯'
+        : mine
+          ? '🏆'
+          : draw
+            ? '🤝'
+            : '⚔️';
 
   return (
     <div
@@ -713,12 +739,22 @@ function Result({ game }: { game: Sozjang }) {
           {emoji}
         </span>
         <h2 className="verdict__title">{title}</h2>
-        {game.battle?.answer && (
+        {game.battle?.answer ? (
           <>
             <p className="verdict__label">Yashirin so‘z</p>
             <p className="result__word" data-script="word">{display(game.battle.answer)}</p>
             {meaning && <p className="result__def">{pretty(meaning)}</p>}
           </>
+        ) : (
+          /* Javob so'zi jang yopilgandagina hujjatga tushadi — taslim
+             bo'lganda u hali yo'q. Sababi yozib qo'yiladi, aks holda
+             ekran chala chizilgandek ko'rinardi. */
+          pending && (
+            <p className="verdict__note">
+              Yashirin so‘z raqib o‘ynab bo‘lgach ochiladi — jang natijasi
+              janglar tarixida chiqadi.
+            </p>
+          )
         )}
       </div>
 
@@ -770,7 +806,9 @@ function Result({ game }: { game: Sozjang }) {
           <span className="score__meta">
             {game.opponent?.won
               ? `${game.opponent.attempts ?? 0} urinishda topdi`
-              : 'topa olmadi'}
+              : pending
+                ? 'o‘ynayapti'
+                : 'topa olmadi'}
           </span>
         </div>
       </div>}
@@ -818,8 +856,14 @@ function Result({ game }: { game: Sozjang }) {
           </a>
         )}
         {!expired && !game.mardu && game.opponentUid && (
+          /* Taslimdan keyin qasos **o'chiq**: chaqiruv raqibning hali
+             ketayotgan jangi ustidan tushardi. Tugma yashirilmaydi —
+             natija ekrani hamma joyda bir xil ko'rinishda qolsin. Raqib
+             tugatgach tugma o'zi yonadi. */
           <button
             className="btn btn--outline"
+            disabled={pending}
+            title={pending ? 'Raqib jangni tugatgach chaqirsa bo‘ladi' : undefined}
             onClick={() =>
               setRematch({
                 uid: game.opponentUid!,
@@ -857,7 +901,8 @@ export default function BattlePage() {
   const [leaving, setLeaving] = useState(false);
 
   // O'zim tugatgan bo'lsam (raqibni kutyapman) chiqish taslim emas — so'ramay
-  // chiqiladi. Jang ketayotganda esa avval tasdiq.
+  // lobbiga qaytiladi. Jang ketayotganda esa avval tasdiq, keyin taslim:
+  // natija shu zahoti ochiladi, lobbi emas (ilovadagi `_forfeit`).
   const askLeave = () => {
     if (game.me?.finished) void game.leave();
     else setLeaving(true);
@@ -945,7 +990,7 @@ export default function BattlePage() {
                   <LeaveConfirm
                     onLeave={() => {
                       setLeaving(false);
-                      void game.leave();
+                      void game.surrender();
                     }}
                     onClose={() => setLeaving(false)}
                   />
