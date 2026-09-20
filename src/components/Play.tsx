@@ -11,6 +11,7 @@ import { useEffect, useState } from 'react';
 import { untilNextWord } from '../lib/daily';
 import { GUEST_GAME_LIMIT } from '../lib/progress';
 import { useAuth } from '../lib/auth';
+import { askAppPromo } from '../lib/appPromo';
 import { countShare } from '../lib/badges';
 import { LENGTHS, type Mode } from '../lib/modes';
 import type { GameChoice } from '../lib/useGameChoice';
@@ -99,6 +100,15 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
   const winRate = stats.played === 0 ? 0 : Math.round((stats.wins / stats.played) * 100);
   const hint = useHint(game.puzzle, game.phase);
   const hintLeft = useHintCountdown(hint.nextAt);
+
+  /* O'yin tugadi — telefonda ilova taklif qilinadi. Aynan shu payt u
+     eng o'rinli: odam o'yinni sinab ko'rdi va yoqqan-yoqmaganini
+     allaqachon biladi. Qolgan qarorlar (qurilma telefonmi, bugun
+     ko'rsatilganmi, endigina yopilganmi) `lib/appPromo.ts` da —
+     o'yinning ishi «tugadi» deb aytishdan nariga o'tmaydi. */
+  useEffect(() => {
+    if (finished && !elsewhere) askAppPromo('result');
+  }, [elsewhere, finished]);
 
   // Olingan yordam mukofot chegarasini tushiradi — natija yozilishidan
   // oldin o'yin holati buni bilishi kerak (`score.ts`).

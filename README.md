@@ -894,12 +894,27 @@ Telefondan ochilgan har qanday sahifada pastdan varaq ko‘tariladi:
 «So‘zgir ilovasi» (`AppPopup.tsx`). Kompyuterda u umuman chizilmaydi —
 u yerda sayt o‘zi to‘liq o‘yin.
 
-Uchta chegara bilan:
+**Ikki payt** (`src/lib/appPromo.ts`):
 
-* **Sahifa avval ochiladi** — oyna 4 soniyadan keyin chiqadi, ya’ni
-  odam nimani rad etayotganini ko‘radi;
-* **kuniga bir marta** (`sozgir.app.promo`) — har sahifada qayta chiqsa
-  u reklama emas, to‘siq bo‘lardi;
+| Sabab | Qachon | Matni |
+| --- | --- | --- |
+| `open` | sahifa ochilgandan 4 soniya keyin | «So‘zgir ilovasi» — bu nima |
+| `result` | **o‘yin tugagach**, 1,6 soniyadan keyin | «O‘yin yoqdimi?» — natija saqlansinmi |
+
+Ikkinchisi muhimroq: o‘shanda odam o‘yinni sinab ko‘rgan va yoqqan-
+yoqmaganini allaqachon biladi, ochilishdagi taklif esa hali hech narsa
+ko‘rmagan odamga aytiladi. Chaqiruv o‘yin tugagan joydan keladi
+(`Play.tsx`), lekin o‘yin oynani bilmaydi — u faqat «tugadi» deydi,
+qolgan qarorlar `appPromo.ts` da.
+
+Chegaralar:
+
+* **har sabab kuniga bir marta** (`sozgir.app.promo`,
+  `sozgir.app.promo.game`) — har sahifada qayta chiqsa u reklama emas,
+  to‘siq bo‘lardi;
+* **yopilgandan keyin uch daqiqa jimlik** (`sozgir.app.promo.at`):
+  «yo‘q» degan odamdan darrov ikkinchi marta so‘ralmaydi, ya’ni o‘yinni
+  endigina boshlagan odam natijadan keyin ikkinchi oynani ko‘rmaydi;
 * **yopish oson** — ✕, fon, Escape va «Saytda davom etish».
 
 Qurilma sensorli ekran, tor oyna va mobil `userAgent` uchtasi birga
@@ -1211,7 +1226,9 @@ vite/
 | `sozgir.badges.earned` | olingan nishonlar |
 | `sozgir.badges.shares` | natija necha marta ulashilgani («Jarchi») |
 | `sozgir.updates.seen` | oxirgi ko‘rilgan yangilik sanasi |
-| `sozgir.app.promo` | ilova taklifi oxirgi marta qachon chiqqani |
+| `sozgir.app.promo` | ilova taklifi (ochilishda) oxirgi marta qachon chiqqani |
+| `sozgir.app.promo.game` | ilova taklifi (o‘yin tugagach) — o‘sha sana |
+| `sozgir.app.promo.at` | taklif oxirgi marta qachon yopilgani |
 | `sozgir.verified` | tasdiqlangan hisoblar ro‘yxatining keshi |
 | `sozgir.donors` | donatchilar yig‘indisi va reklamasizlik muddati |
 

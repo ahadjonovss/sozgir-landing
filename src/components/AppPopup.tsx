@@ -1,36 +1,63 @@
-/** Telefonda ochilganda chiqadigan ilova taklifi.
+/** Telefonda chiqadigan ilova taklifi.
  *
  *  Saytga kelgan odamning ko'pchiligi telefondan keladi va ular uchun
  *  ilova saytdan yaxshiroq: internetsiz ishlaydi, eslatma yuboradi va
  *  tezroq ochiladi. Kompyuterda esa taklifning ma'nosi yo'q — u yerda
  *  sayt o'zi to'liq o'yin, shuning uchun oyna umuman chizilmaydi.
  *
- *  Uchta qoida bilan:
+ *  **Ikki payt.** Birinchisi — sahifa ochilgandan bir necha soniya
+ *  keyin. Ikkinchisi — **birinchi o'yin tugagach**: aynan o'shanda
+ *  taklif eng o'rinli, chunki odam o'yinni sinab ko'rdi va yoqqan-
+ *  yoqmaganini allaqachon biladi. Matn ham ikki xil: ochilishda
+ *  «bu nima», natijadan keyin «natijangiz saqlansinmi».
  *
- *  1. **Sahifa avval ochiladi.** Oyna bir necha soniyadan keyin
- *     chiqadi: birinchi ekranda o'yin turishi kerak, aks holda odam
- *     nimani rad etayotganini ham bilmaydi.
- *  2. **Kuniga bir marta.** Yopilgan oyna o'sha kuni qaytib chiqmaydi
- *     (`sozgir.app.promo`) — har sahifada qayta chiqsa, u reklama
- *     emas, to'siq bo'lib qolardi.
- *  3. **Yopish oson.** ✕, «Saytda davom etish», fon bosilishi va
- *     Escape — hammasi yopadi. Orqaga tugmasi ham ishlaydi, chunki
- *     oyna manzilni o'zgartirmaydi.
+ *  Qachon chiqishini `lib/appPromo.ts` hal qiladi: har sabab kuniga bir
+ *  marta, ustiga oyna yopilgandan keyin uch daqiqa jimlik — «yo'q»
+ *  degan odamdan darrov qayta so'ralmaydi.
+ *
+ *  Yopish oson: ✕, fon, Escape va «Saytda davom etish». Orqaga tugmasi
+ *  ham ishlaydi — oyna manzilni o'zgartirmaydi.
  *
  *  Do'kon qurilmaga qarab tanlanadi: iPhone'da App Store, qolganida
  *  Google Play birinchi turadi (`DownloadPromo` dagi bilan bir xil
  *  qoida). */
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { links } from '../data/site';
+import {
+  askAppPromo,
+  canShowPromo,
+  markPromoClosed,
+  markPromoShown,
+  onAppPromo,
+  type PromoReason,
+} from '../lib/appPromo';
 import { AppleIcon, PlayIcon } from './StoreIcons';
 import { Close } from './Icons';
 
-const KEY = 'sozgir.app.promo';
-
-/** Oyna shuncha kutib turadi — sahifa ochilib, birinchi ekran
+/** Ochilishdagi taklif shuncha kutadi — sahifa ochilib, birinchi ekran
  *  ko'ringandan keyin. */
-const DELAY_MS = 4000;
+const OPEN_DELAY_MS = 4000;
+
+/** Natijadan keyingi taklif ham kutadi: avval odam o'z natijasini
+ *  ko'rsin, taxta quvonib bo'lsin — keyin taklif. */
+const RESULT_DELAY_MS = 1600;
+
+/** Har sabab uchun o'z matni. Ochilishda odam hali hech narsa
+ *  ko'rmagan, natijadan keyin esa o'ynab bo'lgan — ikkalasiga bir xil
+ *  gap aytish ikkinchisini bekorga sarflash bo'lardi. */
+const COPY: Record<PromoReason, { title: string; text: string }> = {
+  open: {
+    title: 'So‘zgir ilovasi',
+    text:
+      'Telefonda o‘ynayapsizmi? Ilovada qulayroq: internetsiz ham ishlaydi, kunlik so‘z esdan chiqmasligi uchun eslatma keladi va Yangso‘z, kategoriyalar, g‘uncha — hammasi bir joyda.',
+  },
+  result: {
+    title: 'O‘yin yoqdimi?',
+    text:
+      'Ilovada natijangiz saqlanadi va boshqa qurilmadan ham ko‘rinadi, kunlik so‘z uchun eslatma keladi, o‘yin esa internetsiz ham ishlaydi.',
+  },
+};
 
 function isIos(): boolean {
   const ua = navigator.userAgent;
@@ -39,10 +66,10 @@ function isIos(): boolean {
 
 /** Qurilma telefon yoki planshetmi.
  *
- *  Ikkita shart birga: sensorli ekran **va** tor oyna. Yolg'iz sensor
- *  yetmaydi (sensorli monitorli kompyuterlar bor), yolg'iz kenglik ham
- *  yetmaydi (kompyuterda oynani toraytirib qo'ygan odam telefonda
- *  emas). */
+ *  Uchta shart birga: sensorli ekran, tor oyna va mobil `userAgent`.
+ *  Yolg'iz sensor yetmaydi (sensorli monitorli kompyuterlar bor),
+ *  yolg'iz kenglik ham yetmaydi (kompyuterda oynani toraytirib qo'ygan
+ *  odam telefonda emas). */
 function isPhone(): boolean {
   if (typeof window === 'undefined') return false;
   const touch = navigator.maxTouchPoints > 0 || 'ontouchstart' in window;
@@ -51,44 +78,51 @@ function isPhone(): boolean {
   return touch && narrow && mobileUa;
 }
 
-/** Bugun ko'rsatilganmi. */
-function shownToday(): boolean {
-  try {
-    return localStorage.getItem(KEY) === new Date().toDateString();
-  } catch {
-    return false;
-  }
-}
-
-function remember(): void {
-  try {
-    localStorage.setItem(KEY, new Date().toDateString());
-  } catch {
-    // Kesh yo'q — oyna keyingi sahifada yana chiqadi, zarari yo'q.
-  }
-}
-
 export default function AppPopup() {
-  const [open, setOpen] = useState(false);
+  const [reason, setReason] = useState<PromoReason | null>(null);
 
+  /** Yopildi — jim turish muddati shundan boshlanadi. */
+  const close = useCallback(() => {
+    markPromoClosed();
+    setReason(null);
+  }, []);
+
+  // Sahifa ochilishi — birinchi payt.
   useEffect(() => {
-    if (!isPhone() || shownToday()) return;
-    const timer = window.setTimeout(() => setOpen(true), DELAY_MS);
+    const timer = window.setTimeout(() => askAppPromo('open'), OPEN_DELAY_MS);
     return () => window.clearTimeout(timer);
   }, []);
 
+  // Chaqiruvlar: ochilish ham, o'yin natijasi ham shu yerga keladi.
   useEffect(() => {
-    if (!open) return;
-    remember();
+    let timer = 0;
+    const stop = onAppPromo((next) => {
+      if (!isPhone() || !canShowPromo(next)) return;
+      // Natijadan keyin biroz kutiladi: avval odam o'z natijasini
+      // ko'rsin va taxta quvonib bo'lsin. Ochilishdagi taklif esa
+      // allaqachon kutib kelgan.
+      const delay = next === 'result' ? RESULT_DELAY_MS : 0;
+      timer = window.setTimeout(() => setReason((current) => current ?? next), delay);
+    });
+    return () => {
+      window.clearTimeout(timer);
+      stop();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!reason) return;
+    markPromoShown(reason);
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setOpen(false);
+      if (event.key === 'Escape') close();
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [open]);
+  }, [close, reason]);
 
-  if (!open) return null;
+  if (!reason) return null;
 
+  const copy = COPY[reason];
   const ios = isIos();
   const stores = [
     { href: links.appStore, label: 'App Store', icon: <AppleIcon size={18} />, first: ios },
@@ -102,17 +136,9 @@ export default function AppPopup() {
       aria-modal="true"
       aria-label="So‘zgir ilovasi"
     >
-      <button
-        className="app-promo__veil"
-        onClick={() => setOpen(false)}
-        aria-label="Yopish"
-      />
+      <button className="app-promo__veil" onClick={close} aria-label="Yopish" />
       <div className="app-promo__card">
-        <button
-          className="icon-btn app-promo__close"
-          onClick={() => setOpen(false)}
-          aria-label="Yopish"
-        >
+        <button className="icon-btn app-promo__close" onClick={close} aria-label="Yopish">
           <Close size={18} />
         </button>
 
@@ -124,12 +150,8 @@ export default function AppPopup() {
           height={64}
           decoding="async"
         />
-        <strong className="app-promo__title">So‘zgir ilovasi</strong>
-        <p className="app-promo__text">
-          Telefonda o‘ynayapsizmi? Ilovada qulayroq: internetsiz ham ishlaydi,
-          kunlik so‘z esdan chiqmasligi uchun eslatma keladi va Yangso‘z,
-          kategoriyalar, g‘uncha — hammasi bir joyda.
-        </p>
+        <strong className="app-promo__title">{copy.title}</strong>
+        <p className="app-promo__text">{copy.text}</p>
 
         <div className="app-promo__stores">
           {stores.map((store) => (
@@ -139,7 +161,7 @@ export default function AppPopup() {
               href={store.href}
               target="_blank"
               rel="noreferrer"
-              onClick={() => setOpen(false)}
+              onClick={close}
             >
               {store.icon}
               {store.label}
@@ -147,7 +169,7 @@ export default function AppPopup() {
           ))}
         </div>
 
-        <button className="link app-promo__stay" onClick={() => setOpen(false)}>
+        <button className="link app-promo__stay" onClick={close}>
           Saytda davom etish
         </button>
       </div>
