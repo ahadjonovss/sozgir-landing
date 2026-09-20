@@ -919,8 +919,23 @@ Chegaralar:
 
 Ko‘rinishi ilovaning afishasidan olingan: tepada nishon, nom va shior,
 o‘rtada uchta afzallik (har biri o‘z rangidagi doira ichida — bilim,
-reyting, nishonlar), pastda qora do‘kon tugmalari ikki qatorlik yozuv
-bilan. Reklama bo‘lgani uchun u bezakka haqli, lekin ranglar faqat
+reyting, nishonlar), pastda esa **bitta** qora tugma: «Yuklab olish».
+
+Tugma bitta, chunki qurilmaning do‘koni aniq — iPhone‘da App Store,
+qolganida Google Play. Ikkita tugma odamdan keraksiz qaror talab
+qilardi.
+
+**Besh soniyalik sanoq.** Oyna ochilgach do‘kon o‘zi ochiladi: sanoq
+tugmaning chetida raqam bilan, ostida esa yo‘lakcha va bir jumla bilan
+ko‘rinadi. Uni to‘xtatsa bo‘ladi («Saytda davom etish») — aks holda
+odam saytdan sababsiz olib ketilgandek his qilardi. Oynaning yopilishi
+(✕, fon, Escape) ham sanoqni to‘xtatadi: yopilgan oynadan keyin do‘kon
+ochilishi eng yomon natija bo‘lardi. To‘xtatilgach oyna ochiq qoladi va
+tugma o‘z joyida turadi — odam keyin o‘zi bosadi.
+
+Do‘kon o‘sha oynaning o‘zida ochiladi (`location.href`): `window.open`
+brauzerda bloklanadi, manzilni almashtirish esa telefonda do‘kon
+ilovasini ochadi. Reklama bo‘lgani uchun u bezakka haqli, lekin ranglar faqat
 ikonkalarda qoladi: matn ustidagi bezak uni o‘qilmas qiladi.
 
 Qurilma sensorli ekran, tor oyna va mobil `userAgent` uchtasi birga

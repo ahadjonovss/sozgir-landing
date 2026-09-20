@@ -5088,11 +5088,6 @@
 
 /* Do'kon tugmalari — afishadagi kabi qora, ikki qatorlik yozuv bilan.
    Qurilmaning do'koni birinchi turadi (`AppPopup` saralaydi). */
-.app-promo__stores {
-  display: grid;
-  gap: 8px;
-}
-
 .app-promo__store {
   display: flex;
   align-items: center;
@@ -5132,6 +5127,62 @@
 :root[data-theme='dark'] .app-promo__store {
   background: #1d2128;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* Sanoq tugmaning o'ng chetida: raqam qancha qolganini aytadi, tugma
+   esa o'z ishini qiladi. */
+.app-promo__count {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  margin-inline-start: auto;
+  flex: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  font-size: 14px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Sanoq qatori: yo'lakcha va bir jumla. Yo'lakcha «qancha qoldi» degan
+   savolga raqamdan tez javob beradi. */
+.app-promo__timer {
+  display: grid;
+  gap: 8px;
+  color: var(--text-2);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.app-promo__timer--off {
+  opacity: 0.85;
+}
+
+.app-promo__bar {
+  display: block;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.app-promo__bar i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--green);
+  animation: promo-countdown linear forwards;
+}
+
+@keyframes promo-countdown {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0;
+  }
 }
 
 .app-promo__stay {
