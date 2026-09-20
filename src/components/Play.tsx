@@ -11,6 +11,7 @@ import { useEffect, useState } from 'react';
 import { untilNextWord } from '../lib/daily';
 import { GUEST_GAME_LIMIT } from '../lib/progress';
 import { useAuth } from '../lib/auth';
+import { countShare } from '../lib/badges';
 import { LENGTHS, type Mode } from '../lib/modes';
 import type { GameChoice } from '../lib/useGameChoice';
 import type { Game } from '../lib/useSozTop';
@@ -98,9 +99,14 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
     try {
       if (navigator.share) {
         await navigator.share({ text });
+        // «Jarchi» nishoni uchun sanoq: ulashish hech qayerda
+        // saqlanmasdi (`lib/badges.ts`). Bekor qilingan ulashish
+        // sanalmaydi — u `catch` ga tushadi.
+        countShare();
         return;
       }
       await navigator.clipboard.writeText(text);
+      countShare();
       setCopied(true);
       window.setTimeout(() => setCopied(false), 2000);
     } catch {

@@ -12,6 +12,7 @@
  *  esa faqat maydon qoladi — e'tibor taxtada bo'lsin. */
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { useAuth } from '../lib/auth';
+import { countShare } from '../lib/badges';
 import { inviteLink, verdictsOf, type BattlePlayer } from '../lib/battle';
 import { useMeaning } from '../lib/useMeaning';
 import { useSozjang, type Sozjang } from '../lib/useSozjang';
@@ -56,9 +57,12 @@ function useShare() {
     try {
       if (navigator.share) {
         await navigator.share({ text });
+        // «Jarchi» nishoni uchun sanoq (`lib/badges.ts`).
+        countShare();
         return;
       }
       await navigator.clipboard.writeText(text);
+      countShare();
       setCopied(true);
       window.setTimeout(() => setCopied(false), 2000);
     } catch {

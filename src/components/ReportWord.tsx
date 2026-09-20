@@ -7,6 +7,7 @@
 import { useState } from 'react';
 import { useAuth } from '../lib/auth';
 import { COMMENT_MAX, REASONS, submitWordReport, type ReportReason } from '../lib/report';
+import { unlockBadge } from '../lib/badges';
 import { toLatin } from '../lib/useScript';
 import { display } from '../lib/uz';
 import Modal from './Modal';
@@ -46,6 +47,10 @@ export default function ReportWord({
         nickname: auth.account.nickname,
       });
       setState('sent');
+      // «Yalavoch» — lug'at uchun birinchi murojaat. Hodisa nishoni:
+      // hech qanday sanoqda qolmaydi, shuning uchun aynan shu yerda
+      // belgilanadi (`lib/badges.ts`).
+      unlockBadge('yalavoch');
     } catch {
       setState('error');
     }

@@ -4388,3 +4388,157 @@
 .fight:has(.fight__side--foe[hidden]) {
   grid-template-columns: minmax(0, 420px);
 }
+
+/* ── Nishonlar ────────────────────────────────────────────────────────
+   Ro'yxat bir butun ko'rinishi kerak: o'ttizala rasm bir xil yumaloq
+   ramkada, ichidagi rasm almashadi (`soztop/docs/nishonlar.md`).
+   Olinmagani yashirilmaydi — sahifa nimaga intilish kerakligini
+   aytishi kerak; u xira turadi va ostida yo'lakcha bo'ladi. */
+
+.nishon__wrap {
+  display: grid;
+  gap: 18px;
+  max-width: 900px;
+  padding-block: 28px 40px;
+}
+
+.nishon__head {
+  display: grid;
+  gap: 8px;
+  text-align: center;
+  justify-items: center;
+}
+
+.nishon__count {
+  padding: 4px 14px;
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text-2);
+}
+
+.nishon__count strong {
+  color: var(--text);
+  font-size: 18px;
+}
+
+.nishon__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.nishon__tile {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  width: 100%;
+  height: 100%;
+  padding: 18px 14px 16px;
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--surface);
+  text-align: center;
+  cursor: pointer;
+}
+
+.nishon__tile:hover {
+  background: var(--surface-2);
+}
+
+/* Olinmagan nishon: rangi olinadi va xiralashadi — shakli ko'rinib
+   turadi, ya'ni «nima uchun berilishi» rasmdan ham o'qiladi. */
+.nishon__tile--off .nishon__art,
+.nishon__art--off {
+  filter: grayscale(1);
+  opacity: 0.38;
+}
+
+.nishon__name {
+  font-size: 14.5px;
+  font-weight: 800;
+}
+
+.nishon__hint {
+  font-size: 12.5px;
+  line-height: 1.35;
+  color: var(--text-2);
+}
+
+.nishon__bar {
+  width: 100%;
+  height: 4px;
+  margin-top: 4px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.nishon__tile:hover .nishon__bar {
+  background: var(--divider);
+}
+
+.nishon__bar i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--green);
+}
+
+.nishon__score {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--text-2);
+}
+
+.nishon__note {
+  text-align: center;
+}
+
+.nishon__sheet {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  text-align: center;
+  font-size: 14.5px;
+  line-height: 1.55;
+}
+
+/* Yon ustundagi kartochka: olinganlari bir qatorda, ostida eng yaqini. */
+.nishon-card {
+  display: grid;
+  gap: 12px;
+}
+
+.nishon-card__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.nishon-card__next {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+
+.nishon-card__next strong {
+  display: block;
+  font-size: 14px;
+}
+
+.nishon-card__next .panel__note {
+  font-size: 12.5px;
+}
+
+.nishon-card__score {
+  margin-inline-start: auto;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--text-2);
+  white-space: nowrap;
+}

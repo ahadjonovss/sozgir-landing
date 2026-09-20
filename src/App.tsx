@@ -10,6 +10,7 @@ import Contact from './components/Contact';
 import Download from './components/Download';
 import Faq from './components/Faq';
 import Footer from './components/Footer';
+import BadgesPage from './components/BadgesPage';
 import BattlePage from './components/BattlePage';
 import GamePage from './components/GamePage';
 import GunchaBattlePage from './components/GunchaBattlePage';
@@ -71,6 +72,7 @@ export default function App() {
         {route === '/guncha' && <GunchaPage />}
         {route === '/gunchajang' && <GunchaBattlePage />}
         {route === '/maydon' && <MarduPage />}
+        {route === '/nishonlar' && <BadgesPage />}
         {route === '/qollab' && <SupportPage />}
         {route === '/privacy' && <Privacy />}
         {route === '/hisob-ochirish' && <AccountDeletion />}

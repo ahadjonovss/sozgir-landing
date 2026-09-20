@@ -17,6 +17,7 @@ import { dailyNumber } from '../lib/daily';
 import { useGameChoice } from '../lib/useGameChoice';
 import { useSozTop } from '../lib/useSozTop';
 import AdBanner from './AdBanner';
+import BadgesCard from './BadgesCard';
 import Leaderboard from './Leaderboard';
 import Play from './Play';
 import StatsPanel from './StatsPanel';
@@ -53,6 +54,10 @@ export default function GamePage() {
           )}
 
           <StatsPanel choice={choice} stats={game.stats} total={game.total} />
+          {/* Nishonlar statistikadan keyin: ikkalasi ham «men qanday
+              o'ynayapman» degan savolga javob beradi, reyting esa
+              boshqalar bilan solishtiradi. */}
+          <BadgesCard />
           <Leaderboard />
           <TelegramBanner compact />
 

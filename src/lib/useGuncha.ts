@@ -25,6 +25,7 @@ import {
   type GunchaPuzzle,
 } from './guncha';
 import { gunchaLexicon } from './gunchaLexicon';
+import { markPlayedAt, unlockBadge } from './badges';
 import { fetchDailyGuncha } from './gunchaDaily';
 import {
   flushGuncha,
@@ -226,6 +227,10 @@ export function useGuncha() {
     setFound(next);
     setTyped(() => []);
     saveRound({ puzzle, words: next, account });
+    // Nishonlar: o'ynalgan payt (tong sahar / yarim tundan keyin) va
+    // g'unchaning to'liq yechilishi — ikkalasi ham hodisa, ya'ni hech
+    // qanday sanoqda qolmaydi (`lib/badges.ts`).
+    markPlayedAt();
 
     // Pangramma — o'yinning cho'qqisi, u alohida aytiladi.
     setPraise(
@@ -233,6 +238,7 @@ export function useGuncha() {
     );
     later(() => setPraise(null), 1400);
     if (targetsIn(puzzle, next) === puzzle.words.length) {
+      unlockBadge('gulchambar');
       later(() => bump('Barcha so‘zlar topildi!'), 400);
     }
   }, [account, bump, found, later, puzzle, setFound, setTyped, typed]);

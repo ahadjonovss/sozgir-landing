@@ -24,6 +24,7 @@ bilan aynan bir xil. Hisob ochilsa natija reytingga tushadi.
 | Kategoriyalar | 10 mavzu + ilova afzalliklari |
 | Savollar | Akkordeon FAQ |
 | Yuklab olish | App Store va Google Play havolalari |
+| Nishonlar | Yigirmata yutuq belgisi — `/nishonlar` |
 
 Alohida sahifalar: `/oynash` (nimani o‘ynashni tanlash — sarlavhadagi
 «O‘ynash» tugmasi shu yerga olib keladi), `/oyin` (So‘ztop), `/sozjang`
@@ -763,6 +764,48 @@ O‘lja bo‘yicha o‘nta pog‘ona, chegaralar **xom reytingda**
 (`src/lib/battleRating.ts`): Chopar, Cherik, Navkar, O‘nboshi,
 Yuzboshi, Mingboshi, Botir, Bahodir, Tarxon, Alp.
 
+## Nishonlar
+
+`/nishonlar` — yigirmata nishon (`src/lib/badges.ts`,
+`src/components/BadgesPage.tsx`, rasmlar `public/nishon/{id}.png`).
+Ro‘yxat, nomlar, izohlar va chegaralar ilovadagi `AppBadge` ning aynan
+nusxasi: bir xil nishon ikki platformada bir xil shart bilan berilishi
+kerak (`soztop/docs/nishonlar.md`).
+
+Nishon — bir martalik yutuq belgisi. Darajadan farqi shunda: daraja
+reyting tushsa tushadi, nishon esa **qaytib olinmaydi**. U aqcha
+bermaydi va hech narsani ochmaydi — butun qiymati ko‘rinishida.
+
+Yangi sanoq yaratilmaydi: sonlar bor joyidan yig‘iladi
+(`src/lib/useBadges.ts`).
+
+| Son | Qayerdan |
+| --- | --- |
+| Kunlik ketma-ketlik | `sozgir.stats.daily.5` (eng uzuni) |
+| Topilgan so‘z, mavzu, birinchi urinish | `sozgir.found` |
+| Jang g‘alabalari, ketma-ketligi, reytingi | `battle_ratings/{uid}` |
+| Ball yig‘ilgan o‘yinlar | g‘uncha hisobi + `scores/{uid}.games` |
+| Kunning eng zo‘ri | `scores/{uid}.manOfTheDay` (serverniki) |
+| Ulashish | `sozgir.badges.shares` — yagona yangi sanoq |
+
+Qolganlari **hodisa** nishonlari: ular hech qanday sanoqda qolmaydi,
+shuning uchun hodisa yuz bergan joyda belgilanadi — g‘uncha to‘liq
+yechildi (`useGuncha`), lug‘atga murojaat yuborildi (`ReportWord`),
+o‘yin tong sahar yoki yarim tundan keyin o‘ynaldi (`markPlayedAt`).
+«Yasovul» saytda olinmaydi: Yangso‘z faqat ilovada.
+
+Olingan nishonlar `sozgir.badges.earned` da. Ro‘yxat ikki narsa uchun
+kerak: sanoq pasaysa (ketma-ketlik uzildi, reyting tushdi) nishon
+qaytarib olinmasin va hodisa nishonlari bilinsin. Serverga yozilmaydi,
+ya’ni telefondagi nishonlar saytda ko‘rinmaydi va aksincha — ilovada
+ochiq profil uchun `player_badges` ga nusxa yozish ishlanyapti, sayt
+o‘sha qotgach qo‘shiladi.
+
+Kirmagan odamda ham ishlaydi: brauzerdagi sonlar yetadi, hisobga
+bog‘liq uchtasi (jang, boshqa o‘yinlar, kun odami) kirilganda
+qo‘shiladi. `/oyin` ning yon ustunida qisqa kartochka turadi
+(`BadgesCard.tsx`): olinganlari va eng yaqin nishon.
+
 ## Janglar tarixi
 
 Kirilgan odam o‘zining oxirgi janglarini ko‘radi (`ArenaHistory`):
@@ -932,6 +975,8 @@ src/
     Board.tsx     taxta va o‘zbek klaviaturasi
     StatsPanel.tsx  statistika va urinishlar taqsimoti
     Leaderboard.tsx kunlik va umumiy reyting
+    BadgesPage.tsx  `/nishonlar`: yigirmata nishon, yo‘lakcha va izoh
+    BadgesCard.tsx  yon ustundagi qisqa nishonlar kartochkasi
     Account.tsx   hisob tugmasi va kirish oynasi
   data/
     site.ts     barcha matn va havolalar — dizaynga tegmasdan tahrirlash uchun
@@ -1014,6 +1059,10 @@ vite/
 | `sozgir.guncha.practice` | mashq g‘unchasining raqami |
 | `sozgir.guncha.battle` | boshlangan g‘uncha jangi |
 | `sozgir.guncha.battle.words.{id}` | o‘sha jangda topgan so‘zlarim |
+| `sozgir.badges.earned` | olingan nishonlar |
+| `sozgir.badges.shares` | natija necha marta ulashilgani («Jarchi») |
+| `sozgir.verified` | tasdiqlangan hisoblar ro‘yxatining keshi |
+| `sozgir.donors` | donatchilar yig‘indisi va reklamasizlik muddati |
 
 Store havolalari `src/data/site.ts` dagi `links.appStore` va
 `links.playStore` da — to‘ldirilgani tugma bo‘lib chiqadi, bo‘shi «Tez

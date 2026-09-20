@@ -14,7 +14,7 @@
       "destination": "/ol/index.html"
     },
     {
-      "source": "/:page(oynash|oyin|sozjang|guncha|gunchajang|maydon|qollab|privacy|hisob-ochirish|contact)",
+      "source": "/:page(oynash|oyin|sozjang|guncha|gunchajang|maydon|nishonlar|qollab|privacy|hisob-ochirish|contact)",
       "destination": "/:page/index.html"
     },
     {

@@ -16,6 +16,7 @@ import { client } from '../firebase/client';
 import { PATHS, statsDoc } from '../firebase/paths';
 import { readDoc } from '../firebase/rest';
 import type { Account } from './auth';
+import { markPlayedAt } from './badges';
 import { attemptsFor, DAILY_LENGTH, LENGTHS, type Mode } from './modes';
 import { readStoredNickname } from './nickname';
 import { scoreFor, type HintLevel } from './score';
@@ -184,6 +185,12 @@ export async function recordOutcome(
   account: Account | null,
 ): Promise<Recorded> {
   const { mode, length, won, attempts, number, answer } = outcome;
+
+  // Nishonlar: o'ynalgan payt (tong sahar yoki yarim tundan keyin)
+  // hech qanday sanoqda qolmaydi, shuning uchun aynan shu yerda
+  // belgilanadi (`lib/badges.ts`). Qolgan nishonlar quyidagi sonlardan
+  // o'zi hisoblanadi — bu yerda qo'shimcha yozuv yo'q.
+  markPlayedAt();
 
   // Muhim tartib: avval cloud'dagi natijalar brauzerga tiklanadi.
   // Aks holda telefonda 40 kun yig'ilgan streak sayt yozgan «1» bilan

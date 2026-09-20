@@ -30,6 +30,8 @@ export const links = {
   /** Ulashilgan natija bosilganda odam darhol o'ynay olishi kerak —
    *  tanishtiruv sahifasi emas, o'yinning o'zi ochiladi. */
   share: `${site}/oyin`,
+  /** Nishonlar — yutuq belgilari ro'yxati. */
+  badges: '/nishonlar',
   privacy: '/privacy',
   deletion: '/hisob-ochirish',
   contact: '/contact',

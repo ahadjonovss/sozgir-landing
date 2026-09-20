@@ -156,6 +156,20 @@ export const PAGES = [
     ],
   },
   {
+    path: '/nishonlar',
+    title: 'Nishonlar — So‘zgir',
+    description:
+      'So‘zgirdagi nishonlar: qaysi yutuq uchun qaysi belgi beriladi. Nishon aqcha bermaydi va hech narsani ochmaydi — bir marta olingach esa qaytarib olinmaydi.',
+    nav: 'Nishonlar',
+    h1: 'Nishonlar',
+    lead:
+      'Nishon — bir martalik yutuq belgisi. U aqcha bermaydi va hech narsani ochmaydi, lekin bir marta olingach hech qachon qaytarib olinmaydi.',
+    body: [
+      'Yigirmata nishon: kunlik ketma-ketlik, topilgan so‘zlar, jangdagi g‘alabalar, lug‘atning mavzulari va o‘yinning boshqa burchaklari uchun.',
+      'Nishonlar sanoqlardan o‘zi hisoblanadi — alohida yig‘ish kerak emas. Kirgan odamda jangdagi natijalar ham hisobga qo‘shiladi.',
+    ],
+  },
+  {
     path: '/privacy',
     title: 'Maxfiylik siyosati — So‘zgir',
     description:
