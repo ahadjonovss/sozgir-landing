@@ -110,7 +110,16 @@ SDK yuklanmaydi:
 | Jadval | Manba |
 | --- | --- |
 | Kunlik | `daily_results/{sana}_5/entries`, `points desc` |
-| Umumiy | `scores`, `totalScore desc` |
+| Bugun | `daily_scores/{sana}/entries`, `points desc` |
+| Umumiy | `scores`, `wealth desc` |
+
+«Umumiy» jadvaldagi son — **boylik**: o‘yinlarda yig‘ilgan ball va
+o‘lja ustamasi (1 o‘lja = 1,5 aqcha). Maydonni server yozadi
+(`onScoreWealth` triggeri), sayt uni faqat o‘qiydi — formula ikki
+joyda hisoblansa ertami-kech ajralib ketardi. Eski hujjatda maydon
+bo‘lmasa yalang `totalScore` olinadi. Nomi o‘zgarmadi: saytda jamlangan
+hisob har doim **aqcha** deb ataladi, «boylik» so‘zi ekranga
+chiqmaydi (`docs/aqcha.md`).
 
 Saralash bitta maydon bo‘yicha — qo‘shimcha indeks kerak emas, ilova ham
 xuddi shunday qiladi. Ikkala jadvalda ham faqat birinchi **10** o‘rin
@@ -148,6 +157,14 @@ ko‘rsatilmaydi), bugungi `daily_results/{sana}_5/entries/{uid}` va
 `donations` (`uid` bo‘yicha). Shaxsiy statistika (`users/{uid}`) o‘qilmaydi,
 shu sabab ketma-ketlik va urinishlar taqsimoti yo‘q — sahifa buni
 yozib qo‘yadi.
+
+Sahifadagi katta son — boylik (`scores/{uid}.wealth`), o‘rin ham shu
+maydon bo‘yicha sanaladi: jadval boshqa, profil boshqa maydonni
+saralasa, o‘rinlar bir-biriga to‘g‘ri kelmasdi.
+
+Tasdiqlangan hisobning profili **premium** ko‘rinishda ochiladi
+(«Tasdiqlangan hisoblar» bo‘limi) va unda «So‘zjangga chaqirish» tugmasi
+umuman chizilmaydi.
 
 Hammasi SDK’siz, REST bilan: uch hujjat bitta `batchGet` da, jadvaldagi
 o‘rin `runAggregationQuery` (`count`, `field > value` — ilovadagi `_rank`

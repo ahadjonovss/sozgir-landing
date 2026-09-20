@@ -3,7 +3,9 @@
  *  Uchtasi uch xil savolga javob beradi va ilovada ham shunday:
  *  «Kunlik» — bugungi so'zni kim necha urinishda topdi (`daily_results`);
  *  «Bugun» — shu kunda barcha o'yinlarda kim ko'p aqcha ishladi
- *  (`daily_scores`); «Umumiy» — butun tarix (`scores`).
+ *  (`daily_scores`); «Umumiy» — butun tarix (`scores`). Uchinchisidagi son endi boylik:
+ *  o'yinlarda yig'ilgan ball va o'lja ustamasining yig'indisi — uni
+ *  server yozadi (`leaderboard.ts`), sayt esa baribir aqcha deb ataydi.
  *
  *  Jadval kirmagan odamga ham ko'rinadi — o'zining o'rnini ko'rish uchun
  *  esa kirish kerak, shuning uchun kirmaganlarga qisqa eslatma chiqadi. */

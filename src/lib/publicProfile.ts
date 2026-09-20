@@ -32,7 +32,12 @@ export interface PublicProfile {
   /** Ochiq jadvallardagi taxallus. Hech qayerda yo'q bo'lsa bo'sh — u
    *  holda sahifa chaqiruvchi bergan ismni ko'rsatadi. */
   nickname: string;
+  /** Yalang ball — faqat o'yinlarda yig'ilgani (`scores/{uid}.totalScore`).
+   *  Ekranda u ko'rinmaydi: jadvalda ham, profilda ham [wealth] turadi. */
   totalScore: number;
+  /** Ekrandagi son: ball va o'lja ustamasi, tiyinda
+   *  (`scores/{uid}.wealth`). Maydon yo'q bo'lsa yalang ball. */
+  wealth: number;
   wordsFound: number;
   /** Umumiy reytingdagi o'rni (1 — birinchi). Sanab bo'lmasa `null`. */
   scoreRank: number | null;
@@ -48,7 +53,7 @@ export interface PublicProfile {
 
 /** Hech qayerda izi yo'q: raqamlar o'rniga izoh chiqadi. */
 export const isEmptyProfile = (profile: PublicProfile) =>
-  profile.totalScore === 0 &&
+  profile.wealth === 0 &&
   profile.wordsFound === 0 &&
   profile.battle === null &&
   profile.today === null &&
@@ -74,6 +79,10 @@ export async function loadPublicProfile(uid: string): Promise<PublicProfile> {
   const daily = docs[dailyPath] ?? null;
 
   const totalScore = int(score?.totalScore);
+  // Boylik serverdan tayyor keladi (`onScoreWealth`): ball va o'lja
+  // ustamasining yig'indisi. Eski hujjatda maydon yo'q — o'shanda yalang
+  // ball ishlatiladi, ya'ni profil bo'shab qolmaydi.
+  const wealth = int(score?.wealth) || totalScore;
   const rating: BattleRating | null = ratingDoc
     ? {
         rating: int(ratingDoc.rating) || EMPTY_RATING.rating,
@@ -88,8 +97,11 @@ export async function loadPublicProfile(uid: string): Promise<PublicProfile> {
   // O'rinlar ball ma'lum bo'lgach sanaladi, donatlar esa mustaqil —
   // uchalasi baravar ketadi.
   const [scoreRank, battleRank, donations] = await Promise.all([
-    totalScore > 0
-      ? countAbove(PATHS.scores, { field: 'totalScore', value: totalScore })
+    // O'rin ham boylik bo'yicha: jadval shu maydonni saralaydi
+    // (`leaderboard.ts`), ikki xil maydon bo'lsa profildagi o'rin
+    // jadvaldagisiga to'g'ri kelmasdi.
+    wealth > 0
+      ? countAbove(PATHS.scores, { field: 'wealth', value: wealth })
       : Promise.resolve(null),
     battle
       ? countAbove(PATHS.battleRatings, { field: 'rating', value: battle.rating })
@@ -115,6 +127,7 @@ export async function loadPublicProfile(uid: string): Promise<PublicProfile> {
     nickname:
       text(score?.nickname) || text(ratingDoc?.nickname) || text(daily?.nickname) || donorName,
     totalScore,
+    wealth,
     wordsFound: int(score?.wordsFound),
     scoreRank: scoreRank === null ? null : scoreRank + 1,
     battle,

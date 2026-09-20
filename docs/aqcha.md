@@ -1,6 +1,6 @@
 # Aqcha va O'lja — saytdagi ish
 
-> Holat: **bajarildi** (1-bosqich). Kod saytda, qolgan savollar
+> Holat: **bajarildi** (1- va 2-bosqich). Kod saytda, qolgan savollar
 > 10-bo'limda.
 >
 > Topshiriq: `soztop/docs/aqcha_tz_web.md`.
@@ -14,7 +14,7 @@
 tiyin  = saqlanadigan son (hozirgi ball) — o'zgarmaydi
 aqcha  = floor(tiyin / 10)                — har doim butun son
 o'lja  = 1000 + floor((reyting − 1000) / 2)
-boylik = aqcha + floor(max(0, o'lja − 1000) × 1,5)     (2-bosqich)
+boylik = aqcha + floor(max(0, o'lja − 1000) × 1,5)     — serverniki
 ```
 
 ## 1. Nima o'zgaradi, nima o'zgarmaydi
@@ -78,8 +78,9 @@ Tekshirish nuqtalari (TZ, 2-bo'lim): 100 → 550, 799 → 899, 800 → 900,
 Aqcha: 1 → `0`, 124 → `12`, 5 980 va 5 989 → `598`, 11 980 → `1 198`.
 
 **Tartiblash har doim xom qiymat bo'yicha.** `leaderboard.ts` dagi
-`orderBy: 'points desc'` va `'totalScore desc'` tegilmaydi: 5 989 ham,
-5 980 ham «598 aqcha» ko'rinadi, lekin birinchisi tepada turadi.
+`orderBy` tiyindagi maydonni saralaydi: 5 989 ham, 5 980 ham «598 aqcha»
+ko'rinadi, lekin birinchisi tepada turadi. Umumiy jadval `wealth`
+bo'yicha saralanadi (quyida), kunlik jadval esa `points` bo'yicha.
 
 **Alifbo.** `aqcha` va `o'lja` — oddiy so'zlar, kirillga saytning o'z
 qatlami orqali o'zi o'tadi (`prose`, `scriptDom`). Ularni
@@ -287,9 +288,13 @@ hozircha ball ko'rinishi mumkin — bir xil hisob, boshqa o'lchov.»
    taqiqlaydi, lekin g'unchaning o'z balli o'yin ichida qoladi. Sayt
    birliksiz son taklif qiladi (`54 / 96`); ilovada qanday bo'lsa,
    sayt ham shunday qiladi.
-3. **Boylik ko'rsatiladimi.** Ko'rsatilsa, `scores/{uid}.wealth` ni
-   sayt ham yangilashi kerak (u `totalScore` ni yozadi), ya'ni yozishdan
-   oldin `battle_ratings/{uid}` o'qiladi.
+3. ~~**Boylik ko'rsatiladimi.**~~ **Ha** — umumiy jadval va ochiq
+   profil endi `scores/{uid}.wealth` ni ko'rsatadi (ilovadagi bilan
+   bir xil maydon va bir xil saralash). Sayt uni **yozmaydi**: maydonni
+   server triggeri (`onScoreWealth`) yuritadi, ya'ni `battle_ratings`
+   ni o'qish ham, formulani ikkinchi marta hisoblash ham kerak emas.
+   Maydoni yo'q eski hujjat uchun yalang `totalScore` ishlatiladi.
+   Nomi o'zgarmadi: sayt uni baribir **aqcha** deb ataydi.
 4. **«Reyting» so'zi jadval nomi sifatida qoldi** — `Reyting` paneli,
    «Kunlik / Umumiy reyting», «aqcha reytingga tushadi». Birlik sifatida
    u hech qayerda yo'q (o'lja bilan almashdi). Ilovada jadval boshqacha

@@ -76,12 +76,22 @@ export async function todayTop({
   }));
 }
 
-/** Umumiy (all-time) reyting — jamlangan ball bo'yicha. */
+/** Umumiy (all-time) reyting — yig'ilgan aqcha bo'yicha.
+ *
+ *  Saralash `wealth` bo'yicha: jadvaldagi son endi o'yinlarda yig'ilgan
+ *  ball bilan o'lja ustamasining yig'indisi (`docs/aqcha.md`, 5-bo'lim).
+ *  Maydonni server yozadi (`onScoreWealth` triggeri) — jang aqcha
+ *  bermasdi, chunki o'lja hech qayerda aqchaga aylanmasdi.
+ *
+ *  Maydoni yo'q hujjat so'rovga **tushmaydi**, shuning uchun eski
+ *  hisoblar bir marta to'ldirilgan (`functions/src/tools/backfill_wealth.ts`);
+ *  o'qishda ham `totalScore` ga qaytish qoldirilgan — trigger hali
+ *  tegmagan yangi hujjat noldan emas, kamida o'z ballidan ko'rinsin. */
 export async function totalTop({ limit = 10 }: { limit?: number } = {}): Promise<
   Entry[]
 > {
   const documents = await listDocs(PATHS.scores, {
-    orderBy: 'totalScore desc',
+    orderBy: 'wealth desc',
     pageSize: limit,
   });
 
@@ -89,7 +99,7 @@ export async function totalTop({ limit = 10 }: { limit?: number } = {}): Promise
     uid: document.id,
     nickname: text(document.fields.nickname, GUEST),
     count: int(document.fields.wordsFound),
-    points: int(document.fields.totalScore),
+    points: int(document.fields.wealth) || int(document.fields.totalScore),
     won: true,
   }));
 }

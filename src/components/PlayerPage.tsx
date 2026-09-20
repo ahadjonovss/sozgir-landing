@@ -196,7 +196,10 @@ export default function PlayerPage() {
                 <div className="player__score">
                   <span className="player__score-label">Aqcha</span>
                   <strong>
-                    <Aqcha tiyin={profile.totalScore} size="lg" />
+                    {/* Boylik: o'yinlarda yig'ilgan ball va o'lja
+                        ustamasi. Saytda ikkinchi nom yo'q — jamlangan
+                        hisobning nomi har doim aqcha (`lib/aqcha.ts`). */}
+                    <Aqcha tiyin={profile.wealth} size="lg" />
                   </strong>
                   <span className="player__score-label">
                     {profile.wordsFound} topilgan so‘z

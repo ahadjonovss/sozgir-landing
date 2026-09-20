@@ -13,9 +13,15 @@
  *  (`soztop/docs/aqcha_tz.md`, 2-bo'lim): bir xil son ikki platformada
  *  bir xil ko'rinishi shart.
  *
- *  «Boylik» (aqcha va o'ljani bitta songa yig'ish) saytda yo'q: jamlangan
- *  hisobning nomi har doim **aqcha**. Ikkinchi nom odamni chalkashtirardi
- *  — jadvalda bir son, profilda boshqasi bo'lib qolardi. */
+ *  «Boylik» — aqcha va o'ljani bitta songa yig'ish — endi jadvalda ham,
+ *  ochiq profilda ham turadi, lekin saytda **shu nom bilan atalmaydi**:
+ *  jamlangan hisobning nomi har doim **aqcha**. Ikkinchi nom odamni
+ *  chalkashtirardi — jadvalda bir son, profilda boshqasi bo'lib qolardi.
+ *
+ *  Yig'indining o'zini bu yerda hisoblamaymiz: uni server yozadi
+ *  (`scores/{uid}.wealth`, `onScoreWealth` triggeri) va sayt tayyor
+ *  sonni o'qiydi (`leaderboard.ts`, `publicProfile.ts`). Ikki tomonda
+ *  ikki marta hisoblangan formula ertami-kech ajralib ketadi. */
 
 /** Bitta aqchada shuncha tiyin — mukofot hisobi ham shundan. */
 export const TIYIN = 10;
