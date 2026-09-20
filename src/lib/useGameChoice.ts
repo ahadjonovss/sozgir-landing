@@ -22,9 +22,17 @@ function storedLength(): number {
   }
 }
 
-export function useGameChoice() {
-  const [mode, setMode] = useState<Mode>('daily');
-  const [endlessLength, setEndlessLength] = useState(storedLength);
+/** [start] — sahifa qaysi rejim va uzunlikdan boshlanishi.
+ *
+ *  Standart holat kunlik so'z («kuniga bitta so'z» — loyihaning
+ *  o'zagi). Uzunlik bo'yicha sahifalar (`/cheksiz/6-harf`) esa o'z
+ *  holatini beradi: odam aynan o'sha o'yin uchun kelgan va uni yana
+ *  qo'lda tanlab o'tirmasligi kerak. */
+export function useGameChoice(start?: { mode?: Mode; length?: number }) {
+  const [mode, setMode] = useState<Mode>(start?.mode ?? 'daily');
+  const [endlessLength, setEndlessLength] = useState(
+    () => start?.length ?? storedLength(),
+  );
 
   const pickLength = useCallback((next: number) => {
     setEndlessLength(next);

@@ -19,6 +19,9 @@
  *  Robotga boshqa, odamga boshqa matn ko'rsatish — klouking, va u
  *  saytni qidiruvdan ham, reklama tarmog'idan ham chiqarib yuboradi. */
 
+import { GUIDES, type GuidePath } from './guides';
+import { LENGTH_PAGES, type LengthPath } from './lengths';
+
 export interface Page {
   /** Manzil — router uchun ham shu. */
   path: string;
@@ -42,7 +45,7 @@ export interface Page {
   listed?: boolean;
 }
 
-export const PAGES = [
+const BASE_PAGES = [
   {
     path: '/',
     title: 'So‘zgir — o‘zbekcha so‘z o‘yinlari',
@@ -156,6 +159,46 @@ export const PAGES = [
     ],
   },
   {
+    path: '/yangiliklar',
+    title: 'Yangiliklar — So‘zgir',
+    description:
+      'So‘zgir saytida va ilovasida nima o‘zgardi: yangi o‘yinlar, nishonlar, aqcha islohoti va boshqa yangiliklar sanasi bilan.',
+    nav: 'Yangiliklar',
+    h1: 'Yangiliklar',
+    lead:
+      'So‘zgirda nima o‘zgardi — eng yangisidan boshlab. Faqat odam sezadigan o‘zgarishlar.',
+    body: [
+      'Ro‘yxatda saytdagi va ilovadagi o‘zgarishlar sanasi bilan turadi: yangi o‘yin rejimlari, nishonlar, aqcha va o‘lja islohoti, jangdagi tuzatishlar.',
+    ],
+  },
+  {
+    path: '/qollanma',
+    title: 'So‘ztop qo‘llanmasi — qanday yutish kerak',
+    description:
+      'Qaysi so‘zdan boshlash kerak, urinishni qanday tejash mumkin va o‘zbek alifbosining qaysi joyi chalg‘itadi. Hammasi o‘yinning o‘z lug‘atidan olingan sonlar bilan.',
+    nav: 'Qo‘llanma',
+    h1: 'So‘ztop qo‘llanmasi',
+    lead:
+      'Qanday boshlash, urinishni qanday tejash va o‘zbek alifbosining qaysi joyi chalg‘itadi — hammasi o‘yinning o‘z lug‘atidan olingan sonlar bilan.',
+    body: [
+      'Qo‘llanmada uchta maqola bor: birinchi so‘zni tanlash, urinishlarni tejaydigan taktika va o‘zbek alifbosidagi qiyin joylar (SH, CH, O‘, G‘ va takror harflar).',
+    ],
+  },
+  {
+    path: '/javoblar',
+    title: 'So‘ztop javoblari — bugungi so‘z va arxiv',
+    description:
+      'Bugungi So‘ztop javobi spoyler ostida: o‘ynab bo‘lgach oching. Ostida o‘tgan kunlar arxivi — har kunning so‘zi, raqami, sanasi va ma’nosi.',
+    nav: 'Javoblar',
+    h1: 'So‘ztop javoblari',
+    lead:
+      'Bugungi so‘z va o‘tgan kunlar arxivi. Javob yopiq turadi — o‘ynab bo‘lgach oching.',
+    body: [
+      'Kunlik so‘z butun O‘zbekiston uchun bir xil va yarim tunda almashadi. Shu sahifada bugungi javobni ochish, o‘tgan kunlarning so‘zlarini esa raqami, sanasi va ma’nosi bilan ko‘rish mumkin.',
+      'Kelajakdagi so‘zlar ro‘yxatda yo‘q: arxivga faqat o‘ynab bo‘lingan kunlar tushadi.',
+    ],
+  },
+  {
     path: '/nishonlar',
     title: 'Nishonlar — So‘zgir',
     description:
@@ -217,8 +260,41 @@ export const PAGES = [
   },
 ] as const satisfies readonly Page[];
 
+/** Uzunlik bo'yicha sahifalar (`/cheksiz/6-harf`) matni `data/lengths.ts`
+ *  da turadi: uni sahifaning o'zi ham, statik HTML ham o'qiydi. Shu
+ *  sabab ro'yxat qo'lda takrorlanmaydi — yozuvlar shu yerda yasaladi. */
+const LENGTH_ENTRIES: Page[] = LENGTH_PAGES.map((page) => ({
+  path: page.path,
+  title: page.title,
+  description: page.description,
+  nav: page.h1,
+  h1: page.h1,
+  lead: page.lead,
+  body: [...page.body],
+}));
+
+/** Qo'llanma maqolalari ham shu tartibda: matni `data/guides.ts` da,
+ *  bu yerda esa sahifa yozuvi yasaladi. Statik HTML uchun maqolaning
+ *  birinchi bo'limlari matn sifatida olinadi — robot ko'radigan matn
+ *  odam ko'radigani bilan bir xil bo'lishi shart. */
+const GUIDE_ENTRIES: Page[] = GUIDES.map((guide) => ({
+  path: guide.path,
+  title: guide.title,
+  description: guide.description,
+  nav: guide.h1,
+  h1: guide.h1,
+  lead: guide.lead,
+  body: guide.sections.flatMap((section) => [section.h2, ...section.body]),
+}));
+
+export const PAGES: readonly Page[] = [
+  ...BASE_PAGES,
+  ...LENGTH_ENTRIES,
+  ...GUIDE_ENTRIES,
+];
+
 /** Manzillar — router va `sitemap.xml` uchun. */
-export type Route = (typeof PAGES)[number]['path'];
+export type Route = (typeof BASE_PAGES)[number]['path'] | LengthPath | GuidePath;
 
 export const pageOf = (path: string): Page | undefined =>
   PAGES.find((page) => page.path === path);

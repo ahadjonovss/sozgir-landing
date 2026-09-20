@@ -13,7 +13,7 @@ bilan aynan bir xil. Hisob ochilsa natija reytingga tushadi.
 
 | Bo‘lim | Nima qiladi |
 | --- | --- |
-| Hero | Haqiqiy So‘ztop: kunlik va cheksiz rejim, hisob, aqcha, statistika |
+| Hero | Haqiqiy So‘ztop **birinchi ekranda**: kunlik va cheksiz rejim, hisob, aqcha |
 | So‘zjang | Do‘st bilan (kod orqali) va tezkor jang, reaksiyalar — `/sozjang` |
 | G‘uncha | Yettita harfdan so‘z yig‘ish: kunlik va mashq — `/guncha` |
 | G‘uncha jangi | Bir xil g‘uncha, uch daqiqa, kim ko‘p to‘plasa — `/gunchajang` |
@@ -25,13 +25,24 @@ bilan aynan bir xil. Hisob ochilsa natija reytingga tushadi.
 | Savollar | Akkordeon FAQ |
 | Yuklab olish | App Store va Google Play havolalari |
 | Nishonlar | Yigirmata yutuq belgisi — `/nishonlar` |
+| Javoblar | Bugungi so‘z va o‘tgan kunlar arxivi — `/javoblar` |
+| Qo‘llanma | Uchta maqola: birinchi so‘z, taktika, qiyin joylar — `/qollanma` |
+| Yangiliklar | Saytda va ilovada nima o‘zgardi — `/yangiliklar` |
+| Cheksiz | Har uzunlik uchun o‘z sahifasi — `/cheksiz/4-harf` … `/cheksiz/7-harf` |
 
 Alohida sahifalar: `/oynash` (nimani o‘ynashni tanlash — sarlavhadagi
 «O‘ynash» tugmasi shu yerga olib keladi), `/oyin` (So‘ztop), `/sozjang`
 (bellashuv), `/guncha` (g‘uncha), `/gunchajang` (g‘uncha jangi),
-`/oyinchi/{uid}` (o‘yinchining ochiq profili), `/privacy` (maxfiylik
-siyosati, o‘zbekcha + inglizcha) va `/contact` (aloqa ma’lumotlari +
-so‘rov formasi).
+`/cheksiz/{4..7}-harf` (uzunlik bo‘yicha cheksiz rejim), `/javoblar`
+(bugungi javob va arxiv), `/qollanma` (+ uchta maqola), `/nishonlar`,
+`/yangiliklar`, `/oyinchi/{uid}` (o‘yinchining ochiq profili),
+`/privacy` (maxfiylik siyosati, o‘zbekcha + inglizcha) va `/contact`
+(aloqa ma’lumotlari + so‘rov formasi).
+
+Bo‘limlarning to‘liq ro‘yxati sarlavhadagi **menyu** tugmasida —
+u endi kompyuterda ham ochiladi va saytning xaritasi bo‘lib xizmat
+qiladi: o‘yinlar, ko‘rib chiqish (javoblar, qo‘llanma, nishonlar,
+yangiliklar) va loyiha.
 
 React ilovadan tashqarida, `public/` ichida turadigan mustaqil sahifalar:
 `/ol` — ulashish uchun yuklab olish havolasi (telefonda qurilmaning
@@ -764,6 +775,85 @@ O‘lja bo‘yicha o‘nta pog‘ona, chegaralar **xom reytingda**
 (`src/lib/battleRating.ts`): Chopar, Cherik, Navkar, O‘nboshi,
 Yuzboshi, Mingboshi, Botir, Bahodir, Tarxon, Alp.
 
+## Bosh sahifa o‘yindan boshlanadi
+
+`/` ochilishi bilan taxta va klaviatura turadi, tanishtiruv matni esa
+ularning **ostida**. Ilgari hero ikki ustunli edi: chapda sarlavha va
+gap, o‘ngda telefon ramkasidagi taxta. Telefonda ustunlar ustma-ust
+tushardi, ya‘ni o‘ynash uchun avval butun matnni surib o‘tish kerak
+bo‘lardi — qaytib kelgan o‘yinchi esa buni har safar qilardi.
+
+Matn yo‘qolmadi (u qidiruv uchun ham, birinchi marta kelgan odam uchun
+ham kerak) — faqat joyini o‘yinga bo‘shatib berdi. Telefon ramkasi ham
+olib tashlandi: u o‘yinni «ilovaning ko‘rinishi» qilib ko‘rsatardi,
+holbuki u shu yerda o‘ynaladigan haqiqiy o‘yin.
+
+Taxta **har qanday ekranda** birinchi ekranga sig‘adi: hisob
+`/oyin` dagi `--fit` bilan bir xil (`landing.css` dagi `.hero__board`),
+farqi shundaki bu yerda u kompyuterda ham ishlaydi — o‘yinni yuqoriga
+ko‘tarishning butun ma’nosi uning ko‘rinib turishida.
+
+Sarlavha ostida bitta qator: **bugun necha kishi o‘ynadi**
+(`src/lib/players.ts`). Son o‘ylab topilmaydi — u `daily_scores/{sana}/
+entries` dagi yozuvlar soni, ya‘ni bugun ball yozgan odamlar. Bitta
+`count()` so‘rovi, ro‘yxatning o‘zi o‘qilmaydi. Nol bo‘lsa (yoki so‘rov
+yiqilsa) qator umuman chizilmaydi.
+
+## Javoblar arxivi
+
+`/javoblar` — bugungi so‘z va o‘tgan kunlar ro‘yxati
+(`AnswersPage.tsx`, `src/lib/answers.ts`). «Bugungi javob» bu turdagi
+o‘yinlarda eng ko‘p qidiriladigan so‘rov: javobni o‘zimiz bermasak,
+odam uni boshqa joydan (yoki umuman noto‘g‘ri) topadi.
+
+Bugungi javob **spoyler ostida**: sahifaga o‘ynamagan odam ham tushib
+qoladi va javobni tasodifan ko‘rmasligi kerak. O‘tgan kunlar ochiq —
+ular allaqachon o‘ynab bo‘lingan.
+
+**Kelajakdagi so‘zlar ko‘rsatilmaydi.** Hujjatlar oldinga yasab
+qo‘yilgan (server bir necha hafta oldinda ishlaydi), shuning uchun
+ro‘yxat `dateKey <= bugun` chegarasi bilan so‘raladi
+(`queryUpTo`, `firebase/rest.ts`) — kelajak brauzerga umuman kelmaydi.
+Ma’nolar lug‘atdan qo‘shiladi, u baribir keshlangan.
+
+## Uzunlik bo‘yicha sahifalar
+
+`/cheksiz/4-harf` … `/cheksiz/7-harf` — cheksiz rejim, har uzunlik o‘z
+manzili bilan (`EndlessPage.tsx`, matni `src/data/lengths.ts` da).
+Rejim ilgari ham bor edi, lekin «6 harfli so‘z o‘yini» deb qidirgan
+odam saytni topmasdi.
+
+Sahifa o‘yinni **darrov o‘sha uzunlikda** ochadi (`useGameChoice` ga
+boshlang‘ich holat beriladi). Matndagi sonlar lug‘atning o‘zidan:
+javoblar va qabul qilinadigan so‘zlar soni.
+
+`data/pages.ts` sahifa yozuvlarini shu ro‘yxatdan yasaydi, ya’ni
+sarlavha, tavsif va statik HTML bir manbadan oziqlanadi.
+
+## Qo‘llanma
+
+`/qollanma` va uchta maqola: birinchi so‘z, taktika, o‘zbek
+alifbosidagi qiyin joylar (`src/data/guides.ts`).
+
+Matndagi **hamma son o‘lchangan** — So‘zgirning o‘z lug‘atidan
+hisoblangan, boshqa tildagi Wordle’dan ko‘chirilgan emas: eng ko‘p
+uchraydigan harflar, takror harfli javoblar ulushi (41 %), SH/CH/O‘/G‘
+bor javoblar (17 %), ikki unlili javoblar (94 %). Start so‘zlari ham
+lug‘atdan: beshta turli harf va eng yuqori chastota.
+
+## Yangiliklar
+
+`/yangiliklar` — saytda va ilovada nima o‘zgargani (`data/updates.ts`).
+Sarlavhadagi menyu tugmasida o‘qilmagan yangilik bo‘lsa kichik nuqta
+turadi, menyuning ichida esa soni (`lib/updates.ts`).
+
+Brauzerda bitta sana saqlanadi — oxirgi ko‘rilgan yangilikniki.
+Birinchi tashrifda sanoq **chiqmaydi**: saytga endi kirgan odamga
+«uchta yangilik bor» deyishning ma’nosi yo‘q.
+
+Ro‘yxatga faqat odam sezadigan o‘zgarish tushadi va bir kun bitta yozuv
+bo‘ladi — kun ichida o‘nta commit bo‘lsa ham.
+
 ## Nishonlar
 
 `/nishonlar` — yigirmata nishon (`src/lib/badges.ts`,
@@ -977,6 +1067,11 @@ src/
     Leaderboard.tsx kunlik va umumiy reyting
     BadgesPage.tsx  `/nishonlar`: yigirmata nishon, yo‘lakcha va izoh
     BadgesCard.tsx  yon ustundagi qisqa nishonlar kartochkasi
+    AnswersPage.tsx `/javoblar`: bugungi javob (spoyler) va arxiv
+    EndlessPage.tsx `/cheksiz/{n}-harf`: o‘yin + o‘sha uzunlik haqida matn
+    GuidePage.tsx   `/qollanma` ro‘yxati va maqolaning o‘zi
+    UpdatesPage.tsx `/yangiliklar`: o‘zgarishlar vaqt chizig‘i
+    AppPopup.tsx    telefonda chiqadigan ilova taklifi
     Account.tsx   hisob tugmasi va kirish oynasi
   data/
     site.ts     barcha matn va havolalar — dizaynga tegmasdan tahrirlash uchun
@@ -1061,6 +1156,8 @@ vite/
 | `sozgir.guncha.battle.words.{id}` | o‘sha jangda topgan so‘zlarim |
 | `sozgir.badges.earned` | olingan nishonlar |
 | `sozgir.badges.shares` | natija necha marta ulashilgani («Jarchi») |
+| `sozgir.updates.seen` | oxirgi ko‘rilgan yangilik sanasi |
+| `sozgir.app.promo` | ilova taklifi oxirgi marta qachon chiqqani |
 | `sozgir.verified` | tasdiqlangan hisoblar ro‘yxatining keshi |
 | `sozgir.donors` | donatchilar yig‘indisi va reklamasizlik muddati |
 

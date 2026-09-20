@@ -10,6 +10,7 @@
 import { useEffect, useState } from 'react';
 import { links } from '../data/site';
 import { toggleTheme } from '../lib/useReveal';
+import { useUnreadUpdates } from '../lib/updates';
 import type { Route } from '../lib/useRoute';
 import Account from './Account';
 import Logo from './Logo';
@@ -21,6 +22,8 @@ interface Item {
   label: string;
   /** Shu manzilda bo'lganda ajratib ko'rsatiladi. */
   route?: Route;
+  /** O'qilmagan yangiliklar soni shu qatorda chiqadi. */
+  badge?: boolean;
 }
 
 /* Tepada faqat asosiylari: qoida, qo'llab-quvvatlash va yuklab olish.
@@ -33,19 +36,51 @@ const NAV: Item[] = [
   { href: '/#yuklab-olish', label: 'Yuklab olish' },
 ];
 
-const MORE: Item[] = [
-  { href: links.play, label: 'So‘ztop', route: '/oyin' },
-  { href: links.battle, label: 'So‘zjang', route: '/sozjang' },
-  { href: links.guncha, label: 'G‘uncha', route: '/guncha' },
-  { href: links.mardu, label: 'Mardu maydon', route: '/maydon' },
-  { href: '/#alifbo', label: 'Alifbo' },
-  { href: '/#modullar', label: 'Modullar' },
-  { href: '/#savollar', label: 'Savollar' },
-  { href: links.contact, label: 'Aloqa', route: '/contact' },
-  { href: links.privacy, label: 'Maxfiylik siyosati', route: '/privacy' },
+/** Menyu — saytning xaritasi.
+ *
+ *  Bo'limlar ko'paygani sari tekis ro'yxat o'qilmay qoldi: o'yin,
+ *  qo'llanma va huquqiy sahifa bir xil ko'rinishda yonma-yon turardi.
+ *  Endi ular guruhlangan va guruh nomi savolga javob beradi: «nima
+ *  o'ynayman», «nimani o'qiyman», «o'zim haqimda nima bor».
+ *
+ *  Menyu endi kompyuterda ham ochiladi: sarlavhadagi uchta havola
+ *  hamma bo'limni ko'rsatolmaydi va ko'rsatishi ham shart emas. */
+const GROUPS: { title: string; items: Item[] }[] = [
+  {
+    title: 'O‘yinlar',
+    items: [
+      { href: links.play, label: 'So‘ztop — kunlik so‘z', route: '/oyin' },
+      { href: links.battle, label: 'So‘zjang', route: '/sozjang' },
+      { href: links.guncha, label: 'G‘uncha', route: '/guncha' },
+      { href: links.mardu, label: 'Mardu maydon', route: '/maydon' },
+      { href: '/cheksiz/5-harf', label: 'Cheksiz rejim', route: '/cheksiz/5-harf' },
+    ],
+  },
+  {
+    title: 'Ko‘rib chiqish',
+    items: [
+      { href: links.answers, label: 'Javoblar arxivi', route: '/javoblar' },
+      { href: links.guides, label: 'Qo‘llanma', route: '/qollanma' },
+      { href: links.badges, label: 'Nishonlar', route: '/nishonlar' },
+      { href: links.updates, label: 'Yangiliklar', route: '/yangiliklar', badge: true },
+      { href: '/#qoida', label: 'Qoida' },
+      { href: '/#alifbo', label: 'Alifbo' },
+      { href: '/#savollar', label: 'Savollar' },
+    ],
+  },
+  {
+    title: 'Loyiha',
+    items: [
+      { href: links.donate, label: 'Qo‘llab-quvvatlash', route: '/qollab' },
+      { href: '/#yuklab-olish', label: 'Ilovani yuklab olish' },
+      { href: links.contact, label: 'Aloqa', route: '/contact' },
+      { href: links.privacy, label: 'Maxfiylik siyosati', route: '/privacy' },
+    ],
+  },
 ];
 
 export default function Header({ route }: { route: Route }) {
+  const unread = useUnreadUpdates();
   const [dark, setDark] = useState(
     () => document.documentElement.dataset.theme === 'dark',
   );
@@ -129,6 +164,9 @@ export default function Header({ route }: { route: Route }) {
               aria-controls="menu"
             >
               {open ? <Close size={20} /> : <Menu size={20} />}
+              {/* O'qilmagan yangiliklar — menyuning ichida, ya'ni
+                  tashqarida faqat nuqta turadi. */}
+              {!open && unread > 0 && <i className="header__dot" aria-hidden="true" />}
             </button>
           </div>
         </div>
@@ -140,29 +178,26 @@ export default function Header({ route }: { route: Route }) {
             <a className="menu__link menu__link--main" href={links.hub}>
               O‘ynash
             </a>
-            {NAV.map((item) => (
-              <a
-                key={item.label}
-                className="menu__link"
-                href={item.href}
-                aria-current={current(item)}
-                onClick={() => setOpen(false)}
-              >
-                {item.label}
-              </a>
+            {GROUPS.map((group) => (
+              <div className="menu__group" key={group.title}>
+                <p className="menu__title">{group.title}</p>
+                {group.items.map((item) => (
+                  <a
+                    key={item.label}
+                    className="menu__link menu__link--sub"
+                    href={item.href}
+                    aria-current={current(item)}
+                    onClick={() => setOpen(false)}
+                  >
+                    {item.label}
+                    {item.badge && unread > 0 && (
+                      <span className="menu__badge">{unread}</span>
+                    )}
+                  </a>
+                ))}
+              </div>
             ))}
-            <div className="menu__sep" />
-            {MORE.map((item) => (
-              <a
-                key={item.label}
-                className="menu__link menu__link--sub"
-                href={item.href}
-                aria-current={current(item)}
-                onClick={() => setOpen(false)}
-              >
-                {item.label}
-              </a>
-            ))}
+
             <a
               className="menu__link menu__link--sub"
               href={links.telegram}

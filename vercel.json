@@ -14,8 +14,36 @@
       "destination": "/ol/index.html"
     },
     {
-      "source": "/:page(oynash|oyin|sozjang|guncha|gunchajang|maydon|nishonlar|qollab|privacy|hisob-ochirish|contact)",
+      "source": "/:page(oynash|oyin|sozjang|guncha|gunchajang|maydon|javoblar|qollanma|yangiliklar|nishonlar|qollab|privacy|hisob-ochirish|contact)",
       "destination": "/:page/index.html"
+    },
+    {
+      "source": "/cheksiz/4-harf",
+      "destination": "/cheksiz/4-harf/index.html"
+    },
+    {
+      "source": "/cheksiz/5-harf",
+      "destination": "/cheksiz/5-harf/index.html"
+    },
+    {
+      "source": "/cheksiz/6-harf",
+      "destination": "/cheksiz/6-harf/index.html"
+    },
+    {
+      "source": "/cheksiz/7-harf",
+      "destination": "/cheksiz/7-harf/index.html"
+    },
+    {
+      "source": "/qollanma/birinchi-soz",
+      "destination": "/qollanma/birinchi-soz/index.html"
+    },
+    {
+      "source": "/qollanma/taktika",
+      "destination": "/qollanma/taktika/index.html"
+    },
+    {
+      "source": "/qollanma/qiyin-sozlar",
+      "destination": "/qollanma/qiyin-sozlar/index.html"
     },
     {
       "source": "/oyinchi/:uid",

@@ -32,6 +32,12 @@ export const links = {
   share: `${site}/oyin`,
   /** Nishonlar — yutuq belgilari ro'yxati. */
   badges: '/nishonlar',
+  /** Javoblar: bugungi so'z va o'tgan kunlar arxivi. */
+  answers: '/javoblar',
+  /** Qo'llanmalar — qanday o'ynash va qanday yutish. */
+  guides: '/qollanma',
+  /** Yangiliklar — saytda va ilovada nima o'zgardi. */
+  updates: '/yangiliklar',
   privacy: '/privacy',
   deletion: '/hisob-ochirish',
   contact: '/contact',
@@ -47,10 +53,14 @@ export const links = {
 /** Ochiq profil havolasi — reyting, natija va donatchilar ro'yxatidan. */
 export const playerLink = (uid: string) => `${links.player}/${encodeURIComponent(uid)}`;
 
+/* Sonlar lug'atning o'zidan olingan (`dictionaries/uz_{4..7}`,
+   `categories`) va vaqti-vaqti bilan tekshirilishi kerak: lug'at
+   to'ldiriladi, ya'ni ular faqat o'sadi. Oxirgi tekshiruv: 2026-yil
+   20-sentabr. */
 export const stats = [
-  { value: '2 164', label: 'yashirin so‘z', hint: '4–7 harfli javoblar bazasi' },
-  { value: '72 000+', label: 'tan olinadigan so‘z', hint: 'taxmin sifatida qabul qilinadi' },
-  { value: '10', label: 'kategoriya', hint: 'tabiatdan tushunchagacha' },
+  { value: '5 900+', label: 'yashirin so‘z', hint: '4–7 harfli javoblar bazasi' },
+  { value: '54 000+', label: 'tan olinadigan so‘z', hint: 'taxmin sifatida qabul qilinadi' },
+  { value: '22', label: 'mavzu', hint: 'sahifada o‘nta guruhga yig‘ilgan' },
   { value: '29', label: 'harf-tugma', hint: 'to‘liq o‘zbek klaviaturasi' },
 ];
 
@@ -159,6 +169,34 @@ export const categories = [
 ];
 
 export const faq = [
+  {
+    q: 'Bugungi so‘z qanday topiladi?',
+    a: 'Yashirin so‘zni oltita urinishda topasiz. Har urinishdan keyin kataklar rang oladi: yashil — harf o‘z joyida, sariq — so‘zda bor, lekin boshqa joyda, kulrang — bunday harf yo‘q. Kunlik so‘z butun O‘zbekistonda bir xil va yarim tunda almashadi.',
+  },
+  {
+    q: 'Bugungi javobni qayerdan ko‘rsam bo‘ladi?',
+    a: 'Javoblar sahifasida: bugungi so‘z spoyler ostida turadi, o‘tgan kunlarniki esa ochiq ro‘yxatda — raqami, sanasi va ma’nosi bilan. Ertangi so‘z ko‘rsatilmaydi.',
+  },
+  {
+    q: 'Kuniga nechta o‘yin o‘ynasa bo‘ladi?',
+    a: 'Kunlik so‘z kuniga bitta. Cheksiz rejimda esa chegara yo‘q: 4 dan 7 harfgacha xohlagancha o‘ynaysiz, yangi so‘z o‘yin tugagach darrov boshlanadi.',
+  },
+  {
+    q: 'Hisob ochish shartmi?',
+    a: 'Yo‘q. O‘yin hisobsiz ham to‘liq ishlaydi, natija brauzerda saqlanadi. Hisob ochsangiz natija reytingga tushadi, boshqa qurilmada ham ko‘rinadi va so‘zjangda o‘ynay olasiz.',
+  },
+  {
+    q: 'Saytdagi o‘yin ilovadagisi bilan bir xilmi?',
+    a: 'Ha. Kunlik so‘z ikkalasida aynan bitta, lug‘at ham o‘sha: hisob ochsangiz natijalar sinxronlanadi va reyting umumiy bo‘ladi.',
+  },
+  {
+    q: 'Natijani qanday ulashaman?',
+    a: 'O‘yin tugagach «Ulashish» tugmasi chiqadi: u ranglar to‘rini nusxalaydi — so‘zning o‘zi ko‘rinmaydi, ya’ni do‘stingizga spoyler bo‘lmaydi.',
+  },
+  {
+    q: 'So‘zim qabul qilinmadi, nega?',
+    a: 'Lug‘at katta, lekin cheksiz emas: 5 harfli rejimda 9 600 dan ortiq so‘z qabul qilinadi. Noo‘rin rad etilgan so‘zni o‘yin oxiridagi «So‘z haqida xabar berish» orqali yuboring — lug‘at aynan shu xabarlar bilan to‘ldiriladi.',
+  },
   {
     q: 'SH, CH, O‘ va G‘ bitta katakchami?',
     a: 'Ha. Bular o‘zbek tilida bitta tovush, shuning uchun o‘yinda ham bitta harf — bitta katakcha va klaviaturada bitta tugma. Ya’ni «boshqa» besh harfli so‘z: B-O-SH-Q-A.',

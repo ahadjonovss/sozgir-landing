@@ -1,6 +1,7 @@
 import Play from './Play';
 import { useGameChoice } from '../lib/useGameChoice';
 import { useSozTop } from '../lib/useSozTop';
+import { formatPlayers, useTodayPlayers } from '../lib/players';
 import { links, stats } from '../data/site';
 
 /** Orqa fondagi bezak kataklar — «so'z» harflari va ranglar. Faqat
@@ -14,14 +15,26 @@ const CONFETTI: { unit: string; verdict: 'correct' | 'present' | 'absent' }[] = 
   { unit: 'R', verdict: 'absent' },
 ];
 
-/** Tanishtiruv boshi: sahifaning gapi chapda, haqiqiy o'yin o'ngda.
+/** Bosh sahifaning boshi — **o'yinning o'zi**.
  *
- *  Taxta demo emas — kunlik so'z ilovadagi bilan bir xil, natija
- *  reytingga tushadi. Shu sabab yangi mehmon ham, qaytib kelgan o'yinchi
- *  ham birinchi ekranda o'ynay boshlaydi. */
+ *  Ilgari bu yerda ikki ustun bor edi: chapda sarlavha va gap, o'ngda
+ *  telefon ramkasidagi taxta. Telefonda ustunlar ustma-ust tushardi,
+ *  ya'ni o'ynash uchun avval butun tanishtiruv matnini surib o'tish
+ *  kerak bo'lardi — qaytib kelgan o'yinchi esa har safar shuni qilardi.
+ *
+ *  Endi taxta birinchi ekranda turadi, tanishtiruv matni esa uning
+ *  **ostida**: sahifa o'ynash uchun ochiladi, o'qish uchun emas. Matn
+ *  yo'qolmaydi (u qidiruv uchun ham, birinchi marta kelgan odam uchun
+ *  ham kerak) — faqat joyini o'yinga bo'shatib beradi.
+ *
+ *  Taxta demo emas: kunlik so'z ilovadagi bilan bir xil va natija
+ *  reytingga tushadi. Telefon ramkasi ham olib tashlandi — u o'yinni
+ *  «ilovaning ko'rinishi» qilib ko'rsatardi, holbuki u shu yerda,
+ *  brauzerda o'ynaladigan haqiqiy o'yin. */
 export default function Hero() {
   const choice = useGameChoice();
   const game = useSozTop(choice);
+  const players = useTodayPlayers();
 
   return (
     <section className="hero" id="top">
@@ -36,6 +49,30 @@ export default function Hero() {
       </div>
 
       <div className="wrap hero__inner">
+        <div className="hero__play">
+          {/* Sanoq serverdagi haqiqiy son: bugun ball yozgan odamlar.
+              Kelmaguncha qator umuman chizilmaydi — joy band qilib
+              turgan bo'sh yorliq sonning o'zidan yomonroq. */}
+          {players !== null && (
+            <p className="hero__live">
+              <i aria-hidden="true" />
+              Bugun <strong>{formatPlayers(players)}</strong> kishi o‘ynadi
+            </p>
+          )}
+
+          <div className="hero__board">
+            <Play choice={choice} game={game} />
+          </div>
+
+          <p className="hero__playnote">
+            Bu haqiqiy o‘yin: bugungi so‘z ilovadagi bilan bir xil, natija
+            reytingga tushadi.{' '}
+            <a className="link" href={links.play}>
+              To‘liq sahifa →
+            </a>
+          </p>
+        </div>
+
         <div className="hero__copy">
           <span className="hero__badge">
             <i />
@@ -56,8 +93,8 @@ export default function Hero() {
           </p>
 
           <div className="hero__cta">
-            <a className="btn btn--lg" href="#yuklab-olish">
-              Ilovani yuklab olish
+            <a className="btn btn--lg" href={links.hub}>
+              Boshqa o‘yinlar
             </a>
             <a className="btn btn--lg btn--outline" href="#qoida">
               Qanday o‘ynaladi?
@@ -72,22 +109,6 @@ export default function Hero() {
               </li>
             ))}
           </ul>
-        </div>
-
-        <div className="hero__play">
-          <div className="phone">
-            <div className="phone__notch" aria-hidden="true" />
-            <div className="phone__screen">
-              <Play choice={choice} game={game} />
-            </div>
-          </div>
-          <p className="hero__playnote">
-            Bu haqiqiy o‘yin: bugungi so‘z ilovadagi bilan bir xil, natija
-            reytingga tushadi.{' '}
-            <a className="link" href={links.play}>
-              To‘liq sahifa →
-            </a>
-          </p>
         </div>
       </div>
     </section>

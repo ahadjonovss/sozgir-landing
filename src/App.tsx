@@ -4,12 +4,18 @@
  *  modullar va yuklab olish. Qolgan manzillar shu ramka ichida ochiladi. */
 import { useEffect, useLayoutEffect } from 'react';
 import { pageOf } from './data/pages';
+import { guideOf } from './data/guides';
+import { lengthPageOf } from './data/lengths';
 import Alphabet from './components/Alphabet';
 import Categories from './components/Categories';
 import Contact from './components/Contact';
 import Download from './components/Download';
 import Faq from './components/Faq';
 import Footer from './components/Footer';
+import AnswersPage from './components/AnswersPage';
+import EndlessPage from './components/EndlessPage';
+import GuidePage, { GuidesPage } from './components/GuidePage';
+import UpdatesPage from './components/UpdatesPage';
 import BadgesPage from './components/BadgesPage';
 import BattlePage from './components/BattlePage';
 import GamePage from './components/GamePage';
@@ -37,6 +43,8 @@ export default function App() {
   useReveal();
   const route = useRoute();
   const script = useScript();
+  const endless = lengthPageOf(route);
+  const guide = guideOf(route);
 
   /* Alifbo ko'chiruvchisi birinchi chizishdan oldin yoqiladi — matn bir
      lahza lotinda "yonib" ketmasin. Sahifa sarlavhasi `<head>` da, ya'ni
@@ -57,9 +65,14 @@ export default function App() {
         {route === '/' && (
           <>
             <Hero />
+            {/* O'yin ostidagi birinchi blok — «yana nima bor»: odam
+                taxtani ko'rdi, endi qolgan o'yinlarni ko'rsatamiz.
+                Qoida va alifbo undan keyin: ular birinchi marta kelgan
+                odamga kerak, lekin taxtaning o'zi ularsiz ham
+                tushunarli. */}
+            <Modules />
             <Rules />
             <Alphabet />
-            <Modules />
             <Categories />
             <Support />
             <Faq />
@@ -72,6 +85,13 @@ export default function App() {
         {route === '/guncha' && <GunchaPage />}
         {route === '/gunchajang' && <GunchaBattlePage />}
         {route === '/maydon' && <MarduPage />}
+        {route === '/javoblar' && <AnswersPage />}
+        {/* Uzunlik bo'yicha sahifalar (`/cheksiz/6-harf`) — bittasi
+            komponent, matni `data/lengths.ts` dan keladi. */}
+        {endless && <EndlessPage page={endless} />}
+        {route === '/qollanma' && <GuidesPage />}
+        {route === '/yangiliklar' && <UpdatesPage />}
+        {guide && <GuidePage guide={guide} />}
         {route === '/nishonlar' && <BadgesPage />}
         {route === '/qollab' && <SupportPage />}
         {route === '/privacy' && <Privacy />}

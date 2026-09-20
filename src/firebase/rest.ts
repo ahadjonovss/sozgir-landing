@@ -162,6 +162,54 @@ export async function batchGetDocs(
   }
 }
 
+/** Kolleksiyadagi hujjatlar soni (`runAggregationQuery`, filtrsiz).
+ *
+ *  Ro'yxatning o'zi o'qilmaydi — faqat son qaytadi, ya'ni «bugun necha
+ *  kishi o'ynadi» degan savol bitta arzon so'rovga tushadi.
+ *
+ *  Ichki kolleksiya ham bo'ladi (`daily_scores/{sana}/entries`): so'rov
+ *  ota hujjatga yuboriladi, chunki `from.collectionId` faqat nomni
+ *  biladi, yo'lni emas. Xato bo'lsa `null` — sanoq shunchaki
+ *  ko'rsatilmaydi.
+ */
+export async function countDocs(
+  path: string,
+  { timeout = 8000 }: { timeout?: number } = {},
+): Promise<number | null> {
+  const parts = path.split('/').filter(Boolean);
+  const collectionId = parts.pop() ?? '';
+  const parent = parts.length > 0 ? `/${parts.join('/')}` : '';
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+  try {
+    const response = await fetch(
+      `${BASE}${parent}:runAggregationQuery?key=${firebaseConfig.apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
+        body: JSON.stringify({
+          structuredAggregationQuery: {
+            structuredQuery: { from: [{ collectionId }] },
+            aggregations: [{ alias: 'total', count: {} }],
+          },
+        }),
+      },
+    );
+    if (!response.ok) return null;
+    const body = (await response.json()) as {
+      result?: { aggregateFields?: Record<string, TypedValue> };
+    }[];
+    const raw = body[0]?.result?.aggregateFields?.total;
+    const count = raw ? decode(raw) : undefined;
+    return typeof count === 'number' ? count : null;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 /** Jadvaldagi o'rin uchun sanoq: `field > value` bo'lgan hujjatlar soni
  *  (`runAggregationQuery`). Butun jadval o'qilmaydi — faqat son
  *  qaytadi, shuning uchun ro'yxat uzun bo'lsa ham arzon. Ilovadagi
@@ -206,6 +254,65 @@ export async function countAbove(
     return typeof count === 'number' ? count : null;
   } catch {
     return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/** Bitta maydon bo'yicha **chegara** bilan o'qish: `field <= value`,
+ *  o'sha maydon bo'yicha teskari saralangan holda (`runQuery`).
+ *
+ *  Kunlik javoblar arxivi uchun: hujjatlar kelajakka ham yasab
+ *  qo'yilgan, ya'ni ularni shunchaki ro'yxatlab bo'lmaydi — ertangi
+ *  so'zni ko'rsatish o'yinni buzardi. Chegara so'rovning o'zida
+ *  turadi, ya'ni kelajak brauzerga umuman kelmaydi.
+ *
+ *  Bitta maydon bo'yicha filtr va o'sha maydon bo'yicha saralash —
+ *  qo'shimcha indeks talab qilmaydi.
+ */
+export async function queryUpTo(
+  collectionId: string,
+  {
+    field,
+    atMost,
+    limit = 50,
+    timeout = 8000,
+  }: { field: string; atMost: string; limit?: number; timeout?: number },
+): Promise<RestDoc[]> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+  try {
+    const response = await fetch(`${BASE}:runQuery?key=${firebaseConfig.apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      signal: controller.signal,
+      body: JSON.stringify({
+        structuredQuery: {
+          from: [{ collectionId }],
+          where: {
+            fieldFilter: {
+              field: { fieldPath: field },
+              op: 'LESS_THAN_OR_EQUAL',
+              value: { stringValue: atMost },
+            },
+          },
+          orderBy: [{ field: { fieldPath: field }, direction: 'DESCENDING' }],
+          limit,
+        },
+      }),
+    });
+    if (!response.ok) return [];
+    const body = (await response.json()) as {
+      document?: { name: string; fields?: Record<string, TypedValue> };
+    }[];
+    return body
+      .filter((item) => item.document)
+      .map((item) => ({
+        id: item.document!.name.split('/').pop() ?? '',
+        fields: decodeFields(item.document!.fields ?? {}),
+      }));
+  } catch {
+    return [];
   } finally {
     clearTimeout(timer);
   }
