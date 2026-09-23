@@ -8,8 +8,11 @@
  *  Jang saytda ham, ilovada ham bir xil hujjatlar va bir xil funksiyalar
  *  orqali ketadi: telefondagi do'stni kod bilan chaqirsa bo'ladi. */
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
-import { links } from '../data/site';
+import { links, site } from '../data/site';
 import { useAuth } from '../lib/auth';
+import { countShare } from '../lib/badges';
+import { shareCardImage } from '../lib/shareCard';
+import { punchline } from '../lib/shareLines';
 import { inviteLink } from '../lib/battle';
 import { useGunchaJang, type GunchaJang } from '../lib/useGunchaJang';
 import { GUNCHA_SECONDS } from '../lib/gunchaBattle';
@@ -484,6 +487,64 @@ function Result({ game }: { game: GunchaJang }) {
   // uchun o'ynagan.
   const place = game.arena.find((row) => row.mine)?.rank ?? 0;
 
+  /** Natijani rasm bilan ulashadi — ilovadagi kartochkaning o'zi.
+   *
+   *  Kataklarda g'unchaning harflari turadi, yurak harf urg'uda:
+   *  ulashilgan rasmdan o'sha g'unchani boshqa odam ham taniydi. */
+  const shareResult = async () => {
+    const outcome = game.mardu
+      ? place > 0 && place <= 3
+        ? 'podium'
+        : 'field'
+      : !winner
+        ? 'draw'
+        : winner === uid
+          ? 'win'
+          : 'loss';
+    const text = [
+      `G‘uncha jangi · ${title}`,
+      lead,
+      `${site}${links.gunchaBattle}`,
+    ].join('\n');
+
+    const sent = await shareCardImage(
+      {
+        game: 'G‘uncha jangi',
+        tone:
+          outcome === 'win' ? 'win' : outcome === 'draw' ? 'draw' : outcome === 'loss' ? 'loss' : 'field',
+        verdict: title,
+        punchline: punchline(outcome, game.battleId ?? 'guncha'),
+        me: {
+          nickname: game.account?.nickname ?? 'Siz',
+          value: String(mineScore),
+          caption: `${game.revealed.mine.length} so‘z`,
+          winner: winner === uid || place === 1,
+        },
+        ...(game.mardu
+          ? { rank: { rank: place, players: game.arena.length } }
+          : {
+              rival: {
+                nickname: game.opponent?.nickname ?? 'Raqib',
+                value: String(theirScore),
+                caption: `${game.revealed.theirs.length} so‘z`,
+                winner: !!winner && winner !== uid,
+              },
+            }),
+        ...(game.puzzle
+          ? {
+              tilesLabel: 'G‘uncha harflari',
+              tiles: [
+                { text: game.puzzle.center },
+                ...game.puzzle.petals.map((unit) => ({ text: unit, strong: false })),
+              ],
+            }
+          : {}),
+      },
+      text,
+    );
+    if (sent) countShare();
+  };
+
   const title = game.mardu
     ? place === 1
       ? 'Maydon sizniki'
@@ -558,6 +619,9 @@ function Result({ game }: { game: GunchaJang }) {
             Maydonga qaytish
           </a>
         )}
+        <button className="btn btn--sm btn--ghost" onClick={() => void shareResult()}>
+          Natijani ulashish
+        </button>
         <a className="btn btn--sm btn--ghost" href={links.guncha}>
           Yakka g‘uncha
         </a>

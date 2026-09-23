@@ -749,6 +749,19 @@
   color: var(--text);
 }
 
+/* Ikki havola yonma-yon: biri so'zning noto'g'riligi haqida, ikkinchisi
+   lug'atda yo'q so'z haqida — ikkalasi bir savolning ikki tomoni. */
+.result__links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 18px;
+}
+
+.result__links .report-link {
+  margin-top: 14px;
+}
+
 .report__word {
   font-size: 24px;
   font-weight: 900;

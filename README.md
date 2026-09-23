@@ -368,6 +368,28 @@ moderatsiyaga tushadi. Sabab kalitlari ilovadagi `WordReportReason.name`
 bilan bir xil. Qoidalar `uid` talab qiladi — mehmonga avval kirish
 taklif qilinadi. So‘ztop natijasida ham, So‘zjang natijasida ham bor.
 
+### Yangi so‘z taklif qilish
+
+Yonidagi ikkinchi havola — teskarisi: lug‘atda **yo‘q**, lekin bo‘lishi
+kerak deb hisoblangan so‘z. Taklif `word_proposals` ga tushadi
+(`src/lib/wordProposal.ts`, ilovaning `WordProposal` ko‘chirmasi) va
+admin panelida alohida navbat bo‘ladi: o‘yin paytida yig‘iladigan
+takliflar u yerga ta’rifsiz, avtomatik tushadi — bu yerga esa odam
+ataylab, ma’nosi bilan yozadi.
+
+Tekshiruv mijozda: so‘z 4 dan 7 harfgacha (harf-birlikda — `gʻisht`
+to‘rt harf), faqat alifbo harflari, ta’rif 5 dan 240 belgigacha.
+Maydonning o‘zi yettitadan ortiq harf qabul qilmaydi va yonidagi
+hisoblagich harf sonini ko‘rsatadi. Lug‘atda bor so‘z moderatorga
+umuman ketmaydi — qarori oldindan ma’lum, navbatni esa bekorga
+to‘ldirardi. Xuddi shu chegaralar Firestore qoidalarida ham bor:
+u yerdagisi himoya, bu yerdagisi tushuntirish.
+
+Lug‘atga qo‘shilgan so‘z uchun muallifga 3 aqcha beriladi — lekin
+yuborishning o‘zi hech narsa bermaydi: mukofot moderator so‘zni
+qo‘shgandagina paydo bo‘ladi. Ballni ilova hisoblaydi, sayt faqat
+taklifni yuboradi.
+
 ## Hisob
 
 Uch yo‘l: **mehmon** (anonim hisob), **yangi hisob** (email yoki telefon
@@ -1357,6 +1379,28 @@ telefon brauzeri fayl tanlashda kamerani ham taklif qiladi.
 
 Logotip `public/logo.svg` dan ko‘chirilgan, lekin `Logo.tsx` da `currentColor`
 bilan qayta chizilgan — shunda u tungi rejimda ham to‘g‘ri ko‘rinadi.
+
+## Jang natijasi — rasm bo‘lib
+
+So‘zjang va G‘uncha jangining natijasi rasm bilan ulashiladi
+(`src/lib/shareCard.ts`, ilovadagi `BattleShareCard` ning ko‘chirmasi).
+Ilgari sayt faqat matn yuborardi: emoji to‘r va havola. Chatda u boshqa
+xabarlar orasida ko‘zga tashlanmasdi, ilova esa allaqachon rasm
+yuborardi — bitta natija ikki joyda ikki xil ko‘rinardi.
+
+Kartochka ekranda turmaydi: xotiradagi `canvas` ga 540×640 o‘lchamda
+chiziladi va 1080×1280 PNG bo‘lib chiqadi. Ranglar sahifaning
+yorug‘/tungi rejimiga bog‘liq emas — karta hamma qurilmada bir xil.
+Ustida natija yorlig‘i, maqtov gapi, ikki tomonning hisobi (maydonda esa
+o‘rin), javob yoki g‘uncha harflari va `sozgir.uz` turadi.
+
+Maqtov gapi `src/lib/shareLines.ts` dan, **jang raqamiga qarab**
+tanlanadi: kartochka qayta yasalsa o‘sha gap chiqadi, aks holda
+ulashilgan natija har safar boshqacha ko‘rinardi.
+
+Ulashish yo‘li ikkita: brauzer fayl ulashishni bilsa (telefonlar) tizim
+oynasi ochiladi, bilmasa rasm yuklab olinadi — kompyuterda ham odam
+qo‘lida kartochka qoladi.
 
 ## Ulashish havolalari
 

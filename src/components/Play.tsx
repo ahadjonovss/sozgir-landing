@@ -25,6 +25,7 @@ import { Aqcha } from './Units';
 import DownloadPromo from './DownloadPromo';
 import Leaderboard from './Leaderboard';
 import Modal from './Modal';
+import ProposeWord from './ProposeWord';
 import ReportWord from './ReportWord';
 
 /** Keyingi kunlik so'zgacha qolgan vaqt. */
@@ -437,7 +438,12 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
               {/* Mehmon uchun har o'yin tugagach: ilova natijani saqlaydi. */}
               {!auth.account && <DownloadPromo />}
 
-              <ReportWord word={game.puzzle.answer} length={game.puzzle.length} mode={mode} />
+              <div className="result__links">
+                <ReportWord word={game.puzzle.answer} length={game.puzzle.length} mode={mode} />
+                {/* Yonida — teskarisi: lug'atda yo'q, lekin bo'lishi
+                    kerak deb hisoblangan so'z. */}
+                <ProposeWord />
+              </div>
             </div>
           ) : (
             <Keyboard

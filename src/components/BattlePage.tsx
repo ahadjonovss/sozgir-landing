@@ -16,7 +16,9 @@ import { countShare } from '../lib/badges';
 import { inviteLink, verdictsOf, type BattlePlayer } from '../lib/battle';
 import { useMeaning } from '../lib/useMeaning';
 import { useSozjang, type Sozjang } from '../lib/useSozjang';
-import { display, pretty } from '../lib/uz';
+import { shareCardImage } from '../lib/shareCard';
+import { punchline } from '../lib/shareLines';
+import { display, pretty, split } from '../lib/uz';
 import { links, playerLink } from '../data/site';
 import Avatar from './Avatar';
 import AdBanner from './AdBanner';
@@ -26,6 +28,7 @@ import { Board, Keyboard } from './Board';
 import CodeInput from './CodeInput';
 import { Check, Clock, Copy, Send, Swords, Users } from './Icons';
 import { ReactionBurst, ReactionPicker } from './Reactions';
+import ProposeWord from './ProposeWord';
 import ReportWord from './ReportWord';
 import { VerifiedMark } from './PlayerName';
 import RotatingLine from './RotatingLine';
@@ -698,6 +701,64 @@ function Result({ game }: { game: Sozjang }) {
    *  ostida. Jang tugagan, yashirishdan ma'no yo'q. */
   const meaning = useMeaning(game.battle?.answer, game.boardLength);
 
+  /** Natijani ulashadi: avval rasm (ilovadagidek kartochka), brauzer
+   *  rasmni ko'tarmasa — eski matnli yo'l. Emoji to'r chatda boshqa
+   *  xabarlar orasida ko'zga tashlanmasdi. */
+  const shareResult = async () => {
+    const outcome = game.mardu
+      ? place <= 3 && place > 0
+        ? 'podium'
+        : 'field'
+      : mine
+        ? 'win'
+        : draw
+          ? 'draw'
+          : 'loss';
+    const seed = game.battleId ?? game.battle?.answer ?? 'jang';
+    const attempts = (player: typeof game.me) =>
+      player?.won ? `${player.attempts ?? player.rows?.length ?? 0}/${game.maxAttempts}` : `X/${game.maxAttempts}`;
+
+    const sent = await shareCardImage(
+      {
+        game: 'So‘zjang',
+        tone:
+          outcome === 'win' ? 'win' : outcome === 'draw' ? 'draw' : outcome === 'loss' ? 'loss' : 'field',
+        verdict: game.mardu ? `${place}-o‘rin` : mine ? 'G‘alaba' : draw ? 'Durang' : 'Mag‘lubiyat',
+        punchline: punchline(outcome, seed),
+        me: {
+          nickname: meName,
+          value: attempts(game.me),
+          caption: game.me?.won ? 'topdi' : 'topa olmadi',
+          winner: mine || first,
+        },
+        // Maydonda raqib yo'q: sakkiz kishini ikki ustunga bo'lib
+        // bo'lmaydi va o'rin baribir hammasini almashtiradi.
+        ...(game.mardu
+          ? { rank: { rank: place, players: game.arena.length } }
+          : {
+              rival: {
+                nickname: foeName,
+                value: attempts(game.opponent),
+                caption: game.opponent?.won ? 'topdi' : 'topa olmadi',
+                winner: !mine && !draw,
+              },
+            }),
+        chips: [`${game.boardLength} harf`],
+        // Javob harflari kartada ochiq turadi: jang tugagan, yashirishdan
+        // ma'no yo'q (ekranda ham shunday).
+        ...(game.battle?.answer
+          ? {
+              tilesLabel: 'Yashirin so‘z',
+              tiles: split(game.battle.answer).map((unit) => ({ text: unit })),
+            }
+          : {}),
+      },
+      game.shareText(),
+    );
+    if (!sent) await share(game.shareText());
+    else countShare();
+  };
+
   const title = gaveUp
     ? 'Taslim bo‘ldingiz'
     : expired
@@ -883,7 +944,10 @@ function Result({ game }: { game: Sozjang }) {
           </button>
         )}
         {!expired && (
-          <button className="btn btn--ghost" onClick={() => void share(game.shareText())}>
+          <button
+            className="btn btn--ghost"
+            onClick={() => void shareResult()}
+          >
             <Send size={16} />
             {copied ? 'Nusxa olindi' : 'Natijani ulashish'}
           </button>
@@ -893,7 +957,10 @@ function Result({ game }: { game: Sozjang }) {
       {rematch && <SendInvite target={rematch} onClose={() => setRematch(null)} />}
 
       {game.battle?.answer && (
-        <ReportWord word={game.battle.answer} length={game.boardLength} mode="battle" />
+        <div className="result__links">
+          <ReportWord word={game.battle.answer} length={game.boardLength} mode="battle" />
+          <ProposeWord />
+        </div>
       )}
     </div>
   );

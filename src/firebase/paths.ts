@@ -27,6 +27,10 @@ export const PATHS = {
   battleRatings: 'battle_ratings',
   /** So'z haqidagi murojaatlar — moderatsiyaga tushadi. */
   wordReports: 'word_reports',
+  /** Qo'lda taklif qilingan yangi so'zlar — `word_suggestions` dan
+   *  alohida navbat: u yerga o'yin paytida kiritilgan so'zlar ta'rifsiz
+   *  tushadi, bu yerga esa odam ataylab, ma'nosi bilan yozadi. */
+  wordProposals: 'word_proposals',
   /** Kategoriyalar — yordamda mavzu nomi shundan olinadi. */
   categories: 'categories',
   /** Profil rasmi: `avatars/{uid}` (64 px `thumb`) va
