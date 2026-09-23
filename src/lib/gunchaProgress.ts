@@ -19,6 +19,8 @@
  *  Umumiy ballga g'uncha `scores.ts` orqali tushadi: `scores/{uid}` ning
  *  yozuvchisi bitta bo'lishi kerak, aks holda bir o'yin ikkinchisining
  *  hissasini o'chirib yuborardi. */
+import { client } from '../firebase/client';
+import { PATHS } from '../firebase/paths';
 import { tiyin } from './aqcha';
 import type { Account } from './auth';
 import { maxScoreOf, puzzleId, signatureOf, wordOf, type GunchaPuzzle } from './guncha';
@@ -138,7 +140,11 @@ export function saveRound({
   } satisfies Round);
   write(TOTAL_KEY, next);
 
-  if (account) void pushGunchaScore(account, next);
+  if (account) {
+    void pushGunchaScore(account, next);
+    // Nusxa kutilmaydi: g'uncha aloqasiz ham o'ynaladi.
+    void pushTotals(account.uid, next);
+  }
   return next;
 }
 
@@ -156,12 +162,80 @@ function pushGunchaScore(account: Account, totals: GunchaTotals): Promise<void> 
   });
 }
 
-/** Kirilgandan keyin brauzerdagi g'uncha balli cloud'ga chiqadi —
- *  mehmon sifatida o'ynalgan g'uncha yo'qolib ketmasin. */
-export function flushGuncha(account: Account): Promise<void> {
+/* ── Buluddagi nusxa ──────────────────────────────────────────────────
+   Yig'ma hisob brauzerda turadi, ya'ni hisob almashganda u yangi
+   hisobning balliga qo'shilib ketardi. Endi nusxasi bulutda
+   (`users/{uid}/guncha/totals`) va son o'z egasida qoladi: yangi
+   hisobda ball shu nusxadan tiklanadi. Yon foyda — tozalangan
+   brauzerda g'uncha balli yo'qolmaydi.
+
+   Ilovadagi tartib bilan bir xil (`GunchaRepositoryImpl`): qurilmadagi
+   son asosiy manba, bulut esa nusxa. */
+
+/** Nusxani yangilaydi. Xato yutiladi: nusxa yozilmasa ham ball
+ *  brauzerda joyida qoladi va keyingi o'zgarishda yana yoziladi. */
+async function pushTotals(uid: string, totals: GunchaTotals): Promise<void> {
+  try {
+    const { db } = await client();
+    const { doc, setDoc, serverTimestamp } = await import('firebase/firestore/lite');
+    await setDoc(
+      doc(db, PATHS.users, uid, PATHS.guncha, PATHS.gunchaTotals),
+      { score: totals.score, words: totals.words, updatedAt: serverTimestamp() },
+      { merge: true },
+    );
+  } catch {
+    // Aloqa yo'q — keyingi topilgan so'zda qaytadan yoziladi.
+  }
+}
+
+/** Buluddagi nusxa. Yozuv yo'q yoki aloqa uzilgan bo'lsa — bo'sh. */
+async function fetchTotals(uid: string): Promise<GunchaTotals> {
+  try {
+    const { db } = await client();
+    const { doc, getDoc } = await import('firebase/firestore/lite');
+    const data = (
+      await getDoc(doc(db, PATHS.users, uid, PATHS.guncha, PATHS.gunchaTotals))
+    ).data();
+    return { score: Number(data?.score) || 0, words: Number(data?.words) || 0 };
+  } catch {
+    return { score: 0, words: 0 };
+  }
+}
+
+/** G'unchaning brauzerdagi izi — yig'ma hisob va raundlar.
+ *
+ *  Hisob almashganda chaqiriladi: ball o'z egasida qoladi (bulutdagi
+ *  nusxada), begona hisobning balliga qo'shilmaydi. */
+export function clearGuncha(): void {
+  try {
+    const keys: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key === TOTAL_KEY || key?.startsWith(ROUND_KEY(''))) keys.push(key);
+    }
+    for (const key of keys) localStorage.removeItem(key);
+  } catch {
+    // Tozalanmasa — hech bo'lmasa yangi hisob o'z nusxasidan tiklanadi.
+  }
+}
+
+/** Kirilgandan keyin ballni joyiga qo'yadi.
+ *
+ *  Brauzerda ball bo'lsa — u cloud'ga chiqadi (mehmon sifatida
+ *  o'ynalgan g'uncha yo'qolib ketmasin). Bo'sh bo'lsa — demak bu yangi
+ *  brauzer yoki hisob almashgan: ball buluddagi nusxadan tiklanadi. */
+export async function syncGuncha(account: Account): Promise<GunchaTotals> {
   const totals = readTotals();
-  if (totals.score <= 0) return Promise.resolve();
-  return pushGunchaScore(account, totals);
+  if (totals.score > 0 || totals.words > 0) {
+    await pushGunchaScore(account, totals);
+    await pushTotals(account.uid, totals);
+    return totals;
+  }
+
+  const cloud = await fetchTotals(account.uid);
+  if (cloud.score <= 0 && cloud.words <= 0) return totals;
+  write(TOTAL_KEY, cloud);
+  return cloud;
 }
 
 /** Shu g'unchada yig'ilgan ball va darajaning ulushi. */

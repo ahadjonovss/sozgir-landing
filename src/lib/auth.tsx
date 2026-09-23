@@ -31,6 +31,7 @@ import { client } from '../firebase/client';
 import { authError } from '../firebase/errors';
 import { saveProfile, type ProfileDetails } from '../firebase/profile';
 import { patchBattleNickname } from './battleRating';
+import { claimDevice, releaseDevice } from './device';
 import { toLoginEmail } from './loginId';
 import {
   clearStoredNickname,
@@ -168,6 +169,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       flagSession(next !== null);
       setReady(true);
       if (!next) return;
+      // Yozuvlar egasi — `adoptNickname` dan **oldin**: u nomning egasini
+      // yangi hisobga o'tkazadi va almashuv belgisi yo'qolib qolardi.
+      claimDevice(next.uid);
       setNickname(adoptNickname(next));
     });
   }, []);
@@ -361,9 +365,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { signOut: leave } = await import('firebase/auth');
     await leave(auth).catch(() => undefined);
     flagSession(false);
+    // Ball, statistika va topilgan so'zlar hisob bilan ketadi: ular
+    // bulutda o'z egasida qoladi va qaytib kirilganda tiklanadi. Aks
+    // holda keyingi odam avvalgi hisobning ballini meros qilib olardi.
     // Nom ataylab qoladi: chiqqan odam mehmon sifatida o'sha nom bilan
     // o'ynayveradi. Boshqa hisobga kirilsa `adoptNickname` uni egasiga
     // qarab o'zi tashlaydi.
+    releaseDevice();
   }, [user]);
 
   const account = useMemo<Account | null>(() => {

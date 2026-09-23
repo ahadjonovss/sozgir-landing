@@ -386,7 +386,34 @@ barcha rejim va uzunliklar bo‘yicha `played` yig‘indisi) taxta yopiladi va
 
 Taxallus tekshiruvi (`src/lib/nickname.ts`) ilovaning `nickname_filter.dart`
 ko‘chirmasi va Firestore qoidalaridagi ro‘yxat bilan bir xil — mos kelmasa
-yozuv **serverda** rad etiladi.
+yozuv **serverda** rad etiladi. Ro‘yxatdagi so‘kinishlardan tashqari yana
+bitta to‘siq bor: taxallus reytingdagi **«Siz» yorlig‘ini** takrorlay
+olmaydi. Jadvalda o‘z qatori shu yorliq bilan belgilanadi va kimdir uni
+nomiga yozib qo‘ysa («Otabek • Siz»), begona qator ham o‘ziniki bo‘lib
+ko‘rinardi. Yorliqning o‘zi endi matn emas, alohida element
+(`src/components/YouTag.tsx`), eski nomlardagi quyruq esa birinchi
+yozuvdayoq o‘zi tushib qoladi (`stripYouTag`).
+
+### Hisob almashganda
+
+Bugungi ball brauzerda, **yig‘indining farqi** bilan hisoblanadi: hozirgi
+yig‘indi minus kun boshidagi yig‘indi (`src/lib/scores.ts`). Hisob
+almashganda yangi hisobning butun tarixi bulutdan tiklanadi, baza esa
+avvalgi hisobdan qolardi — farq «bugun ishlangan ball» bo‘lib kunlik
+jadvalga tushardi.
+
+Shuning uchun brauzerdagi yozuvlarning **egasi** belgilanadi
+(`src/lib/device.ts`, `sozgir.scores.owner`). Uid almashsa, ballga
+aylanadigan hamma narsa tashlanadi va kun **hozirdan** boshlanadi:
+topilgan so‘zlar, statistika, g‘uncha yig‘indisi va kun hisobi. Hech
+narsa yo‘qolmaydi — hammasi bulutda o‘z egasida turadi va qaytib
+kirilganda tiklanadi. Mehmon sifatida o‘ynalgani, aksincha, kirgan
+hisobga **qo‘shiladi**: uid‘siz o‘ynagan odamda egasi ham yo‘q edi.
+
+G‘unchaning yig‘ma hisobi shu sababdan bulutga ham ko‘chiriladi
+(`users/{uid}/guncha/totals`): u brauzerda turadi va almashuvda yangi
+hisobning balliga qo‘shilib ketardi. Endi ball o‘z egasida qoladi — yon
+foyda: tozalangan brauzerda g‘uncha balli yo‘qolmaydi.
 
 ### Telefon raqam bilan kirish
 

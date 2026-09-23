@@ -15,6 +15,14 @@ export const PATHS = {
    *  «bugun qancha» degan savolga javob chiqmaydi. */
   dailyScores: 'daily_scores',
   entries: 'entries',
+  /** G'unchaning yig'ma hisobi — `users/{uid}/guncha/totals`.
+   *
+   *  Xom ball o'yinning o'zida, ya'ni brauzerda turadi (`docs/scores.md`).
+   *  Buluddagi nusxa ikki ish uchun: yangi qurilmada ball tiklanadi va
+   *  hisob almashganda son **o'z egasida** qoladi — ilgari u joyida
+   *  qolib, yangi hisobning balliga qo'shilib ketardi. */
+  guncha: 'guncha',
+  gunchaTotals: 'totals',
   /** So'zjang reytingi — `battle_ratings/{uid}`, hammaga o'qish ochiq. */
   battleRatings: 'battle_ratings',
   /** So'z haqidagi murojaatlar — moderatsiyaga tushadi. */

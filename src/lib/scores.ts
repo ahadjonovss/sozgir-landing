@@ -122,6 +122,21 @@ const DAY_KEY = 'sozgir.scores.day';
  *  eskirgan holda qoldirardi. */
 const PUSHED_DAY_KEY = 'sozgir.scores.pushedDay';
 
+/** Kun hisobini tashlaydi — kun keyingi ballda **hozirdan** boshlanadi
+ *  (`base = total`).
+ *
+ *  Hisob almashganda chaqiriladi: bugungi ball yig'indining farqi bilan
+ *  hisoblanadi va baza avvalgi hisobdan qolsa, yangi hisobning butun
+ *  tarixi «bugun ishlangan ball» bo'lib kunlik jadvalga tushardi. */
+export function clearDayTally(): void {
+  try {
+    localStorage.removeItem(DAY_KEY);
+    localStorage.removeItem(PUSHED_DAY_KEY);
+  } catch {
+    // Tozalanmasa ham `rollDay` manfiy farqni nolga tushiradi.
+  }
+}
+
 function readJson<T>(key: string, fallback: T): T {
   try {
     const raw = localStorage.getItem(key);

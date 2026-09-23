@@ -427,6 +427,29 @@ export async function flushPending(account: Account): Promise<void> {
   }
 }
 
+/** Brauzerdagi o'yin izini tozalaydi: topilgan so'zlar va statistika.
+ *
+ *  Hisob almashganda chaqiriladi (`claimDevice`). Ikkovi ham ballga
+ *  aylanadi — avvalgi hisobning so'zlari yangi hisobning yig'indisiga
+ *  qo'shilib ketmasligi kerak. Yo'qolmaydi: har ikkalasi bulutda ham
+ *  turadi va kirilganda o'z egasiga qaytadi (`restoreFromCloud`).
+ *
+ *  Navbatdagi natijalar (`sozgir.pending`) tegilmaydi — ular mehmon
+ *  holatida o'ynalgan, ya'ni hozir kirayotgan odamniki. */
+export function clearLocalProgress(): void {
+  try {
+    localStorage.removeItem(FOUND_KEY);
+    for (const mode of ['daily', 'endless'] as Mode[]) {
+      for (const length of LENGTHS) localStorage.removeItem(STATS_KEY(mode, length));
+    }
+  } catch {
+    // Tozalanmasa — hech bo'lmasa kun hisobi hozirdan boshlanadi.
+  }
+  // Tiklash bir sessiyada bir marta bo'ladi: yangi hisob o'z tarixini
+  // olib kelishi uchun belgi ham tashlanadi.
+  restoring.clear();
+}
+
 /** Cloud'dan tiklash bir sessiyada bir marta — takror so'rov qilmaslik
  *  uchun natija eslab qolinadi. */
 const restoring = new Map<string, Promise<void>>();

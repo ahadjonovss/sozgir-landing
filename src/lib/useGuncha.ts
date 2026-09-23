@@ -28,7 +28,7 @@ import { gunchaLexicon } from './gunchaLexicon';
 import { markPlayedAt, unlockBadge } from './badges';
 import { fetchDailyGuncha } from './gunchaDaily';
 import {
-  flushGuncha,
+  syncGuncha,
   nextPracticeNumber,
   practiceNumber,
   readRound,
@@ -114,9 +114,11 @@ export function useGuncha() {
   );
 
   // Kirilganda mehmon holatida yig'ilgan ball cloud'ga chiqadi — aks
-  // holda u keyingi topilgan so'zgacha reytingda ko'rinmasdi.
+  // holda u keyingi topilgan so'zgacha reytingda ko'rinmasdi. Brauzerda
+  // ball bo'lmasa (yangi brauzer yoki hisob almashgan) — aksincha,
+  // buluddagi nusxadan tiklanadi.
   useEffect(() => {
-    if (account) void flushGuncha(account);
+    if (account) void syncGuncha(account);
   }, [account]);
 
   // G'unchani yasash: kunlikda harflar serverdan, mashqda lug'atdan.
