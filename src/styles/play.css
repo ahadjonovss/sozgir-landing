@@ -5205,3 +5205,121 @@
     font-size: 13.5px;
   }
 }
+
+/* ── Maydon sanog'i: halqa bo'ylab yugurgan yoy ───────────────────────
+   Maydonda savol «kimlar bilan bellashyapman» — shuning uchun yuzma-yuz
+   afisha emas, halqa: hamma o'yinchi doira bo'ylab, o'zim tepada. */
+
+.mcount {
+  padding: clamp(16px, 3vw, 26px);
+}
+
+.mcount__ring {
+  position: relative;
+  width: min(340px, 82vw);
+  aspect-ratio: 1;
+}
+
+.mcount__arc {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* Yoy tepadan boshlanadi — o'zim turgan joydan. */
+  transform: rotate(-90deg);
+}
+
+.mcount__track {
+  fill: none;
+  stroke: var(--divider);
+  stroke-width: 2;
+}
+
+/* Yoyning uzunligi kadrma-kadr o'sadi (`pathLength` 1 ga keltirilgan),
+   ya'ni u har soniyada halqaning uchdan birini bosib o'tadi. */
+.mcount__sweep {
+  fill: none;
+  stroke: var(--green);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+}
+
+.mcount__mid {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 2px;
+}
+
+.mcount__mid b {
+  color: var(--green);
+  font-size: 52px;
+  font-weight: 900;
+  line-height: 1;
+  animation: count-in 1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.mcount__mid i {
+  color: var(--text-2);
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 700;
+}
+
+/* Halqadagi yuz. O'rni foizda berilgan (`spot`), shuning uchun markazga
+   surish shu yerda. */
+.mcount__who {
+  position: absolute;
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  width: 66px;
+  margin: -33px 0 0 -33px;
+  opacity: 0.45;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+/* Yoy yo'lidagi odamni «yoqib» o'tadi — «1» da butun maydon yonib
+   bo'ladi. */
+.mcount__who--on {
+  opacity: 1;
+  transform: scale(1.06);
+}
+
+.mcount__who em {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.mcount__who--me .avatar-mark,
+.mcount__who--me img {
+  box-shadow: 0 0 0 2px var(--green);
+}
+
+/* Sakkiztadan ortig'i oxirgi o'rinda songa yig'iladi. */
+.mcount__who--more b {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--green-soft);
+  color: var(--green-deep);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mcount__mid b,
+  .mcount__who {
+    animation: none;
+    transition: none;
+  }
+}

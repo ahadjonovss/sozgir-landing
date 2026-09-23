@@ -637,3 +637,123 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* ── Jang boshlanishidagi sanoq ───────────────────────────────────────
+   Yakkama-yakkada gul ochiladi (`GunchaCountdown`), maydonda esa halqa
+   aylanadi (`MarduCountdown`). Ikkalasi ham uch soniya turadi va jangni
+   kechiktirmaydi: vaqtni server sanaydi. */
+
+.gcount {
+  gap: 22px;
+}
+
+.gcount__faces {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+  width: 100%;
+  max-width: 420px;
+}
+
+.gcount__face {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+/* Halqa rangi tomonni aytadi: o'zimniki yashil, raqibniki ko'k —
+   afishadagi («Versus») bo'linish bilan bir xil til. */
+.gcount__ring {
+  display: grid;
+  place-items: center;
+  padding: 3px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.gcount__face--me .gcount__ring {
+  box-shadow: inset 0 0 0 2px var(--green);
+}
+
+.gcount__name {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.gcount__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+}
+
+/* Ikki tomonni ajratuvchi — gulning changchisi, So'zjangdagi «VS»
+   rombi emas: bu yerda til g'unchaniki. */
+.gcount__stamen {
+  display: grid;
+  gap: 4px;
+  justify-items: center;
+  align-self: center;
+}
+
+.gcount__stamen i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--yellow);
+  opacity: 0.85;
+}
+
+.gcount__flower {
+  width: min(260px, 70vw);
+  height: auto;
+}
+
+/* Barglar birma-bir ochiladi: har soniyada ikkitasi. «1» da gul to'liq
+   ochilgan bo'ladi va keyingi kadrda o'sha joyda harflar paydo bo'ladi. */
+.gcount__petal path {
+  fill: var(--key-bg);
+  stroke: var(--tile-border);
+  stroke-width: 0.9;
+  opacity: 0.35;
+  transition: opacity 0.3s ease, fill 0.3s ease, stroke 0.3s ease;
+}
+
+.gcount__petal--on path {
+  fill: color-mix(in srgb, var(--green) 22%, var(--key-bg));
+  stroke: var(--green);
+  opacity: 1;
+}
+
+/* Barglar orasidagi bezak — guldagi «changchi»ning o'zi. */
+.gcount__dot {
+  fill: var(--tile-border);
+}
+
+.gcount__hex {
+  fill: var(--green);
+}
+
+.gcount__num {
+  fill: #fff;
+  font-size: 16px;
+  font-weight: 900;
+  text-anchor: middle;
+  dominant-baseline: central;
+  animation: count-in 1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gcount__num {
+    animation: none;
+  }
+}

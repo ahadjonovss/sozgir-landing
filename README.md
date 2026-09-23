@@ -664,6 +664,33 @@ Serverdagi funksiyalar: `gunchaCreate` (kod bilan chaqiruv), `gunchaWord`
 So‘zjangnikini ishlatadi — `battleQuick` va `battleJoin` ga `game`
 yuboriladi.
 
+**Boshlanish sanog‘i.** Raqib qo‘shilgach taxta darhol ochilmaydi:
+So‘zjangdagidek uch soniyalik sanoq turadi, ya’ni ikkalangiz bir paytda
+boshlaganingiz ko‘rinib turadi. Ko‘rinishi g‘unchaniki
+(`src/components/GunchaCountdown.tsx`): raqam yashil oltiburchak ichida,
+atrofida olti barg ochilib boradi — «1» da gul to‘liq ochilgan bo‘ladi
+va keyingi kadrda o‘sha joyda harflar paydo bo‘ladi. Tepasida ikki yuz:
+avatar, ism va daraja nishoni bilan o‘lja (reyting `battle_ratings` dan
+alohida o‘qiladi va **kutilmaydi** — kech kelsa yuz reytingsiz
+chiziladi).
+
+Sanoq jangni **kechiktirmaydi**: vaqtni server sanaydi va uni ushlab
+turib bo‘lmaydi. Faqat endigina boshlangan jangda chiqadi ham — ekrandan
+chiqib qaytgan odam uni ko‘rmaydi, aks holda jang o‘rtasida turib
+«boshlanmoqda» deyilardi. Ilova buni `startedAt` bo‘yicha ajratadi,
+saytda esa qolgan vaqt javob beradi: o‘n soniyadan ko‘pi ketgan bo‘lsa —
+bu qaytib kirish.
+
+Maydonda (uch kishidan boshlab) sanoq boshqacha — halqa
+(`src/components/MarduCountdown.tsx`): hamma o‘yinchi doira bo‘ylab
+tizilgan, o‘zim tepada, o‘rtada raqam va odamlar soni. Halqa bo‘ylab
+yugurgan yoy har soniyada uchdan bir aylanadi va yo‘lidagi odamni
+«yoqib» o‘tadi; sakkiztadan ortig‘i oxirgi o‘rindagi «+N» ga yig‘iladi.
+Sabab: yuzma-yuz afisha «kim bilan» degan savolga javob beradi, maydonda
+esa savol «kimlar bilan». Shakl o‘yinchilar **sonidan** kelib chiqadi,
+hujjat turidan emas — ikki kishiga tushib qolgan maydonda o‘yinning o‘z
+sanog‘i chiqadi (So‘zjangda afisha, G‘unchada gul).
+
 **Vaqt.** Ekrandagi teskari sanoq — ko‘rsatma, chegara emas: chegarani
 server hal qiladi va har so‘zni o‘z soati bo‘yicha tekshiradi. Shuning
 uchun sanoq `Date.now()` ga emas, `performance.now()` ga tayanadi —

@@ -20,9 +20,11 @@ import ArenaStandings from './ArenaStandings';
 import ArenaTiles from './ArenaTiles';
 import Avatar from './Avatar';
 import CodeInput from './CodeInput';
+import GunchaCountdown from './GunchaCountdown';
 import GunchaFlower from './GunchaFlower';
 import { Check, Copy, Swords, Users } from './Icons';
 import Modal from './Modal';
+import MarduCountdown from './MarduCountdown';
 import { ReactionBurst, ReactionPicker } from './Reactions';
 import { VerifiedMark } from './PlayerName';
 import ScoreRules from './ScoreRules';
@@ -44,6 +46,7 @@ const clock = (seconds: number) =>
 export default function GunchaBattlePage() {
   const game = useGunchaJang();
   const { account, openPrompt } = useAuth();
+  const intro = useIntro(game);
 
   if (!account) {
     return (
@@ -76,7 +79,23 @@ export default function GunchaBattlePage() {
         {game.phase === 'searching' && <Searching game={game} />}
         {game.phase === 'loading' && <p className="guncha__note">Jang ochilmoqda…</p>}
         {game.phase === 'waiting' && <Waiting game={game} />}
-        {(game.phase === 'playing' || game.phase === 'finishing') && (
+        {/* Jang boshlanishida uch soniyalik sanoq. Maydonda (uch
+            kishidan boshlab) halqa, yakkama-yakkada esa ochilayotgan
+            gul — shakl o'yinchilar sonidan kelib chiqadi. */}
+        {intro > 0 &&
+          (game.phase === 'playing' || game.phase === 'finishing') &&
+          (game.arena.length > 2 ? (
+            <MarduCountdown rows={game.arena} />
+          ) : (
+            <GunchaCountdown
+              me={game.account?.nickname ?? 'Siz'}
+              meUid={game.account?.uid}
+              opponent={game.opponent?.nickname ?? 'Raqib'}
+              opponentUid={game.opponentUid}
+              left={intro}
+            />
+          ))}
+        {intro === 0 && (game.phase === 'playing' || game.phase === 'finishing') && (
           <Playing game={game} />
         )}
         {game.phase === 'finished' && <Result game={game} />}
@@ -84,6 +103,52 @@ export default function GunchaBattlePage() {
     </section>
   );
 }
+
+/** Sanoqda qolgan soniya; sanoq yo'q bo'lsa 0.
+ *
+ *  Ikki farqi bor va ikkalasi ham ilovadagidek:
+ *
+ *  * **sanoq jangni kechiktirmaydi** — vaqtni server sanaydi (`endsAt`)
+ *    va uni ushlab turib bo'lmaydi; sanoq shu uch soniyani taxta o'rniga
+ *    gulning ochilishi bilan to'ldiradi, xolos;
+ *  * **faqat endigina boshlangan jangda chiqadi** — ekrandan chiqib
+ *    qaytgan odam uni ko'rmaydi: jang o'rtasida turib «boshlanmoqda»
+ *    deyish aldov bo'lardi. Ilova buni `startedAt` bo'yicha ajratadi,
+ *    saytda esa o'sha savolga qolgan vaqt javob beradi: o'n soniyadan
+ *    ko'pi ketgan bo'lsa — bu qaytib kirish. */
+function useIntro(game: GunchaJang): number {
+  const [endsAt, setEndsAt] = useState<number | null>(null);
+  const seen = useRef(false);
+  const [left, setLeft] = useState(0);
+
+  const fresh = game.phase === 'playing' && game.left > GUNCHA_SECONDS - 10;
+  useEffect(() => {
+    if (!fresh || seen.current) return;
+    seen.current = true;
+    setEndsAt(Date.now() + INTRO_MS);
+    setLeft(Math.round(INTRO_MS / 1000));
+  }, [fresh]);
+
+  // Taymer alohida va muddati mutlaq: React effektni ikki marta
+  // chaqirsa ham sanoq o'z paytida tugaydi.
+  useEffect(() => {
+    if (endsAt === null) return;
+    const timer = window.setInterval(() => {
+      const ms = endsAt - Date.now();
+      if (ms <= 0) {
+        setEndsAt(null);
+        setLeft(0);
+        return;
+      }
+      setLeft(Math.ceil(ms / 1000));
+    }, 200);
+    return () => window.clearInterval(timer);
+  }, [endsAt]);
+
+  return left;
+}
+
+const INTRO_MS = 3000;
 
 /* ── Lobbi ───────────────────────────────────────────────────────────── */
 

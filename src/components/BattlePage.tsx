@@ -31,6 +31,7 @@ import { VerifiedMark } from './PlayerName';
 import RotatingLine from './RotatingLine';
 import ScoreRules from './ScoreRules';
 import SendInvite, { type InviteTarget } from './SendInvite';
+import MarduCountdown from './MarduCountdown';
 import Versus from './Versus';
 import Modal from './Modal';
 import TelegramBanner from './TelegramBanner';
@@ -944,7 +945,14 @@ export default function BattlePage() {
             {game.phase === 'searching' && <Searching game={game} />}
             {game.phase === 'loading' && <Loading />}
             {game.phase === 'waiting' && <Waiting game={game} />}
-            {game.phase === 'playing' && intro && (
+            {/* Maydonda (uch kishidan boshlab) afisha o'rnida halqa:
+                yuzma-yuz arena yolg'iz juftni ko'rsatardi, maydonda esa
+                savol «kimlar bilan» — shakl o'yinchilar sonidan kelib
+                chiqadi. */}
+            {game.phase === 'playing' && intro && game.arena.length > 2 && (
+              <MarduCountdown rows={game.arena} />
+            )}
+            {game.phase === 'playing' && intro && game.arena.length <= 2 && (
               <div className="stage">
                 <Versus
                   me={pretty(game.account?.nickname ?? 'Siz')}
