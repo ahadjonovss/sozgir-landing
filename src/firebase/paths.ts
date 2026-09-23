@@ -25,6 +25,9 @@ export const PATHS = {
   gunchaTotals: 'totals',
   /** So'zjang reytingi — `battle_ratings/{uid}`, hammaga o'qish ochiq. */
   battleRatings: 'battle_ratings',
+  /** Homiylar hujjati — `donors/{uid}`: yig'indi (server yozadi) va
+   *  odam tanlagan muhr (`mark`, faqat egasi yozadi). */
+  donors: 'donors',
   /** So'z haqidagi murojaatlar — moderatsiyaga tushadi. */
   wordReports: 'word_reports',
   /** Qo'lda taklif qilingan yangi so'zlar — `word_suggestions` dan

@@ -217,6 +217,32 @@ hozircha bunday ko‘rinish yo‘q — ko‘chirilsa, yig‘indini serverda
 (`onDonationWrite` → `scores/{uid}.donated`) yozib qo‘ygan ma’qul, shunda
 ikkalasi bitta maydondan o‘qiydi.
 
+### Muhrlar
+
+Muhr — qo‘llagan odam **o‘zi tanlaydigan** kichik belgi, ism yonida
+turadi (Telegramdagi emoji-maqom kabi): reytingda, jangda, profilda —
+hamma joyda, chunki u `PlayerName` ichida chiqadi. Nishondan farqi:
+nishon qilingan ishning izi, muhr esa tanlov. Darajadan ham farq qiladi:
+daraja yig‘indidan o‘zi kelib chiqadi, muhr esa ochilgan ro‘yxatdan
+tanlanadi — aynan shu tanlov muhrni qiziq qiladi, ikki «Zodagon» ham
+bir xil ko‘rinmaydi.
+
+O‘n ikkita muhr bor va ular daraja bo‘yicha ochiladi
+(`src/lib/donorMark.ts`, rasmlar `public/muhr/`, ilovaning
+`assets/marks/` idan). Tanlash homiylik sahifasida
+(`src/components/DonorMarks.tsx`): darajasi yetgani bosiladi, qolgani
+qulfda turadi va qaysi darajada ochilishini aytadi. Bir vaqtda bittasi
+turadi — ikkitasi ism yonida yonma-yon turgan zahoti ism o‘qilmay
+qoladi; qayta bosilsa muhr olib tashlanadi.
+
+Tanlangan muhr `donors/{uid}.mark` da, yig‘indi bilan bir hujjatda:
+serverning o‘zi `total` ni yozadi, `mark` ni esa faqat egasi
+o‘zgartiradi va qoida darajani yana bir bor tekshiradi. Sayt o‘qishda
+ham tekshiradi: **muhr faqat darajasi yetganda chiziladi** — moderator
+donatni tuzatib yig‘indi kamaysa, muhr o‘zi yo‘qoladi va daraja qaytsa
+o‘zi qaytadi. Ro‘yxat bitta REST so‘rovda olinadi va bir soat keshda
+turadi — darajalar bilan bir uslubda.
+
 ## Reklama
 
 Ilovadagi `lib/core/ads/` ning veb muqobili: `src/lib/ads.ts` (sozlama,

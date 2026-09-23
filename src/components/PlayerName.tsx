@@ -13,10 +13,40 @@
  *  `VerifiedThanksSheet`). */
 import { useState } from 'react';
 import { useAuth } from '../lib/auth';
+import { useDonorMark } from '../lib/donorMark';
 import { VERIFIED, useVerified } from '../lib/verified';
 import { pretty } from '../lib/uz';
 import Modal from './Modal';
 import { Person } from './Icons';
+
+/** Homiy muhri — ism yonidagi kichik belgi.
+ *
+ *  Tasdiq belgisi bilan bir qatorda turadi, lekin boshqa narsani
+ *  aytadi: tasdiq — «bu o'sha odam», muhr — «bu odam loyihani
+ *  qo'llagan». Ro'yxatlarda bosilmaydi: qator bosilsa profil ochilishi
+ *  kerak, tugma ichida tugma bo'lmaydi. */
+export function DonorMarkIcon({
+  uid,
+  size = 15,
+}: {
+  uid: string | null | undefined;
+  size?: number;
+}) {
+  const mark = useDonorMark(uid);
+  if (!mark) return null;
+  return (
+    <img
+      className="donor-mark"
+      src={`/muhr/${mark.id}.png`}
+      alt={mark.label}
+      title={`${mark.label} — ${mark.story}`}
+      width={size}
+      height={size}
+      loading="lazy"
+      decoding="async"
+    />
+  );
+}
 
 /** Faqat belgi — nomi boshqa joyda chizilgan bo'lsa. */
 export function VerifiedMark({
@@ -131,6 +161,7 @@ export default function PlayerName({
     <>
       {pretty(name)}
       <VerifiedMark uid={uid} size={size} />
+      <DonorMarkIcon uid={uid} size={size - 1} />
     </>
   );
 }

@@ -29,6 +29,7 @@ import {
 } from '../lib/support';
 import Avatar from './Avatar';
 import DonorChip from './DonorChip';
+import DonorMarks from './DonorMarks';
 import { DonorBadge } from './Units';
 import PlayerName from './PlayerName';
 import YouTag from './YouTag';
@@ -225,6 +226,10 @@ export default function SupportPage() {
                 onRegister={() => openPrompt('register')}
               />
             </div>
+
+            {/* Muhr — qo'llagan odamning ism yonidagi belgisi. Faqat
+                kirganga ko'rinadi: tanlash hisobga yoziladi. */}
+            {account && <DonorMarks uid={account.uid} />}
 
             <div className="panel">
               <div className="panel__head">

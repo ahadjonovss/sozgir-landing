@@ -84,12 +84,21 @@ export async function loadBalance(): Promise<SupportBalance> {
 
 /** Oxirgi donatlar.
  *
- *  Ataylab `orderBy` ishlatilmaydi: Firestore `createdAt` maydoni yo'q
- *  hujjatlarni saralashda butunlay tashlab ketadi, adminka orqali qo'lda
- *  qo'shilgan donatda esa u bo'lmasligi mumkin. Shuning uchun bir necha
- *  o'nlab yozuv olinadi va tartib shu yerda beriladi — ilovadagidek. */
+ *  Saralash **serverda** — ilovadagidek (`SupportBalanceDataSource`).
+ *  Ilgari tartib mijozda berilardi: `createdAt` maydoni yo'q hujjatni
+ *  Firestore saralashda butunlay tashlab ketadi, adminka qo'lda
+ *  qo'shgan donatda esa sana bo'lmasligi mumkin edi. Endi sanani server
+ *  qo'yadi (`onDonationWrite` uni yozuv paytida to'ldiradi), ya'ni
+ *  sanasiz hujjat qolmadi.
+ *
+ *  Tartibsiz `limit` esa yomonroq ish qilardi: Firestore hujjat
+ *  nomi bo'yicha birinchi ellikta yozuvni beradi va «oxirgi donatlar»
+ *  o'sha tasodifiy to'plamning eng yangisi bo'lib qolardi. */
 export async function loadDonations(limit = 10): Promise<Donation[]> {
-  const docs = await listDocs('donations', { pageSize: 50 });
+  const docs = await listDocs('donations', {
+    orderBy: 'createdAt desc',
+    pageSize: limit,
+  });
 
   return docs
     .map((doc) => {
@@ -102,9 +111,9 @@ export async function loadDonations(limit = 10): Promise<Donation[]> {
         at: typeof created === 'string' ? Date.parse(created) || 0 : 0,
       };
     })
-    .filter((donation) => donation.amount > 0)
-    .sort((a, b) => b.at - a.at)
-    .slice(0, limit);
+    // Summasi yo'q yoki manfiy hujjat ro'yxatga ham, hisobga ham
+    // kirmaydi — serverdagi `rebuildDonations` xuddi shunday qiladi.
+    .filter((donation) => donation.amount > 0);
 }
 
 /** To'lovni ochadi va inPAY sahifasining manzilini qaytaradi.

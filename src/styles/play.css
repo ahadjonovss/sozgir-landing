@@ -931,6 +931,15 @@
   vertical-align: -0.15em;
 }
 
+/* Homiy muhri — ism yonida, tasdiq belgisi bilan bir qatorda. Ikkisi
+   ham kichik: ism birinchi o'qiladi, belgilar keyin. */
+.donor-mark {
+  flex: none;
+  margin-inline-start: 4px;
+  object-fit: contain;
+  vertical-align: -0.15em;
+}
+
 /* Profildagi belgi bosiladi: nishon nimaligi oynada aytiladi. Ilgari
    izoh belgining tepasida chiqardi — endi u imtiyozlar ro'yxati bilan
    keladi va tor joyga sig'maydi. */
