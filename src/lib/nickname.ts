@@ -69,6 +69,58 @@ function hasBannedWord(value: string): boolean {
   return false;
 }
 
+/* ── «Siz» yorlig'i ───────────────────────────────────────────────────
+   Ro'yxatda o'z qatori «Siz» yorlig'i bilan belgilanadi. Kimdir shu
+   quyruqni taxallusiga yozib qo'ysa («Otabek • Siz»), begona qator ham
+   o'ziniki bo'lib ko'rinardi va odam boshqaning ballini o'ziniki deb
+   o'qirdi. Yorliqning o'zi endi alohida element ([YouTag]), lekin nom
+   darajasida ham to'siladi: bitta ro'yxatda ikki xil «Siz» turmasin.
+
+   Shu qoida Firestore'da ham bor (`noYouTag` → `cleanNickname`), ya'ni
+   filtrdan o'tmagan nom bilan yozuv serverda rad etiladi. */
+
+/** Yorliqning bir shaklga keltirilgan ko'rinishi. */
+const YOU_TAG = 'siz';
+
+/** Oxirgi ajratgichdan keyingi bo'lak — taxallusning «quyrug'i».
+ *
+ *  Uzunligi cheklangan: yorliq qisqa so'z, undan uzun quyruq esa
+ *  odamning o'z ismi bo'ladi («Abdu-Azizbek» tutilib qolmasin). */
+const YOU_TAIL = /[·‧∙⋅•●◦∘*|/\\,:;~_\-–—]+\s*(\S{1,5})\s*$/;
+
+/** Taxallus reytingdagi «Siz» yorlig'ini taqlid qiladimi.
+ *
+ *  Ajratgich turi ahamiyatsiz (`·`, `•`, `-`, `|`, `,`), yozilishi ham:
+ *  quyruq [plain] dan o'tadi, ya'ni `S1z` ham, `сиз` ham tutiladi. */
+export function imitatesYouTag(value: string): boolean {
+  const trimmed = value.trim();
+  if (!trimmed) return false;
+  if (plain(trimmed) === YOU_TAG) return true;
+
+  const tail = YOU_TAIL.exec(trimmed);
+  return !!tail && plain(tail[1]) === YOU_TAG;
+}
+
+/** Taxallusdagi «Siz» quyrug'ini olib tashlaydi.
+ *
+ *  Tekshiruv yangi nomni to'sadi, lekin eskisi hisoblarda saqlanib
+ *  qolgan. Nom har yozuvda [sanitizeNickname] dan o'tadi, ya'ni quyruq
+ *  keyingi natijadayoq tushib qoladi — aks holda bunday odamning
+ *  yozuvlari qoidaga urilib, reytingi muzlab qolardi.
+ *
+ *  Quyruqdan boshqa hech narsa qolmasa bo'sh satr qaytadi: chaqiruvchi
+ *  o'zining zaxira nomini qo'yadi. */
+export function stripYouTag(value: string): string {
+  let result = value.trim();
+  // Quyruq takrorlangan bo'lishi mumkin: «Ali • Siz · siz».
+  while (result) {
+    const tail = YOU_TAIL.exec(result);
+    if (!tail || plain(tail[1]) !== YOU_TAG) break;
+    result = result.slice(0, tail.index).trimEnd();
+  }
+  return plain(result) === YOU_TAG ? '' : result;
+}
+
 /** Xato matni, hammasi joyida bo'lsa `null`. */
 export function nicknameError(value: string): string | null {
   const trimmed = value.trim();
@@ -82,12 +134,20 @@ export function nicknameError(value: string): string | null {
   if (hasBannedWord(trimmed)) {
     return 'Bu taxallus nomaqbul so‘z saqlaydi — boshqasini tanlang';
   }
+  if (imitatesYouTag(trimmed)) {
+    return 'Taxallus reytingdagi «Siz» belgisini takrorlamasin — boshqasini tanlang';
+  }
   return null;
 }
 
-/** Ketma-ket bo'shliqlar bittaga tushadi, uzunligi cheklanadi. */
+/** Ketma-ket bo'shliqlar bittaga tushadi, «Siz» yorlig'ining taqlidi
+ *  olib tashlanadi, uzunligi esa cheklanadi.
+ *
+ *  Yorliq quyrug'i aynan shu yerda kesiladi: nom reytingga shu
+ *  funksiyadan o'tib boradi, ya'ni eski hisoblarda qolib ketgani ham
+ *  birinchi yozuvdayoq tozalanadi. */
 export function sanitizeNickname(value: string): string {
-  const trimmed = value.trim().replace(/\s+/g, ' ');
+  const trimmed = stripYouTag(value.trim().replace(/\s+/g, ' '));
   if (!trimmed) return GUEST;
   return trimmed.length > NICKNAME_MAX
     ? trimmed.slice(0, NICKNAME_MAX)

@@ -30,6 +30,7 @@ import { links, playerLink } from '../data/site';
 import { DONOR_TIERS, donorLabel, donorTier, forgetDonorTotals, nextDonorTier } from '../lib/donor';
 import { DonorBadge } from './Units';
 import Modal from './Modal';
+import YouTag from './YouTag';
 
 export function Balance({ balance }: { balance: SupportBalance }) {
   return (
@@ -82,7 +83,7 @@ export function Donors({ donations, uid }: { donations: Donation[] | null; uid?:
               ) : (
                 pretty(donationPhrase(donation, index))
               )}
-              {mine && <b className="donor__me">Bu siz</b>}
+              {mine && <YouTag />}
             </span>
           </li>
         );

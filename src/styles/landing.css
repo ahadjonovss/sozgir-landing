@@ -2298,14 +2298,10 @@
   min-width: 0;
 }
 
-.donor__me {
+/* Yorliq umumiy element (`.you-tag`), bu yerda faqat nomdan keyingi
+   oralig'i beriladi. */
+.donor__text .you-tag {
   margin-inline-start: 8px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: var(--green);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 800;
 }
 
 .support__presets {

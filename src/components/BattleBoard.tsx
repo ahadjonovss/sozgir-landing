@@ -13,6 +13,7 @@ import { battleTop, type BattleEntry } from '../lib/leaderboard';
 import { pretty } from '../lib/uz';
 import Avatar from './Avatar';
 import PlayerName from './PlayerName';
+import YouTag from './YouTag';
 import { Swords } from './Icons';
 import SendInvite, { type InviteTarget } from './SendInvite';
 import { Olja, TierBadge } from './Units';
@@ -81,6 +82,7 @@ export default function BattleBoard() {
                   <PlayerName uid={row.uid} name={row.nickname} />
                 </span>
               </a>
+              {row.uid === account?.uid && <YouTag />}
               {/* Faqat daraja: g'alaba soni bilan ism kesilib qolardi. */}
               <span className="rank__meta rank__meta--tier">
                 <TierBadge rating={row.rating} size={18} />

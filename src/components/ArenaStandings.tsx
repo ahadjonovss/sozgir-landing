@@ -10,6 +10,7 @@ import { oljaDelta } from '../lib/aqcha';
 import type { BattleGame } from '../lib/battle';
 import Avatar from './Avatar';
 import PlayerName from './PlayerName';
+import YouTag from './YouTag';
 import { OljaDelta } from './Units';
 
 /** Poydevordagi tartib: ikkinchi, birinchi, uchinchi — o'rtadagi baland. */
@@ -56,6 +57,7 @@ export default function ArenaStandings({
               <b>
                 <PlayerName uid={row.uid} name={row.nickname} size={15} />
               </b>
+              {row.mine && <YouTag />}
               <span>{scoreText(row, game)}</span>
               <i>{row.rank}</i>
             </div>
@@ -78,6 +80,7 @@ export default function ArenaStandings({
                   <PlayerName uid={row.uid} name={row.nickname} size={14} />
                 </span>
               </a>
+              {row.mine && <YouTag />}
               <span className="standings__score">{scoreText(row, game)}</span>
               {delta !== null && (
                 <span

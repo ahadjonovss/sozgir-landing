@@ -31,6 +31,7 @@ import Avatar from './Avatar';
 import DonorChip from './DonorChip';
 import { DonorBadge } from './Units';
 import PlayerName from './PlayerName';
+import YouTag from './YouTag';
 import { Heart } from './Icons';
 import { Balance, DonateForm, Donors } from './Support';
 
@@ -126,6 +127,7 @@ function Top({ donors, uid }: { donors: TopDonor[] | null; uid?: string }) {
             ) : (
               <span className="rank__who">{who}</span>
             )}
+            {donor.uid && donor.uid === uid && <YouTag />}
             <span className="rank__meta rank__meta--tier">
             {tier ? (
               <>

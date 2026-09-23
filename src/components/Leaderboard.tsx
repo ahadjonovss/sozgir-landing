@@ -18,6 +18,7 @@ import { Swords } from './Icons';
 import SendInvite, { type InviteTarget } from './SendInvite';
 import { Aqcha } from './Units';
 import PlayerName from './PlayerName';
+import YouTag from './YouTag';
 import { DAILY_LENGTH } from '../lib/modes';
 import { pretty } from '../lib/uz';
 import { useVerifiedList } from '../lib/verified';
@@ -149,6 +150,7 @@ export default function Leaderboard() {
                   <PlayerName uid={row.uid} name={row.nickname} />
                 </span>
               </a>
+              {row.uid === account?.uid && <YouTag />}
               <span className="rank__meta">
                 {tab === 'daily'
                   ? row.won
