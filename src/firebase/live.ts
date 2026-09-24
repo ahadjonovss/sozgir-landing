@@ -72,6 +72,9 @@ export async function watchCollection<T>(
 /** Menga kelgan, javob kutayotgan chaqiruv. */
 export interface LiveInvite {
   id: string;
+  /** Kim chaqirgani — bildirishnomalar ro'yxatida uning profiliga
+   *  havola bo'ladi. */
+  fromUid: string;
   fromNickname: string;
   /** Qayerdan kelgani: `rematch`, `nearby` yoki `profile` (ilovadagi
    *  ochiq profil / saytdagi reyting qatori). Yozuvi `inviteSource` da. */
@@ -81,6 +84,8 @@ export interface LiveInvite {
   game: string;
   /** Muddati tugaydigan payt (millisekundda). Noma'lum bo'lsa `0`. */
   expiresAt: number;
+  /** Chaqiruv yaratilgan payt (ms) — ro'yxat shu bo'yicha saralanadi. */
+  createdAt: number;
 }
 
 /** Menga kelgan chaqiruvlarni kuzatadi.
@@ -116,12 +121,15 @@ export async function watchInvites(
         snapshot.docs.map((item) => {
           const data = item.data() as Record<string, unknown>;
           const expires = data.expiresAt as { seconds?: number } | undefined;
+          const created = data.createdAt as { seconds?: number } | undefined;
           return {
             id: item.id,
+            fromUid: String(data.fromUid ?? ''),
             fromNickname: String(data.fromNickname ?? 'Raqib'),
             kind: String(data.kind ?? 'rematch'),
             game: data.game === 'guncha' ? 'guncha' : 'soztop',
             expiresAt: expires?.seconds ? expires.seconds * 1000 : 0,
+            createdAt: created?.seconds ? created.seconds * 1000 : 0,
           };
         }),
       ),

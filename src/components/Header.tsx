@@ -14,6 +14,7 @@ import { useUnreadUpdates } from '../lib/updates';
 import { formatPlayers, useTodayPlayers } from '../lib/players';
 import type { Route } from '../lib/useRoute';
 import Account from './Account';
+import Notifications from './Notifications';
 import Logo from './Logo';
 import Settings from './Settings';
 import { Close, Menu, Moon, Send, Sun } from './Icons';
@@ -134,6 +135,9 @@ export default function Header({ route }: { route: Route }) {
             >
               {dark ? <Sun size={18} /> : <Moon size={18} />}
             </button>
+            {/* Qo'ng'iroq faqat kirgan odamda: do'stlik so'rovlari va
+                jangga chaqiruvlar hisobga bog'langan. */}
+            <Notifications />
             <span className="header__account">
               <Account />
             </span>

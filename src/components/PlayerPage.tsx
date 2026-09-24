@@ -25,7 +25,8 @@ import BattleStats from './BattleStats';
 import { Aqcha } from './Units';
 import { VerifiedBadge } from './PlayerName';
 import { VERIFIED, useVerified } from '../lib/verified';
-import { ChevronLeft, Heart, Person, Swords, Trophy } from './Icons';
+import { ChevronLeft, Heart, Person, Trophy } from './Icons';
+import FriendButton from './FriendButton';
 import SendInvite, { type InviteTarget } from './SendInvite';
 
 type State =
@@ -168,23 +169,23 @@ export default function PlayerPage() {
                 bo'ladi: jang o'ynamagan odam aynan shu yo'l bilan birinchi
                 jangiga tortiladi.
 
-                Tasdiqlangan hisobda tugma umuman chizilmaydi (ilovadagi
-                `canInviteToBattle`): nishon taniqli shaxslarga beriladi va
-                ularning profiliga kuniga yuzlab odam kiradi — har biri
-                chaqirsa, nishon egasining ekrani chaqiruv oynalaridan
-                iborat bo'lib qolardi. Tugma yashiriladi, bosilib
-                «bo'lmaydi» deyilmaydi: bajarib bo'lmaydigan amalni
-                taklif qilishning ma'nosi yo'q. */}
-            {!isMe && !premium && (
-              <div className="player__invite">
-                <button className="btn btn--lg" onClick={invite}>
-                  <Swords size={18} />
-                  So‘zjangga chaqirish
-                </button>
-                <p className="panel__note">
-                  Raqibga xabar boradi. Qabul qilsa, jang darhol boshlanadi.
-                </p>
-              </div>
+                Chaqiruvdan oldin do'stlik so'raladi (`FriendButton`):
+                profil hammaga ochiq, ya'ni filtrsiz joy shu bitta edi va
+                begona odam istalgancha chaqiruv yuborib turardi.
+
+                Tasdiqlangan hisobda tugma ilgari umuman chizilmasdi
+                (ilovadagi `canInviteToBattle`) — nishon egasining ekrani
+                chaqiruv oynalaridan iborat bo'lib qolmasin uchun. Endi
+                himoyani so'rovning o'zi beradi: nishon egasi rad etsa
+                chaqiruv baribir kelmaydi, qabul qilsa esa chaqiruvni
+                o'zi xohlagan bo'ladi. Eski cheklov shuni taxmin qilishga
+                urinardi, do'stlik esa aniq aytadi. */}
+            {!isMe && (
+              <FriendButton
+                uid={uid}
+                nickname={profile?.nickname || 'O‘yinchi'}
+                onInvite={invite}
+              />
             )}
 
             {isEmptyProfile(profile) ? (

@@ -1089,6 +1089,60 @@ bog‘liq uchtasi (jang, boshqa o‘yinlar, kun odami) kirilganda
 qo‘shiladi. `/oyin` ning yon ustunida qisqa kartochka turadi
 (`BadgesCard.tsx`): olinganlari va eng yaqin nishon.
 
+## Do‘stlar va bildirishnomalar
+
+Ochiq profildan jangga **faqat do‘stlar** chaqiriladi: oldin do‘stlik
+so‘rovi, javobdan keyin chaqiruv (`src/lib/friends.ts`,
+`soztop/docs/friends.md`). Sabab oddiy: profil hammaga ochiq, ya’ni
+filtrsiz joy shu bitta edi — reytingdan o‘tgan begona odam istalgancha
+chaqiruv yuborib turardi va qabul qilmagan o‘yinchining ekrani chaqiruv
+oynalaridan iborat bo‘lib qolardi.
+
+Qolgan chaqiruvlarga tegilmaydi: qasos (jang allaqachon o‘ynalgan),
+yaqindagilar, kod bilan qo‘shilish va tezkor jang — hammasida tanishuv
+boshqa yo‘ldan bo‘lgan.
+
+Profildagi tugma aloqaga qarab tanlanadi (`FriendButton`): «Do‘stlikka
+qo‘shish» → «So‘rov yuborildi» (yonida «Qaytarib olish») → do‘st
+bo‘lgach «So‘zjangga chaqirish». Kelgan so‘rovga esa o‘sha joyda javob
+beriladi. Aloqa kelmaguncha tugma chizilmaydi: bir ko‘rinishdan
+ikkinchisiga sakrab o‘tsa ekran titrab ketardi.
+
+Tasdiqlangan hisobda chaqiruv tugmasi ilgari umuman chizilmasdi. Endi
+himoyani so‘rovning o‘zi beradi: nishon egasi rad etsa chaqiruv baribir
+kelmaydi, qabul qilsa esa chaqiruvni o‘zi xohlagan bo‘ladi.
+
+**Yozishni faqat Cloud Functions qiladi** (`friendRequest`,
+`friendRespond`, `friendRemove`). Do‘stlik ikki nusxada yoziladi —
+`friends/{a}/list/{b}` va teskarisi; mijozga qoldirilsa, odam o‘zini
+xohlagan kishining ro‘yxatiga qo‘shib qo‘yardi. So‘rov hujjatining nomi
+juftlikdan yasaladi (`{kichik}_{katta}`), ya’ni ikki odam orasida bir
+vaqtda ikkita ochiq so‘rov bo‘lishi mumkin emas.
+
+Cheklovning o‘zi bayroq ortida: `config/friends.inviteRequiresFriends`.
+Yoqilganda reyting va o‘lja jadvalidagi tezkor chaqiruv tugmasi faqat
+do‘stlarda ko‘rinadi (`useCanInvite`) — qolganiga profil orqali
+boriladi. Bayroq o‘chiq bo‘lsa hammasi avvalgidek, lekin saytdagi
+profil tugmasi baribir do‘stlik oqimini ko‘rsatadi (ilovadagidek).
+
+### Bildirishnomalar
+
+Sarlavhadagi qo‘ng‘iroq (`src/components/Notifications.tsx`) kirgan
+odamda turadi va ikki varaqli oyna ochadi: xabarlar va do‘stlar.
+
+Alohida kolleksiya **yo‘q** — ro‘yxat bor ma’lumotdan yig‘iladi
+(`buildNotifications`): do‘stlik so‘rovlari `friend_requests` dan,
+chaqiruvlar `battle_invites` dan. Shuning uchun so‘rovga javob
+berilishi bilan qator ro‘yxatdan o‘zi ketadi va «o‘qildi» degan
+bayroqni yozib yurish kerak emas. Uch xil qator bor: kelgan do‘stlik
+so‘rovi, qabul qilingan so‘rovim va jangga chaqiruv; muddati o‘tgan
+chaqiruv ro‘yxatda turmaydi — javob tugmalari baribir ishlamaydi.
+
+«Qayergacha ko‘rilgani» brauzerda saqlanadi va **vaqt bo‘yicha**
+sanaladi, sanoq bo‘yicha emas: xabarlar ro‘yxatdan chiqib ham ketadi
+(chaqiruv so‘nadi, so‘rovga javob beriladi) va sanoq kamayganda hisob
+buzilardi.
+
 ## Janglar tarixi
 
 Kirilgan odam o‘zining oxirgi janglarini ko‘radi (`ArenaHistory`):

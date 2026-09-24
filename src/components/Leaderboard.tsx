@@ -11,6 +11,7 @@
  *  esa kirish kerak, shuning uchun kirmaganlarga qisqa eslatma chiqadi. */
 import { useEffect, useState } from 'react';
 import { useAuth } from '../lib/auth';
+import { useCanInvite } from '../lib/useFriends';
 import { dailyKey } from '../lib/daily';
 import { dailyTop, todayTop, totalTop, type Entry } from '../lib/leaderboard';
 import Avatar from './Avatar';
@@ -40,6 +41,10 @@ export default function Leaderboard() {
    *  `canInviteToBattle` bilan bir xil qoida: nishon egasining ekrani
    *  chaqiruv oynalaridan iborat bo'lib qolmasin. */
   const verified = useVerifiedList();
+  /** Chaqiruv cheklovi yoqilgan bo'lsa jadvaldan faqat do'stlarni
+   *  chaqirsa bo'ladi: qolganiga profil orqali boriladi va u yerda
+   *  avval do'stlik so'raladi (`soztop/docs/friends.md`). */
+  const canInvite = useCanInvite();
   const [tab, setTab] = useState<Tab>('daily');
   /** Har bo'limning yuklangan jadvali alohida saqlanadi: qaytib
    *  almashilganda darrov chiqadi, yuklanish paytida esa oldingi bo'limning
@@ -163,7 +168,7 @@ export default function Leaderboard() {
               <span className="rank__points">
                 <Aqcha tiyin={row.points} size="sm" />
               </span>
-              {row.uid !== account?.uid && !verified(row.uid) && (
+              {row.uid !== account?.uid && canInvite(row.uid) && !verified(row.uid) && (
                 <button
                   type="button"
                   className="rank__invite"

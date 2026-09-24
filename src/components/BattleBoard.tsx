@@ -8,6 +8,7 @@
 import { useEffect, useState } from 'react';
 import { playerLink } from '../data/site';
 import { useAuth } from '../lib/auth';
+import { useCanInvite } from '../lib/useFriends';
 import { tierName } from '../lib/battleRating';
 import { battleTop, type BattleEntry } from '../lib/leaderboard';
 import { pretty } from '../lib/uz';
@@ -20,6 +21,9 @@ import { Olja, TierBadge } from './Units';
 
 export default function BattleBoard() {
   const { account, openPrompt } = useAuth();
+  /** Chaqiruv cheklovi yoqilganda jadvaldan faqat do'stlar chaqiriladi
+   *  — qolganiga profil orqali boriladi. */
+  const canInvite = useCanInvite();
   const [rows, setRows] = useState<BattleEntry[] | null>(null);
   const [target, setTarget] = useState<InviteTarget | null>(null);
 
@@ -91,7 +95,7 @@ export default function BattleBoard() {
               <span className="rank__points">
                 <Olja rating={row.rating} size="sm" />
               </span>
-              {row.uid !== account?.uid && (
+              {row.uid !== account?.uid && canInvite(row.uid) && (
                 <button
                   type="button"
                   className="rank__invite"
