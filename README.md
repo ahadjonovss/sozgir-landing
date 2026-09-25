@@ -39,10 +39,24 @@ Alohida sahifalar: `/oynash` (nimani o‘ynashni tanlash — sarlavhadagi
 `/privacy` (maxfiylik siyosati, o‘zbekcha + inglizcha) va `/contact`
 (aloqa ma’lumotlari + so‘rov formasi).
 
-Bo‘limlarning to‘liq ro‘yxati sarlavhadagi **menyu** tugmasida —
-u endi kompyuterda ham ochiladi va saytning xaritasi bo‘lib xizmat
-qiladi: o‘yinlar, ko‘rib chiqish (javoblar, qo‘llanma, nishonlar,
-yangiliklar) va loyiha.
+Bo‘limlar sarlavhadagi **menyu** tugmasida — u kompyuterda ham
+ochiladi. Ilgari bu o‘n yettita qatordan iborat, butun ekranni
+egallaydigan ro‘yxat edi: o‘yin, qo‘llanma va huquqiy sahifa bir xil
+ko‘rinishda yonma-yon turar, ro‘yxat esa ekranga sig‘masdi. Endi menyu —
+bitta kartochka (tugmaning ostida, o‘ng tomonda):
+
+* **O‘ynash** tugmasi;
+* o‘yinlar — emoji va nomi bilan kataklar (So‘ztop, So‘zjang, G‘uncha,
+  Mardu maydon, Cheksiz);
+* sahifalar — bir qator yorliq (javoblar, qo‘llanma, nishonlar,
+  yangiliklar);
+* loyiha — eng pastda, kichik yozuvda (qo‘llab-quvvatlash, ilova,
+  aloqa, maxfiylik, Telegram);
+* ostida hisob tugmasi.
+
+Bosh sahifaning o‘z bo‘limlariga (qoida, alifbo, savollar) havola yo‘q:
+ular sahifani ochgan odamga baribir ko‘rinadi va menyuni uzaytirishdan
+boshqa ish qilmasdi.
 
 React ilovadan tashqarida, `public/` ichida turadigan mustaqil sahifalar:
 `/ol` — ulashish uchun yuklab olish havolasi (telefonda qurilmaning

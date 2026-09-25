@@ -13,6 +13,12 @@
 }
 
 .header__bar {
+  /* Menyu shu sarlavhaning ichida turadi (`.menu`), ya'ni uning parda
+     qatlami sarlavha tugmalarini bosib ketardi — menyu ochiqligida
+     logotip ham, yopish tugmasi ham xira bo'lib qolardi. Qator o'z
+     qatlamini oladi va pardaning ustida qoladi. */
+  position: relative;
+  z-index: 45;
   display: flex;
   align-items: center;
   gap: 18px;
@@ -266,10 +272,11 @@
   inset: 0;
   z-index: 40;
   overflow-y: auto;
-  background: color-mix(in srgb, var(--bg) 94%, transparent);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  animation: menu-in 0.22s ease;
+  padding: calc(var(--header-h) + 10px) 16px calc(24px + env(safe-area-inset-bottom));
+  background: color-mix(in srgb, var(--bg) 70%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(16px);
+  animation: menu-in 0.18s ease;
 }
 
 @keyframes menu-in {
@@ -279,88 +286,146 @@
   }
 }
 
-.menu__inner {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  /* Sarlavha (sticky, z-index yuqoriroq) menyuning ustida turadi. */
-  padding-top: calc(var(--header-h) + 8px);
-  padding-bottom: calc(24px + env(safe-area-inset-bottom));
+/* Kartochka: menyu sahifani to'liq egallamaydi va o'ng tomonda,
+   bosilgan tugmaning ostida turadi. */
+.menu__card {
+  display: grid;
+  gap: 10px;
+  width: min(420px, 100%);
+  margin-inline-start: auto;
+  padding: 14px;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--divider), 0 24px 60px -28px rgba(0, 0, 0, 0.55);
 }
 
 .menu__link {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
   padding: 13px 16px;
-  border-radius: 16px;
-  font-size: 20px;
+  border-radius: 14px;
+  font-size: 17px;
   font-weight: 800;
   letter-spacing: -0.01em;
-  transition: background 0.15s ease;
-}
-
-.menu__link:hover,
-.menu__link[aria-current='page'] {
-  background: var(--surface);
 }
 
 .menu__link--main {
   background: var(--green);
   color: #fff;
-  box-shadow: 0 10px 24px -10px rgba(99, 169, 103, 0.8);
 }
 
 .menu__link--main:hover {
   background: var(--green-deep);
 }
 
-.menu__link--sub {
-  padding-block: 9px;
+/* O'yinlar — kataklar. Eng kerakli narsa yuzada turadi: emoji tanitadi,
+   nom tasdiqlaydi. */
+.menu__games {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.menu__game {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 12px;
+  border-radius: 12px;
+  background: var(--bg);
+  color: inherit;
+  font-size: 14.5px;
+  font-weight: 800;
+  transition: background 0.15s ease;
+}
+
+.menu__game span {
+  font-size: 17px;
+  line-height: 1;
+}
+
+.menu__game:hover,
+.menu__game[aria-current='page'] {
+  background: var(--green-soft);
+}
+
+/* Toq qolgan oxirgi katak ikki ustunni egallaydi — qator chala
+   ko'rinmasin. */
+.menu__game:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+
+.menu__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.menu__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: var(--bg);
   color: var(--text-2);
-  font-size: 15.5px;
+  font-size: 13px;
+  font-weight: 800;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.menu__chip:hover,
+.menu__chip[aria-current='page'] {
+  background: var(--green-soft);
+  color: var(--green-deep);
+}
+
+/* Loyiha qatorlari — eng pastda, kichik yozuvda: ular kamdan-kam
+   kerak bo'ladi, lekin topilishi shart. */
+.menu__about {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  padding: 2px 4px;
+}
+
+.menu__about a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-2);
+  font-size: 12.5px;
   font-weight: 700;
 }
 
-/* Guruh: nomi va ostidagi qatorlar. Nom savolga javob beradi —
-   «nima o'ynayman», «nimani o'qiyman». */
-.menu__group {
-  display: grid;
-  gap: 2px;
-  margin-top: 14px;
-}
-
-.menu__title {
-  padding: 0 16px 6px;
-  color: var(--text-2);
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+.menu__about a:hover,
+.menu__about a[aria-current='page'] {
+  color: var(--text);
 }
 
 .menu__badge {
-  margin-inline-start: auto;
-  padding: 1px 8px;
+  padding: 0 7px;
   border-radius: 999px;
   background: var(--green);
   color: #fff;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
-}
-
-.menu__sep {
-  height: 1px;
-  margin: 10px 16px;
-  background: var(--divider);
+  line-height: 18px;
 }
 
 .menu__foot {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-top: 16px;
-  padding: 0 16px;
+  padding-top: 4px;
+  border-top: 1px solid var(--divider);
+  margin-top: 2px;
+}
+
+.menu__foot > * {
+  margin-top: 10px;
 }
 
 @media (max-width: 980px) {

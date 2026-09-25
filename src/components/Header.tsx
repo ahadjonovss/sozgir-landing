@@ -28,47 +28,39 @@ interface Item {
   badge?: boolean;
 }
 
-/** Menyu — saytning xaritasi.
+/** Menyudagi o'yinlar — kataklar bo'lib turadi.
  *
- *  Bo'limlar ko'paygani sari tekis ro'yxat o'qilmay qoldi: o'yin,
- *  qo'llanma va huquqiy sahifa bir xil ko'rinishda yonma-yon turardi.
- *  Endi ular guruhlangan va guruh nomi savolga javob beradi: «nima
- *  o'ynayman», «nimani o'qiyman», «o'zim haqimda nima bor».
+ *  Ilgari menyu o'n yettita qatordan iborat uzun ro'yxat edi: o'yin,
+ *  qo'llanma va huquqiy sahifa bir xil ko'rinishda yonma-yon turar,
+ *  ro'yxat esa ekranga sig'masdi. Endi eng kerakli narsa — o'yinlar —
+ *  yuzga chiqadi: emoji va nom, bosiladigan katak. Belgi saytning o'z
+ *  tilidan (`data/site.ts` dagi modullar). */
+const GAMES: (Item & { emoji: string })[] = [
+  { href: links.play, label: 'So‘ztop', emoji: '🟩', route: '/oyin' },
+  { href: links.battle, label: 'So‘zjang', emoji: '⚔️', route: '/sozjang' },
+  { href: links.guncha, label: 'G‘uncha', emoji: '🌸', route: '/guncha' },
+  { href: links.mardu, label: 'Mardu maydon', emoji: '👥', route: '/maydon' },
+  { href: '/cheksiz/5-harf', label: 'Cheksiz', emoji: '♾️', route: '/cheksiz/5-harf' },
+];
+
+/** Ko'rib chiqiladigan sahifalar — bir qatorga yig'ilgan yorliqlar.
  *
- *  Menyu endi kompyuterda ham ochiladi: sarlavhadagi uchta havola
- *  hamma bo'limni ko'rsatolmaydi va ko'rsatishi ham shart emas. */
-const GROUPS: { title: string; items: Item[] }[] = [
-  {
-    title: 'O‘yinlar',
-    items: [
-      { href: links.play, label: 'So‘ztop — kunlik so‘z', route: '/oyin' },
-      { href: links.battle, label: 'So‘zjang', route: '/sozjang' },
-      { href: links.guncha, label: 'G‘uncha', route: '/guncha' },
-      { href: links.mardu, label: 'Mardu maydon', route: '/maydon' },
-      { href: '/cheksiz/5-harf', label: 'Cheksiz rejim', route: '/cheksiz/5-harf' },
-    ],
-  },
-  {
-    title: 'Ko‘rib chiqish',
-    items: [
-      { href: links.answers, label: 'Javoblar arxivi', route: '/javoblar' },
-      { href: links.guides, label: 'Qo‘llanma', route: '/qollanma' },
-      { href: links.badges, label: 'Nishonlar', route: '/nishonlar' },
-      { href: links.updates, label: 'Yangiliklar', route: '/yangiliklar', badge: true },
-      { href: '/#qoida', label: 'Qoida' },
-      { href: '/#alifbo', label: 'Alifbo' },
-      { href: '/#savollar', label: 'Savollar' },
-    ],
-  },
-  {
-    title: 'Loyiha',
-    items: [
-      { href: links.donate, label: 'Qo‘llab-quvvatlash', route: '/qollab' },
-      { href: '/#yuklab-olish', label: 'Ilovani yuklab olish' },
-      { href: links.contact, label: 'Aloqa', route: '/contact' },
-      { href: links.privacy, label: 'Maxfiylik siyosati', route: '/privacy' },
-    ],
-  },
+ *  Bosh sahifaning o'z bo'limlariga (qoida, alifbo, savollar) havola
+ *  yo'q: ular sahifani ochgan odamga baribir ko'rinadi va menyuni
+ *  uzaytirishdan boshqa ish qilmasdi. */
+const PAGES: Item[] = [
+  { href: links.answers, label: 'Javoblar', route: '/javoblar' },
+  { href: links.guides, label: 'Qo‘llanma', route: '/qollanma' },
+  { href: links.badges, label: 'Nishonlar', route: '/nishonlar' },
+  { href: links.updates, label: 'Yangiliklar', route: '/yangiliklar', badge: true },
+];
+
+/** Loyiha haqidagi qatorlar — eng pastda, kichik yozuvda. */
+const ABOUT: Item[] = [
+  { href: links.donate, label: 'Qo‘llab-quvvatlash', route: '/qollab' },
+  { href: '/#yuklab-olish', label: 'Ilova' },
+  { href: links.contact, label: 'Aloqa', route: '/contact' },
+  { href: links.privacy, label: 'Maxfiylik', route: '/privacy' },
 ];
 
 export default function Header({ route }: { route: Route }) {
@@ -175,38 +167,62 @@ export default function Header({ route }: { route: Route }) {
 
       {open && (
         <div className="menu" id="menu" onClick={() => setOpen(false)}>
-          <nav className="wrap menu__inner" aria-label="Menyu" onClick={(e) => e.stopPropagation()}>
+          {/* Menyu — sahifani to'liq egallagan ro'yxat emas, bitta
+              kartochka: o'yinlar kataklarda, qolgani ikki qator
+              yorliqda. Shunda u ekranga sig'adi va nimadan boshlash
+              kerakligi bir qarashda ko'rinadi. */}
+          <nav className="menu__card" aria-label="Menyu" onClick={(e) => e.stopPropagation()}>
             <a className="menu__link menu__link--main" href={links.hub}>
               O‘ynash
             </a>
-            {GROUPS.map((group) => (
-              <div className="menu__group" key={group.title}>
-                <p className="menu__title">{group.title}</p>
-                {group.items.map((item) => (
-                  <a
-                    key={item.label}
-                    className="menu__link menu__link--sub"
-                    href={item.href}
-                    aria-current={current(item)}
-                    onClick={() => setOpen(false)}
-                  >
-                    {item.label}
-                    {item.badge && unread > 0 && (
-                      <span className="menu__badge">{unread}</span>
-                    )}
-                  </a>
-                ))}
-              </div>
-            ))}
 
-            <a
-              className="menu__link menu__link--sub"
-              href={links.telegram}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <Send size={16} /> Telegram kanal
-            </a>
+            <div className="menu__games">
+              {GAMES.map((game) => (
+                <a
+                  key={game.label}
+                  className="menu__game"
+                  href={game.href}
+                  aria-current={current(game)}
+                  onClick={() => setOpen(false)}
+                >
+                  <span aria-hidden="true">{game.emoji}</span>
+                  {game.label}
+                </a>
+              ))}
+            </div>
+
+            <div className="menu__chips">
+              {PAGES.map((item) => (
+                <a
+                  key={item.label}
+                  className="menu__chip"
+                  href={item.href}
+                  aria-current={current(item)}
+                  onClick={() => setOpen(false)}
+                >
+                  {item.label}
+                  {item.badge && unread > 0 && (
+                    <span className="menu__badge">{unread}</span>
+                  )}
+                </a>
+              ))}
+            </div>
+
+            <div className="menu__about">
+              {ABOUT.map((item) => (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  aria-current={current(item)}
+                  onClick={() => setOpen(false)}
+                >
+                  {item.label}
+                </a>
+              ))}
+              <a href={links.telegram} target="_blank" rel="noreferrer">
+                <Send size={13} /> Telegram
+              </a>
+            </div>
 
             <div className="menu__foot" onClick={() => setOpen(false)}>
               <Account />
