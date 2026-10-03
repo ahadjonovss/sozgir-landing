@@ -1454,6 +1454,10 @@
     align-items: stretch;
   }
   .lobby__friend-row .codein {
+    /* `flex` qayta qo'yiladi: qator ustunga aylangach `flex-basis: 220px`
+       enga emas, **balandlikka** tushib qolardi va kataklar ostida 170
+       piksel bo'sh joy qolardi. */
+    flex: none;
     max-width: none;
     justify-content: center;
   }
@@ -5453,4 +5457,334 @@
 /* Aloqa kelmaguncha joyi band turadi — tugma sakramasin. */
 .player__invite--wait {
   min-height: 74px;
+}
+
+/* ── Turnir ───────────────────────────────────────────────────────────
+   Turnir — ketma-ket bir necha mardu maydoni, ya'ni bu yerda yangi
+   o'yin ko'rinishi yo'q: yig'ilish xonasi `stage` ning o'zi, jadval
+   `standings` ning o'zi. Turnirga xos narsa ikkita — **kirish
+   kartochkasi** (kod, havola, QR) va **to'r**.
+
+   O'lchamlar telefondan boshlanadi: tadbirda odamning qo'lida telefon
+   bo'ladi, proyektor esa tashkilotchida. */
+
+.tnr {
+  display: grid;
+  /* `minmax(0, 1fr)` — ustun **ichidagi eng keng bolasi bo'yicha
+     kengaymasin**. Aks holda yonma-yon uchta tugma (yoki to'rning
+     ustuni) butun sahifani telefon enidan chiqarib yuborardi. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+  width: 100%;
+}
+
+/* Telefonda uchta tugma bitta qatorga sig'maydi — qator ostiga tushadi.
+   Umumiy qoidaga tegilmaydi: jang natijasida tugmalar ikkita. */
+.tnr .result__actions {
+  flex-wrap: wrap;
+}
+
+.tnr__title {
+  width: 100%;
+  margin: 10px 0 4px;
+}
+
+.tnr-lobby {
+  max-width: 620px;
+}
+
+/* Zinapoya izohi: «32 → 16 → 8 → 4 → 2 → g'olib». */
+.tnr-lobby__steps {
+  margin: 0;
+  color: var(--text-2);
+  font-size: 13.5px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.tnr-lobby__steps b {
+  color: var(--accent);
+}
+
+.tnr-lobby__list {
+  max-height: 46vh;
+  overflow-y: auto;
+}
+
+/* «Chiqarish» qatorning o'ng chetida va xira turadi: tashkilotchi uni
+   qidirib topsin, lekin ro'yxatni o'qiyotganda ko'zga urilmasin. */
+.tnr-lobby__kick {
+  flex: none;
+  opacity: 0.45;
+}
+
+.tnr-lobby__kick:hover {
+  opacity: 1;
+  color: var(--danger);
+}
+
+/* ── Kirish kartochkasi ──────────────────────────────────────────────
+   Uch yo'l yonma-yon: kod (og'zaki), havola (chatga), QR (ekranga).
+   Telefonda QR pastga tushadi — yonma-yon turganda ikkalasi ham
+   o'qib bo'lmaydigan darajada kichrayardi. */
+.tnr-invite {
+  display: grid;
+  gap: 14px;
+  justify-items: center;
+  width: 100%;
+}
+
+.tnr-invite__left {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  width: 100%;
+  min-width: 0;
+}
+
+.tnr-qr {
+  width: 150px;
+  height: 150px;
+  flex: none;
+  border-radius: var(--radius-sm);
+  /* QR doim oq fonda qora: tungi rejimda rang almashsa, ko'p o'quvchi
+     uni umuman ko'rmaydi (ular qora-oq nisbatini kutadi). */
+  background: #fff;
+  padding: 6px;
+  box-shadow: var(--shadow);
+}
+
+@media (min-width: 560px) {
+  .tnr-invite {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    justify-items: stretch;
+  }
+
+  .tnr-qr {
+    width: 168px;
+    height: 168px;
+  }
+}
+
+/* ── Mening holatim ──────────────────────────────────────────────────
+   Bitta qator: o'ynayapmanmi, qachon chiqdim, keyingi davra qachon.
+   To'rdan oldin turadi — odam avval o'zini qidiradi. */
+.tnr__me {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+.tnr__me strong {
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.tnr__me span {
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.tnr__me .btn {
+  margin-inline-start: auto;
+}
+
+.tnr__me--on {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.tnr__me--on strong {
+  color: var(--accent);
+}
+
+.tnr__me--out {
+  opacity: 0.75;
+}
+
+/* ── G'olib ──────────────────────────────────────────────────────────── */
+
+.tnr__crown {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 26px 16px 22px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  text-align: center;
+}
+
+.tnr__crown > svg {
+  color: var(--yellow);
+}
+
+.tnr__crown .avatar-mark {
+  box-shadow: 0 0 0 3px var(--yellow);
+}
+
+.tnr__crown b {
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.tnr__crown span {
+  color: var(--text-2);
+  font-size: 13.5px;
+  font-weight: 800;
+}
+
+.tnr__crown i {
+  color: var(--accent);
+  font-size: 12.5px;
+  font-weight: 800;
+  font-style: normal;
+}
+
+/* ── To'r (zinapoya) ─────────────────────────────────────────────────
+   Telefonda davralar **ustma-ust** yig'iladi: besh ustun telefon
+   ekraniga sig'maydi, gorizontal surish esa to'rni yashirardi — odam
+   o'zining qaysi davrada chiqqanini topish uchun yonga surib yurardi.
+   Kengroq ekranda ular yonma-yon ustun bo'ladi va butun turnir bir
+   qarashda ko'rinadi. */
+.ladder {
+  display: grid;
+  gap: 12px;
+  width: 100%;
+}
+
+.ladder__round {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+.ladder__round--now {
+  box-shadow: inset 0 0 0 2px var(--accent-soft);
+}
+
+.ladder__title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0;
+  font-size: 13px;
+}
+
+.ladder__title b {
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.ladder__title span {
+  color: var(--text-2);
+  font-weight: 700;
+}
+
+.ladder__group {
+  display: grid;
+  gap: 4px;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+}
+
+.ladder__gname {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-2);
+  font-size: 11.5px;
+  font-weight: 800;
+  text-transform: lowercase;
+}
+
+/* Guruh harfi katta qoladi — serverdagi tartib ham A, B, C
+   (`splitGroups`), ya'ni ekrandagi yorliq o'sha nom bo'lishi kerak. */
+.ladder__gname b {
+  text-transform: none;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 11px;
+}
+
+.ladder__seats {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ladder__seat {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 3px 4px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.ladder__place {
+  flex: none;
+  width: 16px;
+  color: var(--text-2);
+  font-size: 11.5px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.ladder__who {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ladder__score {
+  flex: none;
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.ladder__seat--me {
+  background: var(--accent-soft);
+}
+
+.ladder__seat--through .ladder__place {
+  color: var(--green);
+}
+
+/* Chiqqan odam so'nadi, lekin yo'qolmaydi: to'r turnirning tarixi —
+   kim qayergacha yetgani ham javob. */
+.ladder__seat--out {
+  opacity: 0.42;
+}
+
+@media (min-width: 760px) {
+  .ladder {
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(200px, 1fr);
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
 }

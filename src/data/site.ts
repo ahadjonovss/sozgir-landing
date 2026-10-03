@@ -27,6 +27,9 @@ export const links = {
   /** Mardu maydon — yangi o'yin emas, yangi shakl: o'sha So'zjang yoki
    *  G'uncha, lekin sakkiztagacha odam bir vaqtda o'ynaydi. */
   mardu: '/maydon',
+  /** Turnir — ketma-ket bir necha mardu maydoni: har davradan yuqori
+   *  yarmi o'tadi. Kod bilan kiriladigan sahifasi `/turnir/{KOD}`. */
+  turnir: '/turnir',
   /** Ulashilgan natija bosilganda odam darhol o'ynay olishi kerak —
    *  tanishtiruv sahifasi emas, o'yinning o'zi ochiladi. */
   share: `${site}/oyin`,

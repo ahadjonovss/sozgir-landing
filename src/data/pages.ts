@@ -146,6 +146,21 @@ const BASE_PAGES = [
     ],
   },
   {
+    path: '/turnir',
+    title: 'Turnir — 8, 16 yoki 32 kishilik so‘z turniri | So‘zgir',
+    description:
+      'Turnir — ketma-ket bir necha mardu maydoni: har davradan yuqori yarmi o‘tadi. 32 kishi besh davrada bitta g‘olibga qisqaradi.',
+    nav: 'Turnir',
+    h1: 'Turnir',
+    lead:
+      'Turnir — ketma-ket bir necha mardu maydoni: har davrada odam ikki barobar kamayadi, sakkiztadan ko‘p bo‘lsa guruhlarga bo‘linadi va guruhlar bir vaqtda o‘ynaydi.',
+    body: [
+      'Hajmi uchta: 8 kishi — uch davra, 16 kishi — to‘rt davra, 32 kishi — besh davra. Har guruhdan yuqori yarmi o‘tadi, teng natijada ro‘yxatga oldinroq kirgani.',
+      'Turnir ochgan odam kod oladi: qatnashchilar kod, havola yoki QR orqali qo‘shiladi. Yig‘ilish ikki soat davom etadi, boshlashni tashkilotchi bosadi.',
+      'Har guruh jangi — oddiy mardu maydonining o‘zi: o‘sha so‘z yoki o‘sha g‘uncha, o‘sha jadval, o‘sha o‘lja. Turnir faqat tartib beradi — kim kim bilan va kim keyingi davraga o‘tadi.',
+    ],
+  },
+  {
     path: '/qollab',
     title: 'Qo‘llab-quvvatlash — So‘zgir',
     description:

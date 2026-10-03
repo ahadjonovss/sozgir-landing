@@ -23,6 +23,7 @@ import GamePage from './components/GamePage';
 import GunchaBattlePage from './components/GunchaBattlePage';
 import GunchaPage from './components/GunchaPage';
 import MarduPage from './components/MarduPage';
+import TurnirPage from './components/TurnirPage';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import InviteOverlay from './components/InviteOverlay';
@@ -86,6 +87,7 @@ export default function App() {
         {route === '/guncha' && <GunchaPage />}
         {route === '/gunchajang' && <GunchaBattlePage />}
         {route === '/maydon' && <MarduPage />}
+        {route === '/turnir' && <TurnirPage />}
         {route === '/javoblar' && <AnswersPage />}
         {/* Uzunlik bo'yicha sahifalar (`/cheksiz/6-harf`) — bittasi
             komponent, matni `data/lengths.ts` dan keladi. */}

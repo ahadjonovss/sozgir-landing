@@ -26,7 +26,7 @@ import BattleBoard from './BattleBoard';
 import BattleStats from './BattleStats';
 import { Board, Keyboard } from './Board';
 import CodeInput from './CodeInput';
-import { Check, Clock, Copy, Send, Swords, Users } from './Icons';
+import { Check, Clock, Copy, Send, Swords, Trophy, Users } from './Icons';
 import { ReactionBurst, ReactionPicker } from './Reactions';
 import ProposeWord from './ProposeWord';
 import ReportWord from './ReportWord';
@@ -42,6 +42,8 @@ import OpponentBoard from './OpponentBoard';
 import ArenaStandings from './ArenaStandings';
 import ArenaTiles from './ArenaTiles';
 import { routeParam } from '../lib/useRoute';
+import { seriesOf, turnirPath } from '../lib/turnir';
+import { useTurnirHop } from '../lib/useTurnir';
 
 /** Havoladagi kod — chaqiruvni bosib kelgan odam uchun.
  *
@@ -697,6 +699,10 @@ function Result({ game }: { game: Sozjang }) {
   // o'rin ham mag'lubiyat emas: odam ikkinchi, uchinchi uchun o'ynagan.
   const place = game.arena.find((row) => row.mine)?.rank ?? 0;
   const first = game.mardu && place === 1;
+  /** Turnir guruhi bo'lsa — o'z turniriga qaytish yo'li. Umumiy maydon
+   *  bo'limi bu yerda noto'g'ri manzil: odam turnirning keyingi
+   *  davrasini kutyapti. */
+  const series = seriesOf(game.battle);
   /** Javob so'zining ma'nosi — ilovadagi natija ekranidagidek, so'z
    *  ostida. Jang tugagan, yashirishdan ma'no yo'q. */
   const meaning = useMeaning(game.battle?.answer, game.boardLength);
@@ -911,11 +917,21 @@ function Result({ game }: { game: Sozjang }) {
       {account && !expired && <BattleStats uid={account.uid} compact />}
 
       <div className="result__actions">
-        <button className="btn" onClick={() => void game.again()}>
-          <Swords size={16} />
-          {game.battle?.type === 'quick' ? 'Yangi raqib qidirish' : 'Yangi jang'}
-        </button>
-        {game.mardu && (
+        {/* Turnirda «Yangi jang» chalg'itadi: odam o'yinni o'zi
+            tanlamaydi, keyingi davrani turnir ochadi. */}
+        {!series && (
+          <button className="btn" onClick={() => void game.again()}>
+            <Swords size={16} />
+            {game.battle?.type === 'quick' ? 'Yangi raqib qidirish' : 'Yangi jang'}
+          </button>
+        )}
+        {series && (
+          <a className="btn" href={turnirPath(series)}>
+            <Trophy size={16} />
+            Turnirga qaytish
+          </a>
+        )}
+        {game.mardu && !series && (
           <a className="btn btn--outline" href={links.mardu}>
             <Users size={16} />
             Maydonga qaytish
@@ -969,6 +985,9 @@ function Result({ game }: { game: Sozjang }) {
 export default function BattlePage() {
   const game = useSozjang();
   const intro = useIntro(game.phase);
+  // Turnir guruhida o'ynagan odamni keyingi davra o'zi olib ketadi:
+  // natija ekranida o'tirgan odam turnir hujjatini kuzatmaydi.
+  useTurnirHop(game.battleId, game.battle);
   /** «Jangdan chiqish» bosildi, tasdiq kutilmoqda. */
   const [leaving, setLeaving] = useState(false);
 

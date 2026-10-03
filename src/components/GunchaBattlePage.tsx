@@ -25,7 +25,7 @@ import Avatar from './Avatar';
 import CodeInput from './CodeInput';
 import GunchaCountdown from './GunchaCountdown';
 import GunchaFlower from './GunchaFlower';
-import { Check, Copy, Swords, Users } from './Icons';
+import { Check, Copy, Swords, Trophy, Users } from './Icons';
 import Modal from './Modal';
 import MarduCountdown from './MarduCountdown';
 import { ReactionBurst, ReactionPicker } from './Reactions';
@@ -33,6 +33,8 @@ import { VerifiedMark } from './PlayerName';
 import ScoreRules from './ScoreRules';
 import SendInvite, { type InviteTarget } from './SendInvite';
 import TelegramBanner from './TelegramBanner';
+import { seriesOf, turnirPath } from '../lib/turnir';
+import { useTurnirHop } from '../lib/useTurnir';
 
 /** Oxirgi soniyalarda rang ogohlantiruvchiga o'tadi. */
 const URGENT_AT = 30;
@@ -50,6 +52,9 @@ export default function GunchaBattlePage() {
   const game = useGunchaJang();
   const { account, openPrompt } = useAuth();
   const intro = useIntro(game);
+  // Turnir guruhida o'ynagan odamni keyingi davra o'zi olib ketadi:
+  // natija ekranida o'tirgan odam turnir hujjatini kuzatmaydi.
+  useTurnirHop(game.battleId, game.battle);
 
   if (!account) {
     return (
@@ -486,6 +491,9 @@ function Result({ game }: { game: GunchaJang }) {
   // Oxirgi o'rin ham mag'lubiyat emas — odam hali ikkinchi, uchinchi
   // uchun o'ynagan.
   const place = game.arena.find((row) => row.mine)?.rank ?? 0;
+  /** Turnir guruhi bo'lsa — o'z turniriga qaytish yo'li. Umumiy maydon
+   *  bo'limi bu yerda noto'g'ri manzil: odam keyingi davrani kutyapti. */
+  const series = seriesOf(game.battle);
 
   /** Natijani rasm bilan ulashadi — ilovadagi kartochkaning o'zi.
    *
@@ -611,10 +619,19 @@ function Result({ game }: { game: GunchaJang }) {
             Qasos
           </button>
         )}
-        <button className="btn btn--sm btn--outline" onClick={game.again}>
-          Yana o‘ynash
-        </button>
-        {game.mardu && (
+        {/* Turnirda «Yana o'ynash» chalg'itadi: odam o'yinni o'zi
+            tanlamaydi, keyingi davrani turnir ochadi. */}
+        {series ? (
+          <a className="btn btn--sm" href={turnirPath(series)}>
+            <Trophy size={14} />
+            Turnirga qaytish
+          </a>
+        ) : (
+          <button className="btn btn--sm btn--outline" onClick={game.again}>
+            Yana o‘ynash
+          </button>
+        )}
+        {game.mardu && !series && (
           <a className="btn btn--sm btn--ghost" href={links.mardu}>
             Maydonga qaytish
           </a>
