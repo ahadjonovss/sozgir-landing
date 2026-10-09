@@ -22,10 +22,12 @@
      sahifasi bo'lib qoladi va `/ol` kabi ishlaydi: telefonda darhol
      do'konga.
 
-     Manba `?s=` bilan beriladi (`/jarchi/ol?s=t` → Telegram): harflar
-     `public/ol/index.html` dagi kanal kalitlarining aynan o'zi.
-     Berilmasa — `other`. So'rov qismi universal havolaga xalaqit
-     qilmaydi: AASA faqat yo'lni solishtiradi.
+     E'lon qaysi tarmoqqa qo'yilgani `?s=` bilan beriladi:
+     `/jarchi/ol?s=jt` → Telegram, `ji` → Instagram, `jx` → X, `jln` →
+     LinkedIn. Kalitlar Jarchiga xos (`jarchi_telegram`), umumiy
+     `telegram` emas — sabab pastdagi izohda. Berilmasa — `other`.
+     So'rov qismi universal havolaga xalaqit qilmaydi: AASA faqat
+     yo'lni solishtiradi, ya'ni havola baribir ilovani ochadi.
 
      `public/` ichida turadi — React ilovaga tegmaydi va bundle
      yuklanmaydi. -->
@@ -313,12 +315,24 @@
     }
 
     // ── Qayd ──────────────────────────────────────────────────────────
-    // `?s=` — ulashilgan tarmoq. Kalitlar `public/ol/index.html` va
-    // `api/ol.ts` dagi ro'yxatning aynan o'zi; berilmasa yoki notanish
-    // bo'lsa `other`.
+    // `?s=` — e'lon qaysi tarmoqqa qo'yilgani. Kalitlar `api/ol.ts` va
+    // `firestore.rules` dagi ro'yxat bilan harfma-harf bir xil: qoida
+    // ro'yxatda yo'q manbani yozishga ruxsat bermaydi, ya'ni noto'g'ri
+    // nom jim yo'qolgan ochilish bo'lib qolardi.
+    //
+    // Jarchining kalitlari alohida (`jarchi_*`), umumiy `telegram` yoki
+    // `instagram` emas: o'sha tarmoqlarga loyihaning o'z e'lonlari ham
+    // joylanadi (`/t/ol`) va ikkovi bir chelakka tushsa modul necha odam
+    // olib kelgani bilinmasdi — modul aynan shu son bilan baholanadi.
+    // Shuning uchun `/ol` dagi harflar bu yerda ishlamaydi: ular `other`
+    // bo'lib qoladi.
+    //
+    // To'rt tarmoq — Jarchi shulardan boshqasini qabul qilmaydi.
     var CHANNELS = {
-      t: 'telegram', x: 'x', th: 'threads', i: 'instagram', tt: 'tiktok',
-      y: 'youtube', f: 'facebook', ln: 'linkedin', ak: 'kulgili'
+      jt: 'jarchi_telegram',
+      ji: 'jarchi_instagram',
+      jx: 'jarchi_x',
+      jln: 'jarchi_linkedin'
     };
     var tag = (/[?&]s=([a-z]{1,3})\b/i.exec(location.search) || [])[1] || '';
     var source = CHANNELS[tag.toLowerCase()] || 'other';

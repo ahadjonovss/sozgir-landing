@@ -39,8 +39,17 @@ const API_KEY = 'AIzaSyCWqqyVZdjBY6FSonDLfjXhfWBt_RODcfQ';
 const ROOT = `projects/${PROJECT_ID}/databases/(default)/documents`;
 
 /** Manba kalitlari — sahifadagi va Firestore qoidalaridagi ro'yxat bilan
- *  bir xil. Kalit URL'ning birinchi bo'lagidan keladi: `/t/ol` →
- *  `telegram`, `/ol` → `web`. */
+ *  bir xil. Qoida ro'yxatda yo'q manbani yozishga ruxsat bermaydi, ya'ni
+ *  nom harfma-harf to'g'ri kelishi shart.
+ *
+ *  Kalit ikki yo'ldan keladi: `/ol` sahifasida URL'ning birinchi
+ *  bo'lagidan (`/t/ol` → `telegram`, `/ol` → `web`), Jarchi sahifasida
+ *  esa `?s=` dan (`/jarchi/ol?s=jt` → `jarchi_telegram`).
+ *
+ *  `jarchi_*` ataylab alohida: o'sha tarmoqlarga loyihaning o'z e'lonlari
+ *  ham joylanadi va ikkovi bir chelakka tushsa «Jarchi moduli odam olib
+ *  kelayaptimi» degan savolga javob qolmasdi — modul aynan shu son bilan
+ *  baholanadi. */
 const SOURCES: Record<string, { name: string; emoji: string }> = {
   web: { name: 'To‘g‘ridan-to‘g‘ri', emoji: '🌐' },
   telegram: { name: 'Telegram', emoji: '✈️' },
@@ -52,6 +61,10 @@ const SOURCES: Record<string, { name: string; emoji: string }> = {
   facebook: { name: 'Facebook', emoji: '📘' },
   linkedin: { name: 'LinkedIn', emoji: '💼' },
   kulgili: { name: 'Kulgili ovozlar (reklama)', emoji: '😂' },
+  jarchi_telegram: { name: 'Jarchi · Telegram', emoji: '✈️' },
+  jarchi_instagram: { name: 'Jarchi · Instagram', emoji: '📸' },
+  jarchi_x: { name: 'Jarchi · X', emoji: '🐦' },
+  jarchi_linkedin: { name: 'Jarchi · LinkedIn', emoji: '💼' },
   other: { name: 'Boshqa', emoji: '🔗' },
 };
 
