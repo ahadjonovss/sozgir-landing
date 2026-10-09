@@ -1,22 +1,31 @@
 /** Muhr tanlash — homiyning ism yonidagi belgisi.
  *
- *  Ilovadagi muhr varag'ining veb ko'rinishi: o'n ikki muhr, darajasi
- *  yetgani tanlanadi, qolgani qulfda turadi va qaysi darajada
- *  ochilishini aytadi. Nishonlardan farqi shu — muhr ishlab olinmaydi,
- *  **tanlanadi**: qaysi birini qo'yish odamning o'z ishi.
+ *  Ilovadagi muhr varag'ining veb ko'rinishi: ro'yxat admin panelidan
+ *  keladi (`donorMark.ts`), yig'indisi yetgani tanlanadi, qolgani
+ *  qulfda turadi va qancha so'mdan ochilishini aytadi. Nishonlardan
+ *  farqi shu — muhr ishlab olinmaydi, **tanlanadi**: qaysi birini
+ *  qo'yish odamning o'z ishi.
  *
  *  Bir vaqtda bittasi turadi: ikkitasi ism yonida yonma-yon turgan
  *  zahoti ism o'qilmay qoladi. Shuning uchun bosilgan muhr avvalgisini
  *  almashtiradi, qayta bosilsa esa olib tashlanadi.
  *
  *  Yozuv serverga boradi (`donors/{uid}.mark`) va qoida uni yana bir
- *  bor tekshiradi: darajasi yetmagan muhr yozilmaydi. */
+ *  bor tekshiradi: yig'indisi yetmagan muhr yozilmaydi. */
 import { useState } from 'react';
-import { donorLabel, useDonorTier } from '../lib/donor';
-import { MARKS, chooseMark, unlockedBy, useDonorMark } from '../lib/donorMark';
+import { useDonorTotal } from '../lib/donor';
+import { formatSum } from '../lib/support';
+import {
+  chooseMark,
+  markArt,
+  unlockedBy,
+  useDonorMark,
+  useMarks,
+} from '../lib/donorMark';
 
 export default function DonorMarks({ uid }: { uid: string }) {
-  const tier = useDonorTier(uid);
+  const total = useDonorTotal(uid);
+  const marks = useMarks();
   const current = useDonorMark(uid);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState(false);
@@ -35,6 +44,10 @@ export default function DonorMarks({ uid }: { uid: string }) {
     }
   };
 
+  // Katalog hali kelmagan yoki bo'sh: tanlaydigan narsa yo'q, demak
+  // bo'sh panel ham turmaydi.
+  if (marks.length === 0) return null;
+
   return (
     <div className="panel">
       <div className="panel__head">
@@ -43,12 +56,12 @@ export default function DonorMarks({ uid }: { uid: string }) {
       </div>
       <p className="panel__note">
         Muhr ismingiz yonida turadi — reytingda, jangda va profilda.
-        Darajangiz yetgani tanlanadi; qayta bossangiz olib tashlanadi.
+        Yig‘indingiz yetgani tanlanadi; qayta bossangiz olib tashlanadi.
       </p>
 
       <ul className="marks">
-        {MARKS.map((mark) => {
-          const open = unlockedBy(mark, tier);
+        {marks.map((mark) => {
+          const open = unlockedBy(mark, total);
           const on = current?.id === mark.id;
           return (
             <li key={mark.id}>
@@ -60,7 +73,7 @@ export default function DonorMarks({ uid }: { uid: string }) {
                 onClick={() => void pick(mark.id)}
               >
                 <img
-                  src={`/muhr/${mark.id}.png`}
+                  src={markArt(mark)}
                   alt=""
                   width={34}
                   height={34}
@@ -68,9 +81,9 @@ export default function DonorMarks({ uid }: { uid: string }) {
                   decoding="async"
                 />
                 <strong>{mark.label}</strong>
-                {/* Ochiq muhrda izoh, qulflanganida esa qaysi darajada
+                {/* Ochiq muhrda izoh, qulflanganida esa qancha so'mdan
                     ochilishi — ikkovi bir joyda turadi. */}
-                <span>{open ? mark.story : `«${donorLabel(mark.minTier)}» dan`}</span>
+                <span>{open ? mark.story : `${formatSum(mark.min)} so‘mdan`}</span>
               </button>
             </li>
           );

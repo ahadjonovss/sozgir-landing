@@ -13,7 +13,7 @@
  *  `VerifiedThanksSheet`). */
 import { useState } from 'react';
 import { useAuth } from '../lib/auth';
-import { useDonorMark } from '../lib/donorMark';
+import { markArt, useDonorMark } from '../lib/donorMark';
 import { VERIFIED, useVerified } from '../lib/verified';
 import { pretty } from '../lib/uz';
 import Modal from './Modal';
@@ -37,7 +37,7 @@ export function DonorMarkIcon({
   return (
     <img
       className="donor-mark"
-      src={`/muhr/${mark.id}.png`}
+      src={markArt(mark)}
       alt={mark.label}
       title={`${mark.label} — ${mark.story}`}
       width={size}

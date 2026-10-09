@@ -28,6 +28,20 @@ export const PATHS = {
   /** Homiylar hujjati — `donors/{uid}`: yig'indi (server yozadi) va
    *  odam tanlagan muhr (`mark`, faqat egasi yozadi). */
   donors: 'donors',
+  /** Muhrlar katalogi — `donor_marks/{id}`:
+   *  `{ label, story, min, order, active, image, updatedAt }`.
+   *
+   *  Ro'yxatni **admin paneli** yozadi, sayt ham, ilova ham faqat
+   *  o'qiydi: yangi muhr chiqarish uchun ikkovining ham yangi
+   *  yig'ilmasi kerak emas. Hujjat nomi — muhr kaliti, ya'ni
+   *  `donors/{uid}.mark` da turadigan qiymat. `image` — 240 px kvadrat
+   *  WebP, base64 satr bo'lib hujjatning ichida (avatarlardagi bilan
+   *  bir xil sabab).
+   *
+   *  Ro'yxat versiyasi alohida hujjatda (`config/donor_marks`): katalog
+   *  rasmlari bilan ≈ 220 KB va uni har ochilishda o'qish isrof
+   *  bo'lardi. */
+  donorMarks: 'donor_marks',
   /** So'z haqidagi murojaatlar — moderatsiyaga tushadi. */
   wordReports: 'word_reports',
   /** Qo'lda taklif qilingan yangi so'zlar — `word_suggestions` dan
