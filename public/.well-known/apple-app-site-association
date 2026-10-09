@@ -10,6 +10,8 @@
           { "/": "/jang/*", "comment": "Jang chaqiruvi: kod bilan qo'shilish" },
           { "/": "/maydon/*", "comment": "Mardu maydon: kod bilan qo'shilish" },
           { "/": "/u/*", "comment": "O'yinchining ochiq profili" },
+          { "/": "/jarchi/*", "comment": "Jarchi: taklif kodi va e'lon havolasi" },
+          { "/": "/jarchi", "comment": "Jarchi moduli, kodsiz" },
           { "/": "/kunlik", "comment": "Kunlik so'z" },
           { "/": "/ilova", "comment": "Ilovani ochadi; o'rnatilmagan bo'lsa yuklab olish" }
         ]

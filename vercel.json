@@ -66,6 +66,14 @@
       "destination": "/turnir/index.html"
     },
     {
+      "source": "/jarchi/:code",
+      "destination": "/jarchi/index.html"
+    },
+    {
+      "source": "/jarchi",
+      "destination": "/jarchi/index.html"
+    },
+    {
       "source": "/kunlik",
       "destination": "/oyin/index.html"
     },
