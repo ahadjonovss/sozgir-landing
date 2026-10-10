@@ -44,9 +44,16 @@ export default function TurnirLobby({ turnir }: { turnir: Turnir }) {
       </div>
 
       {/* Zinapoya — necha davra o'ynalishi. Son yig'ilish paytida ham
-          turnir hajmidan olinadi: odam nimaga yozilayotganini bilsin. */}
+          turnir hajmidan olinadi: odam nimaga yozilayotganini bilsin.
+
+          Sanoq **har qanday** turnirda turadi, tezkorida ham,
+          do'stlar turnirida ham: server ikkalasiga ham yig'ilish
+          muddatini yozadi (`startsAt`) va muddat tugaganda turnir
+          o'zi boshlanadi. Ilgari sanoq faqat tezkorida ko'rinardi
+          va do'stlar turnirini ochgan odam vaqt ketayotganini
+          bilmasdi — ilovada esa u ko'rinib turardi. */}
       <p className="tnr-lobby__steps">
-        {quick && left !== null ? (
+        {left !== null ? (
           <>
             <b>
               Boshlanishiga:{' '}
@@ -147,8 +154,8 @@ export default function TurnirLobby({ turnir }: { turnir: Turnir }) {
         {quick
           ? 'Sanoq tugaguncha qatnashchilar yig‘iladi — kutib turing yoki do‘stingizni chaqiring.'
           : turnir.isHost
-            ? 'Hamma yig‘ilgach «Boshlash» ni bosing. Turnir boshlanmaguncha bu sahifa ochiq tursin.'
-            : 'Turnirni tashkilotchi boshlaydi — boshlanmaguncha bu sahifa ochiq tursin.'}
+            ? 'Sanoq tugaganda turnir o‘zi boshlanadi. Kutmay boshlash uchun «Boshlash» ni bosing — bu sahifa ochiq tursin.'
+            : 'Sanoq tugaganda turnir o‘zi boshlanadi — tashkilotchi uni ertaroq ham boshlashi mumkin. Bu sahifa ochiq tursin.'}
       </p>
     </div>
   );
