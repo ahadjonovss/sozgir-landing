@@ -1,0 +1,377 @@
+<!doctype html>
+<!-- So'zTop havolasi — o'yinchi yashirgan so'z.
+
+       sozgir.uz/soztop/AB12CD
+
+     Ilovasi bor odamda bu manzil ilovani ochadi (universal havola,
+     `public/.well-known/apple-app-site-association` dagi `/soztop/*`;
+     Android tomonda `AndroidManifest.xml` dagi `/soztop/`) va bu
+     sahifa umuman ko'rinmaydi. Ya'ni sahifaga tushgan odamda ilova
+     **yo'q**.
+
+     Shundan sahifaning yagona vazifasi kelib chiqadi: **koddan
+     ayirmaslik** — `/jarchi/<KOD>` dagi kabi. Kechiktirilgan havola
+     ishlamaydi: odam do'konga boradi, ilovani o'rnatadi va havola
+     yo'qoladi. Shuning uchun do'konga avtomatik o'tkazilmaydi; avval
+     kod katta kataklarda ko'rsatiladi va nusxalanadi, do'konga esa
+     odamning o'zi bosadi. Ilovada kod «So'zTop → Kod bilan o'ynash»
+     oynasiga kiritiladi (`challenge_hub_page.dart`).
+
+     Saytda o'ynash yo'q: so'z `word_challenges/{KOD}/secret` da turadi
+     va taxminni faqat `challengeGuess` tekshiradi, ya'ni modul butunlay
+     ilovaniki (`soztop/docs/soztop.md`).
+
+     Kodsiz manzil (`/soztop`) bu yerga tushmaydi — ilova ham uni
+     tanimaydi (`DeepLink.parse`: `challengeSegment` faqat kod bilan).
+
+     `public/` ichida turadi — React ilovaga tegmaydi va bundle
+     yuklanmaydi. -->
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121317" media="(prefers-color-scheme: dark)">
+
+<title>So‘zgir — yashirilgan so‘z</title>
+<meta name="description" content="Do‘stingiz So‘zgirda so‘z yashirdi. Ilovani o‘rnating va kod bilan toping.">
+<!-- Har havola bitta so'zniki: qidiruvda turishi shart emas. -->
+<meta name="robots" content="noindex, follow">
+<link rel="icon" type="image/png" href="/icon.png">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="So‘zgir">
+<meta property="og:locale" content="uz_UZ">
+<meta property="og:title" content="So‘zgirda yashirilgan so‘z">
+<meta property="og:description" content="Do‘stingiz bitta so‘z yashirdi. Topa olasizmi?">
+<meta property="og:image" content="https://sozgir.uz/icon.png">
+<meta name="twitter:card" content="summary">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  /* Landing dizayn tizimidagi tokenlar — `public/jarchi/index.html` va
+     `public/ol/index.html` bilan bir xil, uch sahifa yonma-yon ochilsa
+     farq bilinmasin. */
+  :root {
+    --bg: #ffffff;
+    --surface: #f7f9fc;
+    --text: #16181d;
+    --text-2: #7a8290;
+    --divider: #eceef2;
+    --green: #63a967;
+    --green-soft: rgba(99, 169, 103, 0.14);
+    --ink: #16181d;
+    --ink-text: #ffffff;
+    --radius-lg: 26px;
+    --radius-md: 16px;
+    --shadow: 0 1px 2px rgba(22, 24, 29, 0.04), 0 8px 24px rgba(22, 24, 29, 0.06);
+  }
+  :root[data-theme='dark'] {
+    --bg: #121317;
+    --surface: #1b1d23;
+    --text: #f3f4f6;
+    --text-2: #9aa1ae;
+    --divider: #262a31;
+    --green: #5e9e63;
+    --green-soft: rgba(94, 158, 99, 0.2);
+    --ink: #f3f4f6;
+    --ink-text: #121317;
+    --shadow: none;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 20px calc(24px + env(safe-area-inset-bottom));
+    background: var(--bg);
+    color: var(--text);
+    font-family: Nunito, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+                 Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+  }
+  .card {
+    width: 100%;
+    max-width: 420px;
+    padding: 32px 24px 26px;
+    background: var(--surface);
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    text-align: center;
+  }
+  .icon { width: 72px; height: 72px; margin: 0 auto 16px; display: block; border-radius: 18px; }
+  h1 { margin: 0 0 8px; font-size: 25px; font-weight: 900; letter-spacing: -0.4px; }
+  .lead { margin: 0; color: var(--text-2); }
+
+  /* ── Yashirilgan so'z ────────────────────────────────────────────
+     Bo'sh kataklar: odam nimani topishi kerakligini bir qarashda
+     ko'radi. Uzunligi noma'lum (u `word_challenges/{KOD}` da turadi,
+     sahifa esa serverga chiqmaydi), shuning uchun beshta — eng keng
+     tarqalgan uzunlik. */
+  .word {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin: 20px 0 0;
+  }
+  .word__tile {
+    width: 42px;
+    height: 50px;
+    border-radius: 10px;
+    border: 2px solid var(--divider);
+    background: var(--bg);
+  }
+
+  /* ── Kod ──────────────────────────────────────────────────────────
+     Sahifadagi eng muhim narsa: odam uni o'qiydi, nusxalaydi yoki
+     telefonda aytib beradi. Harflar kataklarda — ilovadagi taxta
+     bilan bir ohangda va bittalab o'qiladi. */
+  .code { margin: 18px 0 0; }
+  .code__label {
+    margin: 0 0 8px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--text-2);
+  }
+  .code__tiles {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .code__tile {
+    width: 42px;
+    height: 50px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 900;
+    color: #fff;
+    background: var(--green);
+    /* Raqam va harf bir xil kenglikda tursin. */
+    font-variant-numeric: tabular-nums;
+  }
+  .copy {
+    margin: 12px auto 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    min-height: 44px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--divider);
+    background: var(--bg);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .copy:active { transform: scale(0.985); }
+
+  .stores { display: flex; flex-direction: column; gap: 10px; margin: 22px 0 0; }
+  .store {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 18px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--divider);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none;
+    min-height: 52px;
+  }
+  .store:active { transform: scale(0.985); }
+  .store--primary {
+    order: -1;
+    background: var(--ink);
+    color: var(--ink-text);
+    border-color: var(--ink);
+  }
+  .store svg { flex: none; }
+
+  .facts {
+    margin: 22px 0 0;
+    padding-top: 18px;
+    border-top: 1px solid var(--divider);
+    font-size: 14px;
+    color: var(--text-2);
+  }
+  .home {
+    display: inline-block;
+    margin-top: 16px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--green);
+    text-decoration: none;
+  }
+  .home:hover { text-decoration: underline; }
+  [hidden] { display: none !important; }
+</style>
+<script>
+  // Mavzu birinchi chizishdan oldin — landing bilan bir kalit.
+  (function () {
+    var saved = null;
+    try { saved = localStorage.getItem('sozgir.theme'); } catch (error) { saved = null; }
+    var dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.dataset.theme = saved || (dark ? 'dark' : 'light');
+  })();
+</script>
+</head>
+<body>
+  <main class="card">
+    <img class="icon" src="/icon.png" alt="So‘zgir" width="72" height="72">
+
+    <h1 id="title">So‘zgir ilovasi</h1>
+    <p class="lead" id="lead">Kuniga bitta o‘zbekcha so‘z. Bepul, xaridsiz,
+      internetsiz ham ishlaydi.</p>
+
+    <!-- Kodli manzilda ochiladi; kodsizida yopiq qoladi. -->
+    <div id="hidden-word" hidden>
+      <div class="word" aria-hidden="true">
+        <span class="word__tile"></span>
+        <span class="word__tile"></span>
+        <span class="word__tile"></span>
+        <span class="word__tile"></span>
+        <span class="word__tile"></span>
+      </div>
+
+      <div class="code">
+        <p class="code__label">Kod</p>
+        <div class="code__tiles" id="tiles" aria-hidden="true"></div>
+        <button class="copy" id="copy" type="button">Kodni nusxalash</button>
+      </div>
+    </div>
+
+    <div class="stores">
+      <a class="store" id="ios" href="https://apps.apple.com/app/id6807138456">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
+          <path d="M16.4 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9s-1.8-.9-3-.8c-1.5 0-2.9.9-3.7 2.3-1.6 2.7-.4 6.8 1.1 9 .8 1.1 1.7 2.3 2.9 2.2 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.2.9-1.2 1.3-2.5 1.3-2.5s-2.5-1-2.5-3.6zM14.2 5.8c.6-.8 1.1-1.9 1-3-1 0-2.1.6-2.8 1.5-.6.7-1.1 1.9-1 3 1.1.1 2.2-.6 2.8-1.5z" />
+        </svg>
+        App Store
+      </a>
+      <a class="store" id="android" href="https://play.google.com/store/apps/details?id=uz.ahadjonovss.soztop">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
+          <path d="M3.6 2.3c-.3.3-.5.8-.5 1.4v16.6c0 .6.2 1.1.5 1.4l.1.1 9.3-9.3v-.2L3.6 2.3zM16.3 15.6l-3.1-3.1v-.2l3.1-3.1.1.1 3.7 2.1c1 .6 1 1.6 0 2.2l-3.8 2zM15.9 16l-3.2-3.2-9.1 9.1c.3.4.9.4 1.6.1l10.7-6M15.9 8l-10.7-6c-.7-.4-1.3-.3-1.6.1l9.1 9.1L15.9 8z" />
+        </svg>
+        Google Play
+      </a>
+    </div>
+
+    <p class="facts" id="facts">iOS 15+ va Android 6.0+ · Ilova ichi xaridlari va obuna yo‘q</p>
+    <a class="home" href="/">So‘zgir bosh sahifasi →</a>
+  </main>
+
+<script>
+  (function () {
+    var ua = navigator.userAgent || '';
+    var ios = /iPhone|iPad|iPod/.test(ua) ||
+      (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+    var android = /Android/.test(ua);
+    var stay = /[?&]stay=1/.test(location.search);
+
+    // ── Kod ───────────────────────────────────────────────────────────
+    // Manzilning oxirgi bo'lagi. Kod — olti belgi (serverdagi
+    // `CODE_ALPHABET`: chalkashadigan `I`, `O`, `0`, `1` yo'q), lekin
+    // tekshiruv shaklga qarab qilinadi: alifbo kengaysa sahifa
+    // yangilanishi shart emas — ilovadagi `DeepLink._codePattern` ham
+    // aynan shunday qaraydi.
+    var parts = location.pathname.split('/').filter(Boolean);
+    var last = parts.length > 1 ? decodeURIComponent(parts[parts.length - 1]) : '';
+    var code = /^[a-z0-9]{6}$/i.test(last) ? last.toUpperCase() : '';
+
+    if (code) {
+      document.getElementById('title').textContent = 'Yashirilgan so‘z';
+      document.getElementById('lead').textContent =
+        'Do‘stingiz So‘zgirda bitta so‘z yashirdi. Ilovani o‘rnating va ' +
+        '«So‘zTop → Kod bilan o‘ynash» oynasiga shu kodni kiriting.';
+      document.getElementById('facts').textContent =
+        'So‘z havola yaratilgandan keyin 30 kun ochiq turadi · iOS 15+ va Android 6.0+';
+      document.title = 'So‘zgir — yashirilgan so‘z ' + code;
+
+      var tiles = document.getElementById('tiles');
+      for (var i = 0; i < code.length; i++) {
+        var tile = document.createElement('span');
+        tile.className = 'code__tile';
+        tile.textContent = code[i];
+        tiles.appendChild(tile);
+      }
+      // Ekran o'quvchi uchun: kataklar `aria-hidden`, kod esa shu
+      // yerda butun satr bo'lib turadi.
+      tiles.insertAdjacentHTML(
+        'afterend',
+        '<span class="sr" style="position:absolute;width:1px;height:1px;' +
+        'overflow:hidden;clip:rect(0 0 0 0)">Kod: ' + code + '</span>',
+      );
+      document.getElementById('hidden-word').hidden = false;
+
+      var copy = document.getElementById('copy');
+      copy.addEventListener('click', function () {
+        function done(ok) {
+          copy.textContent = ok ? 'Nusxalandi ✓' : 'Nusxalanmadi — qo‘lda yozing';
+          setTimeout(function () { copy.textContent = 'Kodni nusxalash'; }, 2000);
+        }
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(code).then(function () { done(true); },
+                                                     function () { done(false); });
+            return;
+          }
+        } catch (error) { /* pastdagi zaxira yo'l */ }
+        // Eski brauzer: vaqtinchalik maydon orqali.
+        try {
+          var field = document.createElement('input');
+          field.value = code;
+          field.setAttribute('readonly', '');
+          field.style.position = 'fixed';
+          field.style.opacity = '0';
+          document.body.appendChild(field);
+          field.select();
+          field.setSelectionRange(0, code.length);
+          done(document.execCommand('copy'));
+          document.body.removeChild(field);
+        } catch (error) { done(false); }
+      });
+    }
+
+    // ── Do'kon ────────────────────────────────────────────────────────
+    // Qurilmaning do'koni birinchi va to'q tugma bo'ladi.
+    var primary = ios ? 'ios' : android ? 'android' : '';
+    if (primary) document.getElementById(primary).classList.add('store--primary');
+
+    // Kodli manzilda avtomatik o'tish **yo'q**: sahifaning butun
+    // vazifasi kodni ko'rsatib qolish, do'kon esa undan keyin
+    // (`/jarchi/<KOD>` dagi sabab). Kodsiz manzilda sahifaning o'zi
+    // keraksiz — u `/ol` kabi darhol do'konga o'tadi.
+    if (!code && primary && !stay) {
+      var link = document.getElementById(primary);
+      document.getElementById('lead').textContent =
+        'Do‘konga o‘tkazilmoqda… Ochilmasa, tugmani bosing.';
+      setTimeout(function () { location.replace(link.href); }, 400);
+    } else if (!primary) {
+      // Kompyuter: ilova faqat telefonda, ya'ni havolaning o'zi kerak.
+      document.getElementById('lead').textContent = code
+        ? 'Do‘stingiz So‘zgirda bitta so‘z yashirdi. Ilova telefonda ishlaydi — ' +
+          'kodni saqlab qo‘ying yoki shu havolani telefoningizga yuboring: ' +
+          'sozgir.uz' + location.pathname.replace(/\/index\.html$/, '')
+        : 'Kuniga bitta o‘zbekcha so‘z. Havolani telefoningizga yuboring — ' +
+          'sozgir.uz' + location.pathname.replace(/\/index\.html$/, '');
+    }
+  })();
+</script>
+</body>
+</html>

@@ -70,6 +70,10 @@
       "destination": "/jarchi/index.html"
     },
     {
+      "source": "/soztop/:code",
+      "destination": "/soztop/index.html"
+    },
+    {
       "source": "/jarchi",
       "destination": "/jarchi/index.html"
     },
