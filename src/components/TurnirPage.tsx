@@ -20,6 +20,7 @@ import {
   TURNIR_GROUP,
   TURNIR_MIN_PLAYERS,
   TURNIR_SIZES,
+  earnedBy,
   memberName,
   playerCount,
   turnirPath,
@@ -555,7 +556,9 @@ function FinalTable({ turnir }: { turnir: Turnir }) {
       <h3>Yakuniy jadval</h3>
       <ol className="standings__list">
         {order.map((uid, index) => {
-          const delta = doc?.aqcha?.[uid] ?? 0;
+          // Ustama bilan: sovrinli o'rin egasi ekranda haqiqatan
+          // olgan sonini ko'rsin.
+          const delta = earnedBy(doc, uid) ?? 0;
           const balance = doc?.balance?.[uid];
           const mine = uid === turnir.mine;
           return (

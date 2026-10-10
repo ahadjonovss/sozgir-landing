@@ -356,6 +356,30 @@ export function groupName({
   return from === to - 1 ? `${from}-o‘rin uchun` : `${from}–${to}-o‘rinlar`;
 }
 
+/** Shu turnirda odam qo'lga kiritgan aqcha — **ustama bilan**.
+ *
+ *  `aqcha` da faqat janglardan kelgani turadi: u reytingdan chiqadi
+ *  va kuchli raqib bilan o'ynagan odam ikkinchi o'rinni olib ham
+ *  minusda qolishi mumkin. Turnir ustamasi esa alohida chelakda
+ *  (`scores/{uid}.bonusAqcha`) va jadvalga tushmasdi — ekranda
+ *  «2-o'rin, −2 aqcha» degan qarama-qarshilik ko'rinardi.
+ *
+ *  Shuning uchun uchta sovrinli o'rin uchun ustama shu yerda
+ *  qo'shiladi: odam ekranda **haqiqatan olgan** sonini ko'radi.
+ *  Ilovadagi `Turnir.earnedBy` ning aynan o'zi. Hali yozilmagan
+ *  bo'lsa `null` — jadval bo'sh joy qoldiradi. */
+export function earnedBy(
+  doc: TurnirDoc | null | undefined,
+  uid: string,
+): number | null {
+  const base = doc?.aqcha?.[uid];
+  if (base === undefined) return null;
+  if (uid && uid === doc?.winnerUid) return base + (doc.prize ?? 0);
+  if (uid && uid === doc?.runnerUpUid) return base + (doc.runnerUpPrize ?? 0);
+  if (uid && uid === doc?.thirdUid) return base + (doc.thirdPrize ?? 0);
+  return base;
+}
+
 export const memberName = (doc: TurnirDoc | null | undefined, uid: string) =>
   doc?.members?.[uid]?.nickname ?? 'Mehmon';
 
