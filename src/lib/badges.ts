@@ -128,9 +128,9 @@ export const BADGES: Badge[] = [
   // ── Jang ─────────────────────────────────────────────────────────
   {
     id: 'ilk_olja',
-    label: 'Ilk o‘lja',
+    label: 'Ilk aqcha',
     hint: 'Bellashuvda birinchi g‘alabani qo‘lga kiriting',
-    story: 'Bellashuvdagi birinchi g‘alaba va u bilan kelgan birinchi o‘lja.',
+    story: 'Bellashuvdagi birinchi g‘alaba va u bilan kelgan birinchi aqcha.',
     target: 1,
     source: 'battleWins',
   },

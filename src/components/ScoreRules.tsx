@@ -39,7 +39,7 @@ function linesOf(game: ScoredGame): string[] {
         `Cheksiz rejimda qancha urinish qolsa — shuncha aqcha: ${LENGTHS[0]} harfda eng ko‘pi ${short}, ${LENGTHS[LENGTHS.length - 1]} harfda ${long}.`,
         'Avval topilgan so‘z 60 % beradi — lekin hech qachon 1 aqchadan kam emas.',
         'Yordam olsangiz shift tushadi: mavzu ochilsa 6, ma’nosi ham ochilsa 4 aqcha. Kunlik o‘yinda yordam yo‘q.',
-        'Yig‘ilgan aqcha kunlik va umumiy reytingga tushadi.',
+        'Yig‘ilgan aqcha kunlik va umumiy jadvalga tushadi.',
       ];
     case 'guncha':
       return [
@@ -49,21 +49,21 @@ function linesOf(game: ScoredGame): string[] {
       ];
     case 'sozjang':
       return [
-        'Jang aqcha emas, o‘lja beradi: odatdagi jangda eng ko‘pi ±7, birinchi janglarda ±10.',
-        'O‘lja yo‘qdan paydo bo‘lmaydi — u raqibdan olinadi: siz olganingizni u yo‘qotadi.',
-        'Taslim bo‘lingan jang o‘ljaga kirmaydi.',
+        'Jang ham aqcha beradi: odatdagi jangda eng ko‘pi ±7, birinchi janglarda ±10.',
+        'Jangdagi aqcha yo‘qdan paydo bo‘lmaydi — u raqibdan olinadi: siz olganingizni u yo‘qotadi.',
+        'Taslim bo‘lingan jang hisobga kirmaydi.',
         'Darajalar: Chopar, Cherik, Navkar, O‘nboshi, Yuzboshi, Mingboshi, Botir, Bahodir, Tarxon, Alp.',
       ];
     case 'gunchajang':
       return [
         'Jangdagi hisob g‘unchadagidek: 4 harfli so‘z — 1, uzuni harflari soniga teng, pangramma — qo‘shimcha 7.',
-        'Jang aqcha emas, o‘lja beradi: eng ko‘pi ±5, birinchi janglarda ±7.',
+        'Jang ham aqcha beradi: eng ko‘pi ±5, birinchi janglarda ±7.',
         'Jangda yig‘ilgan hisob umumiy aqchaga qo‘shilmaydi — u shu jangning o‘lchovi.',
       ];
     case 'mardu':
       return [
         'Hisob o‘yinning o‘z qoidasi bo‘yicha yuritiladi — maydon uni o‘zgartirmaydi.',
-        'Oxirida jadval tuziladi va o‘lja o‘rin bo‘yicha taqsimlanadi: yuqoridagi oladi, quyidagi beradi.',
+        'Oxirida jadval tuziladi va aqcha o‘rin bo‘yicha taqsimlanadi: yuqoridagi oladi, quyidagi beradi.',
       ];
   }
 }

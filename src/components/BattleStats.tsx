@@ -7,7 +7,7 @@
  *  Hujjatda xom reyting turadi, ekranda esa o'lja: chegaralar xom sonda
  *  tekshiriladi, ko'rsatiladigan farq esa o'ljada (`lib/aqcha.ts`). */
 import { useEffect, useState } from 'react';
-import { olja } from '../lib/aqcha';
+import { battleAqcha } from '../lib/aqcha';
 import {
   EMPTY_RATING,
   nextTierAt,
@@ -20,7 +20,7 @@ import {
 } from '../lib/battleRating';
 import { useDonorTier } from '../lib/donor';
 import DonorChip from './DonorChip';
-import { Olja, TierBadge } from './Units';
+import { BattleAqcha, TierBadge } from './Units';
 
 export default function BattleStats({ uid, compact = false }: { uid: string; compact?: boolean }) {
   const [value, setValue] = useState<BattleRating | null>(null);
@@ -53,9 +53,9 @@ export default function BattleStats({ uid, compact = false }: { uid: string; com
       }`}
     >
       <div className="rating__main">
-        <span className="rating__label">O‘lja</span>
+        <span className="rating__label">Jang aqchasi</span>
         <strong className="rating__value">
-          <Olja rating={rating.rating} size="lg" />
+          <BattleAqcha rating={rating.rating} size="lg" />
         </strong>
         <span className="rating__tiers">
           <span className="rating__tier">
@@ -70,7 +70,7 @@ export default function BattleStats({ uid, compact = false }: { uid: string; com
         <span className="rating__next">
           {next === null
             ? 'Eng yuqori daraja'
-            : `Keyingi darajaga ${olja(next) - olja(rating.rating)} O‘lja`}
+            : `Keyingi darajaga ${battleAqcha(next) - battleAqcha(rating.rating)} aqcha`}
         </span>
       </div>
 

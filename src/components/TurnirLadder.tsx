@@ -65,13 +65,20 @@ function Round({ round }: { round: LadderRound }) {
 
 function Group({ group, label }: { group: LadderGroup; label: string }) {
   return (
-    <div className={`ladder__group${group.done ? ' ladder__group--done' : ''}`}>
-      {(label || !group.done) && (
-        <span className="ladder__gname">
-          {label && <b>{label}</b>}
+    <div
+      className={`ladder__group${group.done ? ' ladder__group--done' : ' ladder__group--live'}`}
+    >
+      {/* Holat — **yorliq**, ko'zga tashlanadigan: ilgari u nomning
+          yonida kichkina kulrang yozuv edi va qaysi guruh hali
+          o'ynayotganini ajratib bo'lmasdi. Ketayotganida yashil
+          nuqta uriladi, tugaganida esa kartochkaning o'zi
+          so'lg'unlashadi. */}
+      <span className="ladder__gname">
+        {label && <b>{label}</b>}
+        <i className={group.done ? 'ladder__state' : 'ladder__state ladder__state--live'}>
           {group.done ? 'tugadi' : 'ketyapti'}
-        </span>
-      )}
+        </i>
+      </span>
       <ol className="ladder__seats">
         {group.seats.map((seat) => (
           <Seat key={seat.uid} seat={seat} done={group.done} />

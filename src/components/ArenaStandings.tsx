@@ -6,12 +6,12 @@
  *  saqlanadi. */
 import { playerLink } from '../data/site';
 import type { ArenaRow } from '../lib/mardu';
-import { oljaDelta } from '../lib/aqcha';
+import { battleAqchaDelta } from '../lib/aqcha';
 import type { BattleGame } from '../lib/battle';
 import Avatar from './Avatar';
 import PlayerName from './PlayerName';
 import YouTag from './YouTag';
-import { OljaDelta } from './Units';
+import { AqchaDelta } from './Units';
 
 /** Poydevordagi tartib: ikkinchi, birinchi, uchinchi — o'rtadagi baland. */
 const PODIUM = [1, 0, 2];
@@ -28,7 +28,7 @@ function scoreText(row: ArenaRow, game: BattleGame): string {
 function deltaOf(row: ArenaRow): number | null {
   const { ratingBefore, ratingAfter } = row.player;
   if (ratingBefore === undefined || ratingAfter === undefined) return null;
-  return oljaDelta(ratingBefore, ratingAfter);
+  return battleAqchaDelta(ratingBefore, ratingAfter);
 }
 
 export default function ArenaStandings({
@@ -92,7 +92,7 @@ export default function ArenaStandings({
                         : ''
                   }`}
                 >
-                  <OljaDelta value={delta} />
+                  <AqchaDelta value={delta} />
                 </span>
               )}
             </li>

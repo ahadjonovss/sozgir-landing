@@ -212,7 +212,7 @@ export default function SupportPage() {
                     <strong className="sp__me-sum">Hissa qo‘shing</strong>
                     <span className="sp__me-note">
                       Donat qilganlar avatar halqasi va daraja chipi bilan
-                      ajralib turadi — reytingda, jangda, profilda.
+                      ajralib turadi — jadvalda, jangda, profilda.
                     </span>
                   </div>
                 </div>
@@ -238,7 +238,7 @@ export default function SupportPage() {
               </div>
               <Tiers />
               <p className="panel__note">
-                Halqa va chip hamma joyda ko‘rinadi: reyting jadvali, jang
+                Halqa va chip hamma joyda ko‘rinadi: jadval, jang
                 afishasi, natija va profil. Telefondagi ilovada ham.
               </p>
             </div>

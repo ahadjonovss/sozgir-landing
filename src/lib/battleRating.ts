@@ -4,7 +4,7 @@
  *  o'qish hammaga ochiq. Darajalar va chegaralar ilova bilan bir xil,
  *  aks holda saytda bir daraja, telefonda boshqasi ko'rinardi.
  *
- *  Hujjatdagi son — **xom reyting**. Ekranga u `olja()` dan o'tib
+ *  Hujjatdagi son — **xom reyting**. Ekranga u `battleAqcha()` dan o'tib
  *  chiqadi (`lib/aqcha.ts`), chegaralar esa xom sonda tekshiriladi. */
 import { client } from '../firebase/client';
 import { PATHS } from '../firebase/paths';
@@ -60,7 +60,7 @@ export const winRate = (value: BattleRating) =>
   played(value) === 0 ? 0 : Math.round((value.wins / played(value)) * 100);
 
 /** Keyingi darajaning chegarasi — **xom reytingda**. Eng yuqorida `null`.
- *  Ekranda ko'rsatiladigan farq `olja()` dan o'tkaziladi. */
+ *  Ekranda ko'rsatiladigan farq `battleAqcha()` dan o'tkaziladi. */
 export function nextTierAt(rating: number): number | null {
   const next = TIERS[tierIndex(rating) + 1];
   return next ? next.from : null;

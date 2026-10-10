@@ -20,7 +20,7 @@ import { EMPTY_RATING, watchRating, type BattleRating } from '../lib/battleRatin
 import { pretty } from '../lib/uz';
 import Avatar from './Avatar';
 import { VerifiedMark } from './PlayerName';
-import { Olja, TierBadge } from './Units';
+import { BattleAqcha, TierBadge } from './Units';
 
 /** Gulning o'lchovlari — `GunchaFlower` bilan bir xil maydonda
  *  (100×100), shuning uchun sanoqdagi gul o'yindagisi bilan bir
@@ -92,7 +92,7 @@ function Face({
       {rating && (
         <span className="gcount__rating">
           <TierBadge rating={shown.rating} size={16} />
-          <Olja rating={shown.rating} size="sm" />
+          <BattleAqcha rating={shown.rating} size="sm" />
         </span>
       )}
     </div>

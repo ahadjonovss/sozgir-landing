@@ -10,7 +10,7 @@
  *  Ma'lumot turnir hujjatidan keladi (`useTurnir`): u joriy
  *  davraning guruh janglarini ham kuzatadi, ya'ni jadval jonli
  *  — qo'shni guruhda kim yetakchi ekani shu zahoti ko'rinadi. */
-import { groupName } from '../lib/turnir';
+import { groupName, turnirPath } from '../lib/turnir';
 import { useTurnir } from '../lib/useTurnir';
 import { pretty } from '../lib/uz';
 import Avatar from './Avatar';
@@ -59,6 +59,56 @@ export function TurnirGroups({ code, battleId }: { code: string; battleId: strin
         </div>
       ))}
     </aside>
+  );
+}
+
+/** Guruh jangi boshlanishini kutish — turnirga xos ekran.
+ *
+ *  Bu yerda odatdagi «Chaqiruv tayyor» ekrani turardi: kod,
+ *  havola va «Bekor qilish». Uchalasi ham yolg'on edi — turnir
+ *  guruhida kod yo'q (xonani server tuzadi), chaqiradigan odam ham
+ *  yo'q, bekor qilinadigan narsa ham: guruh hamma tayyor bo'lgach
+ *  o'zi boshlanadi.
+ *
+ *  Shuning uchun bu yerda faqat rost gap bor: qaysi davra, kim
+ *  bilan va nimani kutyapmiz. */
+export function TurnirWaiting({ code, battleId }: { code: string; battleId: string }) {
+  const turnir = useTurnir(code);
+  const round = turnir.rounds.find((item) => item.current);
+  const mine = round?.groups.find((group) => group.battleId === battleId);
+
+  return (
+    <div className="stage tnr-wait">
+      <div className="stage__head">
+        <h2>Guruh jangi</h2>
+        <span className="stage__tag">
+          {round ? `${round.round}-davra` : 'Turnir'}
+        </span>
+      </div>
+
+      <p className="stage__hint" role="status">
+        Guruhdagilar yig‘ilmoqda — jang o‘zi ochiladi, shu sahifada
+        turing.
+      </p>
+
+      {mine && mine.seats.length > 0 && (
+        <ul className="tnr-wait__seats">
+          {mine.seats.map((seat) => (
+            <li key={seat.uid} className={seat.mine ? 'tnr-wait__me' : undefined}>
+              <Avatar name={seat.nickname} uid={seat.uid} size={28} />
+              <span>{pretty(seat.nickname)}</span>
+              {seat.mine && <i>siz</i>}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="result__actions">
+        <a className="btn btn--outline btn--sm" href={turnirPath(code)}>
+          <Trophy size={14} /> Turnirga qaytish
+        </a>
+      </div>
+    </div>
   );
 }
 

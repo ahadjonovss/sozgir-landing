@@ -17,7 +17,7 @@ import PlayerName from './PlayerName';
 import YouTag from './YouTag';
 import { Swords } from './Icons';
 import SendInvite, { type InviteTarget } from './SendInvite';
-import { Olja, TierBadge } from './Units';
+import { BattleAqcha, TierBadge } from './Units';
 
 export default function BattleBoard() {
   const { account, openPrompt } = useAuth();
@@ -51,7 +51,7 @@ export default function BattleBoard() {
   return (
     <div className="panel">
       <div className="panel__head">
-        <h3>O‘lja jadvali</h3>
+        <h3>Jang jadvali</h3>
         <span className="panel__tag">Eng yaxshi 10</span>
       </div>
 
@@ -93,7 +93,7 @@ export default function BattleBoard() {
                 {tierName(row.rating)}
               </span>
               <span className="rank__points">
-                <Olja rating={row.rating} size="sm" />
+                <BattleAqcha rating={row.rating} size="sm" />
               </span>
               {row.uid !== account?.uid && canInvite(row.uid) && (
                 <button

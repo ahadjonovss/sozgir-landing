@@ -55,7 +55,7 @@ export default function DonorMarks({ uid }: { uid: string }) {
         <span className="panel__tag">{current ? current.label : 'Tanlanmagan'}</span>
       </div>
       <p className="panel__note">
-        Muhr ismingiz yonida turadi — reytingda, jangda va profilda.
+        Muhr ismingiz yonida turadi — jadvalda, jangda va profilda.
         Yig‘indingiz yetgani tanlanadi; qayta bossangiz olib tashlanadi.
       </p>
 

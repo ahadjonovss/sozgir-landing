@@ -41,7 +41,7 @@ export const VERIFIED = {
     'haqiqatan ham o‘sha odam. Belgi taniqli shaxslarga beriladi va uni ' +
     'faqat So‘zgir jamoasi qo‘yadi.',
   note:
-    'Belgi o‘yin qoidasini o‘zgartirmaydi: aqcha ham, o‘lja ham hammada ' +
+    'Belgi o‘yin qoidasini o‘zgartirmaydi: aqcha hammada ' +
     'bir xil yig‘iladi.',
   /** Odam **o'z** belgisini bosganda: tushuntirish emas, minnatdorchilik. */
   thanksTitle: 'Tashakkur',

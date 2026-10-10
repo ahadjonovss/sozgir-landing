@@ -31,7 +31,7 @@ export default function BadgesPage() {
           <p className="section__lead">
             Nishon — bir martalik yutuq belgisi. U aqcha bermaydi va hech
             narsani ochmaydi, lekin bir marta olingach hech qachon qaytarib
-            olinmaydi: ketma-ketlik uzilsa ham, o‘lja tushsa ham o‘z egasida
+            olinmaydi: ketma-ketlik uzilsa ham, aqcha tushsa ham o‘z egasida
             qoladi.
           </p>
           <p className="nishon__count">

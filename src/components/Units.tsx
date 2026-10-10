@@ -8,7 +8,7 @@
  *  Rasm `public/` da turadi, ya'ni manzili barqaror va keshlanadi.
  *  `alt` bo'sh emas: ekran o'quvchisi «598 aqcha» deb o'qishi kerak,
  *  shuning uchun belgi matnning bir qismi. */
-import { formatAqcha, formatOlja, signed } from '../lib/aqcha';
+import { formatAqcha, formatBattleAqcha, signed } from '../lib/aqcha';
 import { tierName, tierSlug } from '../lib/battleRating';
 import { donorLabel, donorSlug, type DonorTier } from '../lib/donor';
 
@@ -55,18 +55,18 @@ export function Aqcha({
 }
 
 /** Xom reytingni o'lja belgisi bilan ko'rsatadi. */
-export function Olja({ rating, size = 'md' }: { rating: number; size?: Size }) {
+export function BattleAqcha({ rating, size = 'md' }: { rating: number; size?: Size }) {
   return (
-    <Unit src="/olja.png" alt="O‘lja" size={size}>
-      {formatOlja(rating)}
+    <Unit src="/aqcha.png" alt="Aqcha" size={size}>
+      {formatBattleAqcha(rating)}
     </Unit>
   );
 }
 
 /** Jangdagi o'zgarish: +6, −6 — belgisi bilan. */
-export function OljaDelta({ value, size = 'sm' }: { value: number; size?: Size }) {
+export function AqchaDelta({ value, size = 'sm' }: { value: number; size?: Size }) {
   return (
-    <Unit src="/olja.png" alt="O‘lja" size={size}>
+    <Unit src="/aqcha.png" alt="Aqcha" size={size}>
       {signed(value)}
     </Unit>
   );

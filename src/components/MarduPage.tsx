@@ -61,7 +61,7 @@ export default function MarduPage() {
           <div className="panel panel--call">
             <h3>Maydon uchun hisob kerak</h3>
             <p className="panel__note">
-              Maydondagilar taxallusingizni ko‘radi va o‘rin o‘lja
+              Maydondagilar taxallusingizni ko‘radi va o‘rin aqcha
               beradi — shuning uchun maydon hisobsiz o‘ynalmaydi.
             </p>
             <button className="btn btn--sm" onClick={() => openPrompt('signIn')}>

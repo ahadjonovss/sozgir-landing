@@ -251,7 +251,7 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
     return (
       <Modal
         title="Yangi hisob"
-        lead="Telefon raqamingiz bilan. Natijalaringiz saqlanadi, reytingda ko‘rinadi va boshqa qurilmadan ham ochiladi."
+        lead="Telefon raqamingiz bilan. Natijalaringiz saqlanadi, jadvalda ko‘rinadi va boshqa qurilmadan ham ochiladi."
         onClose={close}
       >
         <form className="form" onSubmit={submit}>

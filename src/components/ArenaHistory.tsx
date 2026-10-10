@@ -11,7 +11,7 @@ import { useAuth } from '../lib/auth';
 import { myBattles, type ArenaBattle } from '../lib/battleHistory';
 import { pretty } from '../lib/uz';
 import Avatar from './Avatar';
-import { OljaDelta } from './Units';
+import { AqchaDelta } from './Units';
 import { VerifiedMark } from './PlayerName';
 
 const OUTCOME: Record<ArenaBattle['outcome'], string> = {
@@ -95,9 +95,9 @@ export default function ArenaHistory() {
                 <span className="history__detail">{pretty(row.detail)}</span>
               )}
               <span className="history__outcome">{OUTCOME[row.outcome]}</span>
-              {row.oljaDelta !== null && row.oljaDelta !== 0 && (
-                <span className="history__delta" title="Jangda olingan o‘lja">
-                  <OljaDelta value={row.oljaDelta} />
+              {row.battleAqchaDelta !== null && row.battleAqchaDelta !== 0 && (
+                <span className="history__delta" title="Jangda olingan aqcha">
+                  <AqchaDelta value={row.battleAqchaDelta} />
                 </span>
               )}
             </li>

@@ -43,7 +43,7 @@ import ArenaStandings from './ArenaStandings';
 import ArenaTiles from './ArenaTiles';
 import { routeParam } from '../lib/useRoute';
 import { seriesOf, turnirPath } from '../lib/turnir';
-import { TurnirGroups, TurnirNext } from './TurnirSide';
+import { TurnirGroups, TurnirNext, TurnirWaiting } from './TurnirSide';
 import { useTurnirHop } from '../lib/useTurnir';
 
 /** Havoladagi kod — chaqiruvni bosib kelgan odam uchun.
@@ -101,7 +101,7 @@ function Head() {
 function Rules() {
   return (
     <details className="lobby__rules">
-      <summary>Qoidalar va o‘lja</summary>
+      <summary>Qoidalar va aqcha</summary>
       <ul>
         <li>Raqibning taxtasida harflar yo‘q — faqat ranglar ko‘rinadi.</li>
         <li>Urinishlar bir xil: 5 harf — 6 urinish. Kamroq urinishda topgan yutadi.</li>
@@ -123,7 +123,7 @@ function Gate() {
         <div className="panel lobby__card lobby__gate">
           <p>
             Jang uchun hisob kerak: raqib taxallusingizni ko‘radi, jang
-            o‘lja beradi.
+            aqcha beradi.
           </p>
           <div className="result__actions">
             <button className="btn btn--lg" onClick={() => openPrompt('signIn')}>
@@ -179,7 +179,7 @@ function Lobby({ game }: { game: Sozjang }) {
             {game.busy ? 'Qidirilmoqda…' : 'Raqib qidirish'}
           </button>
           <p className="panel__note lobby__hint">
-            Reytingi sizga yaqin onlayn raqib. Hozir hech kim bo‘lmasa, navbatda
+            Kuchi sizga yaqin onlayn raqib. Hozir hech kim bo‘lmasa, navbatda
             kutasiz.
           </p>
 
@@ -227,7 +227,7 @@ function Lobby({ game }: { game: Sozjang }) {
  *  yo'q: jumlalar navbat bilan almashadi va kutish tirik ko'rinadi. */
 const SEARCH_LINES = [
   'Onlayn o‘yinchilar ko‘rib chiqilmoqda…',
-  'Reytingi sizga yaqin raqib tanlanmoqda',
+  'Kuchi sizga yaqin raqib tanlanmoqda',
   'Hali ham qidiryapmiz…',
   'Navbatdasiz — raqib chiqishi bilan boshlanadi',
   'Do‘stingizni kod bilan chaqirsangiz tezroq bo‘ladi',
@@ -333,10 +333,16 @@ function JoinFuse({ expiresAt }: { expiresAt?: { seconds?: number } | null }) {
 }
 
 function Waiting({ game }: { game: Sozjang }) {
+  // Turnir guruhida kod ham, chaqiradigan odam ham yo'q —
+  // u yerda butunlay boshqa ekran turadi.
   const { copied, share } = useShare();
   const [codeCopied, setCodeCopied] = useState(false);
   const code = game.code ?? '';
   const link = inviteLink(code);
+  // Turnir guruhida kod ham, chaqiradigan odam ham yo'q — u yerda
+  // butunlay boshqa ekran turadi. Tekshiruv **hook'lardan keyin**:
+  // erta qaytish ularning tartibini buzardi.
+  const series = seriesOf(game.battle);
 
   async function copyCode() {
     try {
@@ -346,6 +352,10 @@ function Waiting({ game }: { game: Sozjang }) {
     } catch {
       // Ruxsat berilmadi — kod ekranda ko'rinib turibdi.
     }
+  }
+
+  if (series && game.battleId) {
+    return <TurnirWaiting code={series} battleId={game.battleId} />;
   }
 
   return (

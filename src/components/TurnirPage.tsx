@@ -55,7 +55,7 @@ export default function TurnirPage() {
           <div className="panel panel--call">
             <h3>Turnir uchun hisob kerak</h3>
             <p className="panel__note">
-              Turnirda o‘rin, reyting va jadval hisobga yoziladi —
+              Turnirda o‘rin, aqcha va jadval hisobga yoziladi —
               shuning uchun u hisobsiz o‘ynalmaydi.
             </p>
             <button className="btn btn--sm" onClick={() => openPrompt('signIn')}>
@@ -239,7 +239,7 @@ function Hub({ turnir }: { turnir: Turnir }) {
               Boshlash uchun kamida {TURNIR_MIN_PLAYERS} kishi kerak.
               Boshlashni tashkilotchi bosadi.
             </li>
-            <li>Har guruh jangi — oddiy maydon: reyting ham, o‘lja ham o‘sha yo‘ldan.</li>
+            <li>Har guruh jangi — oddiy maydon: aqcha ham o‘sha yo‘ldan keladi.</li>
           </ol>
         </div>
       </div>

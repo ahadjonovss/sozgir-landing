@@ -100,7 +100,7 @@ export const modules: Module[] = [
       'Saytda ham o‘ynaladi: do‘stga kod yuboring yoki tasodifiy raqib toping',
       'Tezkor jang: tasodifiy raqib, 90 soniya',
       'Raqibning kataklari harfsiz — faqat ranglar ko‘rinadi',
-      'O‘lja bilan kuchingiz o‘lchanadi: bir jangda eng ko‘pi ±10',
+      'Aqcha bilan kuchingiz o‘lchanadi: bir jangda eng ko‘pi ±10',
     ],
     accent: 'orange',
   },
@@ -218,7 +218,7 @@ export const faq = [
   },
   {
     q: 'Ballarim qayerga ketdi?',
-    a: 'Hech qayerga — ular aqchaga aylandi: 10 ball = 1 aqcha, ya’ni 5 980 ball endi 598 aqcha bo‘lib ko‘rinadi. Saqlangan natijalarga tegilmadi. Onlayn jang reytingi esa o‘lja deb ataladi — u yo‘qdan paydo bo‘lmaydi, raqibdan olinadi.',
+    a: 'Hech qayerga — ular aqchaga aylandi: 10 ball = 1 aqcha, ya’ni 5 980 ball endi 598 aqcha bo‘lib ko‘rinadi. Saqlangan natijalarga tegilmadi. Onlayn jangdagi son ham aqcha — u yo‘qdan paydo bo‘lmaydi, raqibdan olinadi.',
   },
   {
     q: 'Kunlik so‘z hammaga bir xilmi?',
@@ -226,6 +226,6 @@ export const faq = [
   },
   {
     q: 'Aqcha qanday hisoblanadi?',
-    a: 'Kunlik so‘z birinchi urinishda 20 aqcha beradi, keyingi urinishlarda kamayadi: 17, 13, 10, 7, 3. Cheksiz rejimda qancha urinish qolsa — shuncha aqcha, eng ko‘pi 8. Avval topilgan so‘z 60 % beradi, yordam olinsa shift 6 yoki 4 aqchaga tushadi. Jang esa aqcha emas, o‘lja beradi: bir jangda eng ko‘pi ±10.',
+    a: 'Kunlik so‘z birinchi urinishda 20 aqcha beradi, keyingi urinishlarda kamayadi: 17, 13, 10, 7, 3. Cheksiz rejimda qancha urinish qolsa — shuncha aqcha, eng ko‘pi 8. Avval topilgan so‘z 60 % beradi, yordam olinsa shift 6 yoki 4 aqchaga tushadi. Jang ham aqcha beradi: bir jangda eng ko‘pi ±10.',
   },
 ];

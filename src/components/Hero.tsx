@@ -76,7 +76,7 @@ export default function Hero() {
           {/* Jonli sanoq endi sarlavhaning o'rtasida — u butun saytga
               tegishli, faqat bosh sahifaga emas. */}
           <p className="hero__playnote">
-            Bu haqiqiy o‘yin: lug‘at ilovadagi bilan bir xil, natija reytingga
+            Bu haqiqiy o‘yin: lug‘at ilovadagi bilan bir xil, natija jadvalga
             tushadi.{' '}
             <a className="link" href={links.play}>
               To‘liq sahifa →

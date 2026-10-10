@@ -236,7 +236,7 @@ export default function PlayerPage() {
                     bilan keladi — ular takrorlanmaydi; yoniga faqat durang
                     va jadvaldagi o'rin qo'shiladi. */}
                 {profile.battle === null ? (
-                  <Block title="O‘lja">
+                  <Block title="Jang aqchasi">
                     <Empty text="Hali bellashuvda o‘ynamagan" />
                   </Block>
                 ) : (

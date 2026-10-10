@@ -107,7 +107,7 @@ const BASE_PAGES = [
     lead: 'Ikkalangizga bir xil yashirin so‘z. Kim kamroq urinishda topsa — yutadi.',
     body: [
       'Raqibning taxtasida harflar ko‘rinmaydi — faqat ranglar, ya’ni javobni undan o‘qib bo‘lmaydi.',
-      'Jang o‘lja beradi: 1000 dan boshlanadi, bir jangda eng ko‘pi ±10. Darajalar — Chopar, Cherik, Navkar, O‘nboshi, Yuzboshi, Mingboshi, Botir, Bahodir, Tarxon, Alp.',
+      'Jang aqcha beradi: 1000 dan boshlanadi, bir jangda eng ko‘pi ±10. Darajalar — Chopar, Cherik, Navkar, O‘nboshi, Yuzboshi, Mingboshi, Botir, Bahodir, Tarxon, Alp.',
       'Saytda yaratilgan chaqiruvga telefondagi ilovadan ham qo‘shilish mumkin.',
     ],
   },
@@ -149,7 +149,7 @@ const BASE_PAGES = [
       'Yangi o‘yin emas — yangi shakl. O‘sha So‘zjang yoki G‘uncha, lekin ikki kishi emas: sakkiztagacha odam bir vaqtda o‘ynaydi va oxirida jadval tuziladi.',
     body: [
       'Ikki yo‘l bor: tezkor maydonga kirib notanish odamlar bilan o‘ynaysiz (ikkinchi odam kirgach 60 soniyalik sanoq boshlanadi) yoki bitta havola bilan butun davrani bir joyga yig‘asiz.',
-      'O‘yin o‘zgarmaydi — o‘sha so‘z yoki o‘sha g‘uncha, faqat raqib ko‘p. Vaqtni server hisoblaydi, oxirida jadval tuziladi va o‘lja o‘rin bo‘yicha taqsimlanadi.',
+      'O‘yin o‘zgarmaydi — o‘sha so‘z yoki o‘sha g‘uncha, faqat raqib ko‘p. Vaqtni server hisoblaydi, oxirida jadval tuziladi va aqcha o‘rin bo‘yicha taqsimlanadi.',
     ],
   },
   {
@@ -164,7 +164,7 @@ const BASE_PAGES = [
     body: [
       'Hajmi uchta: 8 kishi — uch davra, 16 kishi — to‘rt davra, 32 kishi — besh davra. Har guruhdan yuqori yarmi o‘tadi, teng natijada ro‘yxatga oldinroq kirgani.',
       'Turnir ochgan odam kod oladi: qatnashchilar kod, havola yoki QR orqali qo‘shiladi. Yig‘ilish ikki soat davom etadi, boshlashni tashkilotchi bosadi.',
-      'Har guruh jangi — oddiy mardu maydonining o‘zi: o‘sha so‘z yoki o‘sha g‘uncha, o‘sha jadval, o‘sha o‘lja. Turnir faqat tartib beradi — kim kim bilan va kim keyingi davraga o‘tadi.',
+      'Har guruh jangi — oddiy mardu maydonining o‘zi: o‘sha so‘z yoki o‘sha g‘uncha, o‘sha jadval, o‘sha aqcha. Turnir faqat tartib beradi — kim kim bilan va kim keyingi davraga o‘tadi.',
     ],
   },
   {
@@ -190,7 +190,7 @@ const BASE_PAGES = [
     lead:
       'So‘zgirda nima o‘zgardi — eng yangisidan boshlab. Faqat odam sezadigan o‘zgarishlar.',
     body: [
-      'Ro‘yxatda saytdagi va ilovadagi o‘zgarishlar sanasi bilan turadi: yangi o‘yin rejimlari, nishonlar, aqcha va o‘lja islohoti, jangdagi tuzatishlar.',
+      'Ro‘yxatda saytdagi va ilovadagi o‘zgarishlar sanasi bilan turadi: yangi o‘yin rejimlari, nishonlar, aqcha islohoti, jangdagi tuzatishlar.',
     ],
   },
   {
@@ -272,11 +272,11 @@ const BASE_PAGES = [
     path: '/oyinchi',
     title: 'O‘yinchi — So‘zgir',
     description:
-      'O‘yinchining ochiq profili: yig‘ilgan aqcha, bugungi kunlik natija, o‘lja va loyihaga qo‘shgan hissasi.',
+      'O‘yinchining ochiq profili: yig‘ilgan aqcha, bugungi kunlik natija, jang aqchasi va loyihaga qo‘shgan hissasi.',
     nav: 'O‘yinchi profili',
     h1: 'O‘yinchi profili',
     lead:
-      'Yig‘ilgan aqcha, bugungi kunlik natija, o‘lja va loyihaga qo‘shgan hissasi. Shaxsiy statistika faqat egasiga ko‘rinadi.',
+      'Yig‘ilgan aqcha, bugungi kunlik natija, jang aqchasi va loyihaga qo‘shgan hissasi. Shaxsiy statistika faqat egasiga ko‘rinadi.',
     // Manzil parametrli (`/oyinchi/{uid}`) — oldindan yasab bo'lmaydi.
     listed: false,
     file: true,

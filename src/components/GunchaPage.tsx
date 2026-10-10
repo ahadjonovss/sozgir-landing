@@ -172,7 +172,7 @@ export default function GunchaPage() {
               <h3>Natijangiz saqlanmayapti</h3>
               <p className="panel__note">
                 Hozir hisobsiz o‘ynayapsiz — g‘unchada yig‘ilgan aqcha
-                faqat shu brauzerda qoladi. Kirsangiz u umumiy reytingga
+                faqat shu brauzerda qoladi. Kirsangiz u umumiy jadvalga
                 qo‘shiladi.
               </p>
               <button className="btn btn--sm" onClick={() => openPrompt('signIn')}>

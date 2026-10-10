@@ -33,8 +33,10 @@ import { VerifiedMark } from './PlayerName';
 import ScoreRules from './ScoreRules';
 import SendInvite, { type InviteTarget } from './SendInvite';
 import TelegramBanner from './TelegramBanner';
+import { battleAqchaDelta } from '../lib/aqcha';
+import { AqchaDelta } from './Units';
 import { seriesOf, turnirPath } from '../lib/turnir';
-import { TurnirGroups, TurnirNext } from './TurnirSide';
+import { TurnirGroups, TurnirNext, TurnirWaiting } from './TurnirSide';
 import { useTurnirHop } from '../lib/useTurnir';
 
 /** Oxirgi soniyalarda rang ogohlantiruvchiga o'tadi. */
@@ -64,7 +66,7 @@ export default function GunchaBattlePage() {
           <div className="panel panel--call">
             <h3>Jang uchun hisob kerak</h3>
             <p className="panel__note">
-              Raqibingiz taxallusingizni ko‘radi va jang o‘lja beradi —
+              Raqibingiz taxallusingizni ko‘radi va jang aqcha beradi —
               shuning uchun g‘uncha jangi hisobsiz o‘ynalmaydi.
             </p>
             <button className="btn btn--sm" onClick={() => openPrompt('signIn')}>
@@ -270,6 +272,10 @@ function Searching({ game }: { game: GunchaJang }) {
 function Waiting({ game }: { game: GunchaJang }) {
   const [copied, setCopied] = useState(false);
   const link = game.code ? inviteLink(game.code, 'guncha') : '';
+  // Turnir guruhida kod ham, chaqiradigan odam ham yo'q — u yerda
+  // butunlay boshqa ekran turadi. Tekshiruv **hook'lardan keyin**:
+  // erta qaytish ularning tartibini buzardi.
+  const series = seriesOf(game.battle);
 
   const copy = async () => {
     if (!link) return;
@@ -277,6 +283,10 @@ function Waiting({ game }: { game: GunchaJang }) {
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1600);
   };
+
+  if (series && game.battleId) {
+    return <TurnirWaiting code={series} battleId={game.battleId} />;
+  }
 
   return (
     <div className="stage">
@@ -508,9 +518,13 @@ function Result({ game }: { game: GunchaJang }) {
   const winner = game.battle?.winnerUid;
   const mineScore = game.me?.score ?? game.score;
   const theirScore = game.opponent?.score ?? 0;
+  // Xom reyting emas, **aqcha**: ekranda hamma joyda shu shkala
+  // turadi (`lib/aqcha.ts`) va jadvaldagi qator ham shuni
+  // ko'rsatadi. Ilgari bu yerda xom ayirma turardi va kartochkadagi
+  // son ro'yxatdagisidan ikki barobar katta chiqardi.
   const delta =
     game.me?.ratingAfter !== undefined && game.me?.ratingBefore !== undefined
-      ? game.me.ratingAfter - game.me.ratingBefore
+      ? battleAqchaDelta(game.me.ratingBefore, game.me.ratingAfter)
       : null;
 
   // Maydonda «g'alaba/mag'lubiyat» degan ikkilik yo'q: o'rin bor.
@@ -603,7 +617,7 @@ function Result({ game }: { game: GunchaJang }) {
         <p className="panel__note">{lead}</p>
         {delta !== null && delta !== 0 && (
           <span className={`gresult__delta${delta > 0 ? ' is-up' : ''}`}>
-            Reyting {delta > 0 ? `+${delta}` : delta}
+            <AqchaDelta value={delta} />
           </span>
         )}
       </div>

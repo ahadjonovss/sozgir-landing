@@ -30,6 +30,19 @@ export interface Update {
 
 export const UPDATES: Update[] = [
   {
+    date: '2026-10-10',
+    title: 'Hisob yagona: o‘lja ham aqcha bo‘ldi',
+    where: 'sayt',
+    body:
+      'Saytda ikkita hisob birligi bor edi: yig‘ilgan «aqcha» va onlayn jangdagi «o‘lja». Ikkinchi nom faqat chalkashtirardi — son o‘sha-o‘shaligicha qoldi, endi u ham aqcha deb ataladi va o‘z belgisi bilan chiqadi. Ilovada bu allaqachon shunday edi.',
+    items: [
+      'Jang natijasidagi «Reyting ±6» o‘rnida aqcha belgisi va o‘sha shkaladagi son',
+      'Turnir to‘rida guruh nomi rost: «5–8-o‘rinlar», «Final», «3-o‘rin uchun»',
+      'Guruh holati ko‘rinadigan bo‘ldi: ketayotgani yashil, tugagani jim',
+      'Turnir jangida yon ustun — boshqa guruhlarning jonli jadvali',
+    ],
+  },
+  {
     date: '2026-09-20',
     title: 'Sayt o‘yindan boshlanadi',
     where: 'sayt',
