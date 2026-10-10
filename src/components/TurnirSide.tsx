@@ -51,7 +51,7 @@ export function TurnirGroups({ code, battleId }: { code: string; battleId: strin
             {group.seats.map((seat) => (
               <li key={seat.uid}>
                 <Avatar name={seat.nickname} uid={seat.uid} size={20} />
-                <span>{pretty(seat.nickname)}</span>
+                <span className="tnr-side__who">{pretty(seat.nickname)}</span>
                 <em>{seat.score ?? 0}</em>
               </li>
             ))}

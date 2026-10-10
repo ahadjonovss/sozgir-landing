@@ -5664,14 +5664,21 @@
 }
 
 /* Ism qisqaradi, hisob esa qisqarmaydi: ustun tor va uzun taxallus
-   sonni o'ng chetdan itarib chiqarardi. */
-.tnr-side__seats span {
+   sonni o'ng chetdan itarib chiqarardi.
+
+   Sinf kerak: `span` deb yozilganda qoida avatarga ham tushardi
+   (u ham `span`) va yumaloq rasm cho'zilib ellipsga aylanardi. */
+.tnr-side__who {
   flex: 1;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--text-2);
+}
+
+.tnr-side__seats .avatar-mark {
+  flex: 0 0 auto;
 }
 
 .tnr-side__seats em {
