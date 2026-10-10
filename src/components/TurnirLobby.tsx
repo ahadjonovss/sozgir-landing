@@ -141,7 +141,7 @@ export default function TurnirLobby({ turnir }: { turnir: Turnir }) {
 
       <p className="stage__hint" role="status">
         {quick
-          ? 'Vaqt tugaguncha qatnashchilar yig‘iladi. Odam yig‘ilmasa turnir yopiladi.'
+          ? 'Sanoq tugaguncha qatnashchilar yig‘iladi — kutib turing yoki do‘stingizni chaqiring.'
           : turnir.isHost
             ? 'Hamma yig‘ilgach «Boshlash» ni bosing. Turnir boshlanmaguncha bu sahifa ochiq tursin.'
             : 'Turnirni tashkilotchi boshlaydi — boshlanmaguncha bu sahifa ochiq tursin.'}
