@@ -319,6 +319,13 @@ function Winner({ turnir }: { turnir: Turnir }) {
   const players = turnir.doc?.seeds?.length ?? turnir.players;
   const mine = winnerUid === turnir.mine;
 
+  // Finalda ikki kishi qoladi va ikkalasi ham hamma davrani o'ynagan
+  // — ikkinchi o'rin ham natija, quruq qoldirilmaydi.
+  const runnerUpUid = turnir.doc?.runnerUpUid ?? '';
+  const runnerUp = runnerUpUid
+    ? pretty(turnir.doc?.members?.[runnerUpUid]?.nickname ?? 'Mehmon')
+    : '';
+
   return (
     <div className="tnr">
       <div className="tnr__crown">
@@ -328,6 +335,20 @@ function Winner({ turnir }: { turnir: Turnir }) {
           <PlayerName uid={winnerUid} name={name} size={20} />
         </b>
         <span>{players} kishi orasida 1-o‘rin</span>
+        {/* Ustama jangda yig'ilgan aqchadan ustiga qo'shiladi: u
+            yerdagi son reytingdan keladi, bu esa turnirning o'z
+            mukofoti. Kichik turnirda nol bo'ladi va umuman
+            ko'rsatilmaydi — «+0 aqcha» mukofotdan ham yomonroq. */}
+        {(turnir.doc?.prize ?? 0) > 0 && (
+          <em className="tnr__prize">+{turnir.doc?.prize} aqcha</em>
+        )}
+        {runnerUp && (
+          <span className="tnr__second">
+            2-o‘rin · {runnerUp}
+            {(turnir.doc?.runnerUpPrize ?? 0) > 0 &&
+              ` · +${turnir.doc?.runnerUpPrize} aqcha`}
+          </span>
+        )}
         {turnir.doc?.title && <i>{turnir.doc.title}</i>}
       </div>
 

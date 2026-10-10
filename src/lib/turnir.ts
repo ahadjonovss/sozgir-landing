@@ -98,6 +98,18 @@ export interface TurnirDoc {
 
   winnerUid?: string;
   runnerUpUid?: string;
+
+  /** G'olibga to'langan ustama (aqcha) — sonni **server** hisoblaydi
+   *  va shu yerga yozadi (`onTurnirFinished`).
+   *
+   *  Formula sahifada takrorlanmaydi: ikki joyda ikki xil bo'lib
+   *  qolsa, ekrandagi son hisobga tushganidan farq qilardi — ustama
+   *  esa `scores/{uid}` da, ya'ni mijozga yopiq.
+   *
+   *  Nol bo'lishi mumkin: sakkiz kishidan kam turnir mukofot
+   *  chiqarmaydi (`rewards.ts`, `TURNIR_PRIZE_MIN_PLAYERS`). */
+  prize?: number;
+  runnerUpPrize?: number;
 }
 
 // ── Chaqiruvlar ────────────────────────────────────────────────────────

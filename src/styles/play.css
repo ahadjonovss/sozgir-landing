@@ -5633,6 +5633,19 @@
   letter-spacing: -0.02em;
 }
 
+.tnr__prize {
+  margin-top: 2px;
+  color: var(--yellow);
+  font-size: 18px;
+  font-weight: 900;
+  font-style: normal;
+  letter-spacing: -0.01em;
+}
+
+.tnr__second {
+  margin-top: 2px;
+}
+
 .tnr__crown span {
   color: var(--text-2);
   font-size: 13.5px;
