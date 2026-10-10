@@ -133,6 +133,18 @@ export interface TurnirDoc {
   winnerUid?: string;
   runnerUpUid?: string;
 
+  /** Turnir davomida har kim ishlagan aqcha — davralar yig'indisi.
+   *
+   *  Serverda `addSeriesAqcha` yozadi: har guruh jangi tugaganda
+   *  o'sha jangdagi o'zgarish qo'shiladi. Yakuniy jadvalda aynan shu
+   *  son turadi, chunki odam «turnirda qancha ishladim?» deb
+   *  so'raydi — bitta davraniki emas. */
+  aqcha?: Record<string, number>;
+
+  /** Turnirdan keyingi umumiy hisob — jangdan **keyingi** holat.
+   *  Yig'indi emas, oxirgi yozuv: har davra uni yangilab turadi. */
+  balance?: Record<string, number>;
+
   /** Uchinchi o'rin — umumiy jadvaldan olinadi, finaldan emas:
    *  finalda ikki kishi o'ynaydi va uchinchi o'sha paytda boshqa
    *  guruhda bo'ladi. */

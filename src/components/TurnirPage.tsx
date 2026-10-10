@@ -20,6 +20,7 @@ import {
   TURNIR_GROUP,
   TURNIR_MIN_PLAYERS,
   TURNIR_SIZES,
+  memberName,
   playerCount,
   turnirPath,
   type TurnirCapacity,
@@ -28,6 +29,8 @@ import { punchline } from '../lib/shareLines';
 import { shareCardImage } from '../lib/shareCard';
 import { pretty } from '../lib/uz';
 import type { BattleGame } from '../lib/battle';
+import { AqchaCount, AqchaDelta } from './Units';
+import { playerLink } from '../data/site';
 import Avatar from './Avatar';
 import CodeInput from './CodeInput';
 import PlayerName from './PlayerName';
@@ -527,7 +530,72 @@ function Winner({ turnir }: { turnir: Turnir }) {
         </a>
       </div>
 
+      <FinalTable turnir={turnir} />
       <TurnirLadder turnir={turnir} />
+    </div>
+  );
+}
+
+/** Yakuniy jadval — turnirning **javobi**.
+ *
+ *  To'r har davrani alohida ko'rsatadi, lekin «men nechanchi
+ *  bo'ldim va qancha ishladim?» degan savolga javob bermaydi: uning
+ *  uchun to'rtta ustunni ko'z bilan qo'shib chiqish kerak edi.
+ *
+ *  Tartib serverdan (`order`): teng ochkoda ro'yxatga oldin kirgan
+ *  odam yuqori turadi va bu qoida o'yindan oldin hammaga ko'rinadi.
+ *  Aqcha ham serverdan — mijozda qayta hisoblanmaydi. */
+function FinalTable({ turnir }: { turnir: Turnir }) {
+  const doc = turnir.doc;
+  const order = doc?.order ?? [];
+  if (order.length === 0) return null;
+
+  return (
+    <div className="standings tnr__final">
+      <h3>Yakuniy jadval</h3>
+      <ol className="standings__list">
+        {order.map((uid, index) => {
+          const delta = doc?.aqcha?.[uid] ?? 0;
+          const balance = doc?.balance?.[uid];
+          const mine = uid === turnir.mine;
+          return (
+            <li
+              key={uid}
+              className={`standings__row${mine ? ' standings__row--me' : ''}`}
+            >
+              <span className="standings__place">{index + 1}</span>
+              <a className="standings__who" href={playerLink(uid)}>
+                <Avatar name={memberName(doc, uid)} uid={uid} size={26} />
+                <span>
+                  <PlayerName uid={uid} name={memberName(doc, uid)} size={14} />
+                </span>
+              </a>
+              <span className="standings__score">
+                {doc?.points?.[uid] ?? 0} ochko
+              </span>
+              {/* Ikkala katak **har doim** chiziladi, hatto bo'sh
+                  bo'lsa ham: biri tushib qolsa qolgan ustunlar
+                  siljib, jadval zinapoyaga aylanardi. */}
+              <span
+                className={`standings__delta${
+                  delta > 0
+                    ? ' standings__delta--up'
+                    : delta < 0
+                      ? ' standings__delta--down'
+                      : ''
+                }`}
+              >
+                {delta === 0 ? '—' : <AqchaDelta value={delta} />}
+              </span>
+              {/* Umumiy hisob o'zgarishning yonida: odam «qancha
+                  ishladim» bilan «qancham qoldi» ni birga ko'radi. */}
+              <span className="standings__total">
+                {balance === undefined ? '' : <AqchaCount value={balance} />}
+              </span>
+            </li>
+          );
+        })}
+      </ol>
     </div>
   );
 }

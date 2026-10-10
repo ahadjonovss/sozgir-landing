@@ -63,6 +63,19 @@ export function BattleAqcha({ rating, size = 'md' }: { rating: number; size?: Si
   );
 }
 
+/** Tayyor sonni belgisi bilan ko'rsatadi.
+ *
+ *  `Aqcha` tiyindan o'giradi, `BattleAqcha` xom reytingdan — bu esa
+ *  allaqachon aqchada yozilgan son uchun (`mardu_series.balance`).
+ *  Ikkinchi marta o'girilsa son o'n barobar kichrayib qolardi. */
+export function AqchaCount({ value, size = 'sm' }: { value: number; size?: Size }) {
+  return (
+    <Unit src="/aqcha.png" alt="Aqcha" size={size}>
+      {value}
+    </Unit>
+  );
+}
+
 /** Jangdagi o'zgarish: +6, −6 — belgisi bilan. */
 export function AqchaDelta({ value, size = 'sm' }: { value: number; size?: Size }) {
   return (

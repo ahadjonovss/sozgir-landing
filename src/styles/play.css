@@ -4325,6 +4325,25 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Yakuniy jadvalda beshinchi ustun bor — umumiy hisob. Qolgan
+   jadvallarda u yo'q, shuning uchun qoida shu yerda. */
+.tnr__final .standings__row {
+  grid-template-columns: 26px 1fr auto auto auto;
+}
+
+.standings__total {
+  min-width: 54px;
+  color: var(--text-2);
+  font-size: 12.5px;
+  font-weight: 800;
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.tnr__final {
+  margin-top: 18px;
+}
+
 .standings__delta--up {
   color: var(--green);
 }
