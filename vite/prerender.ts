@@ -150,7 +150,7 @@ function render(shell: string, page: Page): string {
   html = swap(
     html,
     /<meta property="og:image" content="[^"]*" \/>/,
-    `<meta property="og:image" content="${site}/icon.png" />`,
+    `<meta property="og:image" content="${site}/icon.png?v=2" />`,
     'og:image',
   );
   html = swap(
