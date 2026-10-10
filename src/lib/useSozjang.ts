@@ -18,6 +18,7 @@ import {
 } from './activeBattle';
 import { useAuth } from './auth';
 import {
+  autoFill,
   createChallenge,
   forfeit,
   joinByCode,
@@ -49,21 +50,6 @@ export type Phase = 'lobby' | 'searching' | 'loading' | 'waiting' | 'playing' | 
 export interface BoardRow {
   units: string[];
   verdicts: (Verdict | 'lock' | null)[] | null;
-}
-
-/** Oldingi taxminlardan joyi topilgan harflar — keyingi qator shulardan
- *  boshlanadi. Ilovadagi `_autoFilledInput` bilan bir xil qoida. */
-function autoFill(rows: string[], words: string[], length: number): string[] {
-  const out = Array.from({ length }, () => '');
-  rows.forEach((row, index) => {
-    const units = split(words[index] ?? '');
-    verdictsOf(row).forEach((verdict, position) => {
-      if (verdict === 'correct' && units[position] && position < length) {
-        out[position] = units[position];
-      }
-    });
-  });
-  return out;
 }
 
 const wordsKey = (battleId: string) => `sozgir.battle.words.${battleId}`;

@@ -19,6 +19,7 @@ import GuidePage, { GuidesPage } from './components/GuidePage';
 import UpdatesPage from './components/UpdatesPage';
 import BadgesPage from './components/BadgesPage';
 import BattlePage from './components/BattlePage';
+import ChallengePage from './components/ChallengePage';
 import GamePage from './components/GamePage';
 import GunchaBattlePage from './components/GunchaBattlePage';
 import GunchaPage from './components/GunchaPage';
@@ -101,6 +102,8 @@ export default function App() {
         {route === '/hisob-ochirish' && <AccountDeletion />}
         {route === '/contact' && <Contact />}
         {route === '/oyinchi' && <PlayerPage />}
+        {/* `/soztop/{KOD}` — do'sti yashirgan so'z, shu yerda o'ynaladi. */}
+        {route === '/soztop' && <ChallengePage />}
       </main>
 
       <Footer />

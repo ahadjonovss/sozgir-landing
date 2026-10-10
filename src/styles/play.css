@@ -893,6 +893,13 @@
   gap: 18px;
 }
 
+/* So'zTop havolasi (`/soztop/{KOD}`): sahifada bitta narsa — taxta.
+   `oyin__grid` emas, chunki u ikki ustunga bo'linadi va o'ng tomoni
+   bo'sh qolardi; `wrap` ning kengligi esa taxtani keraksiz yoyardi. */
+.oyin__solo {
+  max-width: 460px;
+}
+
 @media (max-width: 900px) {
   .oyin__grid {
     grid-template-columns: minmax(0, 1fr);

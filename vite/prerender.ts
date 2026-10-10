@@ -197,11 +197,13 @@ export function prerender(): Plugin {
       const shell = await readFile(join(out, 'index.html'), 'utf8');
 
       for (const page of PAGES) {
-        if (!isListed(page) && page.path !== '/oyinchi') continue;
+        // `listed: false` sahifa ro'yxatda yo'q, lekin `file: true`
+        // bo'lsa fayli baribir yoziladi: parametrli manzil
+        // (`/oyinchi/{uid}`, `/soztop/{KOD}`) `vercel.json` orqali aynan
+        // shu faylga yo'naltiriladi, ya'ni u bosh sahifaning matni bilan
+        // ochilmaydi.
+        if (!isListed(page) && page.file !== true) continue;
         // `/` — `dist/index.html`, qolganlari `dist/<manzil>/index.html`.
-        // `/oyinchi` faylsiz qolmaydi: parametrli manzil (`/oyinchi/{uid}`)
-        // `vercel.json` orqali aynan shu faylga yo'naltiriladi, ya'ni
-        // o'yinchi profili bosh sahifaning matni bilan ochilmaydi.
         const file = page.path === '/' ? join(out, 'index.html') : join(out, page.path, 'index.html');
         await mkdir(dirname(file), { recursive: true });
         await writeFile(file, render(shell, page));

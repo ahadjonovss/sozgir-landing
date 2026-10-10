@@ -8,7 +8,7 @@
  *  esa to'g'ridan-to'g'ri Firestore'dan — u tez va jonli. */
 import { callFunction } from '../firebase/functions';
 import { watchDoc, type Unsubscribe } from '../firebase/live';
-import type { Verdict } from './uz';
+import { split, type Verdict } from './uz';
 
 export type BattleStatus = 'waiting' | 'running' | 'finished' | 'expired';
 /** Jang qanday yig'ilgan.
@@ -127,6 +127,29 @@ export const VERDICT_OF: Record<string, Verdict> = {
 
 export const verdictsOf = (row: string): Verdict[] =>
   [...row].map((mark) => VERDICT_OF[mark] ?? 'absent');
+
+/** Oldingi taxminlardan joyi topilgan harflar — keyingi qator shulardan
+ *  boshlanadi. Ilovadagi `_autoFilledInput` bilan bir xil qoida.
+ *
+ *  `verdictsOf` yonida turadi va shu sababdan: ikkalasi ham serverning
+ *  qator yozuvini o'qiydi, ya'ni So'zjang ham, So'zTop ham (`challenge.ts`)
+ *  bir xil javobni bir xil tushunadi. */
+export function autoFill(
+  rows: string[],
+  words: string[],
+  length: number,
+): string[] {
+  const out = Array.from({ length }, () => '');
+  rows.forEach((row, index) => {
+    const units = split(words[index] ?? '');
+    verdictsOf(row).forEach((verdict, position) => {
+      if (verdict === 'correct' && units[position] && position < length) {
+        out[position] = units[position];
+      }
+    });
+  });
+  return out;
+}
 
 export const createChallenge = (input: { length: number; nickname: string }) =>
   callFunction<{ battleId: string; code: string }>('battleCreate', input);

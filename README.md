@@ -782,6 +782,55 @@ topilgan so‘zlar sonini `wordCount` ga yozadi, chunki `words` ostida
 So‘zjangda **ro‘yxat** yotadi — bir xil nom ostida son bo‘lsa, jang
 tarixini o‘qiyotgan mijoz qulab tushardi.
 
+## So‘zTop — o‘yinchi yashirgan so‘z
+
+`/soztop/<KOD>` — ilovadagi **So‘zTop** modulining veb ko‘rinishi: odam
+lug‘atdan bitta so‘z tanlab yashiradi, havolasini do‘stlariga tashlaydi
+va kim necha urinishda topganini ko‘rib turadi
+(`soztop/docs/soztop.md`).
+
+Havola ilovadan ulashiladi va ilovasi bor telefonda **ilovani ochadi**
+(universal havola, `apple-app-site-association` dagi `/soztop/*`). Demak
+sahifaga tushgan odamda ilova odatda yo‘q — shuning uchun u yerda
+yuklab olish taklifi emas, **o‘yinning o‘zi** turadi. Ilgari aksincha
+edi: odam havolani bosib, o‘ynay olmay qaytib ketardi.
+
+Qoida So‘zjangdagining o‘zi, ya‘ni butun mantiq serverda:
+
+| Funksiya | Nima qiladi |
+| --- | --- |
+| `challengeOpen` | O‘ynashga kiritadi va yozuv ochadi. Javob **yuborilmaydi** |
+| `challengeGuess` | Taxminni tekshiradi, ranglar qatorini qaytaradi |
+
+Shundan uchta narsa kelib chiqadi:
+
+* **Lug‘at yuklanmaydi.** So‘z to‘g‘rimi — serverning ishi
+  (`challengeGuess` `accepted: false` qaytaradi). Qabul qilinmagan so‘z
+  urinish sarflamaydi.
+* **Yutqazgan odamga javob ko‘rsatilmaydi.** So‘z
+  `word_challenges/{KOD}/secret` da yotadi va qoida uni hech bir
+  mijozga bermaydi — ilovada ham shunday.
+* **Hisob kerak.** Yozuv `entries/{uid}` da saqlanadi va yashirgan odam
+  jadvalda aynan shu taxallusni ko‘radi. Davom etish ham shundan:
+  `challengeOpen` o‘sha odamning qatorlarini va terigan so‘zlarini
+  qaytaradi, ya‘ni o‘yin sahifa yangilansa ham, qurilma almashsa ham
+  joyidan davom etadi — brauzerda hech narsa saqlanmaydi.
+
+**So‘z yashirish saytda yo‘q.** U lug‘at qidiruviga tayanadi va ilovada
+qoladi. Shuning uchun o‘yin tugagach ilova taklif qilinadi
+(`DownloadPromo`) — odam o‘yinni endigina o‘ynab ko‘rdi, ya‘ni taklif
+eng o‘rinli paytda chiqadi.
+
+Urinishlar soni — `attemptsFor` (uzunlik + 1), ya‘ni serverdagi
+`maxAttempts` ning aynan o‘zi. Ranglar qatorini `verdictsOf` o‘qiydi —
+So‘zjang bilan bitta yordamchi (`lib/battle.ts`), chunki server
+ikkalasiga bir xil javob beradi.
+
+Lokal sinash — So‘zjangdagi emulyator yo‘lining o‘zi («Lokal sinash»).
+Emulyator Firestore‘iga `dictionaries/uz_5` bilan birga bitta
+`word_challenges/{KOD}` va uning `secret/answer` hujjatini yozib qo‘yish
+kerak.
+
 ## Aqcha va o‘lja
 
 Ekranda ikkita birlik bor, saqlanadigan son esa uchinchisi —

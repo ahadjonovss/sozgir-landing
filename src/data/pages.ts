@@ -43,6 +43,13 @@ export interface Page {
    *  Parametrli manzil (`/oyinchi/{uid}`) uchun `false`: uning mazmuni
    *  har o'yinchida boshqacha va oldindan yasab bo'lmaydi. */
   listed?: boolean;
+  /** Ro'yxatda yo'q, lekin `dist/` da **fayli** bo'lishi shart.
+   *
+   *  Parametrli manzil `vercel.json` orqali aynan shu faylga
+   *  yo'naltiriladi (`/soztop/{KOD}` → `/soztop/index.html`). Fayl
+   *  bo'lmasa manzil bosh sahifaning matni bilan ochilardi — robot
+   *  uchun ham, ulashishdagi ko'rinish uchun ham. */
+  file?: boolean;
 }
 
 const BASE_PAGES = [
@@ -272,6 +279,25 @@ const BASE_PAGES = [
       'Yig‘ilgan aqcha, bugungi kunlik natija, o‘lja va loyihaga qo‘shgan hissasi. Shaxsiy statistika faqat egasiga ko‘rinadi.',
     // Manzil parametrli (`/oyinchi/{uid}`) — oldindan yasab bo'lmaydi.
     listed: false,
+    file: true,
+  },
+  {
+    path: '/soztop',
+    title: 'Yashirilgan so‘z — So‘zgir',
+    description:
+      'Do‘stingiz So‘zgirda yashirgan so‘zni shu yerda, brauzerda toping. Ranglar o‘sha qoidada: uzunlik + 1 urinish.',
+    nav: 'Yashirilgan so‘z',
+    h1: 'Yashirilgan so‘z',
+    lead:
+      'Do‘stingiz bitta so‘z yashirdi — uni oddiy o‘yindagidek toping: uzunlik + 1 urinish.',
+    body: [
+      'So‘zTop — ilovadagi modul: odam lug‘atdan bitta so‘z tanlab yashiradi va havolasini do‘stlariga tashlaydi. Havolani ochgan odam o‘sha so‘zni topadi, yashirgan odam esa kim necha urinishda topganini ko‘rib turadi.',
+      'Yashirilgan so‘z serverda qoladi: uni o‘yindan tashqari hech kim ko‘rolmaydi. Bu bo‘limda ball va reyting yo‘q — so‘zni o‘zingiz tanlaganingiz uchun ball berilsa, uni o‘z-o‘ziga ishlab olish yo‘li ochilardi.',
+    ],
+    // Har kodda boshqa so'z — oldindan yasab bo'lmaydi, lekin fayli
+    // kerak: `/soztop/{KOD}` aynan shunga yo'naltiriladi.
+    listed: false,
+    file: true,
   },
 ] as const satisfies readonly Page[];
 

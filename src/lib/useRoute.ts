@@ -21,6 +21,7 @@ const routes: readonly string[] = PAGES.map((page) => page.path);
  *  | `/jang/{kod}` | So'zjang — kod bilan darhol qo'shiladi |
  *  | `/maydon/{kod}` | Mardu maydon — kod bilan darhol qo'shiladi |
  *  | `/turnir/{kod}` | Turnir sahifasi — yig'ilish, davralar, g'olib |
+ *  | `/soztop/{kod}` | O'yinchi yashirgan so'z — shu yerda o'ynaladi |
  *
  *  Har birining `vercel.json` da o'z qoidasi bor: aks holda manzil
  *  bo'sh `index.html` ni olib, robotga bosh sahifaning matnini
@@ -31,6 +32,7 @@ const PARAM_ROUTES: { prefix: string; route: Route }[] = [
   { prefix: '/jang/', route: '/sozjang' },
   { prefix: '/maydon/', route: '/maydon' },
   { prefix: '/turnir/', route: '/turnir' },
+  { prefix: '/soztop/', route: '/soztop' },
 ];
 
 function paramRouteOf(path: string): { route: Route; value: string } | null {
