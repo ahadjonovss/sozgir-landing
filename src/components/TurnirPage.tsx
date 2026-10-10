@@ -1,9 +1,11 @@
 /** Turnir — `/turnir` bo'limi va `/turnir/{KOD}` sahifasi.
  *
- *  Turnir — ketma-ket bir necha mardu maydoni: har davradan yuqori
- *  yarmi o'tadi, sakkiztadan ko'p bo'lsa guruhlarga bo'linadi. Davra
- *  boshlanganda qatnashchi o'z guruh jangiga tushadi va o'yinni
- *  **mavjud jang ekranida** o'ynaydi — bu yerda o'yin mantiqi yo'q.
+ *  Turnir — ketma-ket bir necha maydon va odam hammasida o'ynaydi:
+ *  chiqarib yuborish yo'q. Har davrada qatnashchilar to'rt kishilik
+ *  guruhlarga bo'linadi, guruh esa jadvaldagi o'rin bo'yicha
+ *  teriladi. Davra boshlanganda qatnashchi o'z guruh jangiga tushadi
+ *  va o'yinni **mavjud jang ekranida** o'ynaydi — bu yerda o'yin
+ *  mantiqi yo'q.
  *
  *  Bitta komponent ikki ishni bajaradi, chunki ikkalasi bitta holatdan
  *  oziqlanadi: bo'limda turnir ochiladi yoki kod kiritiladi, sahifada
@@ -18,6 +20,8 @@ import {
   TURNIR_GROUP,
   TURNIR_MIN_PLAYERS,
   TURNIR_SIZES,
+  playerCount,
+  turnirPath,
   type TurnirCapacity,
 } from '../lib/turnir';
 import { punchline } from '../lib/shareLines';
@@ -79,9 +83,32 @@ function Hub({ turnir }: { turnir: Turnir }) {
   const [code, setCode] = useState('');
   const rounds = turnirRounds(turnir.size);
 
+  const active = turnir.active;
+
   return (
     <div className="lobby">
       <div className="lobby__main">
+        {/* Tugamagan turniri bor odamga — birinchi navbatda o'sha.
+            Uchala yo'l (ochish, tezkor, kod) unga baribir yopiq:
+            serverda bir vaqtda bitta turnir (`requireOneTurnir`) va
+            tugmani bosgan odam xatodan boshqa narsa ko'rmasdi. */}
+        {active && (
+          <div className="panel panel--call">
+            <h3>Sizning turniringiz</h3>
+            <p className="panel__note">
+              {active.doc.status === 'gathering'
+                ? `Yig‘ilmoqda — ${playerCount(active.doc)} / ${active.doc.capacity ?? 8} kishi.`
+                : `${active.doc.round ?? 1}-davra ketyapti.`}{' '}
+              Bir vaqtda bitta turnir: shunisi tugagach, yangisini
+              ochasiz.
+            </p>
+            <a className="btn btn--sm" href={turnirPath(active.code)}>
+              Turnirga qaytish
+            </a>
+          </div>
+        )}
+
+        {!active && (
         <div className="panel lobby__card">
           <div className="panel__head">
             <h3>Turnir ochish</h3>
@@ -181,19 +208,33 @@ function Hub({ turnir }: { turnir: Turnir }) {
             </div>
           </div>
         </div>
+        )}
+
+        <OpenList turnir={turnir} />
+        <HistoryList turnir={turnir} />
 
         <div className="panel">
           <h3>Qoidalar</h3>
           <ol className="guncha__rules">
             <li>
-              Turnir — ketma-ket bir necha mardu maydoni. Har davrada odam
-              ikki barobar kamayadi.
+              Chiqarib yuborish yo‘q: siz oxirgi davragacha hamma davrani
+              o‘ynaysiz.
             </li>
             <li>
-              Bir maydonga {TURNIR_GROUP} kishigacha; ko‘p bo‘lsa guruhlarga
-              bo‘linadi va guruhlar bir vaqtda o‘ynaydi.
+              Har davrada {TURNIR_GROUP} kishilik guruh — jadvaldagi
+              qo‘shnilaringiz bilan, ya‘ni o‘zingizga teng ochkodagilar
+              bilan.
             </li>
-            <li>Har guruhdan yuqori yarmi o‘tadi; teng natijada ro‘yxatga oldin kirgani.</li>
+            <li>
+              Ochko — o‘sha o‘yinda to‘plagan balingizning o‘zi: davradan
+              davraga qo‘shilib boradi. Teng ochkoda ro‘yxatga oldin
+              kirgani yuqori turadi.
+            </li>
+            <li>
+              Oxirgi davrada jadvalning birinchi ikki o‘rni finalga chiqadi,
+              qolganlar o‘z o‘rni uchun o‘ynaydi — kubokni final g‘olibi
+              oladi.
+            </li>
             <li>
               Boshlash uchun kamida {TURNIR_MIN_PLAYERS} kishi kerak.
               Boshlashni tashkilotchi bosadi.
@@ -319,6 +360,81 @@ function Standing({ turnir }: { turnir: Turnir }) {
             ? 'Davra ochilishi bilan jang o‘zi boshlanadi.'
             : 'Davralarni kuzatib turishingiz mumkin.'}
       </span>
+    </div>
+  );
+}
+
+/* ── Bo'limdagi ro'yxatlar ───────────────────────────────────────────── */
+
+/** Hozir yig'ilayotgan turnirlar.
+ *
+ *  Kod bilan kirish yonida turadi va o'sha savolga javob beradi:
+ *  «kodim yo'q, shunchaki qo'shilsam bo'ladimi?». Ro'yxat jonli —
+ *  xonaga odam qo'shilgani sayin son o'zi yangilanadi. */
+function OpenList({ turnir }: { turnir: Turnir }) {
+  if (turnir.open.length === 0) return null;
+
+  return (
+    <div className="panel tnr-list">
+      <h3>Ochiq turnirlar</h3>
+      <ul className="tnr-list__items">
+        {turnir.open.map((row) => (
+          <li key={row.code}>
+            <a className="tnr-list__row" href={turnirPath(row.code)}>
+              <span className="tnr-list__dot" aria-hidden="true" />
+              <span className="tnr-list__main">
+                <b>{row.title || 'Turnir'}</b>
+                <span>
+                  {row.game === 'guncha' ? 'G‘uncha' : 'So‘zjang'} ·{' '}
+                  {row.players} / {row.capacity} kishi
+                </span>
+              </span>
+              <span className="tnr-list__free">
+                {row.capacity - row.players > 0
+                  ? `yana ${row.capacity - row.players} o‘rin`
+                  : 'to‘ldi'}
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/** Mening tugagan turnirlarim.
+ *
+ *  Kirmagan odamda umuman chizilmaydi: tarix hisobga bog'langan va
+ *  bo'sh ro'yxat «sizda hech narsa yo'q» deb aytib turishdan ko'ra,
+ *  butunlay ko'rinmagani tinchroq. */
+function HistoryList({ turnir }: { turnir: Turnir }) {
+  if (!turnir.account || turnir.history.length === 0) return null;
+
+  return (
+    <div className="panel tnr-list">
+      <h3>Turnirlar tarixi</h3>
+      <ul className="tnr-list__items">
+        {turnir.history.map((row) => {
+          const mine = row.winnerUid && row.winnerUid === turnir.mine;
+          return (
+            <li key={row.code}>
+              <a className="tnr-list__row" href={turnirPath(row.code)}>
+                <Trophy size={16} />
+                <span className="tnr-list__main">
+                  <b>{row.title || 'Turnir'}</b>
+                  <span>
+                    {row.players} kishi ·{' '}
+                    {mine ? 'siz g‘olib' : `g‘olib: ${row.winnerName}`}
+                  </span>
+                </span>
+                {mine && row.prize > 0 && (
+                  <span className="tnr-list__prize">+{row.prize} aqcha</span>
+                )}
+              </a>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }

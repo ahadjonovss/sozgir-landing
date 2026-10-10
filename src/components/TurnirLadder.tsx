@@ -12,13 +12,15 @@
  *  Joriy davra guruhlarida jonli hisob turadi (jang hujjatlaridan),
  *  tugaganida esa server yozgan jadval — ya'ni bir xil qator ikki
  *  manbadan to'ladi va ko'rinishi o'zgarmaydi. */
-import type { LadderGroup, LadderRound, LadderSeat } from '../lib/turnir';
+import {
+  stageName,
+  type LadderGroup,
+  type LadderRound,
+  type LadderSeat,
+} from '../lib/turnir';
 import type { Turnir } from '../lib/useTurnir';
 import Avatar from './Avatar';
 import PlayerName from './PlayerName';
-
-/** Guruh yorlig'i — serverdagi ilon tartibi bilan bir xil (1→A, 2→B…). */
-const LETTERS = 'ABCDEFGH';
 
 export default function TurnirLadder({ turnir }: { turnir: Turnir }) {
   if (turnir.rounds.length === 0) return null;
@@ -43,7 +45,20 @@ function Round({ round }: { round: LadderRound }) {
         <Group
           key={group.battleId ?? index}
           group={group}
-          label={round.groups.length > 1 ? (LETTERS[index] ?? '') : ''}
+          // Nomi **rost**: «A guruh» hech narsa aytmasdi — harf
+          // tasodifiy edi va odam o'zi nima uchun o'ynayotganini
+          // bilmasdi. Endi oxirgi davrada guruh aniq o'rin uchun
+          // o'ynaydi va shu yoziladi.
+          label={
+            round.groups.length > 1 || round.round >= round.rounds
+              ? stageName({
+                  round: round.round,
+                  rounds: round.rounds,
+                  sizes: round.groups.map((item) => item.seats.length),
+                  index,
+                })
+              : ''
+          }
         />
       ))}
     </section>

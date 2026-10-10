@@ -69,6 +69,150 @@ export async function watchCollection<T>(
   );
 }
 
+/** Hozir yig'ilayotgan turnirlar — eng yangisi birinchi.
+ *
+ *  Ilovadagi `watchOpen` ning aynan ko'chirmasi. Bo'lim sahifasida
+ *  ro'yxat bo'lib turadi: «hozir qanday turnirlar yig'ilmoqda»
+ *  degan savolga kod kiritmasdan javob beradi. */
+export async function watchOpenTurnirs<T>(
+  onData: (list: { id: string; data: T }[]) => void,
+  max = 20,
+): Promise<Unsubscribe> {
+  const { app } = await client();
+  const {
+    connectFirestoreEmulator,
+    getFirestore,
+    collection,
+    limit,
+    onSnapshot,
+    orderBy,
+    query,
+    where,
+  } = await import('firebase/firestore');
+
+  const db = getFirestore(app);
+  if (useEmulator) connectFirestoreEmulator(db, EMULATOR.host, EMULATOR.firestore);
+
+  return onSnapshot(
+    query(
+      collection(db, 'mardu_series'),
+      where('status', '==', 'gathering'),
+      orderBy('createdAt', 'desc'),
+      limit(max),
+    ),
+    (snapshot) => {
+      const now = Date.now();
+      onData(
+        snapshot.docs
+          .filter((item) => {
+            // Muddati o'tgan, lekin hali yopilmagan xona ro'yxatda
+            // qolib ketishi mumkin — unga kirgan odam kutib qolardi.
+            const expires = (item.data() as Record<string, unknown>).expiresAt as
+              | { seconds?: number }
+              | undefined;
+            return !expires?.seconds || expires.seconds * 1000 > now;
+          })
+          .map((item) => ({ id: item.id, data: item.data() as T })),
+      );
+    },
+    () => onData([]),
+  );
+}
+
+/** Shu odam o'ynagan tugagan turnirlar — eng yangisi birinchi. */
+export async function watchTurnirHistory<T>(
+  uid: string,
+  onData: (list: { id: string; data: T }[]) => void,
+  max = 10,
+): Promise<Unsubscribe> {
+  const { app } = await client();
+  const {
+    connectFirestoreEmulator,
+    getFirestore,
+    collection,
+    limit,
+    onSnapshot,
+    orderBy,
+    query,
+    where,
+  } = await import('firebase/firestore');
+
+  const db = getFirestore(app);
+  if (useEmulator) connectFirestoreEmulator(db, EMULATOR.host, EMULATOR.firestore);
+
+  return onSnapshot(
+    query(
+      collection(db, 'mardu_series'),
+      where('uids', 'array-contains', uid),
+      where('status', '==', 'finished'),
+      orderBy('createdAt', 'desc'),
+      limit(max),
+    ),
+    (snapshot) =>
+      onData(snapshot.docs.map((item) => ({ id: item.id, data: item.data() as T }))),
+    () => onData([]),
+  );
+}
+
+/** Shu odamning tugamagan turniri — ko'pi bilan bittasi.
+ *
+ *  Bir vaqtda bitta turnir qoidasi serverda (`requireOneTurnir`),
+ *  ya'ni bu yerda ro'yxat emas, bitta hujjat kutiladi. Ilovada ham
+ *  shunday (`watchMine`): bo'limning tepasida o'z turniri turadi,
+ *  qolgan yo'llar esa yopiq — ular baribir xato bilan tugardi. */
+export async function watchMyTurnir<T>(
+  uid: string,
+  onData: (turnir: { id: string; data: T } | null) => void,
+): Promise<Unsubscribe> {
+  const { app } = await client();
+  const {
+    connectFirestoreEmulator,
+    getFirestore,
+    collection,
+    limit,
+    onSnapshot,
+    orderBy,
+    query,
+    where,
+  } = await import('firebase/firestore');
+
+  const db = getFirestore(app);
+  if (useEmulator) connectFirestoreEmulator(db, EMULATOR.host, EMULATOR.firestore);
+
+  return onSnapshot(
+    query(
+      collection(db, 'mardu_series'),
+      where('uids', 'array-contains', uid),
+      where('status', 'in', ['gathering', 'running']),
+      orderBy('createdAt', 'desc'),
+      limit(1),
+    ),
+    (snapshot) => {
+      const doc = snapshot.docs[0];
+      if (!doc) {
+        onData(null);
+        return;
+      }
+      const data = doc.data() as Record<string, unknown>;
+      // Muddati o'tgan, lekin hali yopilmagan turnir ro'yxatda qolib
+      // ketishi mumkin (uni keyingi tozalash yopadi) — sahifada esa u
+      // yolg'on umid bo'lardi.
+      const expires = data.expiresAt as { seconds?: number } | undefined;
+      if (
+        data.status === 'gathering' &&
+        expires?.seconds &&
+        expires.seconds * 1000 < Date.now()
+      ) {
+        onData(null);
+        return;
+      }
+      onData({ id: doc.id, data: data as T });
+    },
+    // Ulanish uzilsa jim o'tamiz: kartochka chiqmaydi, xolos.
+    () => onData(null),
+  );
+}
+
 /** Menga kelgan, javob kutayotgan chaqiruv. */
 export interface LiveInvite {
   id: string;

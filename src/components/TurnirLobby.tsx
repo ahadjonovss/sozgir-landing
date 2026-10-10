@@ -9,9 +9,17 @@
  *  Ro'yxat hujjat kuzatuvidan keladi, ya'ni yangi kelgan odam hamma
  *  ekranda bir vaqtda paydo bo'ladi — tashkilotchi «kim kirdi» deb
  *  so'rab turmaydi. */
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { functionError } from '../firebase/functions';
+import { watchFriends, type Friend } from '../lib/friends';
 import { qrMatrix, qrPath } from '../lib/qr';
-import { turnirLink, turnirRounds, TURNIR_MIN_PLAYERS } from '../lib/turnir';
+import {
+  inviteToTurnir,
+  turnirLink,
+  turnirRounds,
+  TURNIR_MIN_PLAYERS,
+} from '../lib/turnir';
+import type { Unsubscribe } from '../firebase/live';
 import type { Turnir } from '../lib/useTurnir';
 import Avatar from './Avatar';
 import PlayerName from './PlayerName';
@@ -57,6 +65,13 @@ export default function TurnirLobby({ turnir }: { turnir: Turnir }) {
       {/* Tezkor turnirda kod ko'rsatilmaydi: ochiq xonaga havola
           tarqatilmaydi va ekranda sanoq turadi. */}
       {!quick && <Invite turnir={turnir} />}
+
+      {/* Do'stni chaqirish — kodning yonidagi ikkinchi yo'l.
+          Kod chatga tashlanadi va kim ko'rsa o'sha keladi; bu esa
+          aniq bir odamning telefoniga push bo'lib boradi. Faqat
+          ro'yxatdagi odamda: server ham shunday qaraydi
+          (`turnirInvite`). */}
+      {turnir.joined && <Friends turnir={turnir} />}
 
       <ul className="arena__members tnr-lobby__list">
         {turnir.members.map((member) => (
@@ -131,6 +146,95 @@ export default function TurnirLobby({ turnir }: { turnir: Turnir }) {
             ? 'Hamma yig‘ilgach «Boshlash» ni bosing. Turnir boshlanmaguncha bu sahifa ochiq tursin.'
             : 'Turnirni tashkilotchi boshlaydi — boshlanmaguncha bu sahifa ochiq tursin.'}
       </p>
+    </div>
+  );
+}
+
+/** Do'stlar ro'yxati — har qatorda bitta chaqiruv tugmasi.
+ *
+ *  Javob kutilmaydi: turnir allaqachon ochiq, chaqirilgan odam esa
+ *  istagan paytda kelib qo'shiladi. Shuning uchun bu yerda sanoq
+ *  ham, «qabul qilindi» ham yo'q — qator shunchaki «chaqirildi»
+ *  bo'lib qoladi (ilovadagi `TurnirInviteSheet` dagidek). */
+function Friends({ turnir }: { turnir: Turnir }) {
+  const uid = turnir.mine;
+  const [friends, setFriends] = useState<Friend[]>([]);
+  const [invited, setInvited] = useState<string[]>([]);
+  const [busy, setBusy] = useState('');
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!uid) return;
+    let alive = true;
+    let stop: Unsubscribe | null = null;
+
+    void watchFriends(uid, (list) => {
+      if (alive) setFriends(list);
+    }).then((unsubscribe) => {
+      if (alive) stop = unsubscribe;
+      else unsubscribe();
+    });
+
+    return () => {
+      alive = false;
+      stop?.();
+    };
+  }, [uid]);
+
+  if (friends.length === 0) return null;
+
+  const invite = async (friend: Friend) => {
+    if (busy) return;
+    setBusy(friend.uid);
+    setError(null);
+    try {
+      await inviteToTurnir({
+        code: turnir.code,
+        toUid: friend.uid,
+        nickname: turnir.members.find((item) => item.mine)?.nickname ?? '',
+      });
+      setInvited((previous) => [...previous, friend.uid]);
+    } catch (raw) {
+      // Serverning izohi o'zbekcha va aniq: «Turnir to'ldi»,
+      // «Turnir allaqachon boshlandi».
+      setError(functionError(raw));
+    } finally {
+      setBusy('');
+    }
+  };
+
+  return (
+    <div className="tnr-friends">
+      <span className="panel__label">Do‘stni chaqirish</span>
+      <ul className="arena__members">
+        {friends.map((friend) => {
+          const joined = turnir.members.some((item) => item.uid === friend.uid);
+          const sent = invited.includes(friend.uid);
+          return (
+            <li key={friend.uid} className="arena__member">
+              <Avatar name={friend.nickname} uid={friend.uid} size={30} />
+              <span className="arena__name">
+                <PlayerName uid={friend.uid} name={friend.nickname} size={14} />
+              </span>
+              {joined ? (
+                <span className="arena__host">turnirda</span>
+              ) : sent ? (
+                <span className="arena__host">chaqirildi</span>
+              ) : (
+                <button
+                  type="button"
+                  className="btn btn--sm btn--ghost"
+                  onClick={() => void invite(friend)}
+                  disabled={busy === friend.uid}
+                >
+                  {busy === friend.uid ? 'Yuborilmoqda…' : 'Chaqirish'}
+                </button>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+      {error && <p className="form__err">{error}</p>}
     </div>
   );
 }

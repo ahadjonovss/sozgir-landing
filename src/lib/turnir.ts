@@ -6,16 +6,23 @@
  *  `battles/{id}` hujjati, o'sha jang ekrani, o'sha jadval
  *  (`docs/mardu_turnir.md`).
  *
- *  Har davrada odam ikki barobar kamayadi; sakkiztadan ko'p bo'lsa
- *  guruhlarga bo'linadi va guruhlar **bir vaqtda** boshlanib bir vaqtda
- *  tugaydi. Shu sababli kutish yo'q: pley-off juftlarida keyingi davra
- *  eng sekin juftni kutardi.
+ *  Chiqarib yuborish yo'q: hamma oxirgi davragacha o'ynaydi. Har
+ *  davrada qatnashchilar **to'rt kishilik** guruhlarga bo'linadi va
+ *  guruh jadvaldagi o'rin bo'yicha teriladi — ya'ni odam o'ziga teng
+ *  ochkodagilar bilan o'ynaydi. Guruhlar **bir vaqtda** boshlanib bir
+ *  vaqtda tugaydi, shu sababli kutish yo'q: pley-off juftlarida
+ *  keyingi davra eng sekin juftni kutardi.
  *
  *  Yozishning hammasi Cloud Functions qo'lida — `mardu_series/{KOD}`
  *  hujjatiga mijoz yoza olmaydi (Firestore qoidasi `write: if false`).
  *  Saytga o'qish va chaqirish qoladi. */
 import { callFunction } from '../firebase/functions';
-import { watchDoc, type Unsubscribe } from '../firebase/live';
+import {
+  watchDoc,
+  watchOpenTurnirs,
+  watchTurnirHistory,
+  type Unsubscribe,
+} from '../firebase/live';
 import type { BattleDoc, BattleGame } from './battle';
 import type { ArenaStanding, MarduDoc } from './mardu';
 import { rankArena } from './mardu';
@@ -28,9 +35,15 @@ export type TurnirCapacity = (typeof TURNIR_SIZES)[number];
 /** Shuncha odamdan kam bo'lsa turnir boshlanmaydi. */
 export const TURNIR_MIN_PLAYERS = 2;
 
-/** Bir guruhga sig'adigan odam — mardu maydonining o'z sig'imi.
- *  Sakkiz kishilik hujjat barqaror ~1 yozuv/soniya chegarasida qoladi. */
-export const TURNIR_GROUP = 8;
+/** Bir guruhdagi odam — maydon sig'imidan (8) **alohida** son.
+ *
+ *  To'rtta, chunki turnirda guruh — bitta o'yin, sakkiz kishilik
+ *  o'yinda esa o'rtadagi odamning natijasi tasodifga aylanardi:
+ *  bitta so'zni bir soniya kech topgan odam uchinchi o'rindan
+ *  oltinchiga tushib ketardi. To'rt kishida har davra ma'noli va
+ *  davralar soni ham ko'proq — turnir uzoqroq va adolatliroq
+ *  bo'ladi. Serverda ham shu son (`TURNIR_GROUP_CAPACITY`). */
+export const TURNIR_GROUP = 4;
 
 /** Davralar orasidagi tanaffus: jadvalni o'qishga yetadi, davra
  *  tarqalib ketishiga yetmaydi. */
@@ -158,6 +171,21 @@ export const quickTurnir = (input: { game: BattleGame; nickname: string }) =>
     input,
   );
 
+/** Do'stni turnirga chaqiradi — unga push xabar boradi.
+ *
+ *  Ilovadagi tugmaning aynan o'zi (`turnirInvite`). Takroriy
+ *  chaqiruv xabar yubormaydi: server `invites/{toUid}` hujjatini bir
+ *  marta yozadi va ikkinchi bosish jimgina o'tadi. */
+export const inviteToTurnir = (input: {
+  code: string;
+  toUid: string;
+  nickname: string;
+}) =>
+  callFunction<{ sent?: boolean; joined?: boolean; repeated?: boolean }>(
+    'turnirInvite',
+    input,
+  );
+
 export const leaveTurnir = (code: string) =>
   callFunction<{ left: boolean }>('turnirLeave', { code });
 
@@ -168,6 +196,60 @@ export const startTurnir = (code: string) =>
 
 export const kickFromTurnir = (code: string, uid: string) =>
   callFunction<{ removed: boolean }>('turnirKick', { code, uid });
+
+/** Hozir yig'ilayotgan turnirlar — bo'lim sahifasidagi ro'yxat. */
+export const watchOpenTurnirList = (
+  onData: (list: TurnirRow[]) => void,
+): Promise<Unsubscribe> =>
+  watchOpenTurnirs<TurnirDoc>((docs) =>
+    onData(docs.map((item) => rowOf(item.id, item.data))),
+  );
+
+/** Shu odam o'ynagan tugagan turnirlar. */
+export const watchMyTurnirHistory = (
+  uid: string,
+  onData: (list: TurnirRow[]) => void,
+): Promise<Unsubscribe> =>
+  watchTurnirHistory<TurnirDoc>(uid, (docs) =>
+    onData(docs.map((item) => rowOf(item.id, item.data))),
+  );
+
+/** Ro'yxatdagi bitta qator.
+ *
+ *  To'liq hujjat emas: ro'yxatga to'rt narsa yetadi — qaysi o'yin,
+ *  nechta odam, qancha joy va (tarixda) qanday tugagani. Ilovadagi
+ *  `TurnirOpen` bilan bir xil qaror. */
+export interface TurnirRow {
+  code: string;
+  title: string;
+  game: BattleGame;
+  players: number;
+  capacity: number;
+  quick: boolean;
+  status: TurnirStatus;
+  /** Tarixda: g'olib kim va men nechanchi bo'ldim. */
+  winnerUid: string;
+  winnerName: string;
+  prize: number;
+  doc: TurnirDoc;
+}
+
+function rowOf(id: string, doc: TurnirDoc): TurnirRow {
+  const winnerUid = doc.winnerUid ?? '';
+  return {
+    code: doc.code ?? id,
+    title: doc.title ?? '',
+    game: doc.game === 'soztop' ? 'soztop' : 'guncha',
+    players: doc.uids?.length ?? Object.keys(doc.members ?? {}).length,
+    capacity: doc.capacity ?? 8,
+    quick: doc.mode === 'quick',
+    status: doc.status ?? 'gathering',
+    winnerUid,
+    winnerName: winnerUid ? memberName(doc, winnerUid) : '',
+    prize: doc.prize ?? 0,
+    doc,
+  };
+}
 
 export const watchTurnir = (
   code: string,
@@ -204,9 +286,44 @@ export function turnirRounds(players: number): number {
   return rounds;
 }
 
-/** Shuncha odam necha guruhga bo'linadi (`ceil(n / 8)`). */
+/** Shuncha odam necha guruhga bo'linadi (`ceil(n / 4)`). */
 export const groupCount = (players: number) =>
   Math.max(1, Math.ceil(players / TURNIR_GROUP));
+
+/** Bosqichning **rost** nomi: «Guruh bosqichi», «Final»,
+ *  «3-o'rin uchun».
+ *
+ *  «Chorak final», «yarim final» yo'q: turnirda chiqarib yuborish
+ *  yo'q, ya'ni bunday bosqichlar ham yo'q va ularni yozish yolg'on
+ *  bo'lardi. Nomlar oxirgi davrada aniqlashadi: birinchi guruh —
+ *  final, qolganlari esa yuqoridagi guruhlar sig'imidan kelib
+ *  chiqib, aniq o'rin uchun o'ynaydi. Ilovadagi `turnirStageName`
+ *  ning aynan o'zi.
+ *
+ *  [sizes] — shu davradagi guruhlarning odam soni, tartibi bilan. */
+export function stageName({
+  round,
+  rounds,
+  sizes,
+  index,
+}: {
+  round: number;
+  rounds: number;
+  sizes: number[];
+  index: number;
+}): string {
+  // Guruhsiz odam (oxirgi davrada raqib qolmagan) uchun bosqich nomi
+  // yo'q — u o'ynamayapti. Davra raqami esa rost qoladi.
+  if (index < 0) return `${round}-davra`;
+
+  const last = rounds > 0 && round >= rounds;
+  if (!last) return 'Guruh bosqichi';
+  if (index === 0) return 'Final';
+
+  let before = 0;
+  for (let at = 0; at < index && at < sizes.length; at += 1) before += sizes[at];
+  return `${before + 1}-o‘rin uchun`;
+}
 
 export const memberName = (doc: TurnirDoc | null | undefined, uid: string) =>
   doc?.members?.[uid]?.nickname ?? 'Mehmon';
@@ -290,6 +407,9 @@ export interface LadderGroupName {
 
 export interface LadderRound {
   round: number;
+  /** Turnirdagi davralar soni — bosqich nomi shundan chiqadi
+   *  (oxirgi davrada birinchi guruh final bo'ladi). */
+  rounds: number;
   groups: LadderGroup[];
   players: number;
   /** Hozir o'ynalayotgan davra — ko'rinishda ajralib turadi. */
@@ -333,6 +453,7 @@ export function buildLadder({
     }));
     rounds.push({
       round: past.round ?? rounds.length + 1,
+      rounds: doc?.rounds ?? 0,
       groups,
       players: groups.reduce((sum, group) => sum + group.seats.length, 0),
       current: false,
@@ -365,6 +486,7 @@ export function buildLadder({
 
     rounds.push({
       round: doc.round ?? rounds.length + 1,
+      rounds: doc.rounds ?? 0,
       groups,
       players: groups.reduce((sum, group) => sum + group.seats.length, 0),
       current: true,

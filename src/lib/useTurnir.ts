@@ -15,7 +15,7 @@ import { functionError } from '../firebase/functions';
 import { showBattle } from './activeBattle';
 import { gameOf, type BattleDoc, type BattleGame } from './battle';
 import { watchMardu, type MarduDoc } from './mardu';
-import type { Unsubscribe } from '../firebase/live';
+import { watchMyTurnir, type Unsubscribe } from '../firebase/live';
 import {
   buildLadder,
   createTurnir,
@@ -26,6 +26,8 @@ import {
   playerCount,
   placeOf,
   quickTurnir,
+  watchMyTurnirHistory,
+  watchOpenTurnirList,
   seriesOf,
   startTurnir,
   turnirPath,
@@ -33,6 +35,7 @@ import {
   TURNIR_MIN_PLAYERS,
   type TurnirCapacity,
   type TurnirDoc,
+  type TurnirRow,
 } from './turnir';
 
 /** Qaysi jangga o'zi o'tkazib yuborilgani — sahifa yangilansa ham
@@ -73,6 +76,11 @@ export function useTurnir(code: string) {
 
   const [snap, setSnap] = useState<{ code: string; doc: TurnirDoc | null } | null>(null);
   const [battles, setBattles] = useState<Record<string, MarduDoc | null>>({});
+  // Bo'lim sahifasidagi ikki ro'yxat: hozir yig'ilayotganlar va
+  // mening tugagan turnirlarim. Ikkalasi ham **jonli** — xonaga odam
+  // qo'shilgani sayin son o'zi yangilanadi.
+  const [open, setOpen] = useState<TurnirRow[]>([]);
+  const [history, setHistory] = useState<TurnirRow[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -103,11 +111,82 @@ export function useTurnir(code: string) {
     };
   }, [code]);
 
+  // ── Tugamagan turnirim ───────────────────────────────────────────────
+  // Faqat bo'limda: turnirning o'z sahifasida bu savol yo'q, u yerda
+  // hujjatning o'zi ochiq turadi. Serverda bir vaqtda bitta turnir
+  // (`requireOneTurnir`), ya'ni javob — bitta hujjat yoki hech nima.
+  const [active, setActive] = useState<{
+    code: string;
+    doc: TurnirDoc;
+  } | null>(null);
+
+  useEffect(() => {
+    // Shartni effekt **boshida** tozalab bo'lmaydi: `setActive(null)`
+    // effekt ichidan chaqirilsa qo'shimcha render boshlanardi.
+    // Shuning uchun eskirgan javob quyida, qaytarishda qirqiladi.
+    if (!uid || code) return;
+    let alive = true;
+    let stop: Unsubscribe | null = null;
+
+    void watchMyTurnir<TurnirDoc>(uid, (next) => {
+      if (alive) setActive(next ? { code: next.id, doc: next.data } : null);
+    }).then((unsubscribe) => {
+      if (alive) stop = unsubscribe;
+      else unsubscribe();
+    });
+
+    return () => {
+      alive = false;
+      stop?.();
+    };
+  }, [uid, code]);
+
   const fresh = !!code && snap?.code === code;
   const doc = fresh ? snap.doc : null;
   /** Hujjat bir marta kelganmi. Kelmagunicha «topilmadi» deyilmaydi:
    *  birinchi kadrda hamma turnir yo'q bo'lib ko'rinardi. */
   const loaded = fresh;
+
+  // ── Bo'lim ro'yxatlari ───────────────────────────────────────────────
+  // Sahifa ochiq turgancha kuzatiladi: bo'limga qaytgan odam yangi
+  // xonani darhol ko'radi va qayta yuklashi shart emas.
+  useEffect(() => {
+    let alive = true;
+    let stop: Unsubscribe | null = null;
+
+    void watchOpenTurnirList((list) => {
+      if (alive) setOpen(list);
+    }).then((unsubscribe) => {
+      if (alive) stop = unsubscribe;
+      else unsubscribe();
+    });
+
+    return () => {
+      alive = false;
+      stop?.();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!uid) return;
+    let alive = true;
+    let stop: Unsubscribe | null = null;
+
+    void watchMyTurnirHistory(uid, (list) => {
+      if (alive) setHistory(list);
+    }).then((unsubscribe) => {
+      if (alive) stop = unsubscribe;
+      else unsubscribe();
+    });
+
+    // Tozalashda bo'shatiladi: hisobdan chiqqan odamda oldingi
+    // hisobning tarixi ekranda qolib ketmasin.
+    return () => {
+      alive = false;
+      stop?.();
+      setHistory([]);
+    };
+  }, [uid]);
 
   // ── Joriy davradagi guruh janglari ───────────────────────────────────
   // To'rda jonli hisob turadi: chiqib ketgan odam o'zi o'ynamasa ham
@@ -317,8 +396,17 @@ export function useTurnir(code: string) {
     setSize,
     title,
     setTitle,
+    /** Hozir yig'ilayotgan turnirlar. */
+    open,
+    /** Mening tugagan turnirlarim. */
+    history,
     /** Tezkor turnirmi — ekran kod o'rniga sanoq ko'rsatadi. */
     isQuick: doc?.mode === 'quick',
+    /** Tugamagan turnirim — bo'limning tepasida turadi.
+     *
+     *  Turnirning o'z sahifasida (kod bilan) kerak emas: u yerda
+     *  hujjatning o'zi ochiq turadi. */
+    active: uid && !code ? active : null,
     /* Harakatlar. */
     create,
     quick,

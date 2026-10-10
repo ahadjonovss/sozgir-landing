@@ -5534,6 +5534,22 @@
    Uch yo'l yonma-yon: kod (og'zaki), havola (chatga), QR (ekranga).
    Telefonda QR pastga tushadi — yonma-yon turganda ikkalasi ham
    o'qib bo'lmaydigan darajada kichrayardi. */
+/* Do'stni chaqirish — kodning ostida, alohida blok.
+   Ro'yxat baland bo'lib ketmasin: beshta qatordan keyin suriladi,
+   aks holda yigirma do'sti bor odamda xona ro'yxati ekrandan
+   chiqib ketardi. */
+.tnr-friends {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  margin-top: 16px;
+}
+
+.tnr-friends .arena__members {
+  max-height: 244px;
+  overflow-y: auto;
+}
+
 .tnr-invite {
   display: grid;
   gap: 14px;
@@ -5638,6 +5654,73 @@
   font-size: 22px;
   font-weight: 900;
   letter-spacing: -0.02em;
+}
+
+.tnr-list__items {
+  display: grid;
+  gap: 8px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tnr-list__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: inherit;
+  text-decoration: none;
+}
+
+.tnr-list__row:hover {
+  border-color: var(--violet);
+}
+
+.tnr-list__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--violet);
+  flex: none;
+}
+
+.tnr-list__main {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.tnr-list__main b {
+  font-size: 14.5px;
+  font-weight: 900;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tnr-list__main span {
+  color: var(--text-2);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.tnr-list__free {
+  color: var(--text-2);
+  font-size: 12.5px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.tnr-list__prize {
+  color: var(--yellow);
+  font-size: 13px;
+  font-weight: 900;
+  white-space: nowrap;
 }
 
 .tnr__prize {
