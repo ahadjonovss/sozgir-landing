@@ -80,7 +80,11 @@ export default function ArenaStandings({
                   <PlayerName uid={row.uid} name={row.nickname} size={14} />
                 </span>
               </a>
-              {row.mine && <YouTag />}
+              {/* «Siz» katagi **har doim** chiziladi, bo'sh bo'lsa
+                  ham: faqat o'z qatorimda qo'shilganda qator beshta
+                  katakka aylanib, to'rt ustunli to'rga sig'masdi va
+                  aqcha pastki qatorga tushib ketardi. */}
+              <span className="standings__you">{row.mine ? <YouTag /> : null}</span>
               <span className="standings__score">{scoreText(row, game)}</span>
               {delta !== null && (
                 <span

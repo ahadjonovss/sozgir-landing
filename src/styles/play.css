@@ -4268,7 +4268,10 @@
 
 .standings__row {
   display: grid;
-  grid-template-columns: 26px 1fr auto auto;
+  /* Beshta ustun: o'rin, ism, «Siz», hisob, aqcha. «Siz» katagi
+     bo'sh bo'lsa ham turadi — aks holda o'z qatorim boshqalardan
+     bitta katak uzun bo'lib, oxirgisi pastga tushib ketardi. */
+  grid-template-columns: 26px 1fr auto auto auto;
   align-items: center;
   gap: 10px;
   padding: 7px 12px;
