@@ -5771,6 +5771,14 @@
   white-space: nowrap;
 }
 
+.ladder__points {
+  margin-left: auto;
+  color: var(--yellow);
+  font-size: 12px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
 .ladder__score {
   flex: none;
   color: var(--text-2);

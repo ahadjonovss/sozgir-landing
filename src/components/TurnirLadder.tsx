@@ -68,24 +68,22 @@ function Group({ group, label }: { group: LadderGroup; label: string }) {
   );
 }
 
-function Seat({ seat, done }: { seat: LadderSeat; done: boolean }) {
-  // Chiqqan odam faqat **tugagan** guruhda so'lg'un bo'ladi: jang
-  // ketayotganda hali hech kim chiqmagan va qatorni oldindan
-  // o'chirish yolg'on bo'lardi.
-  const out = done && !seat.through;
-
+function Seat({ seat }: { seat: LadderSeat; done: boolean }) {
+  // So'lg'un qator yo'q: shveytsarda chiqarib yuborish ham yo'q.
+  // Qator yonida o'sha davrada olingan ochko turadi va jadvaldagi
+  // harakatni o'sha ko'rsatadi.
   return (
-    <li
-      className={`ladder__seat${seat.mine ? ' ladder__seat--me' : ''}${
-        out ? ' ladder__seat--out' : ''
-      }${done && seat.through ? ' ladder__seat--through' : ''}`}
-    >
+    <li className={`ladder__seat${seat.mine ? ' ladder__seat--me' : ''}`}>
       <span className="ladder__place">{seat.rank ?? '·'}</span>
       <Avatar name={seat.nickname} uid={seat.uid} size={22} />
       <span className="ladder__who">
         <PlayerName uid={seat.uid} name={seat.nickname} size={13} />
       </span>
-      {seat.score !== null && <span className="ladder__score">{seat.score}</span>}
+      {seat.points !== null ? (
+        <span className="ladder__points">{seat.points} ochko</span>
+      ) : (
+        seat.score !== null && <span className="ladder__score">{seat.score}</span>
+      )}
     </li>
   );
 }

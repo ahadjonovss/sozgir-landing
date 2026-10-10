@@ -64,7 +64,10 @@ export interface TurnirPastGroup {
 export interface TurnirPastRound {
   round?: number;
   groups?: TurnirPastGroup[];
-  survivors?: string[];
+  /** Shu davrada olingan ochko — qator yonida turadi. Jami emas:
+   *  to'rni o'qiyotgan odam har davrada kim qanday o'ynaganini
+   *  ko'rishi kerak, jami esa jadvalda (`TurnirDoc.points`). */
+  points?: Record<string, number>;
 }
 
 /** `mardu_series/{KOD}` — turnirning butun tarixi bitta hujjatda.
@@ -88,10 +91,20 @@ export interface TurnirDoc {
   uids?: string[];
 
   round?: number;
-  /** Boshlanganda muhrlanadigan tartib — tenglikni oxirida shu buzadi
-   *  va u o'yindan **oldin** hammaga ko'rinadi. */
+  /** Turnir necha davradan iborat — boshlanganda muhrlanadi. */
+  rounds?: number;
+  /** Boshlanganda muhrlanadigan kirish tartibi — teng ochkoda
+   *  jadvaldagi o'rinni shu buzadi va u o'yindan **oldin** hammaga
+   *  ko'rinadi. */
   seeds?: string[];
+  /** Shu davrada o'ynayotganlar — shveytsarda odatda hamma. */
   alive?: string[];
+  /** Jadval tartibi: ochko bo'yicha, teng ochkoda `seeds` bo'yicha. */
+  order?: string[];
+  /** Yig'ilgan ochko. */
+  points?: Record<string, number>;
+  /** Joriy davra oxirgisimi — unda birinchi guruh **final** bo'ladi. */
+  final?: boolean;
   groups?: TurnirGroup[];
   nextRoundAt?: Stamp;
   ladder?: TurnirPastRound[];
@@ -155,14 +168,21 @@ export const cleanCode = (value: string) =>
 
 // ── Zinapoya ───────────────────────────────────────────────────────────
 
-/** «32 → 16 → 8 → 4 → 2» — turnir qanday qisqarishi.
+/** Turnir necha davradan iborat (8 → 3, 16 → 4, 32 → 5).
  *
- *  Yig'ilish sahifasida izoh bo'lib turadi: odam birinchi qarashdayoq
- *  necha davra o'ynashini bilsin. */
-export function ladderSteps(capacity: number): number[] {
-  const steps: number[] = [];
-  for (let left = capacity; left >= 2; left = Math.floor(left / 2)) steps.push(left);
-  return steps;
+ *  Serverdagi `turnirRounds` ning aynan o'zi. Shveytsarda bu «odam
+ *  ikki barobar kamayadi» degani emas — hamma hamma davrani
+ *  o'ynaydi — faqat davralar soni. Yig'ilish sahifasida va'da bo'lib
+ *  turadi: odam birinchi qarashdayoq necha davra o'ynashini va
+ *  chiqarib yuborilmasligini bilsin. */
+export function turnirRounds(players: number): number {
+  let left = Math.max(1, players);
+  let rounds = 0;
+  while (left > 1) {
+    left = Math.ceil(left / 2);
+    rounds += 1;
+  }
+  return rounds;
 }
 
 /** Shuncha odam necha guruhga bo'linadi (`ceil(n / 8)`). */
@@ -185,32 +205,44 @@ export function groupOf(
   return doc?.groups?.find((group) => group.uids?.includes(uid)) ?? null;
 }
 
-/** Shu odamning turnirdagi yo'li: o'ynayaptimi, qaysi davrada chiqdi va
- *  o'sha davrada nechanchi bo'ldi. */
-export interface TurnirRun {
-  alive: boolean;
+/** Shu odamning jadvaldagi holati.
+ *
+ *  Shveytsarda «chiqib ketdim» degan holat yo'q — hamma oxirigacha
+ *  o'ynaydi. Shuning uchun savol boshqacha: **nechanchi o'rindaman va
+ *  nechta ochkom bor**. */
+export interface TurnirPlace {
+  /** Jadvaldagi o'rin (1 dan). Ro'yxatda bo'lmasa 0. */
+  rank: number;
+  points: number;
+  /** Shu davrada o'ynayaptimi. Deyarli doim rost: faqat oxirgi
+   *  davrada, qolganlar ikki kishidan kam bo'lsa, bitta odam
+   *  o'tkazib yuboriladi. */
+  playing: boolean;
   winner: boolean;
-  /** Chiqqan davra — hali chiqmagan bo'lsa `null`. */
-  round: number | null;
-  /** O'sha davradagi guruhdagi o'rni. */
-  rank: number | null;
 }
 
-export function runOf(doc: TurnirDoc | null | undefined, uid: string): TurnirRun {
-  const winner = !!uid && doc?.winnerUid === uid;
-  const alive = !winner && !!uid && (doc?.alive?.includes(uid) ?? false);
-  if (winner || alive) return { alive, winner, round: null, rank: null };
-
-  // Chiqqan davra — ro'yxatda **oxirgi** marta ko'ringan joyi:
-  // undan keyingi davraga o'tmagan bo'lsa, demak o'sha yerda tugagan.
-  for (const past of [...(doc?.ladder ?? [])].reverse()) {
-    for (const group of past.groups ?? []) {
-      const seat = group.standings?.find((row) => row.uid === uid);
-      if (seat) return { alive: false, winner: false, round: past.round ?? null, rank: seat.rank };
-    }
-  }
-  return { alive: false, winner: false, round: null, rank: null };
+export function placeOf(
+  doc: TurnirDoc | null | undefined,
+  uid: string,
+): TurnirPlace {
+  if (!uid) return { rank: 0, points: 0, playing: false, winner: false };
+  const at = doc?.order?.indexOf(uid) ?? -1;
+  return {
+    rank: at < 0 ? 0 : at + 1,
+    points: doc?.points?.[uid] ?? 0,
+    playing: doc?.alive?.includes(uid) ?? false,
+    winner: doc?.winnerUid === uid,
+  };
 }
+
+/** Joriy davradagi guruh final guruhimi.
+ *
+ *  Final har doim **birinchi** guruh (serverdagi `finalGroups`). */
+export const isFinalGroup = (
+  doc: TurnirDoc | null | undefined,
+  group: TurnirGroup,
+): boolean =>
+  doc?.final === true && doc.groups?.[0]?.battleId === group.battleId;
 
 // ── To'r ───────────────────────────────────────────────────────────────
 
@@ -221,8 +253,8 @@ export interface LadderSeat {
   /** Guruhdagi o'rin. Hali o'ynalmagan davrada `null`. */
   rank: number | null;
   score: number | null;
-  /** Keyingi davraga o'tdimi. Tugamagan guruhda `false`. */
-  through: boolean;
+  /** Shu davrada olingan ochko. Tugamagan guruhda `null`. */
+  points: number | null;
   mine: boolean;
 }
 
@@ -232,12 +264,19 @@ export interface LadderGroup {
   done: boolean;
 }
 
+export interface LadderGroupName {
+  /** Oxirgi davradagi birinchi guruh — **final**. */
+  final: boolean;
+}
+
 export interface LadderRound {
   round: number;
   groups: LadderGroup[];
   players: number;
   /** Hozir o'ynalayotgan davra — ko'rinishda ajralib turadi. */
   current: boolean;
+  /** Oxirgi davra: birinchi guruh final, qolganlari jadval uchun. */
+  last: boolean;
 }
 
 /** Hujjatdan to'r: tugagan davralar `ladder` dan, joriysi `groups` dan.
@@ -258,7 +297,7 @@ export function buildLadder({
   const rounds: LadderRound[] = [];
 
   for (const past of doc?.ladder ?? []) {
-    const survivors = new Set(past.survivors ?? []);
+    const earned = past.points ?? {};
     const groups: LadderGroup[] = (past.groups ?? []).map((group) => ({
       battleId: group.battleId ?? null,
       done: true,
@@ -269,7 +308,7 @@ export function buildLadder({
           nickname: memberName(doc, row.uid),
           rank: row.rank,
           score: row.score,
-          through: survivors.has(row.uid),
+          points: earned[row.uid] ?? null,
           mine: row.uid === uid,
         })),
     }));
@@ -278,6 +317,7 @@ export function buildLadder({
       groups,
       players: groups.reduce((sum, group) => sum + group.seats.length, 0),
       current: false,
+      last: (past.round ?? 0) >= (doc?.rounds ?? 0),
     });
   }
 
@@ -296,7 +336,7 @@ export function buildLadder({
           nickname: row?.nickname ?? memberName(doc, seat),
           rank: row?.rank ?? null,
           score: row?.score ?? null,
-          through: false,
+          points: null,
           mine: seat === uid,
         };
       });
@@ -309,6 +349,7 @@ export function buildLadder({
       groups,
       players: groups.reduce((sum, group) => sum + group.seats.length, 0),
       current: true,
+      last: doc.final === true,
     });
   }
 

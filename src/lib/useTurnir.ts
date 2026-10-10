@@ -24,7 +24,7 @@ import {
   kickFromTurnir,
   leaveTurnir,
   playerCount,
-  runOf,
+  placeOf,
   seriesOf,
   startTurnir,
   turnirPath,
@@ -194,7 +194,7 @@ export function useTurnir(code: string) {
   );
 
   const rounds = useMemo(() => buildLadder({ doc, uid, live }), [doc, uid, live]);
-  const run = useMemo(() => runOf(doc, uid), [doc, uid]);
+  const place = useMemo(() => placeOf(doc, uid), [doc, uid]);
 
   // ── Chaqiruvlar ──────────────────────────────────────────────────────
   /** Kirish shart: turnir hisobga bog'lanadi (reyting, jadval, o'rin). */
@@ -287,7 +287,7 @@ export function useTurnir(code: string) {
     players,
     members,
     rounds,
-    run,
+    place,
     live,
     joined: !!uid && !!doc?.members?.[uid],
     isHost: !!host && host === uid,

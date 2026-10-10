@@ -14,7 +14,7 @@ import { routeParam } from '../lib/useRoute';
 import { useTurnir, type Turnir } from '../lib/useTurnir';
 import {
   cleanCode,
-  ladderSteps,
+  turnirRounds,
   TURNIR_GROUP,
   TURNIR_MIN_PLAYERS,
   TURNIR_SIZES,
@@ -77,7 +77,7 @@ export default function TurnirPage() {
 
 function Hub({ turnir }: { turnir: Turnir }) {
   const [code, setCode] = useState('');
-  const steps = ladderSteps(turnir.size);
+  const rounds = turnirRounds(turnir.size);
 
   return (
     <div className="lobby">
@@ -117,10 +117,11 @@ function Hub({ turnir }: { turnir: Turnir }) {
             </div>
           </div>
 
-          {/* Zinapoya darhol ko'rinadi: odam «necha davra o'ynayman»
-              degan savolga tugmani bosmasdan javob olsin. */}
+          {/* Va'da darhol ko'rinadi: odam «necha davra o'ynayman»
+              degan savolga tugmani bosmasdan javob olsin — va
+              chiqarib yuborilmasligini ham bilsin. */}
           <p className="panel__note lobby__hint">
-            {steps.join(' → ')} → g‘olib · {steps.length} davra
+            {rounds} davra · hamma oxirigacha o‘ynaydi
           </p>
 
           <label className="field tnr__title">
@@ -128,7 +129,7 @@ function Hub({ turnir }: { turnir: Turnir }) {
             <input
               value={turnir.title}
               onChange={(event) => turnir.setTitle(event.target.value.slice(0, 40))}
-              placeholder="Alif kubogi"
+              placeholder="So‘zgir Kubogi"
               maxLength={40}
             />
           </label>
@@ -260,12 +261,13 @@ function Running({ turnir }: { turnir: Turnir }) {
   );
 }
 
-/** Mening holatim: o'ynayapmanmi, qachon chiqdim, keyingi davra qachon.
+/** Mening holatim: nechanchi o'rindaman va keyingi davra qachon.
  *
  *  To'rdan **oldin** turadi, chunki odam ekranni ochganda birinchi
- *  o'zini qidiradi: «men hali o'ynayapmanmi?». */
+ *  o'zini qidiradi. Savol shveytsarda «men hali o'ynayapmanmi?» emas
+ *  — chiqib ketish yo'q — balki «men qayerdaman?». */
 function Standing({ turnir }: { turnir: Turnir }) {
-  const { run, nextIn, myBattle } = turnir;
+  const { place, nextIn, myBattle } = turnir;
 
   if (myBattle) {
     return (
@@ -279,31 +281,26 @@ function Standing({ turnir }: { turnir: Turnir }) {
     );
   }
 
-  const out = !run.alive && run.round !== null;
-  // Sanoq chiqib ketgan odamga ham ko'rsatiladi: u ham keyingi davra
-  // qachon boshlanishini bilishni xohlaydi — tomosha ham o'yin.
+  // Sanoq kuzatuvchiga ham ko'rsatiladi: u ham keyingi davra qachon
+  // boshlanishini bilishni xohlaydi — tomosha ham o'yin.
   const clock =
     nextIn === null
       ? null
       : `${Math.floor(nextIn / 60)}:${String(nextIn % 60).padStart(2, '0')}`;
 
   return (
-    <div className={`tnr__me ${out ? 'tnr__me--out' : 'tnr__me--on'}`}>
+    <div className="tnr__me tnr__me--on">
       <strong>
-        {out
-          ? `Siz ${run.round}-davrada chiqdingiz${run.rank ? ` — ${run.rank}-o‘rin` : ''}`
-          : run.alive
-            ? 'Siz davom etyapsiz'
-            : 'Turnir ketyapti'}
+        {place.rank > 0
+          ? `${place.rank}-o‘rin · ${place.points} ochko`
+          : 'Turnir ketyapti'}
       </strong>
       <span>
         {clock
           ? `Keyingi davra: ${clock}`
-          : out
-            ? 'Turnirni oxirigacha kuzatishingiz mumkin.'
-            : run.alive
-              ? 'Davra ochilishi bilan jang o‘zi boshlanadi.'
-              : 'Davralarni kuzatib turishingiz mumkin.'}
+          : place.playing
+            ? 'Davra ochilishi bilan jang o‘zi boshlanadi.'
+            : 'Davralarni kuzatib turishingiz mumkin.'}
       </span>
     </div>
   );
@@ -390,7 +387,7 @@ function ShareWinner({
   const timer = useRef(0);
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
-  const place = mine ? 1 : turnir.run.rank;
+  const place = mine ? 1 : turnir.place.rank;
   const myName = pretty(turnir.account?.nickname ?? 'Siz');
   const label = turnir.turnirGame === 'guncha' ? 'G‘uncha turniri' : 'So‘zjang turniri';
 

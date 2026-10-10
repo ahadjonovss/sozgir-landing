@@ -11,14 +11,14 @@
  *  so'rab turmaydi. */
 import { useMemo, useRef, useState } from 'react';
 import { qrMatrix, qrPath } from '../lib/qr';
-import { ladderSteps, turnirLink, TURNIR_MIN_PLAYERS } from '../lib/turnir';
+import { turnirLink, turnirRounds, TURNIR_MIN_PLAYERS } from '../lib/turnir';
 import type { Turnir } from '../lib/useTurnir';
 import Avatar from './Avatar';
 import PlayerName from './PlayerName';
 import { Check, Close, Copy, Trophy } from './Icons';
 
 export default function TurnirLobby({ turnir }: { turnir: Turnir }) {
-  const steps = ladderSteps(turnir.capacity);
+  const rounds = turnirRounds(turnir.capacity);
 
   return (
     <div className="stage tnr-lobby">
@@ -33,7 +33,7 @@ export default function TurnirLobby({ turnir }: { turnir: Turnir }) {
       {/* Zinapoya — necha davra o'ynalishi. Son yig'ilish paytida ham
           turnir hajmidan olinadi: odam nimaga yozilayotganini bilsin. */}
       <p className="tnr-lobby__steps">
-        {steps.join(' → ')} → <b>g‘olib</b>
+        <b>{rounds} davra</b> · hamma oxirigacha o‘ynaydi
       </p>
 
       <Invite turnir={turnir} />
