@@ -3207,6 +3207,10 @@
   --tone: var(--violet);
 }
 
+.hub-card--turnir {
+  --tone: var(--yellow);
+}
+
 .hub-card::after {
   content: '';
   position: absolute;

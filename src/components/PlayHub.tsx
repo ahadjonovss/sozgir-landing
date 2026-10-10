@@ -5,7 +5,8 @@
  *  So'zjang (do'st bilan yoki tezkor jang). Ilgari sarlavhada So'zjang
  *  alohida turardi, So'ztopga esa yo'l ko'rinmasdi.
  *
- *  Mardu maydon kartochkasi qolganlaridan keyin turadi: u yangi o'yin
+ *  Turnir va Mardu maydon kartochkalari qolganlaridan keyin turadi:
+ *  ular yangi o'yin
  *  emas, **shakl** — ichida baribir So'zjang yoki G'uncha o'ynaladi,
  *  shuning uchun avval o'yinlarning o'zi ko'rinishi kerak. */
 import { useEffect, useState } from 'react';
@@ -15,7 +16,7 @@ import { dailyKey, dailyNumber, untilNextWord } from '../lib/daily';
 import { DAILY_LENGTH, attemptsFor } from '../lib/modes';
 import AdBanner from './AdBanner';
 import AppMark from './AppMark';
-import { Clock, Swords, Users } from './Icons';
+import { Clock, Swords, Trophy, Users } from './Icons';
 import GunchaCard from './GunchaCard';
 import TelegramBanner from './TelegramBanner';
 import { Aqcha } from './Units';
@@ -184,6 +185,33 @@ export default function PlayHub() {
             <div className="hub-card__actions">
               <a className="btn" href={links.mardu}>
                 Maydonga kirish
+              </a>
+            </div>
+          </article>
+
+          {/* Turnir maydondan **keyin**: ichida o'ynaladigani o'sha
+              maydon, ya'ni odam avval maydonni ko'rishi kerak. */}
+          <article className="hub-card hub-card--turnir">
+            <div className="hub-card__top">
+              <span className="hub-card__icon">
+                <Trophy size={26} />
+              </span>
+              <span className="hub-card__badge">8–32 kishi</span>
+            </div>
+            <h2>Turnir</h2>
+            <p>
+              Ketma-ket bir necha maydon: har davrada o‘zingizga teng
+              ochkodagilar bilan o‘ynaysiz, oxirida esa jadvalning birinchi
+              ikki o‘rni finalga chiqadi.
+            </p>
+            <div className="hub-card__status">
+              <span>
+                Chiqarib yuborish yo‘q — hamma oxirgi davragacha o‘ynaydi
+              </span>
+            </div>
+            <div className="hub-card__actions">
+              <a className="btn" href={links.turnir}>
+                Turnirga kirish
               </a>
             </div>
           </article>
