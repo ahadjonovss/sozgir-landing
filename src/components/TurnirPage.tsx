@@ -342,23 +342,39 @@ function Standing({ turnir }: { turnir: Turnir }) {
   // Sanoq kuzatuvchiga ham ko'rsatiladi: u ham keyingi davra qachon
   // boshlanishini bilishni xohlaydi — tomosha ham o'yin.
   const clock =
-    nextIn === null
+    nextIn === null || nextIn <= 0
       ? null
       : `${Math.floor(nextIn / 60)}:${String(nextIn % 60).padStart(2, '0')}`;
+
+  // Guruhim tugadi, lekin davra tugamadi: qolgan guruhlar hali
+  // o'ynayapti. Ilgari bu yerda «Keyingi davra: 0:00» turardi —
+  // sanoq nolga tushgan, hech narsa bo'lmayapti va odam nimani
+  // kutayotganini bilmasdi.
+  const round = turnir.rounds.find((item) => item.current);
+  const left = round ? round.groups.filter((group) => !group.done).length : 0;
+
+  // Birinchi davra yopilmaguncha ochko ham, o'rin ham yo'q: jadval
+  // davra oxirida tuziladi. «1-o'rin · 0 ochko» o'sha paytda yolg'on
+  // bo'lardi — u ro'yxatga kirish tartibi, natija emas.
+  const scored = (turnir.doc?.ladder?.length ?? 0) > 0;
 
   return (
     <div className="tnr__me tnr__me--on">
       <strong>
-        {place.rank > 0
+        {scored && place.rank > 0
           ? `${place.rank}-o‘rin · ${place.points} ochko`
-          : 'Turnir ketyapti'}
+          : round
+            ? `${round.round}-davra ketyapti`
+            : 'Turnir ketyapti'}
       </strong>
       <span>
-        {clock
-          ? `Keyingi davra: ${clock}`
-          : place.playing
-            ? 'Davra ochilishi bilan jang o‘zi boshlanadi.'
-            : 'Davralarni kuzatib turishingiz mumkin.'}
+        {left > 0
+          ? `${left} guruh hali o‘ynayapti — davra hamma guruh tugagach yakunlanadi.`
+          : clock
+            ? `Keyingi davra: ${clock}`
+            : place.playing
+              ? 'Davra ochilishi bilan jang o‘zi boshlanadi.'
+              : 'Davralarni kuzatib turishingiz mumkin.'}
       </span>
     </div>
   );

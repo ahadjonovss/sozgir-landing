@@ -139,6 +139,12 @@ export function TurnirNext({ code }: { code: string }) {
   const left = turnir.nextIn;
   const finished = doc.status === 'finished';
 
+  // Mening guruhim tugadi, lekin davra tugamadi: qolganlari hali
+  // o'ynayapti va sanoq ular tugagandan keyin boshlanadi. Buni
+  // aytmaslik — odamni qotib qolgan ekran oldida qoldirish.
+  const now = turnir.rounds.find((item) => item.current);
+  const playing = now ? now.groups.filter((group) => !group.done).length : 0;
+
   return (
     <div className="tnr-next">
       <span className="tnr-next__place">
@@ -151,6 +157,11 @@ export function TurnirNext({ code }: { code: string }) {
       <span className="tnr-next__what">
         {finished ? (
           'Turnir tugadi — yakuniy jadvalni turnir sahifasida ko‘ring.'
+        ) : playing > 0 ? (
+          <>
+            Yana <b>{playing} guruh</b> o‘ynayapti — davra hamma guruh
+            tugagach yakunlanadi va keyingisi o‘zi boshlanadi.
+          </>
         ) : round >= total && total > 0 ? (
           'Oxirgi davra edi — yakun hisoblanmoqda.'
         ) : left !== null && left > 0 ? (
