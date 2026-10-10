@@ -76,6 +76,14 @@ export interface TurnirDoc {
   code?: string;
   title?: string;
   game?: BattleGame;
+  /** Tezkor turnir — notanish odamlar bilan, sanoq bilan. Do'stlar
+   *  turniridan farqi ikkita: boshlashni hech kim bosmaydi (sanoq
+   *  boshlaydi) va odam yetmasa robotlar qo'shiladi. */
+  mode?: 'quick' | 'friends';
+  /** Tezkor turnirda sanoq shu paytda tugaydi (serverning soati).
+   *  Ikkinchi odam kirgunicha yo'q: boshlanmaydigan sanoq
+   *  ko'rsatilmaydi. */
+  startsAt?: Stamp;
   length?: number;
   capacity?: number;
   status?: TurnirStatus;
@@ -138,6 +146,17 @@ export const createTurnir = (input: {
  *  yangilagan odam o'sha turnirga qaytadi. */
 export const joinTurnir = (input: { code: string; nickname: string }) =>
   callFunction<{ code: string; round?: number }>('turnirJoin', input);
+
+/** Tezkor turnir — ochiq xona topiladi yoki yangisi ochiladi.
+ *
+ *  Ko'rsatkich hujjat serverda: ro'yxatdan so'rov «o'qi-keyin-yarat»
+ *  poygasiga ochiq bo'lardi va bir soniya farq bilan kirgan ikki
+ *  odam ikkita bo'sh turnir ochib yuborardi. */
+export const quickTurnir = (input: { game: BattleGame; nickname: string }) =>
+  callFunction<{ code: string; startsAt?: number | null; serverNow?: number }>(
+    'turnirQuick',
+    input,
+  );
 
 export const leaveTurnir = (code: string) =>
   callFunction<{ left: boolean }>('turnirLeave', { code });

@@ -25,6 +25,7 @@ import {
   leaveTurnir,
   playerCount,
   placeOf,
+  quickTurnir,
   seriesOf,
   startTurnir,
   turnirPath,
@@ -161,12 +162,14 @@ export function useTurnir(code: string) {
     if (myBattle) showBattle(turnirGame, myBattle);
   }, [myBattle, turnirGame]);
 
-  // ── Keyingi davra sanog'i ────────────────────────────────────────────
-  // Sanoq **ko'rsatuvchi**, boshqaruvchi emas: davrani hujjatdagi
-  // `groups` ochadi, ya'ni qurilma soati bir necha soniya adashsa ham
-  // hech narsa buzilmaydi. Shu sababli bu yerda server bilan farq
-  // hisoblanmaydi — tanaffus yigirma soniya, xato esa undan kichik.
-  const nextAt = doc?.nextRoundAt?.seconds;
+  // ── Sanoq ────────────────────────────────────────────────────────────
+  // Ikki xil, lekin bitta maydonga tushadi: yig'ilishda tezkor
+  // turnirning boshlanish sanog'i, davralar orasida esa tanaffus.
+  // Ikkalasi ham **ko'rsatuvchi**, boshqaruvchi emas — davrani
+  // hujjatdagi `groups` ochadi, turnirni esa server o'z soati bilan
+  // boshlaydi.
+  const nextAt =
+    doc?.status === 'gathering' ? doc?.startsAt?.seconds : doc?.nextRoundAt?.seconds;
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
@@ -242,6 +245,15 @@ export function useTurnir(code: string) {
     [nickname, call],
   );
 
+  const quick = useCallback(
+    () =>
+      call(async () => {
+        const reply = await quickTurnir({ game, nickname });
+        go(turnirPath(reply.code));
+      }),
+    [game, nickname, call],
+  );
+
   const start = useCallback(() => call(() => startTurnir(code)), [code, call]);
 
   const kick = useCallback(
@@ -305,8 +317,11 @@ export function useTurnir(code: string) {
     setSize,
     title,
     setTitle,
+    /** Tezkor turnirmi — ekran kod o'rniga sanoq ko'rsatadi. */
+    isQuick: doc?.mode === 'quick',
     /* Harakatlar. */
     create,
+    quick,
     join,
     start,
     kick,

@@ -143,6 +143,23 @@ function Hub({ turnir }: { turnir: Turnir }) {
             {turnir.busy ? 'Ochilmoqda…' : 'Turnir ochish'}
           </button>
 
+          {/* Tezkor turnir hajm va nomni e'tiborsiz qoldiradi: ochiq
+              xona sakkiz kishilik va nomsiz. Shuning uchun u
+              sozlamalardan keyin turadi — tanlovlar unga tegishli
+              emasligi shundan ko'rinadi. */}
+          <button
+            className="btn btn--lg btn--outline"
+            onClick={turnir.quick}
+            disabled={turnir.busy}
+          >
+            <Swords size={20} />
+            Tezkor turnir
+          </button>
+          <p className="panel__note">
+            Notanish odamlar bilan, 8 kishilik — sanoq ikkinchi odam
+            kirganda boshlanadi.
+          </p>
+
           <div className="lobby__friend">
             <span className="panel__label">
               <Users size={14} /> Kod bilan kirish

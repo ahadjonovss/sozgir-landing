@@ -19,6 +19,10 @@ import { Check, Close, Copy, Trophy } from './Icons';
 
 export default function TurnirLobby({ turnir }: { turnir: Turnir }) {
   const rounds = turnirRounds(turnir.capacity);
+  // Tezkor turnirda sanoq turadi: xonaga kod bilan emas, navbat
+  // bilan kiriladi va boshlashni hech kim bosmaydi.
+  const quick = turnir.isQuick;
+  const left = turnir.nextIn;
 
   return (
     <div className="stage tnr-lobby">
@@ -33,10 +37,20 @@ export default function TurnirLobby({ turnir }: { turnir: Turnir }) {
       {/* Zinapoya — necha davra o'ynalishi. Son yig'ilish paytida ham
           turnir hajmidan olinadi: odam nimaga yozilayotganini bilsin. */}
       <p className="tnr-lobby__steps">
-        <b>{rounds} davra</b> · hamma oxirigacha o‘ynaydi
+        {quick && left !== null ? (
+          <>
+            <b>Boshlanishiga: {left} s</b> · {rounds} davra
+          </>
+        ) : (
+          <>
+            <b>{rounds} davra</b> · hamma oxirigacha o‘ynaydi
+          </>
+        )}
       </p>
 
-      <Invite turnir={turnir} />
+      {/* Tezkor turnirda kod ko'rsatilmaydi: ochiq xonaga havola
+          tarqatilmaydi va ekranda sanoq turadi. */}
+      {!quick && <Invite turnir={turnir} />}
 
       <ul className="arena__members tnr-lobby__list">
         {turnir.members.map((member) => (
@@ -51,7 +65,7 @@ export default function TurnirLobby({ turnir }: { turnir: Turnir }) {
             {member.uid === (turnir.doc?.host ?? turnir.doc?.createdBy) && (
               <span className="arena__host">tashkilotchi</span>
             )}
-            {turnir.isHost && !member.mine && (
+            {turnir.isHost && !quick && !member.mine && (
               <button
                 type="button"
                 className="icon-btn tnr-lobby__kick"
@@ -78,7 +92,7 @@ export default function TurnirLobby({ turnir }: { turnir: Turnir }) {
       </ul>
 
       <div className="result__actions">
-        {turnir.isHost && (
+        {turnir.isHost && !quick && (
           <button
             className="btn"
             onClick={turnir.start}
@@ -105,9 +119,11 @@ export default function TurnirLobby({ turnir }: { turnir: Turnir }) {
       </div>
 
       <p className="stage__hint" role="status">
-        {turnir.isHost
-          ? 'Hamma yig‘ilgach «Boshlash» ni bosing. Turnir boshlanmaguncha bu sahifa ochiq tursin.'
-          : 'Turnirni tashkilotchi boshlaydi — boshlanmaguncha bu sahifa ochiq tursin.'}
+        {quick
+          ? 'Sanoq ikkinchi odam kirganda boshlanadi. Vaqt tugaganda yig‘ilganlar bilan boshlanadi.'
+          : turnir.isHost
+            ? 'Hamma yig‘ilgach «Boshlash» ni bosing. Turnir boshlanmaguncha bu sahifa ochiq tursin.'
+            : 'Turnirni tashkilotchi boshlaydi — boshlanmaguncha bu sahifa ochiq tursin.'}
       </p>
     </div>
   );
