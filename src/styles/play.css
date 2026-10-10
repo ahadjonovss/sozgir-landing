@@ -5708,15 +5708,20 @@
   line-height: 1.45;
 }
 
+/* Chaqiruv tugmasi — kodning ostida, markazda. Ro'yxatning o'zi
+   oynada: sahifada ochiq turganda u xonadagilar ro'yxatiga
+   qo'shilib ketardi. */
 .tnr-friends {
-  display: grid;
-  gap: 8px;
+  display: flex;
+  justify-content: center;
   width: 100%;
   margin-top: 16px;
 }
 
-.tnr-friends .arena__members {
-  max-height: 244px;
+/* Oynadagi ro'yxat: baland bo'lsa o'zi suriladi, oyna esa
+   ekrandan chiqib ketmaydi. */
+.tnr-friends__list {
+  max-height: min(56vh, 420px);
   overflow-y: auto;
 }
 

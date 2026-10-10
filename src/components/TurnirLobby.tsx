@@ -22,8 +22,9 @@ import {
 import type { Unsubscribe } from '../firebase/live';
 import type { Turnir } from '../lib/useTurnir';
 import Avatar from './Avatar';
+import Modal from './Modal';
 import PlayerName from './PlayerName';
-import { Check, Close, Copy, Trophy } from './Icons';
+import { Check, Close, Copy, Trophy, Users } from './Icons';
 
 export default function TurnirLobby({ turnir }: { turnir: Turnir }) {
   const rounds = turnirRounds(turnir.capacity);
@@ -68,9 +69,12 @@ export default function TurnirLobby({ turnir }: { turnir: Turnir }) {
 
       {/* Do'stni chaqirish — kodning yonidagi ikkinchi yo'l.
           Kod chatga tashlanadi va kim ko'rsa o'sha keladi; bu esa
-          aniq bir odamning telefoniga push bo'lib boradi. Faqat
-          ro'yxatdagi odamda: server ham shunday qaraydi
-          (`turnirInvite`). */}
+          aniq bir odamning telefoniga push bo'lib boradi.
+
+          Ro'yxatning o'zi **oynada**: sahifada ochiq turganda u
+          xonadagilar ro'yxatiga qo'shilib ketardi — ikkita bir xil
+          ko'rinishdagi ro'yxat yonma-yon turib, qaysi biri kim
+          ekani bilinmasdi. */}
       {turnir.joined && <Friends turnir={turnir} />}
 
       <ul className="arena__members tnr-lobby__list">
@@ -157,6 +161,7 @@ export default function TurnirLobby({ turnir }: { turnir: Turnir }) {
  *  ham, «qabul qilindi» ham yo'q — qator shunchaki «chaqirildi»
  *  bo'lib qoladi (ilovadagi `TurnirInviteSheet` dagidek). */
 function Friends({ turnir }: { turnir: Turnir }) {
+  const [open, setOpen] = useState(false);
   const uid = turnir.mine;
   const [friends, setFriends] = useState<Friend[]>([]);
   const [invited, setInvited] = useState<string[]>([]);
@@ -181,6 +186,8 @@ function Friends({ turnir }: { turnir: Turnir }) {
     };
   }, [uid]);
 
+  // Do'sti yo'q odamga tugma ham ko'rsatilmaydi: bosilganda bo'sh
+  // oyna ochilardi, bo'sh oyna esa javobdan ko'ra savol beradi.
   if (friends.length === 0) return null;
 
   const invite = async (friend: Friend) => {
@@ -203,10 +210,23 @@ function Friends({ turnir }: { turnir: Turnir }) {
     }
   };
 
+  if (!open) {
+    return (
+      <div className="tnr-friends">
+        <button className="btn btn--outline btn--sm" onClick={() => setOpen(true)}>
+          <Users size={16} /> Do‘stni chaqirish
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="tnr-friends">
-      <span className="panel__label">Do‘stni chaqirish</span>
-      <ul className="arena__members">
+    <Modal
+      title="Do‘stni chaqirish"
+      lead="Chaqirilgan do‘stga xabar boradi — bosishi bilan shu turnirga qo‘shiladi"
+      onClose={() => setOpen(false)}
+    >
+      <ul className="arena__members tnr-friends__list">
         {friends.map((friend) => {
           const joined = turnir.members.some((item) => item.uid === friend.uid);
           const sent = invited.includes(friend.uid);
@@ -235,7 +255,7 @@ function Friends({ turnir }: { turnir: Turnir }) {
         })}
       </ul>
       {error && <p className="form__err">{error}</p>}
-    </div>
+    </Modal>
   );
 }
 
