@@ -5542,6 +5542,43 @@
    Ro'yxat baland bo'lib ketmasin: beshta qatordan keyin suriladi,
    aks holda yigirma do'sti bor odamda xona ro'yxati ekrandan
    chiqib ketardi. */
+/* Guruh jangi boshlanishini kutish — raqiblar ro'yxati.
+   Qatorlar markazda emas, chapdan tekis: ismlar uzun-qisqa bo'ladi
+   va markazlashtirilgan ro'yxat zinapoyaga aylanardi. */
+.tnr-wait__seats {
+  display: grid;
+  gap: 8px;
+  width: min(100%, 320px);
+  margin: 16px auto 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tnr-wait__seats li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.tnr-wait__me {
+  border-color: var(--green);
+  background: var(--green-soft);
+}
+
+/* «siz» — qatorning oxirida, tinch: u ism emas, izoh. */
+.tnr-wait__seats li i {
+  margin-left: auto;
+  font-style: normal;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-2);
+}
+
 /* ── Turnir: o'yin yonidagi ustun va davra oralig'i ─────────────────
    Jang ekranining ikki yoni keng monitorda bo'm-bo'sh turardi.
    Telefonda esa ustun **chizilmaydi**: u yerda bo'sh joy yo'q va

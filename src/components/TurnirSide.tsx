@@ -75,12 +75,23 @@ export function TurnirGroups({ code, battleId }: { code: string; battleId: strin
 export function TurnirWaiting({ code, battleId }: { code: string; battleId: string }) {
   const turnir = useTurnir(code);
   const round = turnir.rounds.find((item) => item.current);
-  const mine = round?.groups.find((group) => group.battleId === battleId);
+  const at = round?.groups.findIndex((group) => group.battleId === battleId) ?? -1;
+  const mine = at >= 0 ? round?.groups[at] : undefined;
+  // Bosqich nomi — davra raqamidan muhimroq: odam «final oldimi,
+  // yo'qmi» degan savolga javob izlaydi.
+  const stage = round
+    ? groupName({
+        round: round.round,
+        rounds: round.rounds,
+        sizes: round.groups.map((group) => group.seats.length),
+        index: at,
+      })
+    : null;
 
   return (
     <div className="stage tnr-wait">
       <div className="stage__head">
-        <h2>Guruh jangi</h2>
+        <h2>{stage ?? 'Guruh jangi'}</h2>
         <span className="stage__tag">
           {round ? `${round.round}-davra` : 'Turnir'}
         </span>
