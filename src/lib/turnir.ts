@@ -290,18 +290,25 @@ export function turnirRounds(players: number): number {
 export const groupCount = (players: number) =>
   Math.max(1, Math.ceil(players / TURNIR_GROUP));
 
-/** Bosqichning **rost** nomi: «Guruh bosqichi», «Final»,
- *  «3-o'rin uchun».
+/** Guruhning nomi — **nima uchun o'ynayotgani**.
  *
- *  «Chorak final», «yarim final» yo'q: turnirda chiqarib yuborish
- *  yo'q, ya'ni bunday bosqichlar ham yo'q va ularni yozish yolg'on
- *  bo'lardi. Nomlar oxirgi davrada aniqlashadi: birinchi guruh —
- *  final, qolganlari esa yuqoridagi guruhlar sig'imidan kelib
- *  chiqib, aniq o'rin uchun o'ynaydi. Ilovadagi `turnirStageName`
- *  ning aynan o'zi.
+ *  Turnir shveytsar tizimida: chiqarib yuborish yo'q va hamma
+ *  oxirigacha o'ynaydi, ya'ni chorak final, yarim final degan
+ *  bosqichlar yo'q. Guruhlar jadval bo'yicha tuziladi, demak har
+ *  guruh qo'shni o'rinlar uchun bellashadi va nomi aynan shuni
+ *  aytishi kerak:
+ *
+ *  * oxirgi davra, birinchi guruh — **Final**;
+ *  * oxirgi davra, qolganlari — «3-o'rin uchun»;
+ *  * undan oldingi davralar — «3–6-o'rinlar»;
+ *  * birinchi davra — «A guruh»: jadval hali yo'q, o'rin haqida
+ *    gapirish yolg'on bo'lardi.
+ *
+ *  `null` — nom kerak emas (yolg'iz guruh yoki guruhsiz odam).
+ *  Ilovadagi `_groupName` ning aynan o'zi.
  *
  *  [sizes] — shu davradagi guruhlarning odam soni, tartibi bilan. */
-export function stageName({
+export function groupName({
   round,
   rounds,
   sizes,
@@ -311,18 +318,24 @@ export function stageName({
   rounds: number;
   sizes: number[];
   index: number;
-}): string {
-  // Guruhsiz odam (oxirgi davrada raqib qolmagan) uchun bosqich nomi
-  // yo'q — u o'ynamayapti. Davra raqami esa rost qoladi.
-  if (index < 0) return `${round}-davra`;
-
+}): string | null {
+  if (index < 0) return null;
+  // Final har doim **birinchi** guruh (serverdagi `finalGroups`).
   const last = rounds > 0 && round >= rounds;
-  if (!last) return 'Guruh bosqichi';
-  if (index === 0) return 'Final';
+  if (last && index === 0) return 'Final';
 
+  // Guruhgacha nechta o'rin band: shu guruhning birinchi o'rni.
   let before = 0;
   for (let at = 0; at < index && at < sizes.length; at += 1) before += sizes[at];
-  return `${before + 1}-o‘rin uchun`;
+  const from = before + 1;
+  const to = before + (sizes[index] ?? 0);
+
+  if (last) return `${from}-o‘rin uchun`;
+  if (sizes.length <= 1) return null;
+  if (round <= 1) return `${String.fromCharCode(65 + index)} guruh`;
+  // Ikki kishilik guruhda oraliq ortiqcha: «3-4-o'rinlar» o'rniga
+  // «3-o'rin uchun» aniqroq — ikkovidan biri o'sha o'rinni oladi.
+  return from === to - 1 ? `${from}-o‘rin uchun` : `${from}–${to}-o‘rinlar`;
 }
 
 export const memberName = (doc: TurnirDoc | null | undefined, uid: string) =>

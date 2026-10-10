@@ -5542,6 +5542,135 @@
    Ro'yxat baland bo'lib ketmasin: beshta qatordan keyin suriladi,
    aks holda yigirma do'sti bor odamda xona ro'yxati ekrandan
    chiqib ketardi. */
+/* ── Turnir: o'yin yonidagi ustun va davra oralig'i ─────────────────
+   Jang ekranining ikki yoni keng monitorda bo'm-bo'sh turardi.
+   Telefonda esa ustun **chizilmaydi**: u yerda bo'sh joy yo'q va
+   jadvalni o'yin ostiga tashlash o'yinni pastga surib yuborardi —
+   turnir sahifasi bir bosish narida. */
+.tnr-stage {
+  display: grid;
+  gap: 18px;
+}
+
+.tnr-stage__main {
+  min-width: 0;
+}
+
+.tnr-side {
+  display: none;
+}
+
+@media (min-width: 1180px) {
+  .tnr-stage {
+    grid-template-columns: minmax(0, 1fr) 260px;
+    align-items: start;
+  }
+
+  .tnr-side {
+    display: grid;
+    gap: 10px;
+    position: sticky;
+    top: 86px;
+  }
+}
+
+.tnr-side__head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-2);
+  font-size: 11.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tnr-side__group {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.tnr-side__name {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.tnr-side__name i {
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.tnr-side__seats {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tnr-side__seats li {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+}
+
+/* Ism qisqaradi, hisob esa qisqarmaydi: ustun tor va uzun taxallus
+   sonni o'ng chetdan itarib chiqarardi. */
+.tnr-side__seats span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-2);
+}
+
+.tnr-side__seats em {
+  font-style: normal;
+  font-weight: 800;
+  color: var(--text);
+}
+
+/* Davra tugagach — jadvaldagi o'rin va keyingi davra. Tugmalardan
+   oldin turadi, ya'ni odam «tugadi» degan xulosaga kelib ulgurmaydi. */
+.tnr-next {
+  display: grid;
+  gap: 4px;
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface-2);
+  text-align: center;
+}
+
+.tnr-next__place {
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+.tnr-next__place b {
+  color: var(--text);
+}
+
+.tnr-next__what {
+  font-size: 12.5px;
+  color: var(--text-2);
+  line-height: 1.45;
+}
+
 .tnr-friends {
   display: grid;
   gap: 8px;
@@ -5815,18 +5944,20 @@
   text-transform: lowercase;
 }
 
-/* Guruh harfi katta qoladi — serverdagi tartib ham A, B, C
-   (`splitGroups`), ya'ni ekrandagi yorliq o'sha nom bo'lishi kerak. */
+/* Yorliq — **matn**, harf emas: «5–8-o'rinlar» qat'iy 18px
+   kvadratga sig'maydi va yonidagi holat yozuvi ustiga chiqib
+   ketardi. Shuning uchun kenglik mazmunga qarab o'sadi. */
 .ladder__gname b {
   text-transform: none;
-  display: grid;
-  place-items: center;
-  width: 18px;
-  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  min-height: 18px;
+  padding: 2px 7px;
   border-radius: 6px;
   background: var(--surface-2);
   color: var(--text);
   font-size: 11px;
+  white-space: nowrap;
 }
 
 .ladder__seats {

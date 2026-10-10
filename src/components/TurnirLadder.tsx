@@ -13,7 +13,7 @@
  *  tugaganida esa server yozgan jadval — ya'ni bir xil qator ikki
  *  manbadan to'ladi va ko'rinishi o'zgarmaydi. */
 import {
-  stageName,
+  groupName,
   type LadderGroup,
   type LadderRound,
   type LadderSeat,
@@ -45,19 +45,17 @@ function Round({ round }: { round: LadderRound }) {
         <Group
           key={group.battleId ?? index}
           group={group}
-          // Nomi **rost**: «A guruh» hech narsa aytmasdi — harf
-          // tasodifiy edi va odam o'zi nima uchun o'ynayotganini
-          // bilmasdi. Endi oxirgi davrada guruh aniq o'rin uchun
-          // o'ynaydi va shu yoziladi.
+          // Nomi **rost**: guruh qaysi o'rinlar uchun o'ynayotganini
+          // aytadi. Harf faqat birinchi davrada qoladi — u yerda
+          // jadval hali yo'q va o'rin haqida gapirish yolg'on
+          // bo'lardi.
           label={
-            round.groups.length > 1 || round.round >= round.rounds
-              ? stageName({
-                  round: round.round,
-                  rounds: round.rounds,
-                  sizes: round.groups.map((item) => item.seats.length),
-                  index,
-                })
-              : ''
+            groupName({
+              round: round.round,
+              rounds: round.rounds,
+              sizes: round.groups.map((item) => item.seats.length),
+              index,
+            }) ?? ''
           }
         />
       ))}

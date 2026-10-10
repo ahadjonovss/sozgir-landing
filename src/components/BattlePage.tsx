@@ -43,6 +43,7 @@ import ArenaStandings from './ArenaStandings';
 import ArenaTiles from './ArenaTiles';
 import { routeParam } from '../lib/useRoute';
 import { seriesOf, turnirPath } from '../lib/turnir';
+import { TurnirGroups, TurnirNext } from './TurnirSide';
 import { useTurnirHop } from '../lib/useTurnir';
 
 /** Havoladagi kod — chaqiruvni bosib kelgan odam uchun.
@@ -416,6 +417,29 @@ function Waiting({ game }: { game: Sozjang }) {
           Bekor qilish
         </button>
       </div>
+    </div>
+  );
+}
+
+/** Turnir guruhida o'ynayotgan odamga yon ustun qo'shadi.
+ *
+ *  Keng ekranda jangning ikki yoni bo'm-bo'sh turardi, holbuki
+ *  odamda aniq savol bor edi: «qo'shni guruhda nima bo'lyapti?».
+ *  Oddiy jangda esa ustun chizilmaydi. */
+function TurnirStage({
+  game,
+  children,
+}: {
+  game: Sozjang;
+  children: React.ReactNode;
+}) {
+  const series = seriesOf(game.battle);
+  if (!series || !game.battleId) return <>{children}</>;
+
+  return (
+    <div className="tnr-stage">
+      <div className="tnr-stage__main">{children}</div>
+      <TurnirGroups code={series} battleId={game.battleId} />
     </div>
   );
 }
@@ -916,6 +940,11 @@ function Result({ game }: { game: Sozjang }) {
 
       {account && !expired && <BattleStats uid={account.uid} compact />}
 
+      {/* Davra tugadi — endi nima bo'ladi. Tugmalardan **oldin**:
+          odam avval keyingi davra o'zi boshlanishini bilsin, keyin
+          qayerga borishni tanlasin. */}
+      {series && <TurnirNext code={series} />}
+
       <div className="result__actions">
         {/* Turnirda «Yangi jang» chalg'itadi: odam o'yinni o'zi
             tanlamaydi, keyingi davrani turnir ochadi. */}
@@ -1053,7 +1082,9 @@ export default function BattlePage() {
             )}
             {game.phase === 'playing' && !intro && (
               <>
-                <Playing game={game} />
+                <TurnirStage game={game}>
+                  <Playing game={game} />
+                </TurnirStage>
                 {game.me?.finished ? (
                   <div className="stage stage--wait">
                     <div className="radar" aria-hidden="true">

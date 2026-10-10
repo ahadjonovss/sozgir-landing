@@ -34,6 +34,7 @@ import ScoreRules from './ScoreRules';
 import SendInvite, { type InviteTarget } from './SendInvite';
 import TelegramBanner from './TelegramBanner';
 import { seriesOf, turnirPath } from '../lib/turnir';
+import { TurnirGroups, TurnirNext } from './TurnirSide';
 import { useTurnirHop } from '../lib/useTurnir';
 
 /** Oxirgi soniyalarda rang ogohlantiruvchiga o'tadi. */
@@ -104,7 +105,9 @@ export default function GunchaBattlePage() {
             />
           ))}
         {intro === 0 && (game.phase === 'playing' || game.phase === 'finishing') && (
-          <Playing game={game} />
+          <TurnirStage game={game}>
+            <Playing game={game} />
+          </TurnirStage>
         )}
         {game.phase === 'finished' && <Result game={game} />}
       </div>
@@ -325,6 +328,29 @@ function Waiting({ game }: { game: GunchaJang }) {
           Bekor qilish
         </button>
       </div>
+    </div>
+  );
+}
+
+/** Turnir guruhida o'ynayotgan odamga yon ustun qo'shadi.
+ *
+ *  Keng ekranda jangning ikki yoni bo'm-bo'sh turardi, holbuki
+ *  odamda aniq savol bor edi: «qo'shni guruhda nima bo'lyapti?».
+ *  Oddiy jangda esa ustun chizilmaydi — qo'shiladigan gap yo'q. */
+function TurnirStage({
+  game,
+  children,
+}: {
+  game: GunchaJang;
+  children: React.ReactNode;
+}) {
+  const series = seriesOf(game.battle);
+  if (!series || !game.battleId) return <>{children}</>;
+
+  return (
+    <div className="tnr-stage">
+      <div className="tnr-stage__main">{children}</div>
+      <TurnirGroups code={series} battleId={game.battleId} />
     </div>
   );
 }
@@ -600,6 +626,13 @@ function Result({ game }: { game: GunchaJang }) {
           />
         </div>
       )}
+
+      {/* Davra tugadi — endi nima bo'ladi. Tugmalardan **oldin**:
+          odam avval keyingi davra o'zi boshlanishini bilsin, keyin
+          qayerga borishni tanlasin. Ilgari bu yerda faqat
+          «Turnirga qaytish» turardi va odam turnir tugadi deb
+          o'ylab, ekranni yopib ketardi. */}
+      {series && <TurnirNext code={series} />}
 
       <div className="gresult__foot">
         {/* Qasos birinchi turadi: o'sha raqib bilan qayta o'ynash istagi
