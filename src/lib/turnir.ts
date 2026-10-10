@@ -133,6 +133,11 @@ export interface TurnirDoc {
   winnerUid?: string;
   runnerUpUid?: string;
 
+  /** Uchinchi o'rin — umumiy jadvaldan olinadi, finaldan emas:
+   *  finalda ikki kishi o'ynaydi va uchinchi o'sha paytda boshqa
+   *  guruhda bo'ladi. */
+  thirdUid?: string;
+
   /** G'olibga to'langan ustama (aqcha) — sonni **server** hisoblaydi
    *  va shu yerga yozadi (`onTurnirFinished`).
    *
@@ -144,6 +149,7 @@ export interface TurnirDoc {
    *  chiqarmaydi (`rewards.ts`, `TURNIR_PRIZE_MIN_PLAYERS`). */
   prize?: number;
   runnerUpPrize?: number;
+  thirdPrize?: number;
 }
 
 // ── Chaqiruvlar ────────────────────────────────────────────────────────

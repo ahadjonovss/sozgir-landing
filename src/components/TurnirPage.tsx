@@ -465,12 +465,29 @@ function Winner({ turnir }: { turnir: Turnir }) {
   const players = turnir.doc?.seeds?.length ?? turnir.players;
   const mine = winnerUid === turnir.mine;
 
-  // Finalda ikki kishi qoladi va ikkalasi ham hamma davrani o'ynagan
-  // — ikkinchi o'rin ham natija, quruq qoldirilmaydi.
-  const runnerUpUid = turnir.doc?.runnerUpUid ?? '';
-  const runnerUp = runnerUpUid
-    ? pretty(turnir.doc?.members?.[runnerUpUid]?.nickname ?? 'Mehmon')
-    : '';
+  // Ustama uchinchi o'ringacha to'lanadi, demak uchovi ham shu
+  // yerda ko'rinishi kerak: faqat g'olib chiqarilsa, uchinchi o'rin
+  // olgan odam ustamasi qayerdan kelganini bilmay qolardi.
+  const places: { uid: string; name: string; prize: number; rank: number }[] =
+    [
+      {
+        uid: turnir.doc?.runnerUpUid ?? '',
+        prize: turnir.doc?.runnerUpPrize ?? 0,
+        rank: 2,
+      },
+      {
+        uid: turnir.doc?.thirdUid ?? '',
+        prize: turnir.doc?.thirdPrize ?? 0,
+        rank: 3,
+      },
+    ]
+      .filter((place) => place.uid !== '')
+      .map((place) => ({
+        ...place,
+        name: pretty(
+          turnir.doc?.members?.[place.uid]?.nickname ?? 'Mehmon'
+        ),
+      }));
 
   return (
     <div className="tnr">
@@ -488,13 +505,12 @@ function Winner({ turnir }: { turnir: Turnir }) {
         {(turnir.doc?.prize ?? 0) > 0 && (
           <em className="tnr__prize">+{turnir.doc?.prize} aqcha</em>
         )}
-        {runnerUp && (
-          <span className="tnr__second">
-            2-o‘rin · {runnerUp}
-            {(turnir.doc?.runnerUpPrize ?? 0) > 0 &&
-              ` · +${turnir.doc?.runnerUpPrize} aqcha`}
+        {places.map((place) => (
+          <span className="tnr__second" key={place.uid}>
+            {place.rank}-o‘rin · {place.name}
+            {place.prize > 0 && ` · +${place.prize} aqcha`}
           </span>
-        )}
+        ))}
         {turnir.doc?.title && <i>{turnir.doc.title}</i>}
       </div>
 
