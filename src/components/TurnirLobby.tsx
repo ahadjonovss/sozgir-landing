@@ -39,7 +39,13 @@ export default function TurnirLobby({ turnir }: { turnir: Turnir }) {
       <p className="tnr-lobby__steps">
         {quick && left !== null ? (
           <>
-            <b>Boshlanishiga: {left} s</b> · {rounds} davra
+            <b>
+              Boshlanishiga:{' '}
+              {left < 60
+                ? `${left} s`
+                : `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`}
+            </b>{' '}
+            · {rounds} davra
           </>
         ) : (
           <>
@@ -120,7 +126,7 @@ export default function TurnirLobby({ turnir }: { turnir: Turnir }) {
 
       <p className="stage__hint" role="status">
         {quick
-          ? 'Xona bir yarim daqiqada to‘ladi: odam kelmasa o‘rinlarni robotlar egallaydi.'
+          ? 'Vaqt tugaguncha qatnashchilar yig‘iladi. Odam yig‘ilmasa turnir yopiladi.'
           : turnir.isHost
             ? 'Hamma yig‘ilgach «Boshlash» ni bosing. Turnir boshlanmaguncha bu sahifa ochiq tursin.'
             : 'Turnirni tashkilotchi boshlaydi — boshlanmaguncha bu sahifa ochiq tursin.'}

@@ -156,8 +156,8 @@ function Hub({ turnir }: { turnir: Turnir }) {
             Tezkor turnir
           </button>
           <p className="panel__note">
-            Notanish odamlar bilan, 8 kishilik — xona bir yarim
-            daqiqada to‘ladi.
+            Notanish odamlar bilan, 8 kishilik — qatnashchilar uch
+            daqiqa davomida yig‘iladi.
           </p>
 
           <div className="lobby__friend">
