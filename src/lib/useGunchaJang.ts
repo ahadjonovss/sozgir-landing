@@ -77,6 +77,9 @@ const RETRY_MS = 10_000;
 /** Yengil sinxronlash: raqib bali bilan bir yo'la vaqt ham tekshiriladi. */
 const SYNC_MS = 30_000;
 
+/** Ikki sinxronlash orasidagi eng qisqa oraliq. */
+const RESYNC_GAP_MS = 1_000;
+
 function read<T>(key: string, fallback: T): T {
   try {
     const raw = localStorage.getItem(key);
@@ -129,6 +132,8 @@ export function useGunchaJang() {
   const waiting = useRef(true);
   const lastLeft = useRef<string | null>(null);
   const timers = useRef<number[]>([]);
+  /** Oxirgi sinxronlash so'ralgan payt — `RESYNC_GAP_MS` uchun. */
+  const asked = useRef(0);
 
   const later = useCallback((action: () => void, delay: number) => {
     timers.current.push(window.setTimeout(action, delay));
@@ -331,9 +336,18 @@ export function useGunchaJang() {
    *
    *  `gunchaFinish` ikki ishni bajaradi: muddat o'tgan bo'lsa jangni
    *  yakunlaydi, o'tmagan bo'lsa `endsAt` va `serverNow` ni qaytaradi.
-   *  Ya'ni sinxronlash ham, yakunlash ham bitta chaqiruv. */
+   *  Ya'ni sinxronlash ham, yakunlash ham bitta chaqiruv.
+   *
+   *  Chaqiruvlar orasida kamida bir soniya: sanoq nolga yetgach
+   *  tik har chorak soniyada so'raydi, server esa imtiyoz oynasi
+   *  (olti soniya) tugamaguncha «hali tugamadi» deb javob beradi —
+   *  cheklovsiz bu bitta jangda yigirmadan ortiq bekor chaqiruv
+   *  bo'lardi. */
   const resync = useCallback(async () => {
     if (!battleId) return;
+    const now = Date.now();
+    if (now - asked.current < RESYNC_GAP_MS) return;
+    asked.current = now;
     try {
       const reply = await finishGunchaBattle(battleId);
       if (!reply.finished) sync(reply.endsAt, reply.serverNow);
