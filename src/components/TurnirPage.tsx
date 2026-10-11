@@ -236,8 +236,9 @@ function Hub({ turnir }: { turnir: Turnir }) {
             </li>
             <li>
               Oxirgi davrada jadvalning birinchi ikki o‘rni finalga chiqadi,
-              qolganlar o‘z o‘rni uchun o‘ynaydi — kubokni final g‘olibi
-              oladi.
+              keyingi guruh esa uchinchi o‘rin uchun o‘ynaydi. Kubokni
+              final g‘olibi oladi, ikkinchi o‘rin finalda yutqazganniki,
+              uchinchi — bronza o‘yinining g‘olibiniki.
             </li>
             <li>
               Boshlash uchun kamida {TURNIR_MIN_PLAYERS} kishi kerak.
