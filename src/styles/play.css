@@ -309,6 +309,10 @@
   border: none;
   padding: 0;
   background: rgba(9, 10, 13, 0.55);
+  /* Prefiksli oldin, standarti keyin — `landing.css` dagi izohdagi
+     sabab bilan. Bu yerda parda baribir yarim qorong'i, ya'ni
+     xiralashtirish ishlamasa ham o'qishga xalaqit bermaydi. */
+  -webkit-backdrop-filter: blur(3px);
   backdrop-filter: blur(3px);
   cursor: pointer;
   animation: veil 0.2s ease;
@@ -5967,6 +5971,15 @@
 
 .ladder__round {
   display: grid;
+  /* `minmax(0, 1fr)` — ustun ichidagi matn ustundan chiqib
+     ketmasligi uchun. Avtomatik yo'lak eng uzun qatorga qarab
+     o'lchanardi: gorizontal surma ro'yxatda (`.ladder`) ustunning
+     eni 213px bo'lsa ham, ichidagi yo'lak 228px bo'lib chiqardi va
+     «32 kishi», «53 ochko» kabi o'ng chetdagi yozuvlar yonidagi
+     ustun ostida qolib ketardi. Nol eng kam en qilib qo'yilgach
+     yo'lak ustunga sig'adi va uzun ism nuqta bilan qisqaradi
+     (`.ladder__who`). */
+  grid-template-columns: minmax(0, 1fr);
   gap: 8px;
   align-content: start;
   padding: 12px;
@@ -6088,6 +6101,9 @@
 
 .ladder__seats {
   display: grid;
+  /* Sababi `.ladder__round` dagidek: qatorlar ro'yxati ham grid va
+     u ham eng uzun qatorga qarab kengayardi. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 2px;
   margin: 0;
   padding: 0;

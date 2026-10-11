@@ -27,9 +27,27 @@
   border-radius: 999px;
   background: color-mix(in srgb, var(--bg) 78%, transparent);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--divider) 60%, transparent);
-  backdrop-filter: saturate(180%) blur(16px);
+  /* Prefiksli **oldin**, standarti keyin. Tartib muhim: yig'uvchi
+     bir xil xossaning ikkitasini ko'rsa oxirgisini qoldiradi, va
+     ilgari tartib teskari bo'lgani uchun to'plangan faylga faqat
+     `-webkit-` varianti tushardi. Chrome uni tanimaydi
+     (`CSS.supports('-webkit-backdrop-filter', ...)` — `false`),
+     ya'ni xiralashtirish butunlay ishlamasdi: ortidagi matn
+     sarlavha ichidan ko'rinib turardi. */
   -webkit-backdrop-filter: saturate(180%) blur(16px);
+  backdrop-filter: saturate(180%) blur(16px);
   transition: box-shadow 0.2s ease, background 0.2s ease;
+}
+
+/* Xiralashtirish yo'q brauzerda parda shaffof qolmaydi: ortidagi
+   matn sarlavhaning o'z yozuvlariga qo'shilib ketardi. */
+@supports not (
+  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
+  .header__bar,
+  .header--stuck .header__bar {
+    background: var(--bg);
+  }
 }
 
 .header--stuck .header__bar {
@@ -274,9 +292,19 @@
   overflow-y: auto;
   padding: calc(var(--header-h) + 10px) 16px calc(24px + env(safe-area-inset-bottom));
   background: color-mix(in srgb, var(--bg) 70%, transparent);
-  backdrop-filter: blur(14px);
+  /* Tartib va qiymat — `.header__bar` dagidek. Ilgari ikkovining
+     qiymati ham boshqa-boshqa edi (14px va 16px). */
   -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
   animation: menu-in 0.18s ease;
+}
+
+@supports not (
+  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
+  .menu {
+    background: var(--bg);
+  }
 }
 
 @keyframes menu-in {
