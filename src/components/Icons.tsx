@@ -98,6 +98,12 @@ export const Copy = svg(
 export const Users = svg(
   'M8 11a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM2 20a6 6 0 0112 0M16.5 11.5a3 3 0 100-6M17 14.5a5.5 5.5 0 015 5.5',
 );
+/** Odam va plyus — «chaqirish». Bo'sh o'rin belgisining yonida
+    turadi, shuning uchun gavdasi `Person` bilan bir xil: ko'z ikkisini
+    bitta qatorda ko'rib, farqni faqat plyusdan oladi. */
+export const PersonAdd = svg(
+  'M9.5 13a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM3 20a6.5 6.5 0 0113 0M19 5v6M16 8h6',
+);
 export const Menu = svg('M4 7h16M4 12h16M4 17h16');
 /** Qo'ng'iroq — bildirishnomalar. */
 export const Bell = svg(

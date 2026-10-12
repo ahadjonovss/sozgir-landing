@@ -5543,19 +5543,162 @@
   color: var(--accent);
 }
 
-.tnr-lobby__list {
-  max-height: 46vh;
-  overflow-y: auto;
+/* ── Xonaning panjarasi ──────────────────────────────────────────────
+   Turnir sig'imicha katak: kelganlar boshida, bo'sh o'rinlar oxirida.
+   Qator-qator ro'yxat faqat kimlar kelganini aytardi; panjara esa
+   qancha joy qolganini ham ko'rsatadi — «yana N o'rin bor» degan
+   yozuvni o'qimay, xona to'layotgani ekranning o'zidan ko'rinadi
+   (ilovadagi yig'ilish ekranidek). */
+.tnr-seats {
+  width: 100%;
 }
 
-/* «Chiqarish» qatorning o'ng chetida va xira turadi: tashkilotchi uni
-   qidirib topsin, lekin ro'yxatni o'qiyotganda ko'zga urilmasin. */
-.tnr-lobby__kick {
-  flex: none;
+.tnr-seats__count {
+  margin: 0 0 8px;
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.tnr-seats__count b {
+  color: var(--text);
+}
+
+/* To'rt ustun — telefonda ham, kengroq ekranda ham. O'ttiz ikki
+   kishilik turnir sakkiz qatorga tushadi va panjara o'zi suriladi:
+   tugmalar ekrandan chiqib ketmasin. */
+.tnr-seats__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  width: 100%;
+  max-height: 46vh;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.seat {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 12px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  box-shadow: inset 0 0 0 1px var(--divider);
+  text-align: center;
+  /* Yangi kelgani pastdan suriladi — kimdir qo'shilgani sezilsin. */
+  animation: rise 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* O'z katagim rangli: ko'z birinchi navbatda o'zinikini topsin. */
+.seat--me {
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+/* Bo'sh o'rin ko'rinadi, lekin o'ziga chorlamaydi: u yerda o'qiydigan
+   narsa yo'q, bor-yo'g'i hali to'lmagan joy. */
+.seat--empty {
+  background: transparent;
+  opacity: 0.6;
+  animation: none;
+}
+
+.seat--empty .seat__name {
+  color: var(--text-2);
+  font-weight: 700;
+}
+
+.seat__face {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+/* Tashkilotchi belgisi avatar burchagida: «tashkilotchi» degan
+   alohida yozuv katakka sig'maydi. */
+.seat__host {
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--donor-eskiBoylardan);
+  color: #1b1500;
+  box-shadow: 0 0 0 2px var(--bg);
+}
+
+.seat--me .seat__host {
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+.seat__name {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12.5px;
+  font-weight: 800;
+}
+
+/* Chaqiruv katagi — bo'sh o'rinlarning boshida va panjaradagi yagona
+   bosiladigan katak: odam bo'sh joyni ko'rib, uni kim bilan
+   to'ldirishni o'sha yerda hal qiladi. */
+.seat--invite {
+  padding: 0;
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--accent);
+  animation: none;
+}
+
+.seat__call {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 6px;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  padding: 12px 6px;
+  border: 0;
+  border-radius: inherit;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  cursor: pointer;
+}
+
+.seat__call:hover {
+  background: var(--accent-soft);
+}
+
+.seat__face--icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+}
+
+/* «Chiqarish» katak burchagida va xira turadi: tashkilotchi uni
+   qidirib topsin, lekin yuzlarga qarayotganda ko'zga urilmasin. */
+.seat__kick {
+  position: absolute;
+  top: 2px;
+  right: 2px;
   opacity: 0.45;
 }
 
-.tnr-lobby__kick:hover {
+.seat__kick:hover {
   opacity: 1;
   color: var(--danger);
 }
@@ -5739,16 +5882,6 @@
   font-size: 12.5px;
   color: var(--text-2);
   line-height: 1.45;
-}
-
-/* Chaqiruv tugmasi — kodning ostida, markazda. Ro'yxatning o'zi
-   oynada: sahifada ochiq turganda u xonadagilar ro'yxatiga
-   qo'shilib ketardi. */
-.tnr-friends {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  margin-top: 16px;
 }
 
 /* Oynadagi ro'yxat: baland bo'lsa o'zi suriladi, oyna esa
