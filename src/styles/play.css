@@ -4408,6 +4408,11 @@
     flex: 1;
     min-height: 0;
     display: grid;
+    /* Bitta ustun, eni konteynerdan. Avtomatik ustun kataklardagi
+       harflar bo'yicha o'lchanardi va birinchi harf tushishi bilan
+       taxta o'z joyidan oshib ketardi (bosh sahifadagi taxtadagi
+       bilan bir xil nosozlik). */
+    grid-template-columns: minmax(0, 1fr);
     align-content: center;
   }
 
@@ -4429,9 +4434,14 @@
        birga kataklarning **ichki** kengligiga tushib qolardi, u esa
        nol (`flex: 1 1 0`) — taxta 24 piksel bo'lib g'oyib bo'lardi. */
     width: 100%;
-    max-width: calc(
-      (var(--fit) - (var(--rows) - 1) * var(--gap)) / var(--rows) * var(--cols) +
-        (var(--cols) - 1) * var(--gap)
+    /* `min(100%, …)`: balandlikdan chiqqan o'lcham konteynerdan keng
+       bo'lsa, taxta konteynerda qoladi. */
+    max-width: min(
+      100%,
+      calc(
+        (var(--fit) - (var(--rows) - 1) * var(--gap)) / var(--rows) * var(--cols) +
+          (var(--cols) - 1) * var(--gap)
+      )
     );
     margin-inline: auto;
   }
@@ -5571,7 +5581,9 @@
    tugmalar ekrandan chiqib ketmasin. */
 .tnr-seats__grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  /* `minmax(0, …)`: uzun taxallus `1fr` ning eng kichik o'lchamini
+     o'ziga tortib, panjarani ekrandan chiqarib yuborardi. */
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
   width: 100%;
   max-height: 46vh;
@@ -5584,6 +5596,7 @@
 .seat {
   position: relative;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   justify-items: center;
   align-content: center;
   gap: 6px;
@@ -5663,6 +5676,7 @@
 
 .seat__call {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   justify-items: center;
   align-content: center;
   gap: 6px;
