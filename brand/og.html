@@ -1,0 +1,178 @@
+<!doctype html>
+<!-- Havola ko'rinishi (Open Graph) — 1200×630.
+     Telegram, X, WhatsApp va qidiruvda havola shu rasm bilan ochiladi.
+     `?theme=light` bilan kunduzgi variant chiqadi.
+     Render: brand/render.sh → public/og.png -->
+<html lang="uz" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* Ranglar saytning `theme.css` sidan — havola ko'rinishi saytning
+         o'zidan boshqacha chiqmasin. */
+      :root {
+        --bg: #ffffff;
+        --text: #16181d;
+        --text-2: #7a8290;
+        --green: #63a967;
+        --chip: rgba(22, 24, 29, 0.06);
+        --glow: rgba(99, 169, 103, 0.2);
+        --grid: rgba(22, 24, 29, 0.045);
+      }
+
+      html[data-theme='dark'] {
+        --bg: #121317;
+        --text: #f3f4f6;
+        --text-2: #9aa1ae;
+        --green: #5e9e63;
+        --chip: rgba(255, 255, 255, 0.07);
+        --glow: rgba(94, 158, 99, 0.28);
+        --grid: rgba(255, 255, 255, 0.05);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+
+      body {
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+        position: relative;
+        background: var(--bg);
+        color: var(--text);
+        font-family: Nunito, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* Fon: yumshoq yashil nur + zaif katak to'ri — X headeridagidek. */
+      .glow {
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(560px 380px at 84% 6%, var(--glow), transparent 62%),
+          radial-gradient(480px 340px at 10% 98%, var(--glow), transparent 66%);
+      }
+
+      .grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(var(--grid) 1.5px, transparent 1.5px),
+          linear-gradient(90deg, var(--grid) 1.5px, transparent 1.5px);
+        background-size: 42px 42px;
+        mask-image: radial-gradient(760px 420px at 50% 50%, #000 24%, transparent 80%);
+      }
+
+      .stage {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 34px;
+      }
+
+      /* Kataklar — brendning o'zi: ilovada ham so'z shunday teriladi.
+         `O‘` bitta katakda: o'zbek alifbosining qo'sh belgisi bitta harf
+         ekani birinchi qarashdayoq ko'rinsin. */
+      .tiles {
+        display: flex;
+        gap: 12px;
+      }
+
+      .tile {
+        width: 96px;
+        height: 96px;
+        border-radius: 20px;
+        display: grid;
+        place-items: center;
+        font-size: 46px;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+        background: var(--green);
+        color: #fff;
+        box-shadow: 0 10px 26px rgba(99, 169, 103, 0.28);
+      }
+
+      .tile--wide {
+        font-size: 40px;
+      }
+
+      .copy {
+        text-align: center;
+      }
+
+      .copy h1 {
+        font-size: 50px;
+        font-weight: 900;
+        letter-spacing: -0.025em;
+      }
+
+      .copy p {
+        margin-top: 16px;
+        font-size: 29px;
+        font-weight: 700;
+        color: var(--text-2);
+      }
+
+      .copy b {
+        color: var(--green);
+        font-weight: 900;
+      }
+
+      /* Manzil pastda, kichik yorliqda: havolani ko'rgan odam qayerga
+         borishini rasmning o'zidan biladi. */
+      .site {
+        position: absolute;
+        left: 50%;
+        bottom: 46px;
+        transform: translateX(-50%);
+        padding: 10px 22px;
+        border-radius: 999px;
+        background: var(--chip);
+        color: var(--text-2);
+        font-size: 24px;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="glow"></div>
+    <div class="grid"></div>
+
+    <div class="stage">
+      <div class="tiles">
+        <span class="tile">S</span>
+        <span class="tile tile--wide">O‘</span>
+        <span class="tile">Z</span>
+        <span class="tile">G</span>
+        <span class="tile">I</span>
+        <span class="tile">R</span>
+      </div>
+
+      <div class="copy">
+        <h1>O‘zbek tilidagi so‘z o‘yinlari</h1>
+        <p>Kuniga bitta so‘z — <b>hamma uchun bir xil</b></p>
+      </div>
+    </div>
+
+    <span class="site">sozgir.uz</span>
+
+    <script>
+      // Kunduzgi variant — `?theme=light`. Standarti tungi: havola
+      // ko'rinishi ko'pincha qorong'i chatda turadi.
+      if (new URLSearchParams(location.search).get('theme') === 'light') {
+        document.documentElement.dataset.theme = 'light';
+      }
+    </script>
+  </body>
+</html>

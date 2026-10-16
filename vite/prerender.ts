@@ -149,9 +149,23 @@ function render(shell: string, page: Page): string {
   );
   html = swap(
     html,
+    /<meta property="og:url" content="[^"]*" \/>/,
+    `<meta property="og:url" content="${url}" />`,
+    'og:url',
+  );
+  // Rasm hamma sahifada bitta: havola ko'rinishida sahifaning emas,
+  // saytning o'zi tanitiladi (`brand/og.html`).
+  html = swap(
+    html,
     /<meta property="og:image" content="[^"]*" \/>/,
-    `<meta property="og:image" content="${site}/icon.png?v=2" />`,
+    `<meta property="og:image" content="${site}/og.png?v=1" />`,
     'og:image',
+  );
+  html = swap(
+    html,
+    /<meta name="twitter:image" content="[^"]*" \/>/,
+    `<meta name="twitter:image" content="${site}/og.png?v=1" />`,
+    'twitter:image',
   );
   html = swap(
     html,
