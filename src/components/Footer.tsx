@@ -34,7 +34,17 @@ const COLUMNS = [
   },
 ];
 
-export default function Footer() {
+/** Sahifa pastidagi blok.
+ *
+ *  O'yin ekranlarida u **bir qatorga** tushadi (`slim`): u yerda odam
+ *  o'ynayapti, taxtadan keyin esa uchta ustun havola kelib, ekranning
+ *  yarmini egallab qolardi — o'yin shunchaki ro'yxatning tepasidagi
+ *  narsaga aylanardi. Majburiy havolalar (maxfiylik, aloqa) qatorda
+ *  qoladi: do'konlar va qidiruv uchun ular har sahifada kerak, o'qish
+ *  uchun esa to'liq footer bosh sahifada turibdi. */
+export default function Footer({ slim = false }: { slim?: boolean }) {
+  if (slim) return <SlimFooter />;
+
   return (
     <footer className="footer">
       <div className="wrap footer__grid">
@@ -71,6 +81,28 @@ export default function Footer() {
       <div className="wrap footer__bottom">
         <span>© {new Date().getFullYear()} So‘zgir</span>
         <span>Toshkentda mehr bilan qilingan</span>
+      </div>
+    </footer>
+  );
+}
+
+/** O'yin ekranidagi footer — logotip, to'rtta havola va yil. */
+function SlimFooter() {
+  return (
+    <footer className="footer footer--slim">
+      <div className="wrap footer__slim">
+        <a className="brand" href="/#top" aria-label="So‘zgir — bosh sahifa">
+          <Logo height={22} />
+        </a>
+        <nav className="footer__slimnav" aria-label="Sayt havolalari">
+          <a href={links.hub}>O‘ynash</a>
+          <a href={links.privacy}>Maxfiylik</a>
+          <a href={links.contact}>Aloqa</a>
+          <a href={links.telegram} target="_blank" rel="noreferrer">
+            Telegram
+          </a>
+        </nav>
+        <span className="footer__slimnote">© {new Date().getFullYear()} So‘zgir</span>
       </div>
     </footer>
   );

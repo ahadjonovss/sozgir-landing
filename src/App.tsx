@@ -42,6 +42,23 @@ import { useReveal } from './lib/useReveal';
 import AccountDeletion from './components/AccountDeletion';
 import { useRoute } from './lib/useRoute';
 
+/** O'yin ekranlari — pastdagi footer shu yerda bir qatorga tushadi.
+ *
+ *  Taxta va klaviaturadan keyin uchta ustun havola kelishi o'yinni
+ *  ro'yxatning tepasidagi narsaga aylantirardi; bu sahifalarga odam
+ *  o'ynagani keladi, o'qigani emas. Uzunlik sahifalari (`/cheksiz/…`)
+ *  bu ro'yxatda yo'q: ular qidiruvdan kelgan odam uchun yozilgan va
+ *  ularda to'liq footer o'z o'rnida. */
+const GAME_ROUTES = new Set([
+  '/oyin',
+  '/sozjang',
+  '/guncha',
+  '/gunchajang',
+  '/maydon',
+  '/turnir',
+  '/soztop',
+]);
+
 export default function App() {
   useReveal();
   const route = useRoute();
@@ -106,7 +123,7 @@ export default function App() {
         {route === '/soztop' && <ChallengePage />}
       </main>
 
-      <Footer />
+      <Footer slim={GAME_ROUTES.has(route)} />
 
       {/* Hisob oynasi va jang chaqiruvi qaysi sahifada bo'lsangiz ham
           ko'rinadi, shuning uchun ular ramkaning o'zida turadi. */}
