@@ -11,6 +11,7 @@
  *  taklif qilinadi: «endi o'zingiz yashiring» — bu sahifaning tabiiy
  *  davomi va ilovaning eng o'rinli taklif qilinadigan payti: odam
  *  o'yinni endigina o'ynab ko'rdi. */
+import type { CSSProperties } from 'react';
 import { links } from '../data/site';
 import { useAuth } from '../lib/auth';
 import { isChallengeCode } from '../lib/challenge';
@@ -145,7 +146,14 @@ export default function ChallengePage() {
 
         {valid && (game.phase === 'playing' || over) && (
           <div className="oyin__board oyin__board--fit">
-            <div className="play">
+            {/* Taxta, klaviatura va tepadagi qator bitta enni baham
+                ko'radi — `Play` dagidek. */}
+            <div
+              className="play"
+              style={
+                { '--cols': game.length, '--rows': game.rows.length } as CSSProperties
+              }
+            >
               <div className="play__area">
                 <Board
                   rows={game.rows}
@@ -170,6 +178,7 @@ export default function ChallengePage() {
                     keyState={game.keyState}
                     onPress={game.press}
                     cols={game.length}
+                    rows={game.rows.length}
                   />
                   <p className="game__hint">
                     Kompyuter klaviaturasida ham yozing:{' '}

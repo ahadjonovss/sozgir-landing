@@ -644,6 +644,8 @@
      ayirilgani. Kam baholansa taxta bir oz kichik chiqadi (zarari yo'q),
      oshirib yuborilsa klaviatura birinchi ekrandan chiqib ketardi. */
   --reserve: 326px;
+  --gap: 6px;
+  --fit: calc(100dvh - var(--header-h) - var(--reserve));
   display: flex;
   flex-direction: column;
 }
@@ -679,20 +681,36 @@
   align-content: center;
 }
 
-.hero__board .game__board {
-  --gap: 6px;
-  --fit: calc(100dvh - var(--header-h) - var(--reserve));
-  width: 100%;
-  /* `min(100%, …)`: balandlikdan chiqqan o'lcham konteynerdan keng
-     bo'lib qolsa, taxta konteynerda qoladi — kataklar hech qachon
-     o'z joyidan tashqariga chiqmaydi. */
-  max-width: min(
+/* Ustunning eni **balandlikdan** chiqariladi:
+
+       katak = (bo'sh joy − qatorlar orasidagi tirqishlar) / qatorlar
+       eni   = ustunlar × katak + ustunlar orasidagi tirqishlar
+
+   `min(100%, …)` — balandlikdan chiqqan o'lcham konteynerdan keng
+   bo'lsa, ustun konteynerda qoladi.
+
+   `--rows` bilan `--cols` `.play` ning o'z uslubida turadi, shuning
+   uchun hisob shu yerda bir marta bajariladi va pastdagi uchala blok
+   uni tayyor holda oladi. */
+.hero__board .play {
+  --board-w: min(
     100%,
     calc(
       (var(--fit) - (var(--rows) - 1) * var(--gap)) / var(--rows) * var(--cols) +
         (var(--cols) - 1) * var(--gap)
     )
   );
+}
+
+/* Tepadagi qator, taxta va klaviatura — bitta en. Ilgari klaviatura
+   butun enni olar, taxta esa balandlikka qarab kichrayardi: ekranda uch
+   xil kenglikdagi uch blok turar va bir chetida ko'p, ikkinchisida kam
+   joy qolardi. */
+.hero__board .play__top,
+.hero__board .game__board,
+.hero__board .keyboard {
+  width: 100%;
+  max-width: var(--board-w);
   margin-inline: auto;
 }
 

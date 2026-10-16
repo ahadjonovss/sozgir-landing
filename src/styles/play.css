@@ -4387,6 +4387,10 @@
    kataklar kvadrat bo'lib qolaveradi. */
 @media (max-width: 900px) {
   .oyin__board--fit {
+    --gap: 6px;
+    /* Ekrandan sarlavha, tepadagi qator, klaviatura va havo ayirilgani:
+       taxtaning eni shundan hisoblanadi (pastdagi qoidaga qarang). */
+    --fit: calc(100dvh - var(--header-h) - 250px);
     display: flex;
     flex-direction: column;
     /* `dvh` — telefon brauzerining manzil qatori yig'ilganda ham
@@ -4427,22 +4431,29 @@
      ayirilgani. Kam baholansa taxta bir oz kichik chiqadi (zarari yo'q,
      klaviatura `margin-top: auto` bilan pastda qoladi), oshirib
      yuborilsa ekran surilib ketardi — shuning uchun ehtiyot tomonga. */
-  .oyin__board--fit .game__board {
-    --gap: 6px;
-    --fit: calc(100dvh - var(--header-h) - 250px);
-    /* `width` aniq berilishi shart: `auto` chekka `margin` lar bilan
-       birga kataklarning **ichki** kengligiga tushib qolardi, u esa
-       nol (`flex: 1 1 0`) — taxta 24 piksel bo'lib g'oyib bo'lardi. */
-    width: 100%;
-    /* `min(100%, …)`: balandlikdan chiqqan o'lcham konteynerdan keng
-       bo'lsa, taxta konteynerda qoladi. */
-    max-width: min(
+
+  /* Taxta va klaviatura bitta enda — chekkalari bir chiziqda tursin.
+
+     `width` aniq berilishi shart: `auto` chekka `margin` lar bilan
+     birga kataklarning **ichki** kengligiga tushib qolardi, u esa nol
+     (`flex: 1 1 0`) — taxta 24 piksel bo'lib g'oyib bo'lardi. */
+  .oyin__board--fit .play {
+    --board-w: min(
       100%,
       calc(
         (var(--fit) - (var(--rows) - 1) * var(--gap)) / var(--rows) * var(--cols) +
           (var(--cols) - 1) * var(--gap)
       )
     );
+  }
+
+  /* Tepadagi qator, taxta va klaviatura — bitta en, chekkalari bir
+     chiziqda. */
+  .oyin__board--fit .play__top,
+  .oyin__board--fit .game__board,
+  .oyin__board--fit .keyboard {
+    width: 100%;
+    max-width: var(--board-w);
     margin-inline: auto;
   }
 

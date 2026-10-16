@@ -7,7 +7,7 @@
  *
  *  Kunlik o'yin bir kunda bitta, cheksiz rejimda esa 4 dan 7 harfgacha
  *  xohlagancha o'ynaladi — ilovadagi qoidaning aynan o'zi. */
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { untilNextWord } from '../lib/daily';
 import { GUEST_GAME_LIMIT } from '../lib/progress';
 import { useAuth } from '../lib/auth';
@@ -139,7 +139,19 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
   }
 
   return (
-    <div className="play">
+    // Ustunning o'lchami shu yerda e'lon qilinadi: taxta, klaviatura va
+    // tepadagi qator **bitta** enni baham ko'radi (`--board-w`,
+    // `landing.css`). Ilgari har biri o'zicha kengayardi va ekranda
+    // uch xil kenglikdagi uch blok turardi.
+    <div
+      className="play"
+      style={
+        {
+          '--cols': game.puzzle?.length ?? length,
+          '--rows': game.rows.length,
+        } as CSSProperties
+      }
+    >
       <div className="play__top">
         <div className="play__modes" role="tablist" aria-label="O‘yin rejimi">
           {(['daily', 'endless'] as Mode[]).map((item) => (
@@ -450,6 +462,7 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
               keyState={game.keyState}
               onPress={game.press}
               cols={game.puzzle.length}
+              rows={game.rows.length}
             />
           )}
 

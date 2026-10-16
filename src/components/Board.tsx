@@ -94,12 +94,18 @@ export function Keyboard({
   keyState,
   onPress,
   cols,
+  rows,
 }: {
   keyState: Map<string, string>;
   onPress: (key: string) => void;
   /** So'z uzunligi — tugmalarning rangi kataklar ochilib bo'lgach
    *  almashishi uchun (`--cols` orqali kechikish hisoblanadi). */
   cols?: number;
+  /** Taxtadagi qatorlar soni. Klaviaturaning o'zi uni ishlatmaydi,
+   *  lekin eni **taxtanikiga tenglashtiriladi**: ikkalasi bir xil
+   *  hisobdan chiqadi (`landing.css`, `.hero__board .keyboard`), ya'ni
+   *  chekkalari bir chiziqda turadi. */
+  rows?: number;
 }) {
   // Ilovadagi tartib: o'chirish ikkinchi qatorning oxirida, tasdiqlash
   // uchinchi qatorning oxirida (kengroq tugma).
@@ -108,7 +114,14 @@ export function Keyboard({
       className="keyboard"
       aria-label="O‘zbek klaviaturasi"
       data-script="word"
-      style={cols ? ({ '--cols': cols } as CSSProperties) : undefined}
+      style={
+        cols || rows
+          ? ({
+              ...(cols ? { '--cols': cols } : {}),
+              ...(rows ? { '--rows': rows } : {}),
+            } as CSSProperties)
+          : undefined
+      }
     >
       {KEYBOARD_ROWS.map((row, r) => (
         <div className="keyboard__row" key={r}>
