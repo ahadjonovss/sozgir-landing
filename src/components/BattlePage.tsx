@@ -115,7 +115,10 @@ function Rules() {
 /** Kirmagan odam: sabab bir jumla, ikki tugma. Jadval yonida qolaveradi —
  *  sahifa bo'sh ko'rinmaydi va kim bilan bellashish mumkinligi ko'rinadi. */
 function Gate() {
-  const { openPrompt } = useAuth();
+  const { ready, openPrompt } = useAuth();
+  // Hisob holati aniqlanmaguncha jim turadi: `account` dastlab har doim
+  // `null` va taklif kirgan odamga ham bir lahza ko'rinib ketardi.
+  if (!ready) return null;
   return (
     <div className="lobby">
       <div className="lobby__main">

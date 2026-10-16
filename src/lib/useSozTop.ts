@@ -179,7 +179,7 @@ async function endlessPuzzle(length: number, number: number): Promise<Puzzle> {
 }
 
 export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
-  const { account } = useAuth();
+  const { account, ready } = useAuth();
 
   const [puzzle, setPuzzle] = useState<Puzzle | null>(null);
   const [phase, setPhase] = useState<Phase>('loading');
@@ -450,9 +450,16 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
     [later],
   );
 
-  /** Mehmon chegarasi: 10 o'yindan keyin taxta kirishgacha yopiladi. */
+  /** Mehmon chegarasi: 10 o'yindan keyin taxta kirishgacha yopiladi.
+   *
+   *  `ready` kutiladi. Sahifa ochilganda `account` har doim `null`
+   *  bo'ladi — Firebase SDK yuklanib, sessiyani o'qib chiqishi kerak.
+   *  Shuni kutmaganda kirgan odam ham har tashrifda «Iltimos, kiring»
+   *  oynasini bir lahza ko'rardi va u hisob tanilishi bilan o'zi
+   *  yopilardi. Hech qachon kirmagan tashrifchida `ready` darhol rost
+   *  (`AuthProvider` ni qarang), ya'ni chegara o'z kuchida qoladi. */
   const locked =
-    !account && phase === 'playing' && guestGamesPlayed() >= GUEST_GAME_LIMIT;
+    ready && !account && phase === 'playing' && guestGamesPlayed() >= GUEST_GAME_LIMIT;
 
   /** Avto to'ldirish — ilovadagi `_autoFilledInput`: joyi aniq bo'lgan
    *  harflar keyingi qatorga o'zi qo'yiladi va o'chirilmaydi. Sozlama

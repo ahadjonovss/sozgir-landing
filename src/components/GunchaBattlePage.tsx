@@ -18,6 +18,7 @@ import { useGunchaJang, type GunchaJang } from '../lib/useGunchaJang';
 import { GUNCHA_SECONDS } from '../lib/gunchaBattle';
 import { display, pretty } from '../lib/uz';
 import { useLongPress } from '../lib/useLongPress';
+import AccountCall from './AccountCall';
 import ArenaHistory from './ArenaHistory';
 import ArenaStandings from './ArenaStandings';
 import ArenaTiles from './ArenaTiles';
@@ -53,7 +54,7 @@ const clock = (seconds: number) =>
 
 export default function GunchaBattlePage() {
   const game = useGunchaJang();
-  const { account, openPrompt } = useAuth();
+  const { account } = useAuth();
   const intro = useIntro(game);
   // Turnir guruhida o'ynagan odamni keyingi davra o'zi olib ketadi:
   // natija ekranida o'tirgan odam turnir hujjatini kuzatmaydi.
@@ -61,20 +62,10 @@ export default function GunchaBattlePage() {
 
   if (!account) {
     return (
-      <section className="oyin">
-        <div className="wrap">
-          <div className="panel panel--call">
-            <h3>Jang uchun hisob kerak</h3>
-            <p className="panel__note">
-              Raqibingiz taxallusingizni ko‘radi va jang aqcha beradi —
-              shuning uchun g‘uncha jangi hisobsiz o‘ynalmaydi.
-            </p>
-            <button className="btn btn--sm" onClick={() => openPrompt('signIn')}>
-              Kirish
-            </button>
-          </div>
-        </div>
-      </section>
+      <AccountCall
+        title="Jang uchun hisob kerak"
+        note="Raqibingiz taxallusingizni ko‘radi va jang aqcha beradi — shuning uchun g‘uncha jangi hisobsiz o‘ynalmaydi."
+      />
     );
   }
 

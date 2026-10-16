@@ -30,6 +30,7 @@ import { punchline } from '../lib/shareLines';
 import { shareCardImage } from '../lib/shareCard';
 import { pretty } from '../lib/uz';
 import type { BattleGame } from '../lib/battle';
+import AccountCall from './AccountCall';
 import { AqchaCount, AqchaDelta } from './Units';
 import { playerLink } from '../data/site';
 import Avatar from './Avatar';
@@ -50,24 +51,14 @@ export default function TurnirPage() {
   // o'qilsa yetadi — alohida holat kerak emas.
   const code = cleanCode(routeParam());
   const turnir = useTurnir(code);
-  const { account, openPrompt } = useAuth();
+  const { account } = useAuth();
 
   if (!account) {
     return (
-      <section className="oyin">
-        <div className="wrap">
-          <div className="panel panel--call">
-            <h3>Turnir uchun hisob kerak</h3>
-            <p className="panel__note">
-              Turnirda o‘rin, aqcha va jadval hisobga yoziladi —
-              shuning uchun u hisobsiz o‘ynalmaydi.
-            </p>
-            <button className="btn btn--sm" onClick={() => openPrompt('signIn')}>
-              Kirish
-            </button>
-          </div>
-        </div>
-      </section>
+      <AccountCall
+        title="Turnir uchun hisob kerak"
+        note="Turnirda o‘rin, aqcha va jadval hisobga yoziladi — shuning uchun u hisobsiz o‘ynalmaydi."
+      />
     );
   }
 

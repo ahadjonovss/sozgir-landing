@@ -19,6 +19,7 @@ import { useMardu, type Mardu } from '../lib/useMardu';
 import { marduLink, MARDU_CAPACITY, MARDU_MIN_PLAYERS } from '../lib/mardu';
 import type { BattleGame } from '../lib/battle';
 import { routeParam } from '../lib/useRoute';
+import AccountCall from './AccountCall';
 import ArenaHistory from './ArenaHistory';
 import Avatar from './Avatar';
 import CodeInput from './CodeInput';
@@ -52,24 +53,14 @@ const GAMES: { id: BattleGame; label: string; hint: string }[] = [
 
 export default function MarduPage() {
   const mardu = useMardu();
-  const { account, openPrompt } = useAuth();
+  const { account } = useAuth();
 
   if (!account) {
     return (
-      <section className="oyin">
-        <div className="wrap">
-          <div className="panel panel--call">
-            <h3>Maydon uchun hisob kerak</h3>
-            <p className="panel__note">
-              Maydondagilar taxallusingizni ko‘radi va o‘rin aqcha
-              beradi — shuning uchun maydon hisobsiz o‘ynalmaydi.
-            </p>
-            <button className="btn btn--sm" onClick={() => openPrompt('signIn')}>
-              Kirish
-            </button>
-          </div>
-        </div>
-      </section>
+      <AccountCall
+        title="Maydon uchun hisob kerak"
+        note="Maydondagilar taxallusingizni ko‘radi va o‘rin aqcha beradi — shuning uchun maydon hisobsiz o‘ynalmaydi."
+      />
     );
   }
 
