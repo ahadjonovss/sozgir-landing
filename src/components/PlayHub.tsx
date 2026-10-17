@@ -8,7 +8,16 @@
  *  Turnir va Mardu maydon kartochkalari qolganlaridan keyin turadi:
  *  ular yangi o'yin
  *  emas, **shakl** — ichida baribir So'zjang yoki G'uncha o'ynaladi,
- *  shuning uchun avval o'yinlarning o'zi ko'rinishi kerak. */
+ *  shuning uchun avval o'yinlarning o'zi ko'rinishi kerak.
+ *
+ *  Kartochkalardan keyin o'yinchining o'zi: aqchasi va darajasi, umumiy
+ *  reyting va janglar tarixi. Ilgari bular sahifalar bo'ylab sochilgan
+ *  edi — reyting So'ztop ichida, tarix esa maydon sahifasining yon
+ *  ustunida, ya'ni «qanday o'ynayapman» degan savolga javob olish uchun
+ *  o'yin ochish kerak edi. Tartib shu savolning tartibi: avval nima
+ *  o'ynash, keyin boshqalarga nisbatan qanday va nima bo'lgani.
+ *  Kirgan odamning o'z aqchasi esa kartochkalardan oldin: u bu yerga
+ *  ko'pincha o'ynagani emas, «qanchaman» deb keladi. */
 import { useEffect, useState } from 'react';
 import { links } from '../data/site';
 import { useAuth } from '../lib/auth';
@@ -16,6 +25,9 @@ import { dailyKey, dailyNumber, untilNextWord } from '../lib/daily';
 import { DAILY_LENGTH, attemptsFor } from '../lib/modes';
 import AdBanner from './AdBanner';
 import AppMark from './AppMark';
+import ArenaHistory from './ArenaHistory';
+import BattleStats from './BattleStats';
+import Leaderboard from './Leaderboard';
 import { Clock, Swords, Trophy, Users } from './Icons';
 import GunchaCard from './GunchaCard';
 import TelegramBanner from './TelegramBanner';
@@ -60,7 +72,7 @@ function Countdown() {
 }
 
 export default function PlayHub() {
-  const { account, openPrompt } = useAuth();
+  const { account, openPrompt, ready } = useAuth();
   const [daily] = useState(readDaily);
   const number = dailyNumber();
   const max = attemptsFor(DAILY_LENGTH);
@@ -76,6 +88,21 @@ export default function PlayHub() {
             do‘stingiz bilan bellashing. Hammasi shu yerda, brauzerda.
           </p>
         </div>
+
+        {/* Aqcha va daraja o'yinlardan **oldin**: kirgan odam bu
+            sahifaga ko'pincha «qanchaman» deb keladi, kartochkalar esa
+            telefonda ikki ekran joy oladi.
+
+            Kirmaganga ko'rsatilmaydi: yangi odam avval o'yinni ko'rishi
+            kerak, kirish taklifi esa reyting jadvalining o'zida bor.
+            `ready` kutiladi — aks holda kirgan odam ham har tashrifda
+            bir lahza bo'sh joyni ko'rardi (`AccountCall` dagi sabab). */}
+        {ready && account && (
+          <section className="hub__block">
+            <h2 className="hub__block-title">Ballaringiz</h2>
+            <BattleStats uid={account.uid} />
+          </section>
+        )}
 
         <div className="hub__grid">
           <article className="hub-card hub-card--soztop">
@@ -216,6 +243,15 @@ export default function PlayHub() {
             </div>
           </article>
         </div>
+
+        {/* Sarlavha yo'q: `Leaderboard` va `ArenaHistory` o'z
+            sarlavhasi bilan keladi (ular boshqa sahifalarda yolg'iz
+            turadi), ikkinchisi takror bo'lardi. */}
+        <Leaderboard />
+
+        {/* Tarix hisobsiz umuman chizilmaydi — `ArenaHistory` o'zi
+            qaror qiladi. */}
+        <ArenaHistory />
 
         <TelegramBanner />
 

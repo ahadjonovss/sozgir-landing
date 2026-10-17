@@ -3314,6 +3314,21 @@
   box-shadow: 0 10px 24px -10px color-mix(in srgb, var(--tone) 80%, transparent);
 }
 
+/* O'yinchining o'z bo'limlari: ball, reyting, tarix.
+   Kartochkalar tugagach sahifa «tanlov» dan «hisobot» ga o'tadi,
+   shuning uchun har biri o'z sarlavhasi bilan ajratiladi. */
+.hub__block {
+  display: grid;
+  gap: 12px;
+}
+
+.hub__block-title {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
 .hub__more {
   display: flex;
   flex-wrap: wrap;
