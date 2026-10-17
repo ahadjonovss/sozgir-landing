@@ -158,13 +158,28 @@ function render(shell: string, page: Page): string {
   html = swap(
     html,
     /<meta property="og:image" content="[^"]*" \/>/,
-    `<meta property="og:image" content="${site}/og.png?v=1" />`,
+    `<meta property="og:image" content="${site}/og.png?v=2" />`,
     'og:image',
+  );
+  // X `og:` ni o'qiydi deyiladi, lekin sarlavha va matnni o'z teglarida
+  // topmasa kartochkani chizmay qo'yadi — shuning uchun ular ham
+  // har sahifada alohida yangilanadi.
+  html = swap(
+    html,
+    /<meta name="twitter:title" content="[^"]*" \/>/,
+    `<meta name="twitter:title" content="${escape(page.title)}" />`,
+    'twitter:title',
+  );
+  html = swap(
+    html,
+    /<meta\s+name="twitter:description"\s+content="[^"]*"\s*\/>/,
+    `<meta name="twitter:description" content="${escape(page.description)}" />`,
+    'twitter:description',
   );
   html = swap(
     html,
     /<meta name="twitter:image" content="[^"]*" \/>/,
-    `<meta name="twitter:image" content="${site}/og.png?v=1" />`,
+    `<meta name="twitter:image" content="${site}/og.png?v=2" />`,
     'twitter:image',
   );
   html = swap(
