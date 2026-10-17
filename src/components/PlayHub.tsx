@@ -246,12 +246,17 @@ export default function PlayHub() {
 
         {/* Sarlavha yo'q: `Leaderboard` va `ArenaHistory` o'z
             sarlavhasi bilan keladi (ular boshqa sahifalarda yolg'iz
-            turadi), ikkinchisi takror bo'lardi. */}
-        <Leaderboard />
+            turadi), ikkinchisi takror bo'lardi.
 
-        {/* Tarix hisobsiz umuman chizilmaydi — `ArenaHistory` o'zi
-            qaror qiladi. */}
-        <ArenaHistory />
+            Ikkovi bitta o'ramda: keng ekranda yonma-yon turadi, aks
+            holda jadval butun enga cho'zilib, ism chap chetda, aqcha
+            o'ng chetda qolardi. Tarix hisobsiz umuman chizilmaydi —
+            `ArenaHistory` o'zi qaror qiladi, o'ram esa shunda yolg'iz
+            qolgan jadvalni o'qishga qulay enda ushlaydi. */}
+        <div className="hub__panels">
+          <Leaderboard />
+          <ArenaHistory />
+        </div>
 
         <TelegramBanner />
 

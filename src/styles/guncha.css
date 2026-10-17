@@ -8,9 +8,15 @@
   --tone: var(--teal);
 }
 
-/* Uchta kartochka ikki ustunga sig'maydi — keng ekranda uchta, o'rtacha
-   ekranda ikkita bo'lib joylashadi. */
-@media (min-width: 861px) {
+/* Uchta kartochka ikki ustunga sig'maydi — o'rtacha ekranda ular
+   o'z-o'zidan joylashadi.
+
+   Yuqori chegara bor: 1080 pikseldan keng ekranda to'rni `play.css`
+   o'z qo'liga oladi (olti ustun, beshta kartochka ikki to'liq qator).
+   Bu fayl `play.css` dan **keyin** yuklanadi, ya'ni chegarasiz bu
+   qoida o'shanisini bosib ketardi — kartochkalar bir ustunga
+   cho'zilib qolardi. */
+@media (min-width: 861px) and (max-width: 1079px) {
   .hub__grid {
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   }

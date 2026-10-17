@@ -3314,12 +3314,100 @@
   box-shadow: 0 10px 24px -10px color-mix(in srgb, var(--tone) 80%, transparent);
 }
 
+/* ── Noutbuk va undan keng ekran ──────────────────────────────────────
+
+   Sahifa 980 pikselda qotib qolardi: 1440 lik ekranda ikki yonda 230
+   pikseldan bo'sh joy turar, kartochkalar esa 457×337 bo'lib ikki
+   ustunga yoyilardi — beshtasi uch qatorga tushib, birorta ham to'liq
+   ko'rinmasdi va oxirgisi yolg'iz qatorda qolardi.
+
+   Yechim uch qismdan: maydon kengaytiriladi, kartochkalar siqiladi va
+   to'r olti ustunga bo'linadi — birinchi uchtasi ikki ustundan
+   (qatorda uchta), keyingi ikkitasi uch ustundan (qatorda ikkita).
+   Shunda ikkala qator ham to'la chiqadi, bo'sh katak qolmaydi.
+
+   Oxirgi ikkitasi kengroq bo'lgani ham mantiqan to'g'ri: Mardu maydon
+   va Turnir — yangi o'yin emas, shakl, ya'ni ular boshqa qatorda
+   turishi kerak. */
+@media (min-width: 1080px) {
+  .hub {
+    max-width: 1240px;
+    gap: 26px;
+  }
+
+  /* Sarlavha ham siqiladi: 50 pikselli «Nimani o'ynaymiz?» va uning
+     ostidagi matn ekranning uchdan birini yeb, kartochkalarni pastga
+     itarardi. Endi beshalasi birdan ko'rinadi. */
+  .hub__head {
+    padding-top: 2px;
+  }
+
+  .hub__head h1 {
+    font-size: 40px;
+  }
+
+  .hub__grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .hub__grid > *:nth-child(-n + 3) {
+    grid-column: span 2;
+  }
+
+  .hub__grid > *:nth-child(n + 4) {
+    grid-column: span 3;
+  }
+
+  /* Kartochka o'zi ham ixchamlashadi: keng ekranda joy ko'p degani
+     har bir kartochka balandroq bo'lsin degani emas — aksincha,
+     beshtasi birdan ko'rinsin. */
+  .hub-card {
+    gap: 10px;
+    padding: 22px;
+  }
+
+  .hub-card__icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 15px;
+  }
+
+  .hub-card h2 {
+    font-size: 23px;
+  }
+
+  .hub-card > p {
+    font-size: 14px;
+  }
+
+  /* Jadval va tarix yonma-yon. Jadval balandroq, shuning uchun
+     ustunlar tepadan tekislanadi — aks holda qisqa tarix o'rtada
+     osilib qolardi. */
+  .hub__panels:has(> :nth-child(2)) {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  /* Tarix yo'q (hisobga kirilmagan): jadval yolg'iz qoladi va butun
+     enga cho'zilmaydi — o'nta qator uchun 1200 piksel ortiqcha. */
+  .hub__panels > :only-child {
+    justify-self: center;
+    width: min(100%, 860px);
+  }
+}
+
 /* O'yinchining o'z bo'limlari: ball, reyting, tarix.
    Kartochkalar tugagach sahifa «tanlov» dan «hisobot» ga o'tadi,
    shuning uchun har biri o'z sarlavhasi bilan ajratiladi. */
 .hub__block {
   display: grid;
   gap: 12px;
+}
+
+.hub__panels {
+  display: grid;
+  gap: 18px;
 }
 
 .hub__block-title {
