@@ -1036,6 +1036,20 @@
   gap: 5px;
 }
 
+/* Jadval qatori telefonda: o'rin, avatar, ism, daraja, aqcha va
+   chaqiruv tugmasi — oltalasi 375 piksel ichiga sig'maydi. Ism
+   yagona cho'ziladigan ustun, shuning uchun hammasi undan yeyilardi:
+   «Mehmon» o'rniga «Me…» qolardi. Daraja nomi olinsa (belgisi va
+   uning `title` i joyida qoladi) ismga yetarli joy chiqadi. */
+@media (max-width: 560px) {
+  .rank {
+    gap: 7px;
+  }
+  .rank__tier-name {
+    display: none;
+  }
+}
+
 /* Ikki sinf ataylab: `.metrics li span` kabi qoidalar belgini o'z
    o'lchamiga tortib olardi — birlik esa har doim **o'zi turgan matn**
    bilan bir xil bo'lishi kerak (`font: inherit`). */
@@ -4398,6 +4412,15 @@
     min-height: calc(100dvh - var(--header-h) - 34px);
   }
 
+  /* Taxta o'rnida kirish kartochkasi turganda ekranni to'ldirib
+     turishning ma'nosi yo'q: kartochka ostida yarim ekran bo'sh qora
+     maydon qolardi. Shart aynan kartochkaga bog'langan — «taxta yo'q»
+     deyilsa, lug'at yuklanayotgan bir lahzada ham yig'ilib, taxta
+     kelganda qayta sakrab ochilardi. */
+  .oyin__board--fit:has(.gate) {
+    min-height: 0;
+  }
+
 
   /* Grid o'rniga ustun: bo'sh joy **taxtaga** berilishi kerak, grid esa
      uni barcha qatorlarga teng bo'lib yuborardi. */
@@ -4462,9 +4485,53 @@
     margin-top: auto;
   }
 
+  /* Tepadagi qator taxtaning eniga sig'masa, taxta bilan bitta chiziqda
+     turishidan voz kechadi.
+
+     Cheksiz rejimda qatorda oltita narsa bor: ikkita rejim tugmasi,
+     yordam sanog'i, o'yin raqami va ikkita tugma. Taxtaning eni esa
+     **balandlikdan** chiqariladi va telefonda ekrandan torroq bo'lib
+     qoladi — oqibatda reyting tugmasi o'ng chetdan chiqib ketardi,
+     o'yin raqami esa katakcha ichida ikki qatorga bo'linardi.
+     Tekislikdan ko'ra butun qatorning ko'rinib turgani muhimroq. */
+  .oyin__board--fit .play__top {
+    max-width: none;
+    gap: 6px;
+  }
+
+  .oyin__board--fit .play__top-right {
+    gap: 6px;
+  }
+
+  .oyin__board--fit .phone__live {
+    white-space: nowrap;
+  }
+
   /* O'yin ostidagi uchta son sahifaning o'zida ham bor (yon paneldagi
      «Statistika»), ya'ni bu yerda ular faqat ekran balandligini yeydi. */
   .oyin__board--fit .play__stats {
+    display: none;
+  }
+}
+
+/* Eng tor ekranlarda rejim tugmalari ham siqiladi — qator baribir
+   bitta chiziqda qolsin. */
+@media (max-width: 420px) {
+  .oyin__board--fit .play__mode {
+    padding-inline: 10px;
+  }
+
+  /* Yordam ochilgunicha sanab turadigan katakcha olinadi: u hech
+     qayerga bosilmaydi, o'rniga esa reyting tugmasi ekrandan chiqib
+     ketardi. Yordam tayyor bo'lgach katakcha tugmaga aylanadi — u
+     qoladi (`.play__hint--ready` quyida). */
+  .oyin__board--fit .play__hint:not(.play__hint--ready) {
+    display: none;
+  }
+
+  /* Yordam tugmasi chiqqanda o'yin raqami ketadi: ikkalasi birga
+     qatorga sig'maydi, bosiladigani esa muhimroq. */
+  .oyin__board--fit .play__top-right:has(.play__hint--ready) .phone__live {
     display: none;
   }
 }

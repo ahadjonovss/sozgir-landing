@@ -133,7 +133,9 @@ function Top({ donors, uid }: { donors: TopDonor[] | null; uid?: string }) {
             {tier ? (
               <>
                 <DonorBadge tier={tier} size={18} />
-                {donorLabel(tier)}
+                {/* Telefonda faqat belgi — matni bilan birga ism
+                    kesilib ketardi (`BattleBoard.tsx` dagidek). */}
+                <span className="rank__tier-name">{donorLabel(tier)}</span>
               </>
             ) : (
               `${donor.count} marta`

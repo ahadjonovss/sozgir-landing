@@ -97,6 +97,22 @@ body {
   overflow-x: hidden;
 }
 
+/* Footer har doim ekranning pastida.
+   Qisqa sahifalarda — masalan hisobsiz ochilgan `/turnir` yoki
+   `/maydon`, u yerda bitta kartochkadan boshqa hech narsa yo'q —
+   footer ekran o'rtasida osilib qolardi va ostida yarim ekran bo'sh
+   qora maydon turardi. Telefonda bu ayniqsa ko'zga tashlanadi:
+   sahifa tugaganmi yoki yuklanmayaptimi — bilib bo'lmasdi. */
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+#root > main {
+  flex: 1 0 auto;
+}
+
 h1,
 h2,
 h3,

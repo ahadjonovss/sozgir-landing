@@ -90,7 +90,10 @@ export default function BattleBoard() {
               {/* Faqat daraja: g'alaba soni bilan ism kesilib qolardi. */}
               <span className="rank__meta rank__meta--tier">
                 <TierBadge rating={row.rating} size={18} />
-                {tierName(row.rating)}
+                {/* Telefonda faqat belgi qoladi (daraja nomi uning
+                    `title` ida) — matni bilan birga ism uch harfga
+                    kesilib ketardi. */}
+                <span className="rank__tier-name">{tierName(row.rating)}</span>
               </span>
               <span className="rank__points">
                 <BattleAqcha rating={row.rating} size="sm" />

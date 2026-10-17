@@ -883,6 +883,17 @@
   }
 }
 
+/* Telefonda bezak kataklari butunlay olinadi.
+   Ular hero'ning foiziga qo'yilgan, tor ekranda esa hero — bu taxtaning
+   o'zi: bitta katak statistika va reyting tugmalari ustiga tushib,
+   ularni kir dog'dek qoplardi, ikkitasi esa o'ng chetdan yarmi kesilib
+   chiqib turardi. Kengroq ekranda chetlarda joy bor, u yerda qoladi. */
+@media (max-width: 760px) {
+  .hero__confetti {
+    display: none;
+  }
+}
+
 @media (max-width: 560px) {
   .hero {
     padding-top: 14px;
