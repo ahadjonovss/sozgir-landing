@@ -15,6 +15,7 @@ import { fetchDailyAnswer, loadDictionary, type Dictionary } from './dictionary'
 import { hardModeError, knownLetters } from './hardMode';
 import type { HintLevel } from './score';
 import { attemptsFor, type Mode } from './modes';
+import { play, playRow, unlockSounds } from './sounds';
 import {
   ensureRestored,
   fetchDailyEntry,
@@ -442,6 +443,10 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
 
   const bump = useCallback(
     (text: string) => {
+      // Ilovadagi `Sounds.reject()`: lug'atda yo'q so'z, harflar
+      // yetarli emas yoki katak to'lgan — uchalasi ham shu yerdan
+      // o'tadi, shuning uchun ovoz bitta joyda.
+      play('reject');
       setMessage(text);
       setShake(true);
       later(() => setShake(false), 420);
@@ -482,6 +487,9 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
   const press = useCallback(
     (key: string) => {
       if (phase !== 'playing' || !puzzle || locked) return;
+      // Brauzer sahifaga tegilmaguncha ovozga ruxsat bermaydi: birinchi
+      // tugma o'sha teginish bo'ladi.
+      unlockSounds();
       const answer = puzzle.units;
 
       if (key === 'back') {
@@ -489,6 +497,9 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
         setTyped((units) => {
           for (let i = answer.length - 1; i >= 0; i--) {
             if (locks.has(i) || !units[i]) continue;
+            // Ovoz shu yerda: taxta bo'sh bo'lsa tugma bosilgani bilan
+            // hech narsa o'chmaydi, ovoz esa «o'chdi» deb aldardi.
+            play('backspace');
             const next = [...units];
             next[i] = '';
             return next;
@@ -526,6 +537,9 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
         setPast((rows) => [...rows, { units: current, verdicts }]);
         setTyped([]);
         setFlipRow(rowIndex);
+        // Kataklar ketma-ket ochilib kichik kuy chaladi — odam ekranga
+        // qaramay ham nechtasi to'g'ri kelganini eshitadi.
+        playRow(verdicts);
 
         const session = readSession(puzzle.mode, puzzle.length);
         writeSession(puzzle.mode, puzzle.length, {
@@ -539,6 +553,7 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
         if (won || lost) {
           later(() => {
             setPhase(won ? 'won' : 'lost');
+            play(won ? 'win' : 'lose');
             void finishRef.current(won, attempts, puzzle);
           }, revealMs(puzzle.length));
         }
@@ -551,6 +566,7 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
         bump('Katak to‘lgan');
         return;
       }
+      play('key_tap');
       setTyped((units) => {
         const next = [...units];
         next[free] = key;

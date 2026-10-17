@@ -83,6 +83,15 @@ export function SettingsPanel() {
         value={settings.autoFill}
         onChange={toggle('autoFill')}
       />
+      {/* Ovoz ilovadagi fayllarning o'zi bilan chalinadi
+          (`lib/sounds.ts`), shuning uchun u ham shu yerda — ilovada
+          ham Sozlamalar ichida turadi. */}
+      <Toggle
+        name="Ovoz"
+        hint="Klaviatura, kataklar ochilishi va o‘yin yakuni — ilovadagidek"
+        value={settings.sound}
+        onChange={toggle('sound')}
+      />
     </div>
   );
 }
@@ -96,7 +105,7 @@ export default function Settings() {
         className="icon-btn"
         onClick={() => setOpen(true)}
         aria-label="Sozlamalar"
-        title="Alifbo, qattiq rejim, avto to‘ldirish"
+        title="Alifbo, qattiq rejim, avto to‘ldirish, ovoz"
       >
         <Gear size={18} />
       </button>

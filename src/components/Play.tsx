@@ -27,6 +27,7 @@ import Leaderboard from './Leaderboard';
 import Modal from './Modal';
 import ProposeWord from './ProposeWord';
 import ReportWord from './ReportWord';
+import { warmSounds } from '../lib/sounds';
 
 /** Keyingi kunlik so'zgacha qolgan vaqt. */
 function useCountdown(active: boolean): string {
@@ -66,6 +67,9 @@ export default function Play(props: { choice: GameChoice; game: Game }) {
 
 function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
   const auth = useAuth();
+  /* Ovoz fayllari taxta chiqishi bilan bo'sh vaqtda yuklanadi — shunda
+     birinchi bosilgan harf ham ovozli bo'ladi (`lib/sounds.ts`). */
+  useEffect(() => warmSounds(), []);
   const { mode, setMode, endlessLength, pickLength, length } = choice;
   const finished = game.phase === 'won' || game.phase === 'lost';
   /** O'yin shu yerda emas, ilovada o'ynalgan: taxminlar bizda yo'q,

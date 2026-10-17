@@ -14,6 +14,7 @@ import { PATHS } from '../firebase/paths';
 import { readDoc } from '../firebase/rest';
 import type { HintLevel } from './score';
 import type { Puzzle, Phase } from './useSozTop';
+import { play } from './sounds';
 
 /** Mavzu shuncha vaqtdan keyin — ilovadagi `hintDelayFor`. */
 export const hintDelayMs = (length: number) => 15 * (length - 1) * 1000;
@@ -122,8 +123,16 @@ export function useHint(puzzle: Puzzle | null, phase: Phase): Hint {
   }, [categoryShown, descriptionShown, hasCategory, hasDescription, level, playing, puzzle, startedAt]);
 
   const reveal = useCallback(() => {
-    if (canCategory) setCategoryShown(true);
-    else if (canDescription) setDescriptionShown(true);
+    // Ilovadagi `Sounds.hint()` — «yopiq narsa ochilyapti» chimirlashi.
+    // Ovoz ochilganda chalinadi: tugma bosilib hech narsa ochilmasa
+    // (ikkala yordam ham tugagan) jim qoladi.
+    if (canCategory) {
+      play('hint');
+      setCategoryShown(true);
+    } else if (canDescription) {
+      play('hint');
+      setDescriptionShown(true);
+    }
   }, [canCategory, canDescription]);
 
   // Ma'no mavzudan ustun — u ko'proq aytadi.

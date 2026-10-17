@@ -19,12 +19,17 @@ export interface GameSettings {
   hardMode: boolean;
   /** Joyi aniq bo'lgan harflar keyingi qatorga o'zi qo'yiladi. */
   autoFill: boolean;
+  /** O'yin ovozlari (`lib/sounds.ts`). */
+  sound: boolean;
 }
 
 /** Kalit mavzu va alifbo bilan bir uslubda: `sozgir.settings`. */
 const KEY = 'sozgir.settings';
 
-const DEFAULTS: GameSettings = { hardMode: false, autoFill: false };
+/** Ovoz ilovadagidek **yoqiq** turadi: o'yin ovozsiz chala
+ *  eshitiladi, xohlamagan odam esa uni bir bosishda o'chiradi.
+ *  Qolgan ikkitasi — ilovadagidek o'chiq. */
+const DEFAULTS: GameSettings = { hardMode: false, autoFill: false, sound: true };
 
 function read(): GameSettings {
   try {
@@ -34,6 +39,9 @@ function read(): GameSettings {
     return {
       hardMode: stored.hardMode === true,
       autoFill: stored.autoFill === true,
+      // Yo'qligi «o'chirilgan» degani emas: eski brauzerda sozlama
+      // saqlanmagan, standarti esa yoqiq.
+      sound: stored.sound !== false,
     };
   } catch {
     // Shaxsiy rejimda o'qishga ham ruxsat bo'lmasligi mumkin.
