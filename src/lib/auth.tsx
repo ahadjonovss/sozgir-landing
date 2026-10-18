@@ -146,15 +146,28 @@ async function quietly(step: () => Promise<unknown>): Promise<void> {
  *
  *  Serverning o'zbekcha izohi bo'lsa — o'sha ko'rsatiladi. Bo'lmasa
  *  umumiy matn, lekin **nima qilish kerakligi** bilan: «xatolik yuz
- *  berdi» degan gap odamga hech narsa bermaydi. */
+ *  berdi» degan gap odamga hech narsa bermaydi.
+ *
+ *  Ishlab chiqishda xom sabab shu yerga qo'shiladi. Nega: kodsiz xato
+ *  ekranda bir xil matnga aylanadi va uni ajratish uchun konsolni
+ *  ochish kerak bo'lardi — nosozlik haqidagi xabar esa ko'pincha
+ *  ekran rasmi bo'lib keladi. Yig'ilgan paketda bu shox butunlay
+ *  yo'q: `import.meta.env.DEV` `false` bo'lganda bundler uni olib
+ *  tashlaydi. */
 function messageOf(raw: unknown): string {
   const message = String((raw as { message?: string })?.message ?? '').trim();
-  // Texnik matn ekranga chiqmaydi: u faqat jurnalda foydali.
-  if (message && /[\u0400-\u04FF\u2018\u2019a-z]/i.test(message) && message.length < 120
-      && !message.includes('http') && !/[{}<>]/.test(message)) {
-    return message;
-  }
-  return 'Ulanib bo‘lmadi — internetni tekshirib, qayta urinib ko‘ring';
+
+  const human =
+    message &&
+    message.length < 120 &&
+    !message.includes('http') &&
+    !/[{}<>]/.test(message)
+      ? message
+      : 'Ulanib bo‘lmadi — internetni tekshirib, qayta urinib ko‘ring';
+
+  if (!import.meta.env.DEV) return human;
+  const raw_ = message || String(raw);
+  return raw_ && raw_ !== human ? `${human} · ${raw_.slice(0, 200)}` : human;
 }
 
 function adoptNickname(user: User): string {
