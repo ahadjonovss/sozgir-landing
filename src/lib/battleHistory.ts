@@ -8,11 +8,15 @@
  *  Raqibni **server** topadi (`LATERAL`): maydon jangida u birinchi
  *  qo'shilgan boshqa qatnashchi bo'ladi.
  *
- *  Ikki narsa javobda yo'q va shu sabab ro'yxatda ko'rinmaydi:
- *  jangdagi o'lja o'zgarishi (reyting yozuvi tarixda saqlanmaydi) va
- *  So'zjangdagi yashirin so'z. G'unchaning hisobi ham faqat o'z balli
- *  bilan chiqadi — raqibniki javobda yo'q. */
+ *  Jangdagi o'lja o'zgarishi javobda bor: server qatorga avvalgi va
+ *  keyingi reytingni qo'yadi. Ekran farqni **aqchada** hisoblaydi,
+ *  reyting farqining o'zini emas — ikkisi bir xil son emas
+ *  (`docs/aqcha.md`).
+ *
+ *  Javobda yo'qlari: So'zjangdagi yashirin so'z va g'unchada
+ *  raqibning balli — hisob faqat o'ziniki bilan chiqadi. */
 import { api } from '../api/client';
+import { battleAqcha } from './aqcha';
 import { gameOf, type BattleGame } from './battle';
 
 /** Jang natijasi — ikkala o'yin uchun ham bir xil uchta holat. */
@@ -36,6 +40,21 @@ export interface ArenaBattle {
 
 const int = (value: unknown) =>
   typeof value === 'number' && Number.isFinite(value) ? Math.round(value) : null;
+
+/** Jangda olingan (yoki berilgan) o'lja — **aqchada**.
+ *
+ *  Xom reyting farqini bo'lib yuborib bo'lmaydi: aqcha o'z jadvali
+ *  bilan hisoblanadi va yarmi yarmiga to'g'ri kelmaydi. Shuning
+ *  uchun ikkala son ham aqchaga o'giriladi va keyin ayiriladi.
+ *
+ *  Reyting yozilmagan eski janglarda `null` — ekran unda jangning
+ *  natijasini so'z bilan yozadi. */
+function aqchaDelta(data: Record<string, unknown>): number | null {
+  const before = int(data.rating_before);
+  const after = int(data.rating_after);
+  if (before === null || after === null) return null;
+  return battleAqcha(after) - battleAqcha(before);
+}
 
 /** Serverdagi qatordan tarix qatori. */
 export function arenaBattleFrom(
@@ -66,7 +85,7 @@ export function arenaBattleFrom(
     outcome,
     // G'unchada o'z balli: raqibniki javobda yo'q.
     detail: game === 'guncha' ? String(int(data.my_score) ?? 0) : '',
-    battleAqchaDelta: null,
+    battleAqchaDelta: aqchaDelta(data),
   };
 }
 

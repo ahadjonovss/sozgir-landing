@@ -1846,6 +1846,20 @@
   color: var(--green-deep);
 }
 
+/* Raqib tugatgandan keyingi izoh — ikki ustun ostida, butun kenglikda.
+   Jang shu paytda hal bo'ladi va bu yagona qator o'sha paytda nima
+   qilish kerakligini aytadi. */
+.board-head__note {
+  grid-column: 1 / -1;
+  margin: 6px 0 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--divider);
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-2);
+  text-align: center;
+}
+
 .board-head__vs {
   display: grid;
   place-items: center;
@@ -2994,6 +3008,29 @@
 
 .rating--compact .rating__value {
   font-size: 30px;
+}
+
+/* Shu jang qancha bergani — yig'indi yonida, undan kichik.
+   Yig'indi asosiy son bo'lib qolishi kerak: farq uni o'qishga
+   xalal bermasin, lekin ko'zga tashlansin. */
+.rating__delta {
+  margin-left: 8px;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0;
+  vertical-align: middle;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.rating__delta--up {
+  color: var(--green-deep);
+  background: var(--green-soft);
+}
+
+.rating__delta--down {
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 14%, transparent);
 }
 
 .rating__tiers {

@@ -94,8 +94,15 @@ export default function ArenaHistory() {
               {row.detail && (
                 <span className="history__detail">{pretty(row.detail)}</span>
               )}
-              <span className="history__outcome">{OUTCOME[row.outcome]}</span>
-              {row.battleAqchaDelta !== null && row.battleAqchaDelta !== 0 && (
+              {/* Aqcha bo'lsa — natija o'rnida aynan u.
+                  «Durang» degan so'z jangdan nima qolganini aytmaydi,
+                  «+8» esa aytadi. Natija baribir ko'rinadi: qator
+                  o'z rangini `history__row--{natija}` dan oladi.
+                  O'lja yozilmagan eski janglarda esa so'z qoladi —
+                  aks holda qator butunlay jim bo'lardi. */}
+              {row.battleAqchaDelta === null ? (
+                <span className="history__outcome">{OUTCOME[row.outcome]}</span>
+              ) : (
                 <span className="history__delta" title="Jangda olingan aqcha">
                   <AqchaDelta value={row.battleAqchaDelta} />
                 </span>

@@ -22,7 +22,22 @@ import { useDonorTier } from '../lib/donor';
 import DonorChip from './DonorChip';
 import { BattleAqcha, TierBadge } from './Units';
 
-export default function BattleStats({ uid, compact = false }: { uid: string; compact?: boolean }) {
+export default function BattleStats({
+  uid,
+  compact = false,
+  change = null,
+}: {
+  uid: string;
+  compact?: boolean;
+  /** Shu jang aqchani qancha o'zgartirgani — xom reytingda.
+   *
+   *  Natija ekranida kerak: kartochkada yangi yig'indi turadi va
+   *  undan «bu jang nima berdi» bilinmasdi. Jadval jang tugagach
+   *  yangilanadi, ya'ni farqni undan hisoblab bo'lmaydi — server
+   *  jang yozuviga avvalgi va keyingi sonni qo'yadi va ikkisi shu
+   *  yerga keladi. */
+  change?: { before: number; after: number } | null;
+}) {
   const [value, setValue] = useState<BattleRating | null>(null);
 
   useEffect(() => {
@@ -53,6 +68,16 @@ export default function BattleStats({ uid, compact = false }: { uid: string; com
         <span className="rating__label">Jang aqchasi</span>
         <strong className="rating__value">
           <BattleAqcha rating={rating.rating} size="lg" />
+          {change && battleAqcha(change.after) !== battleAqcha(change.before) && (
+            <span
+              className={`rating__delta rating__delta--${
+                change.after > change.before ? 'up' : 'down'
+              }`}
+            >
+              {change.after > change.before ? '+' : '−'}
+              {Math.abs(battleAqcha(change.after) - battleAqcha(change.before))}
+            </span>
+          )}
         </strong>
         <span className="rating__tiers">
           <span className="rating__tier">

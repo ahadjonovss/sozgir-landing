@@ -30,7 +30,7 @@ import { Check, Clock, Copy, Send, Swords, Trophy, Users } from './Icons';
 import { ReactionBurst, ReactionPicker } from './Reactions';
 import ProposeWord from './ProposeWord';
 import ReportWord from './ReportWord';
-import { VerifiedMark } from './PlayerName';
+import PlayerName from './PlayerName';
 import RotatingLine from './RotatingLine';
 import ScoreRules from './ScoreRules';
 import SendInvite, { type InviteTarget } from './SendInvite';
@@ -553,13 +553,35 @@ function Scoreboard({ game }: { game: Sozjang }) {
   const me = pretty(game.account?.nickname ?? 'Siz');
   const foe = pretty(game.opponent?.nickname ?? 'Raqib');
   const foeRows = game.opponent?.rows?.length ?? 0;
+  /*
+   * Raqib tugatganda «tugatdi» deyish kam edi.
+   *
+   * U so'zdan uchta narsa bilinmasdi: topdimi, nechanchi urinishda va
+   * men nimaga erishishim kerak. Jang esa shu paytda hal bo'ladi —
+   * odam aynan shunda bilishi kerak. Shuning uchun holat o'rniga
+   * natijaning o'zi yoziladi.
+   */
+  const foeAttempts = game.opponent?.attempts ?? foeRows;
   const status = game.opponent?.finished
     ? game.opponent.won
-      ? 'topdi'
-      : 'tugatdi'
+      ? `${foeAttempts} urinishda topdi`
+      : 'topa olmadi'
     : foeRows === 0
       ? 'o‘ylayapti…'
       : `${foeRows}-urinish`;
+
+  /** Raqib tugatdi, men hali o'ynayapman — nima qilish kerakligi.
+   *
+   *  Ball aniq aytiladi, «kamroq urinishda toping» emas: ballga
+   *  urinish ham, tezlik ham qo'shiladi va tezlik bitta urinishdan
+   *  oshib ketishi mumkin. Ya'ni «kamroq urinish» va'da bo'lardi,
+   *  ball esa — qoidaning o'zi. */
+  const target =
+    game.opponent?.finished && !game.me?.finished
+      ? game.opponent.won
+        ? `Raqib ${game.opponent.score ?? 0} ball to‘pladi. Undan oshish uchun kamroq urinish va tezlik kerak.`
+        : 'Raqib topa olmadi — topsangiz, g‘alaba sizniki.'
+      : null;
 
   return (
     <div className="board-head">
@@ -577,12 +599,15 @@ function Scoreboard({ game }: { game: Sozjang }) {
         <div className="board-head__text">
           <strong>{foe}</strong>
           <Dots player={game.opponent} max={game.maxAttempts} />
-          <span className={`board-head__status${game.opponent?.finished ? ' board-head__status--done' : ''}`}>
+          {/* Yashil faqat topgani uchun: «topa olmadi» ni yashil
+              yozish natijani teskari o'qitardi. */}
+          <span className={`board-head__status${game.opponent?.won ? ' board-head__status--done' : ''}`}>
             {status}
           </span>
         </div>
         <Avatar name={foe} uid={game.opponentUid ?? undefined} size={40} className="board-head__avatar" />
       </div>
+      {target && <p className="board-head__note">{target}</p>}
     </div>
   );
 }
@@ -667,11 +692,21 @@ function Playing({ game }: { game: Sozjang }) {
           <div className="fight__side fight__side--foe" key={lastFoe} hidden={game.mardu}>
             <div className="fight__who">
               <strong>
-                {pretty(game.opponent?.nickname ?? 'Raqib')}
-                <VerifiedMark uid={game.opponentUid} size={14} />
+                {/* Nom, tasdiq belgisi va homiylik muhri — bittada.
+                    Ilgari bu yerda faqat tasdiq belgisi chizilardi va
+                    muhr jadvalda ko'rinib, jangda yo'qolardi. */}
+                <PlayerName
+                  uid={game.opponentUid}
+                  name={game.opponent?.nickname ?? 'Raqib'}
+                  size={14}
+                />
               </strong>
               <span>
-                {game.opponent?.finished ? 'tugatdi' : `${lastFoe}/${game.maxAttempts}`}
+                {game.opponent?.finished
+                  ? game.opponent.won
+                    ? `${game.opponent.attempts ?? lastFoe} urinishda topdi`
+                    : 'topa olmadi'
+                  : `${lastFoe}/${game.maxAttempts}`}
                 {game.opponent?.hintUsed ? ' · maslahat oldi' : ''}
               </span>
             </div>
@@ -899,8 +934,7 @@ function Result({ game }: { game: Sozjang }) {
         <div className={`score__side${mine ? ' score__side--win' : ''}`}>
           <Avatar name={meName} uid={account?.uid} size={36} className="score__avatar" />
           <span className="score__who">
-            {meName}
-            <VerifiedMark uid={account?.uid} size={14} />
+            <PlayerName uid={account?.uid} name={meName} size={14} />
           </span>
           <strong className="score__points">{game.me?.score ?? 0}</strong>
           <span className="score__meta">
@@ -916,8 +950,7 @@ function Result({ game }: { game: Sozjang }) {
               ko'rish va keyin yana chaqirish uchun. */}
           {game.opponentUid ? (
             <a className="score__who score__who--link" href={playerLink(game.opponentUid)}>
-              {foeName}
-              <VerifiedMark uid={game.opponentUid} size={14} />
+              <PlayerName uid={game.opponentUid} name={foeName} size={14} />
             </a>
           ) : (
             <span className="score__who">{foeName}</span>
@@ -962,7 +995,18 @@ function Result({ game }: { game: Sozjang }) {
         </div>
       </div>}
 
-      {account && !expired && <BattleStats uid={account.uid} compact />}
+      {account && !expired && (
+        <BattleStats
+          uid={account.uid}
+          compact
+          change={
+            typeof game.me?.ratingBefore === 'number' &&
+            typeof game.me.ratingAfter === 'number'
+              ? { before: game.me.ratingBefore, after: game.me.ratingAfter }
+              : null
+          }
+        />
+      )}
 
       {/* Davra tugadi — endi nima bo'ladi. Tugmalardan **oldin**:
           odam avval keyingi davra o'zi boshlanishini bilsin, keyin

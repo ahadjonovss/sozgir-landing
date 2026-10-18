@@ -95,6 +95,18 @@ export function useSozjang() {
     row: 0,
     units: [],
   });
+  /** Serverdan **javob bilan** qaytgan qatorlar (ranglar naqshi).
+   *
+   *  Taxta raqib holati bilan bitta so'rovdan oziqlanadi va u uch
+   *  soniyada bir keladi. Taxmin esa darhol javob oladi: `POST
+   *  .../guess` naqshni o'sha zahoti qaytaradi. Shu ikkisi orasida
+   *  qator «yo'qolib» turardi — yozuv keyingi qatorga o'tgan, server
+   *  ro'yxati esa hali eski edi va kataklar bo'shab qolardi.
+   *
+   *  Shuning uchun javob shu yerda saqlanadi va so'rov yetib kelgunча
+   *  o'sha ishlatiladi. Keyin server ro'yxati uzunroq bo'ladi va
+   *  o'zi egallaydi — bu nusxa faqat oradagi uch soniya uchun. */
+  const [sent, setSent] = useState<string[]>([]);
   /** Endigina ochilgan qator — kataklar navbat bilan ag'dariladi. */
   const [flipRow, setFlipRow] = useState(-1);
   const [shake, setShake] = useState(false);
@@ -157,6 +169,7 @@ export function useSozjang() {
     setBattle(null);
     setActive(id);
     setWords(read<string[]>(wordsKey(id), []));
+    setSent([]);
     setTyped({ row: 0, units: [] });
     setFlipRow(-1);
     setHint(null);
@@ -174,6 +187,7 @@ export function useSozjang() {
     setBattle(null);
     setForfeited(false);
     setWords([]);
+    setSent([]);
     setTyped({ row: 0, units: [] });
     setFlipRow(-1);
     setHint(null);
@@ -311,7 +325,10 @@ export function useSozjang() {
 
   // `me` hujjat bilan birga o'zgaradi — ro'yxat har renderda yangi
   // bo'lib qolmasligi uchun eslab qo'yiladi.
-  const myRows = useMemo(() => me?.rows ?? [], [me]);
+  const myRows = useMemo(() => {
+    const server = me?.rows ?? [];
+    return server.length >= sent.length ? server : sent;
+  }, [me, sent]);
   const finished = me?.finished === true;
 
   /** Faol qator: topilgan harflar qulflangan, qolgani yozilgan harflar.
@@ -417,6 +434,11 @@ export function useSozjang() {
       const next = [...words, word];
       setWords(next);
       write(wordsKey(battleId), next);
+      // Naqsh darhol taxtaga tushadi — so'rovni kutmaymiz.
+      const pattern = reply.row;
+      if (pattern) {
+        setSent((rows) => [...rows.slice(0, next.length - 1), pattern]);
+      }
       // Yangi qator ranglar bilan kelganda ag'dariladi; yozuv esa keyingi
       // qatorga o'tadi (topilgan harflar o'zi tushadi).
       setFlipRow(next.length - 1);
