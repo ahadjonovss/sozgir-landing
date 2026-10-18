@@ -20,8 +20,7 @@
  *  **kichik** bo'lsa ham zarari yo'q: `badges.ts` olingan nishonni
  *  ro'yxatda saqlaydi. */
 import { useCallback, useEffect, useState } from 'react';
-import { PATHS } from '../firebase/paths';
-import { readDoc } from '../firebase/rest';
+import { api } from '../api/client';
 import { useAuth } from './auth';
 import {
   EMPTY_SNAPSHOT,
@@ -74,28 +73,34 @@ function localSnapshot(): BadgeSnapshot {
   };
 }
 
-/** Hisobdagi sonlar: jang reytingi va ballar kitobi.
+/** Hisobdagi sonlar: jang reytingi va «kunning eng zo'ri».
  *
- *  Ikkalasi ham ochiq hujjat, ya'ni REST bilan — bu sahifa uchun
- *  Firebase SDK yuklanmaydi. «Kunning eng zo'ri» ham shu yerda:
- *  `scores/{uid}.manOfTheDay` ni server yozadi va u nishonning yagona
- *  izi. */
+ *  `gamesScored` endi bu yerdan kelmaydi. Firestore'da ballar
+ *  hujjatida o'yin bo'yicha taqsimot (`games`) turardi va undan
+ *  «nechta o'yinda ball yig'ilgan» degan son chiqardi. Serverdagi
+ *  `scores` jadvalida esa faqat yig'indi bor — taqsimot ko'chmagan.
+ *  Shu sabab bu son faqat brauzerdagi hisobdan olinadi
+ *  ([localSnapshot]) va boshqa qurilmada o'ynalgani bu nishonga
+ *  qo'shilmaydi. Qolgan nishonlar tegilmagan. */
 async function remoteSnapshot(uid: string): Promise<Partial<BadgeSnapshot>> {
-  const [rating, score] = await Promise.all([
-    readDoc(`${PATHS.battleRatings}/${uid}`),
-    readDoc(`${PATHS.scores}/${uid}`),
+  const [rating, hero] = await Promise.all([
+    api
+      .get<{ rating?: Record<string, unknown> | null }>('/v1/me/battle-rating', {
+        query: { uid },
+      })
+      .catch(() => ({ rating: null })),
+    api
+      .get<{ count?: unknown }>('/v1/me/man-of-the-day')
+      .catch(() => ({ count: 0 })),
   ]);
 
-  const games = (score?.games ?? {}) as Record<string, { score?: unknown }>;
-  const scored = Object.values(games).filter((game) => int(game?.score) > 0).length;
+  if (int(hero.count) > 0) unlockBadge('kuntugmish');
 
-  if (int(score?.manOfTheDay) > 0) unlockBadge('kuntugmish');
-
+  const data = rating.rating ?? {};
   return {
-    battleWins: int(rating?.wins),
-    battleStreak: int(rating?.streak),
-    battleRating: int(rating?.rating),
-    gamesScored: scored,
+    battleWins: int(data.wins),
+    battleStreak: int(data.streak),
+    battleRating: int(data.rating),
   };
 }
 

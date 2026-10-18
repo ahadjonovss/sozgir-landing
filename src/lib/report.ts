@@ -1,14 +1,16 @@
 /** So'z haqidagi murojaat — ilovadagi `WordReport` bilan bir xil hujjat.
  *
- *  `word_reports/{id}` ga yoziladi va admin panelida moderatsiyaga tushadi:
- *  moderator so'zni lug'atdan chiqarishi mumkin. Qoidalar bo'yicha yozish
- *  faqat kirgan foydalanuvchiga ruxsat etilgan (`uid` o'zining bo'lishi
- *  shart), shuning uchun mehmonga avval kirish taklif qilinadi.
+ *  Murojaat moderatsiya navbatiga tushadi: moderator so'zni lug'atdan
+ *  chiqarishi mumkin. Marshrut hisob talab qiladi, shuning uchun
+ *  mehmonga avval kirish taklif qilinadi.
  *
  *  Sabab kalitlari ilovadagi `WordReportReason.name` bilan bir xil —
- *  admin panel ikkalasini bir ro'yxatda ko'radi. */
-import { client } from '../firebase/client';
-import { PATHS } from '../firebase/paths';
+ *  admin panel ikkalasini bir ro'yxatda ko'radi.
+ *
+ *  Serverga faqat so'z, sabab va izoh ketadi: kim yuborganini u
+ *  token'dan biladi, qolgan maydonlar (uzunlik, qayerda uchragani)
+ *  esa jadvalda yo'q. */
+import { api } from '../api/client';
 
 export type ReportReason = 'notAWord' | 'misspelled' | 'wrongMeaning' | 'offensive' | 'other';
 
@@ -27,23 +29,22 @@ export async function submitWordReport(input: {
   length: number;
   reason: ReportReason;
   comment: string;
-  /** `daily`, `endless` yoki `battle` — qayerda uchragani. */
+  /** `daily`, `endless` yoki `battle` — qayerda uchragani.
+   *
+   *  Serverdagi jadvalda bunday maydon yo'q, shuning uchun izohga
+   *  qo'shiladi: moderator uchun «qayerda uchradi» degan ma'lumot
+   *  butunlay yo'qolib ketgandan ko'ra shu yaxshi. */
   mode: string;
-  uid: string;
-  nickname: string;
 }): Promise<void> {
-  const { db } = await client();
-  const { addDoc, collection, serverTimestamp } = await import('firebase/firestore/lite');
   const comment = input.comment.trim().slice(0, COMMENT_MAX);
-  await addDoc(collection(db, PATHS.wordReports), {
-    word: input.word,
-    length: input.length,
-    reason: input.reason,
-    comment: comment || null,
-    mode: input.mode,
-    uid: input.uid,
-    nickname: input.nickname,
-    status: 'pending',
-    createdAt: serverTimestamp(),
+  await api.post('/v1/words/report', {
+    body: {
+      word: input.word,
+      reason: input.reason,
+      comment: [comment, `(${input.mode}, ${input.length} harf)`]
+        .filter(Boolean)
+        .join(' ')
+        .slice(0, COMMENT_MAX),
+    },
   });
 }

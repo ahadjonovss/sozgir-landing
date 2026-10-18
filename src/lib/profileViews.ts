@@ -15,12 +15,12 @@
  *  `count` esa bittaga oshadi — bir bosishda yuzta ko'rish yozib
  *  bo'lmaydi. Mehmon yoza olmaydi: qoidalar yozuvchidan hisob talab
  *  qiladi. */
-import { client } from '../firebase/client';
+import { api } from '../api/client';
 
 /** Shu tashrifda qaysi profillar qayd etilgan.
  *
  *  Odam ro'yxat bilan profil orasida bir necha marta yurishi mumkin —
- *  har qaytishda yozuv yuborilsa hisob ham, Firestore hisobi ham
+ *  har qaytishda yozuv yuborilsa hisob ham, serverdagi yuk ham
  *  bekorga o'sardi. Ilovadagi qoida ham shu: bitta seansda bir profil
  *  bir marta sanaladi. */
 const recorded = new Set<string>();
@@ -40,15 +40,9 @@ export async function recordProfileView({
   recorded.add(owner);
 
   try {
-    const { db } = await client();
-    const { doc, increment, serverTimestamp, setDoc } =
-      await import('firebase/firestore/lite');
-
-    await setDoc(
-      doc(db, 'profile_views', owner, 'viewers', viewer),
-      { at: serverTimestamp(), count: increment(1) },
-      { merge: true },
-    );
+    // Kim ko'rganini server token'dan biladi — `viewer` faqat shu
+    // yerdagi tekshiruv uchun.
+    await api.post(`/v1/profiles/${encodeURIComponent(owner)}/view`);
   } catch {
     // Qayd yozilmasa ham profil ochilaveradi — keyingi tashrifda qayta
     // urinib ko'riladi.

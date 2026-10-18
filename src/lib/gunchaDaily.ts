@@ -16,7 +16,7 @@
  *
  *  Hujjat qoidalarda hammaga ochiq (`allow read: if true`), shuning uchun
  *  SDK kerak emas — REST yetadi. */
-import { readDoc } from '../firebase/rest';
+import { api } from '../api/client';
 import { normalize } from './uz';
 
 export interface DailyGuncha {
@@ -81,7 +81,11 @@ export async function fetchDailyGuncha({
   const cached = readCache(dateKey);
   if (cached) return cached;
 
-  const data = await readDoc(`guncha/${dateKey}`).catch(() => null);
+  const data = await api
+    .get<Record<string, unknown>>(`/v1/guncha/${encodeURIComponent(dateKey)}`, {
+      auth: false,
+    })
+    .catch(() => null);
   const center = data?.center;
   const petals = data?.petals;
   if (typeof center !== 'string' || !Array.isArray(petals) || petals.length !== 6) {

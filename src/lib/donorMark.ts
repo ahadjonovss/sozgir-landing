@@ -33,9 +33,8 @@
  *  ko'rinmaydi. Hujjatni tozalash shart emas — yig'indi qaytsa muhr ham
  *  qaytadi. */
 import { useEffect, useState } from 'react';
-import { listDocs, readDoc } from '../firebase/rest';
-import { client } from '../firebase/client';
-import { PATHS } from '../firebase/paths';
+import { api } from '../api/client';
+import { loadDonorTotals } from './donor';
 import { useDonorTotal } from './donor';
 
 export interface Mark {
@@ -116,12 +115,10 @@ const BUILT_IN: Mark[] = [
    — internet uzilgani odamning muhrini bekor qilmaydi. */
 
 /** Katalog versiyasi turgan hujjat: `{ version, updatedAt }`. */
-const VERSION_DOC = 'config/donor_marks';
 
 const CATALOG_KEY = 'sozgir.donor.catalog';
 
 /** Katalog bitta so'rovga sig'adi: muhr o'nlab bo'ladi, yuzlab emas. */
-const CATALOG_PAGE = 100;
 
 /** Chegarasi yozilmagan muhr hech qachon ochilmaydi. Tasodifan tushib
  *  qolgan maydon butun ro'yxatni bepul qilib yubormasligi kerak. */
@@ -199,17 +196,24 @@ function loadCatalog(): Promise<void> {
     catalogRead = true;
   }
 
-  catalogLoading = readDoc(VERSION_DOC).then(async (data) => {
-    const raw = data?.version;
+  catalogLoading = api
+    .get<{ version?: unknown }>('/v1/donor-marks/version', { auth: false })
+    .catch(() => ({ version: 0 }))
+    .then(async (data) => {
+    const raw = data.version;
     const version = typeof raw === 'number' ? Math.round(raw) : 0;
-    // `0` — hujjat yo'q, qoida bermadi yoki tarmoq yiqildi. Brauzerdagi
-    // nusxani bunday javob bilan almashtirmaymiz.
+    // `0` — sozlama yo'q yoki tarmoq yiqildi. Brauzerdagi nusxani
+    // bunday javob bilan almashtirmaymiz.
     if (version === 0 || version === catalogVersion) return;
 
-    const docs = await listDocs(PATHS.donorMarks, { pageSize: CATALOG_PAGE });
+    const list = await api
+      .get<{ items?: unknown }>('/v1/donor-marks', { auth: false })
+      .catch(() => ({ items: [] as unknown }));
+
     const fresh: Mark[] = [];
-    for (const doc of docs) {
-      const mark = markFromDoc(doc.id, doc.fields);
+    for (const row of Array.isArray(list.items) ? list.items : []) {
+      const fields = row as Record<string, unknown>;
+      const mark = markFromDoc(String(fields.id ?? ''), fields);
       if (mark) fresh.push(mark);
     }
     // Bo'sh javob ishonchsiz: bitta so'rov yiqilsa butun ro'yxat o'chib
@@ -271,8 +275,10 @@ export function useMarks(): Mark[] {
    kolleksiya, bir necha yuz yozuv. */
 
 const CACHE_KEY = 'sozgir.donor.marks';
+/** Bir so'rovda shuncha `uid` — serverdagi chegara ham shu. */
+const LOOKUP_CHUNK = 100;
+
 const TTL_MS = 60 * 60 * 1000;
-const PAGE = 300;
 
 let chosen: Record<string, string> | null = null;
 let loading: Promise<Record<string, string>> | null = null;
@@ -300,13 +306,33 @@ function loadChosen(): Promise<Record<string, string>> {
   }
   if (loading) return loading;
 
-  loading = listDocs(PATHS.donors, { pageSize: PAGE })
-    .then((docs) => {
+  /*
+   * Tanlovlar **donatchilar ro'yxati bo'yicha** so'raladi.
+   *
+   * Firestore'da `donors` to'plamini butunligicha o'qish mumkin edi va
+   * tanlov o'sha hujjatning maydoni edi. Serverda esa tanlovni faqat
+   * `uid` lar bilan so'rash mumkin (`/v1/donors/lookup`, bir so'rovda
+   * yuztagacha). Zarari yo'q: muhrni faqat donat qilgan odam tanlay
+   * oladi, ya'ni izlanadigan ro'yxat aynan o'sha.
+   */
+  loading = loadDonorTotals()
+    .then(async (totals) => {
+      const uids = Object.keys(totals);
       const next: Record<string, string> = {};
-      for (const doc of docs) {
-        // Hujjat nomi — uid.
-        const id = String(doc.fields.mark ?? '').trim();
-        if (doc.id && id) next[doc.id] = id;
+
+      for (let from = 0; from < uids.length; from += LOOKUP_CHUNK) {
+        const reply = await api
+          .post<{ items?: unknown }>('/v1/donors/lookup', {
+            body: { uids: uids.slice(from, from + LOOKUP_CHUNK) },
+          })
+          .catch(() => ({ items: [] as unknown }));
+
+        for (const row of Array.isArray(reply.items) ? reply.items : []) {
+          const item = row as { uid?: unknown; mark?: unknown };
+          const uid = String(item.uid ?? '').trim();
+          const id = String(item.mark ?? '').trim();
+          if (uid && id) next[uid] = id;
+        }
       }
       chosen = next;
       try {
@@ -355,9 +381,9 @@ export function useDonorMark(uid: string | null | undefined): Mark | null {
  *  rad etilsa (yig'indisi yetmaydi, hisob boshqa) ekranda yangi muhr
  *  turib qolmasligi kerak. `id` bo'sh bo'lsa muhr olib tashlanadi. */
 export async function chooseMark(uid: string, id: string): Promise<void> {
-  const { db } = await client();
-  const { doc, updateDoc } = await import('firebase/firestore/lite');
-  await updateDoc(doc(db, PATHS.donors, uid), { mark: id });
+  // Kimning tanlovi ekanini server token'dan biladi; `uid` faqat
+  // xotiradagi jadvalni yangilash uchun.
+  await api.put('/v1/me/donor-look', { body: { mark: id || null } });
 
   chosen = { ...(chosen ?? {}), [uid]: id };
   if (!id) delete chosen[uid];

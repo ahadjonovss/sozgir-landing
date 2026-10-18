@@ -12,8 +12,7 @@
  *  qo'shgandagina paydo bo'ladi — ya'ni uni «ishlab olish» yo'li qilib
  *  bo'lmaydi, oraliqda odam turadi. Ballni ilova hisoblaydi
  *  (`WordProposalScoreSource`), sayt esa faqat taklifni yuboradi. */
-import { client } from '../firebase/client';
-import { PATHS } from '../firebase/paths';
+import { api } from '../api/client';
 import { loadDictionary } from './dictionary';
 import { isPlayable, lengthOf, normalize } from './uz';
 
@@ -70,26 +69,18 @@ export async function alreadyKnown(word: string): Promise<boolean> {
 
 /** Taklifni yozadi.
  *
- *  Hujjatdagi maydonlar qoidada sanab qo'yilgan (`hasOnly`), ya'ni
- *  ro'yxatga qo'shimcha maydon qo'shib bo'lmaydi va `status` har doim
- *  `pending`: qarorni faqat moderator yozadi. */
+ *  Kim taklif qilganini server token'dan biladi va holatni ham o'zi
+ *  qo'yadi — qarorni faqat moderator yozadi. Uzunlik ham serverda
+ *  hisoblanadi (`unitLength`): `gʻisht` olti belgi, lekin to'rt harf
+ *  va ikki tomonda ikki xil sanalmasligi kerak. */
 export async function submitWordProposal(input: {
   word: string;
   description: string;
-  uid: string;
-  nickname: string;
 }): Promise<void> {
-  const word = normalize(input.word);
-  const { db } = await client();
-  const { addDoc, collection, serverTimestamp } = await import('firebase/firestore/lite');
-  await addDoc(collection(db, PATHS.wordProposals), {
-    word,
-    // Harf-birlikda: `gʻisht` — olti belgi, lekin to'rt harf.
-    length: lengthOf(word),
-    description: input.description.trim().slice(0, DESCRIPTION_MAX),
-    uid: input.uid,
-    nickname: input.nickname.slice(0, 24),
-    status: 'pending',
-    createdAt: serverTimestamp(),
+  await api.post('/v1/words/propose', {
+    body: {
+      word: normalize(input.word),
+      description: input.description.trim().slice(0, DESCRIPTION_MAX),
+    },
   });
 }

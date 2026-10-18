@@ -43,8 +43,6 @@ export default function ReportWord({
         reason,
         comment,
         mode,
-        uid: auth.account.uid,
-        nickname: auth.account.nickname,
       });
       setState('sent');
       // «Yalavoch» — lug'at uchun birinchi murojaat. Hodisa nishoni:

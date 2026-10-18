@@ -70,8 +70,6 @@ export default function ProposeWord() {
       await submitWordProposal({
         word,
         description,
-        uid: auth.account.uid,
-        nickname: auth.account.nickname,
       });
       setState('sent');
     } catch {
