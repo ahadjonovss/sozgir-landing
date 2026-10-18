@@ -54,12 +54,6 @@ export interface BoardRow {
 
 const wordsKey = (battleId: string) => `sozgir.battle.words.${battleId}`;
 
-/** Navbatda turganda qidiruv shu oraliqda takrorlanadi.
- *
- *  Ikki sabab: ikki odam bir vaqtda qidirsa, har biri ikkinchisining
- *  yozuvi paydo bo'lishidan oldin qidirib ulgurishi mumkin; server esa
- *  navbatdagi 60 soniyadan eski yozuvni ko'rmaydi. */
-const RETRY_MS = 10_000;
 
 function read<T>(key: string, fallback: T): T {
   try {
@@ -233,30 +227,24 @@ export function useSozjang() {
     };
   }, [open, searching, uid]);
 
-  // Qidiruv davom etayotganini ko'rsatish va takroriy so'rov.
+  /* Qidiruv davom etayotganini ko'rsatadigan sanoq.
+   *
+   *  Bu yerda **takroriy so'rov yo'q** va bu muhim. Navbatga kirish
+   *  (`POST /v1/battles/quick`) serverdagi yozuvning vaqtini har
+   *  safar noldan boshlaydi (`created_at = now()`), robot esa faqat
+   *  sakkiz soniyadan uzoq kutganlarga qo'shiladi. Ya'ni o'n
+   *  soniyada bir qayta so'rash robotning taymerini doim qayta
+   *  yoqib turardi va raqib besh-o'n soniya o'rniga daqiqalab
+   *  topilmasdi.
+   *
+   *  Navbatdagi o'rin serverda saqlanadi, shuning uchun qayta
+   *  so'rashning hojati ham yo'q: javob `watchQueue` orqali
+   *  keladi — u faqat **o'qiydi** va vaqtga tegmaydi. */
   useEffect(() => {
     if (!searching || !account) return;
-
     const tick = window.setInterval(() => setSeconds((value) => value + 1), 1000);
-    const retry = window.setInterval(() => {
-      if (!waiting.current) return;
-      void quickMatch({ length })
-        .then((reply) => {
-          if (reply.battleId) {
-            setSearching(false);
-            open(reply.battleId);
-          }
-        })
-        // Xato bo'lsa qidiruv to'xtamaydi — keyingi urinishda tuzalishi
-        // mumkin (masalan raqib ayni damda boshqa jangga ketgan bo'lsa).
-        .catch(() => undefined);
-    }, RETRY_MS);
-
-    return () => {
-      window.clearInterval(tick);
-      window.clearInterval(retry);
-    };
-  }, [account, length, open, searching]);
+    return () => window.clearInterval(tick);
+  }, [account, searching]);
 
   const me: BattlePlayer | undefined = battle?.players?.[uid];
   const opponentUid = useMemo(() => {
