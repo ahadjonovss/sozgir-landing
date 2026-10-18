@@ -19,13 +19,11 @@
  *  Umumiy ballga g'uncha `scores.ts` orqali tushadi: `scores/{uid}` ning
  *  yozuvchisi bitta bo'lishi kerak, aks holda bir o'yin ikkinchisining
  *  hissasini o'chirib yuborardi. */
-import { client } from '../firebase/client';
-import { PATHS } from '../firebase/paths';
+import { api } from '../api/client';
 import { tiyin } from './aqcha';
 import type { Account } from './auth';
 import { maxScoreOf, puzzleId, signatureOf, wordOf, type GunchaPuzzle } from './guncha';
-import { readStoredNickname } from './nickname';
-import { pushTally } from './scores';
+
 
 const ROUND_KEY = (id: string) => `sozgir.guncha.round.${id}`;
 const TOTAL_KEY = 'sozgir.guncha.total';
@@ -141,25 +139,10 @@ export function saveRound({
   write(TOTAL_KEY, next);
 
   if (account) {
-    void pushGunchaScore(account, next);
     // Nusxa kutilmaydi: g'uncha aloqasiz ham o'ynaladi.
-    void pushTotals(account.uid, next);
+    void pushTotals(next);
   }
   return next;
-}
-
-/** G'unchaning hamyondagi ulushi — umumiy hisobga shu tushadi.
- *
- *  Hammasi yakka o'yin: jangdagi ball hozircha alohida yuritilmaydi
- *  (ilovada ham shunday — `GunchaScoreSource` faqat yakka o'yinni
- *  sanaydi). */
-function pushGunchaScore(account: Account, totals: GunchaTotals): Promise<void> {
-  return pushTally({
-    uid: account.uid,
-    nickname: readStoredNickname() || account.nickname,
-    game: 'guncha',
-    tally: { score: totals.score, count: totals.words },
-  });
 }
 
 /* ── Buluddagi nusxa ──────────────────────────────────────────────────
@@ -172,31 +155,44 @@ function pushGunchaScore(account: Account, totals: GunchaTotals): Promise<void> 
    Ilovadagi tartib bilan bir xil (`GunchaRepositoryImpl`): qurilmadagi
    son asosiy manba, bulut esa nusxa. */
 
-/** Nusxani yangilaydi. Xato yutiladi: nusxa yozilmasa ham ball
- *  brauzerda joyida qoladi va keyingi o'zgarishda yana yoziladi. */
-async function pushTotals(uid: string, totals: GunchaTotals): Promise<void> {
+/** Nusxani yangilaydi (`PUT /v1/me/guncha-totals`). Xato yutiladi:
+ *  nusxa yozilmasa ham ball brauzerda joyida qoladi va keyingi
+ *  o'zgarishda yana yoziladi.
+ *
+ *  Jangdagi sonlar (`online`) saytdan yozilmaydi — ularni jangning
+ *  o'zi serverda hisoblaydi. Shuning uchun bu yerda nol yuborilmaydi:
+ *  yozuv butunlay almashtirilgani uchun nol telefonda yig'ilgan sonni
+ *  o'chirib yuborardi, shu sababli avval o'qib, o'sha qiymat qaytib
+ *  yuboriladi. */
+async function pushTotals(totals: GunchaTotals): Promise<void> {
   try {
-    const { db } = await client();
-    const { doc, setDoc, serverTimestamp } = await import('firebase/firestore/lite');
-    await setDoc(
-      doc(db, PATHS.users, uid, PATHS.guncha, PATHS.gunchaTotals),
-      { score: totals.score, words: totals.words, updatedAt: serverTimestamp() },
-      { merge: true },
-    );
+    const stored = await api.get<{
+      score: number;
+      words: number;
+      online: number;
+      online_words: number;
+    }>('/v1/me/guncha-totals');
+
+    await api.put('/v1/me/guncha-totals', {
+      body: {
+        score: totals.score,
+        words: totals.words,
+        online: stored.online,
+        onlineWords: stored.online_words,
+      },
+    });
   } catch {
     // Aloqa yo'q — keyingi topilgan so'zda qaytadan yoziladi.
   }
 }
 
-/** Buluddagi nusxa. Yozuv yo'q yoki aloqa uzilgan bo'lsa — bo'sh. */
-async function fetchTotals(uid: string): Promise<GunchaTotals> {
+/** Serverdagi nusxa. Yozuv yo'q yoki aloqa uzilgan bo'lsa — bo'sh. */
+async function fetchTotals(): Promise<GunchaTotals> {
   try {
-    const { db } = await client();
-    const { doc, getDoc } = await import('firebase/firestore/lite');
-    const data = (
-      await getDoc(doc(db, PATHS.users, uid, PATHS.guncha, PATHS.gunchaTotals))
-    ).data();
-    return { score: Number(data?.score) || 0, words: Number(data?.words) || 0 };
+    const data = await api.get<{ score: number; words: number }>(
+      '/v1/me/guncha-totals',
+    );
+    return { score: Number(data.score) || 0, words: Number(data.words) || 0 };
   } catch {
     return { score: 0, words: 0 };
   }
@@ -224,15 +220,14 @@ export function clearGuncha(): void {
  *  Brauzerda ball bo'lsa — u cloud'ga chiqadi (mehmon sifatida
  *  o'ynalgan g'uncha yo'qolib ketmasin). Bo'sh bo'lsa — demak bu yangi
  *  brauzer yoki hisob almashgan: ball buluddagi nusxadan tiklanadi. */
-export async function syncGuncha(account: Account): Promise<GunchaTotals> {
+export async function syncGuncha(_account: Account): Promise<GunchaTotals> {
   const totals = readTotals();
   if (totals.score > 0 || totals.words > 0) {
-    await pushGunchaScore(account, totals);
-    await pushTotals(account.uid, totals);
+    await pushTotals(totals);
     return totals;
   }
 
-  const cloud = await fetchTotals(account.uid);
+  const cloud = await fetchTotals();
   if (cloud.score <= 0 && cloud.words <= 0) return totals;
   write(TOTAL_KEY, cloud);
   return cloud;

@@ -1,8 +1,8 @@
 /** Landing faqat prod muhitiga ulanadi — sayt ochiq, dev bazasi kerak emas.
  *
  *  Bu kalitlar mijoz tomonida ochiq bo'lishi normal (Firebase web config).
- *  Haqiqiy himoya — Firestore qoidalari: har kim faqat o'z hujjatlariga
- *  yozadi, lug'at va kunlik so'z esa hammaga faqat o'qish uchun ochiq.
+ *  Ular endi faqat **kirish** uchun: ma'lumot `api.sozgir.uz` da va uni
+ *  server tokenga qarab beradi.
  *
  *  `appId` admin panel bilan bir xil web ilova — Firebase konsolida
  *  landing uchun alohida ilova ochilsa, faqat shu fayl yangilanadi. */
@@ -15,14 +15,11 @@ export const firebaseConfig = {
   appId: '1:599308684224:web:a15f3cbef1169adabf1625',
 } as const;
 
-/** Lokal emulyatorga ulanish.
+/** Lokal emulyatorga ulanish — endi faqat hisob uchun.
  *
- *  So'zjang mantig'i Cloud Functions'da va u faqat prodga
- *  joylashtirilgan — ya'ni jangni sinash uchun prodda hisob ochib, real
- *  yozuv qoldirish kerak bo'lardi. Emulyator shu ehtiyojni yopadi:
+ *  Prodda hisob ochmay kirishni sinash kerak bo'lganda:
  *
- *      firebase emulators:start --only auth,functions,firestore \
- *        --project soztop-prod
+ *      firebase emulators:start --only auth --project soztop-prod
  *      VITE_EMULATOR=1 npm run dev
  *
  *  Ishlab chiqarish paketida bu shox butunlay yo'q: `import.meta.env.DEV`
@@ -33,6 +30,4 @@ export const useEmulator =
 export const EMULATOR = {
   host: '127.0.0.1',
   auth: 9099,
-  firestore: 8080,
-  functions: 5001,
 } as const;

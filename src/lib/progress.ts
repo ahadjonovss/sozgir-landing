@@ -7,20 +7,24 @@
  *  nusxa va boshqa qurilmada tiklash uchun. Shu sabab natija darhol
  *  ko'rinadi va internet uzilsa ham o'yin davom etadi.
  *
- *  Yozilgan yo'llar ilova bilan bir xil:
- *   * `users/{uid}/stats/{mode}_{length}` — statistika nusxasi;
- *   * `users/{uid}/found_words/{so'z}`    — topilgan so'zlar;
- *   * `scores/{uid}`                      — umumiy ball (reyting shundan);
- *   * `daily_results/{sana}_{n}/entries/{uid}` — kunlik reyting. */
-import { client } from '../firebase/client';
-import { PATHS, statsDoc } from '../firebase/paths';
-import { readDoc } from '../firebase/rest';
+ *  Chaqiriladigan marshrutlar ilova bilan bir xil:
+ *   * `PUT  /v1/me/stats`      — statistika nusxasi;
+ *   * `POST /v1/me/words`      — topilgan so'z;
+ *   * `POST /v1/daily/submit`  — kunlik o'yin natijasi.
+ *
+ *  **Ball bu yerda yozilmaydi.** Ilgari sayt umumiy hisobni o'zi
+ *  yig'ib `scores/{uid}` ga yozardi va shu sabab u hech qachon
+ *  pasaytirilmasdi: brauzerdagi ro'yxat telefonnikidan qisqa bo'lsa,
+ *  past son yaxshisini bosib ketardi. Endi ball serverda hisoblanadi
+ *  — sayt yozilgan so'zlarni yuboradi, xolos. Shu bilan «pasaytirma»
+ *  qoidasi ham, kun hisobining brauzerdagi sanog'i ham keraksiz
+ *  bo'ldi: kunlik reyting `/v1/daily/submit` ning o'zidan chiqadi. */
+import { api } from '../api/client';
 import type { Account } from './auth';
 import { markPlayedAt } from './badges';
 import { attemptsFor, DAILY_LENGTH, LENGTHS, type Mode } from './modes';
-import { readStoredNickname } from './nickname';
 import { scoreFor, type HintLevel } from './score';
-import { EMPTY_TALLY, pushTally, type GameTally } from './scores';
+import { EMPTY_TALLY, type GameTally } from './scores';
 
 export interface GameStats {
   played: number;
@@ -56,6 +60,12 @@ export interface Outcome {
   number: number;
   dateKey: string;
   answer: string;
+  /** Yozilgan taxminlar — tartibi bilan.
+   *
+   *  Kunlik o'yinda serverga shular boradi: ball mijozdan olinmaydi,
+   *  server ro'yxatni o'z javobi bilan solishtiradi va urinishlar
+   *  sonini uzunligidan oladi. */
+  words: readonly string[];
   categoryId?: string;
   /** Yakka o'yinda olingan yordam: 0 — yo'q, 1 — mavzu, 2 — ma'no ham.
    *  Mukofotning yuqori chegarasini tushiradi (`score.ts`). */
@@ -245,153 +255,117 @@ export async function recordOutcome(
   const total = foundSummary(found);
 
   if (account) {
-    void pushToCloud({ account, outcome, points, stats, entry, found });
+    void pushToCloud({ outcome, stats, entry });
   } else {
     // Kirmasdan o'ynagan natija navbatda turadi: keyin kirilsa cloud'ga
     // o'zi yoziladi va reytingga tushadi.
-    queuePending({ outcome, points });
+    queuePending({ outcome });
   }
 
   return { points, stats, total };
 }
 
 async function pushToCloud({
-  account,
   outcome,
-  points,
   stats,
   entry,
-  found,
 }: {
-  account: Account;
   outcome: Outcome;
-  points: number;
   stats: GameStats;
   entry: FoundWord | null;
-  found: Record<string, FoundWord>;
 }): Promise<void> {
+  const { mode, length, dateKey, words } = outcome;
   try {
-    const { db } = await client();
-    const { doc, setDoc, serverTimestamp } = await import('firebase/firestore/lite');
-    const { uid } = account;
-    // Nom yozish paytida o'qiladi: kirish bilan natija yozuvi orasida
-    // taxallus o'zgargan bo'lishi mumkin.
-    const nickname = readStoredNickname() || account.nickname;
-    const { mode, length, won, attempts, number, dateKey } = outcome;
+    // Statistika — qurilmadagi sonlar nusxasi. Server ularni
+    // qo'shmaydi, o'rnatadi: bir o'yin ikki qurilmada ochilsa sonlar
+    // ikkilanmasligi kerak.
+    await api.put('/v1/me/stats', {
+      body: {
+        mode,
+        length,
+        played: stats.played,
+        wins: stats.wins,
+        currentStreak: stats.currentStreak,
+        maxStreak: stats.maxStreak,
+        distribution: stats.distribution,
+        lastDailyNumber: stats.lastDailyNumber,
+      },
+    });
 
-    const writes: Promise<unknown>[] = [
-      setDoc(
-        doc(db, PATHS.users, uid, PATHS.stats, statsDoc(mode, length)),
-        stats,
-        { merge: true },
-      ),
-    ];
-
+    // Topilgan so'z — bir so'z bir marta. Takrori `added: false`
+    // qaytaradi va bu xato emas, qoida.
     if (entry) {
-      // Hujjat nomi — so'zning o'zi: bir so'z bir marta yoziladi.
-      writes.push(
-        setDoc(
-          doc(db, PATHS.users, uid, PATHS.foundWords, entry.word),
-          {
-            word: entry.word,
-            mode: entry.mode,
-            length: entry.length,
-            attempts: entry.attempts,
-            score: entry.score,
-            foundAt: entry.foundAt,
-            ...(entry.categoryId ? { categoryId: entry.categoryId } : {}),
-          },
-          { merge: true },
-        ),
-      );
-
-      // Umumiy ball `scores.ts` orqali yoziladi: hujjatda boshqa
-      // o'yinlarning (g'uncha) ulushi ham turadi, uni bosib ketmaslik
-      // kerak.
-      writes.push(
-        pushTally({ uid, nickname, game: 'soztop', tally: soztopTally(found) }),
-      );
+      await api.post('/v1/me/words', {
+        body: {
+          word: entry.word,
+          mode: entry.mode,
+          length: entry.length,
+          score: entry.score,
+          attempts: entry.attempts,
+          ...(entry.categoryId ? { categoryId: entry.categoryId } : {}),
+        },
+      });
     }
 
-    // Reyting — faqat kunlik o'yin uchun. Maydonlar qoidalarda qat'iy
-    // tekshiriladi, shuning uchun aynan shu ro'yxat yoziladi.
-    //
-    // Yozuv bor bo'lsa tegmaymiz: kunlik o'yin kuniga bitta, ya'ni
-    // o'sha yozuv ilovada olingan natija. Mehmon holatida o'ynab keyin
-    // kirilganda navbatdagi natija uni bosib ketardi.
-    if (mode === 'daily' && !(await fetchDailyEntry({ uid, dateKey, length }))) {
-      writes.push(
-        setDoc(
-          doc(
-            db,
-            PATHS.dailyResults,
-            `${dateKey}_${length}`,
-            PATHS.entries,
-            uid,
-          ),
-          {
-            nickname,
-            attempts,
-            won,
-            points: won ? points : 0,
-            number,
-            createdAt: serverTimestamp(),
-          },
-          { merge: true },
-        ),
-      );
+    /*
+     * Kunlik o'yin — **yozilgan so'zlar** yuboriladi, ball emas.
+     *
+     * Ballni server o'z javobi bilan solishtirib hisoblaydi, reyting
+     * va liga ham o'sha yerda yangilanadi. Ikkinchi yozuv qabul
+     * qilinmaydi: natija birinchisiniki bo'lib qoladi, ya'ni saytdagi
+     * o'yin telefonda olingan natijani bosib ketolmaydi — ilgari buni
+     * oldindan tekshirish bilan to'sardik, endi qoida serverda.
+     */
+    if (mode === 'daily' && words.length > 0) {
+      await api.post('/v1/daily/submit', {
+        body: { day: dateKey, length, words },
+      });
     }
-
-    await Promise.all(writes);
   } catch {
     // Zaxira nusxa yiqilsa ham o'yin davom etadi — natija qurilmada bor.
   }
 }
 
-/** Shu foydalanuvchining kunlik reytingdagi bugungi yozuvi. */
+/** Shu foydalanuvchining o'sha kundagi natijasi. */
 export interface DailyEntry {
   attempts: number;
   won: boolean;
   points: number;
-  number: number;
 }
 
 /** Bugungi kunlik o'yin allaqachon o'ynalganmi — ilovada yoki boshqa
- *  qurilmada.
+ *  qurilmada, va o'ynalgan bo'lsa qanday tugagan.
  *
  *  Kunlik o'yin kuniga bitta: telefonda o'ynab bo'lgan odam saytda uni
- *  qaytadan o'ynay olmasligi kerak. Buning ustiga saytdagi yozuv
- *  ilovanikini bosib ketardi — yozuv `merge` bilan bitta hujjatga
- *  tushadi, ya'ni yomonroq natija yaxshisining o'rniga yozilardi.
+ *  qaytadan o'ynay olmasligi kerak. Natijaning o'zi ham kerak —
+ *  taxta yopilganda ekranga nimadir chizilishi shart, sayt esa uni
+ *  o'zida saqlamaydi.
  *
- *  Hujjat qoidalarda hammaga ochiq, shuning uchun SDK'siz, REST bilan
- *  o'qiladi. */
+ *  O'yin raqami so'ralmaydi: kun va uzunlik topishmoqni allaqachon
+ *  bir qilib belgilaydi. */
 export async function fetchDailyEntry({
-  uid,
   dateKey,
   length,
 }: {
-  uid: string;
   dateKey: string;
   length: number;
 }): Promise<DailyEntry | null> {
-  const data = await readDoc(
-    `${PATHS.dailyResults}/${dateKey}_${length}/${PATHS.entries}/${uid}`,
-  );
-  if (!data || typeof data.number !== 'number') return null;
-
-  return {
-    attempts: typeof data.attempts === 'number' ? data.attempts : 0,
-    won: data.won === true,
-    points: typeof data.points === 'number' ? data.points : 0,
-    number: data.number,
-  };
+  try {
+    const data = await api.get<{ played: boolean; result: DailyEntry | null }>(
+      '/v1/daily/played',
+      { query: { day: dateKey, length } },
+    );
+    return data.result ?? null;
+  } catch {
+    // Bilib bo'lmadi — o'yin ochiq qoladi. Ikkinchi yozuvni server
+    // baribir qabul qilmaydi.
+    return null;
+  }
 }
 
 /** Kirmasdan o'ynalgan va hali cloud'ga yozilmagan natijalar. */
 interface Pending {
   outcome: Outcome;
-  points: number;
 }
 
 const PENDING_KEY = 'sozgir.pending';
@@ -408,21 +382,22 @@ function queuePending(item: Pending): void {
   write(PENDING_KEY, [...rest, item].slice(-20));
 }
 
-/** Kirilgandan keyin navbatdagi natijalarni cloud'ga yozadi. */
-export async function flushPending(account: Account): Promise<void> {
+/** Kirilgandan keyin navbatdagi natijalarni serverga yozadi.
+ *
+ *  Hisob kerak emas — token `api` ning o'zida, lekin chaqiruvchi uni
+ *  baribir biladi va shart sifatida qoldirilgan: kirmagan odam uchun
+ *  navbat bo'shatilmasligi kerak. */
+export async function flushPending(_account: Account): Promise<void> {
   const queue = read<Pending[]>(PENDING_KEY, []);
   if (queue.length === 0) return;
   write(PENDING_KEY, []);
 
   const found = readFound();
-  for (const { outcome, points } of queue) {
+  for (const { outcome } of queue) {
     await pushToCloud({
-      account,
       outcome,
-      points,
       stats: readStats(outcome.mode, outcome.length),
       entry: outcome.won ? (found[outcome.answer] ?? null) : null,
-      found,
     });
   }
 }
@@ -471,27 +446,33 @@ export function ensureRestored(account: Account): Promise<void> {
  *     qabul qilinadi;
  *   * topilgan so'zlar ro'yxati — takror topilgan so'zga to'liq ball
  *     berilmasligi uchun. */
-async function restoreFromCloud(account: Account): Promise<void> {
+async function restoreFromCloud(_account: Account): Promise<void> {
   try {
-    const { db } = await client();
-    const { collection, doc, getDoc, getDocs, limit, orderBy, query } =
-      await import('firebase/firestore/lite');
+    const words = await api.get<{
+      items: {
+        word: string;
+        mode: string;
+        length: number;
+        score: number;
+        attempts: number;
+        category_id: string | null;
+        found_at: string;
+      }[];
+    }>('/v1/me/words', { query: { limit: 500 } });
 
-    const words = await getDocs(
-      query(
-        collection(db, PATHS.users, account.uid, PATHS.foundWords),
-        orderBy('foundAt', 'desc'),
-        limit(500),
-      ),
-    );
-    if (!words.empty) {
+    if (words.items.length > 0) {
       const found = readFound();
-      for (const entry of words.docs) {
-        const raw = entry.data() as FoundWord & { points?: number };
+      for (const raw of words.items) {
         if (!raw.word) continue;
-        // Ilova ballni `score` da yozadi; eski yozuvlarda `points` yoki
-        // umuman yo'q bo'lishi mumkin — raqamga keltiriladi.
-        const data: FoundWord = { ...raw, score: Number(raw.score ?? raw.points) || 0 };
+        const data: FoundWord = {
+          word: raw.word,
+          mode: raw.mode as Mode,
+          length: raw.length,
+          attempts: raw.attempts,
+          score: Number(raw.score) || 0,
+          foundAt: Date.parse(raw.found_at) || Date.now(),
+          ...(raw.category_id ? { categoryId: raw.category_id } : {}),
+        };
         const local = found[data.word];
         // Ikki manbadan eng yuqori ball qoladi.
         if (!local || data.score > (Number(local.score) || 0)) found[data.word] = data;
@@ -499,29 +480,43 @@ async function restoreFromCloud(account: Account): Promise<void> {
       write(FOUND_KEY, found);
     }
 
-    const modes: [Mode, number][] = [
-      ['daily', DAILY_LENGTH],
-      ...LENGTHS.map((length): [Mode, number] => ['endless', length]),
-    ];
+    const stats = await api.get<{
+      items: {
+        mode: string;
+        length: number;
+        played: number;
+        wins: number;
+        current_streak: number;
+        max_streak: number;
+        distribution: Record<string, number>;
+        last_daily_number: number | null;
+      }[];
+    }>('/v1/me/stats');
 
-    for (const [mode, length] of modes) {
-      const local = readStats(mode, length);
-      const snapshot = await getDoc(
-        doc(db, PATHS.users, account.uid, PATHS.stats, statsDoc(mode, length)),
-      );
-      const data = snapshot.data() as
-        | (Omit<GameStats, 'distribution'> & {
-            distribution?: Record<string, number>;
-          })
-        | undefined;
-      // Faqat cloud oldinda bo'lganda qabul qilinadi.
-      if (!data?.played || data.played <= local.played) continue;
+    const wanted = new Set<string>([
+      `daily_${DAILY_LENGTH}`,
+      ...LENGTHS.map((length) => `endless_${length}`),
+    ]);
+
+    for (const row of stats.items) {
+      if (!wanted.has(`${row.mode}_${row.length}`)) continue;
+      const mode = row.mode as Mode;
+      const local = readStats(mode, row.length);
+      // Faqat server oldinda bo'lganda qabul qilinadi.
+      if (!row.played || row.played <= local.played) continue;
 
       const distribution: Record<number, number> = {};
-      for (const [key, value] of Object.entries(data.distribution ?? {})) {
+      for (const [key, value] of Object.entries(row.distribution ?? {})) {
         distribution[Number(key)] = value;
       }
-      write(STATS_KEY(mode, length), { ...EMPTY_STATS, ...data, distribution });
+      write(STATS_KEY(mode, row.length), {
+        played: row.played,
+        wins: row.wins,
+        currentStreak: row.current_streak,
+        maxStreak: row.max_streak,
+        distribution,
+        lastDailyNumber: row.last_daily_number,
+      });
     }
   } catch {
     // Tiklanmasa — brauzerdagi natijalar bilan davom etadi.

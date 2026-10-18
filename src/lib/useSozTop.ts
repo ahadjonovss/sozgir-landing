@@ -252,6 +252,10 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
           number: target.number,
           dateKey: target.dateKey,
           answer: target.answer,
+          // Kunlik o'yinda ball serverda hisoblanadi va unga yozilgan
+          // so'zlar kerak. Ular seansda turadi: oxirgi taxmin bu
+          // yergacha allaqachon yozilgan.
+          words: readSession(target.mode, target.length)?.guesses ?? [],
           hint: hintLevel.current,
           ...(target.categoryId ? { categoryId: target.categoryId } : {}),
         },
@@ -406,11 +410,10 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
     let alive = true;
     (async () => {
       const entry = await fetchDailyEntry({
-        uid: account.uid,
         dateKey: puzzle.dateKey,
         length: puzzle.length,
       });
-      if (!alive || !entry || entry.number !== puzzle.number) return;
+      if (!alive || !entry) return;
 
       writeSession(mode, length, {
         answer: puzzle.answer,
