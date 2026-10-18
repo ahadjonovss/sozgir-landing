@@ -1,22 +1,21 @@
 /** Kunlik so'z javoblari — bugungisi va arxiv (`/javoblar`).
  *
- *  Javoblar `daily/{sana}_{uzunlik}` hujjatlarida turadi va ular hammaga
- *  ochiq: o'yin ularni shu yerdan oladi. Arxiv — o'sha hujjatlarning
- *  ro'yxati.
+ *  **Ertangi so'z ko'rsatilmaydi.** Kunlik so'zlar oldindan yasab
+ *  qo'yiladi (server bir necha kunga oldinga ishlaydi), ya'ni
+ *  jadvalda kelajak ham bor. Kesish **serverda**, uning o'z sanasi
+ *  bo'yicha: brauzer soatini o'zgartirgan odam ham ro'yxatdan
+ *  kelajakni chiqara olmaydi.
  *
- *  **Ertangi so'z ko'rsatilmaydi.** Hujjatlar oldindan yasab qo'yiladi
- *  (server bir necha kunga oldinga ishlaydi), ya'ni ro'yxatni shundoq
- *  chiqarish o'yinni buzardi — bugungi kundan keyingi har qanday yozuv
- *  bu yerda tashlab yuboriladi. Chegara **sana bo'yicha**: brauzer
- *  soatini o'zgartirgan odam ham ro'yxatdan kelajakni chiqara olmaydi,
- *  chunki so'rovning o'zi bugungi kalitgacha bo'lgan yozuvlarni
- *  so'raydi.
+ *  Tartib raqami javobda yo'q va u shu yerda sanaladi: u sanadan
+ *  kelib chiqadigan son (`dailyNumber`) va ikkala tomonda bir xil
+ *  formuladan chiqadi.
  *
  *  Ma'nolar lug'atdan qo'shiladi (`dictionary.ts`) — u baribir
- *  brauzerda keshlangan va o'yin uchun yuklanadi. */
-import { PATHS } from '../firebase/paths';
-import { queryUpTo } from '../firebase/rest';
-import { dailyKey } from './daily';
+ *  brauzerda keshlangan va o'yin uchun yuklanadi. Serverda so'z
+ *  ma'nolari saqlanmaydi, ya'ni ular keshdagi eski lug'atda qolgan
+ *  bo'lsagina chiqadi. */
+import { api } from '../api/client';
+import { dailyNumber } from './daily';
 import { loadDictionary } from './dictionary';
 import { DAILY_LENGTH } from './modes';
 
@@ -34,9 +33,6 @@ export interface DailyAnswer {
  *  sahifa og'irlashadi, o'quvchi esa pastki qismiga baribir tushmaydi. */
 const LIMIT = 180;
 
-const int = (value: unknown) =>
-  typeof value === 'number' && Number.isFinite(value) ? Math.round(value) : 0;
-
 const text = (value: unknown) => (typeof value === 'string' ? value.trim() : '');
 
 /** O'tgan kunlar javobi, eng yangisidan boshlab. Bugungisi ham shu
@@ -44,25 +40,28 @@ const text = (value: unknown) => (typeof value === 'string' ? value.trim() : '')
 export async function loadAnswers(
   { limit = LIMIT, length = DAILY_LENGTH }: { limit?: number; length?: number } = {},
 ): Promise<DailyAnswer[]> {
-  // Chegara so'rovning o'zida: kelajakdagi so'zlar brauzerga umuman
-  // kelmaydi. Hujjatlar har uzunlik uchun alohida (`{sana}_4` …
-  // `{sana}_7`), shuning uchun kerakligidan to'rt barobar ko'p
-  // so'raladi va keragi shu yerda saralanadi.
-  const today = dailyKey();
-  const documents = await queryUpTo(PATHS.daily, {
-    field: 'dateKey',
-    atMost: today,
-    limit: limit * 4,
-  });
-  const rows = documents
-    .map((document) => ({
-      number: int(document.fields.number),
-      dateKey: text(document.fields.dateKey),
-      word: text(document.fields.answer).toLowerCase(),
-      length: int(document.fields.length),
-    }))
-    .filter((row) => row.length === length && row.word && row.dateKey <= today)
-    .slice(0, limit);
+  let items: unknown;
+  try {
+    ({ items } = await api.get<{ items?: unknown }>('/v1/public/daily/answers', {
+      query: { limit, length },
+      auth: false,
+    }));
+  } catch {
+    // Ro'yxat kelmadi — sahifa bo'sh ko'rinadi, bu xato emas.
+    return [];
+  }
+
+  const rows = (Array.isArray(items) ? items : [])
+    .map((row) => {
+      const item = row as { day?: unknown; answer?: unknown };
+      const dateKey = text(item.day);
+      return {
+        dateKey,
+        word: text(item.answer).toLowerCase(),
+        number: dateKey ? dailyNumber(new Date(`${dateKey}T00:00:00Z`)) : 0,
+      };
+    })
+    .filter((row) => row.word && row.dateKey);
 
   // Ma'nolar bitta lug'atdan. Lug'at kelmasa ro'yxat baribir chiqadi —
   // javobning o'zi ma'nosidan muhimroq.

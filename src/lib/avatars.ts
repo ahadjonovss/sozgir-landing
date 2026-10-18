@@ -6,13 +6,9 @@
  *  so'rovga tushadi. Tartib: xotira → brauzer keshi (3 kun, «rasmi
  *  yo'q» ham keshlanadi) → server.
  *
- *  Marshrut **token talab qiladi** va ochiq ro'yxatga kirmagan:
- *  avatar — odamning o'z rasmi va uni butun internetga ochib qo'yish
- *  alohida qaror. Shu sabab kirmagan tashrifchiga avatarlar
- *  ko'rinmaydi va uning o'rnida harf-nishon chiziladi
- *  (`Avatar.tsx` buni allaqachon qiladi: bo'sh satr — odatiy hol).
- *
- *  Yozish ham shu yerda: ikki o'lcham bitta so'rovda. */
+ *  O'qish ochiq: reyting jadvali va o'yinchi sahifasi kirmasdan
+ *  ochiladi, ya'ni avatarlar ham token so'ramasligi kerak. Yozish
+ *  esa o'z rasmi — u token bilan va ikki o'lcham bitta so'rovda. */
 import { useEffect, useState } from 'react';
 import { api } from '../api/client';
 import type { AvatarImages } from './avatarImage';
@@ -78,8 +74,9 @@ async function flush(): Promise<void> {
 
   let items: unknown;
   try {
-    ({ items } = await api.get<{ items?: unknown }>('/v1/avatars', {
+    ({ items } = await api.get<{ items?: unknown }>('/v1/public/avatars', {
       query: { uids: batch.join(',') },
+      auth: false,
     }));
   } catch {
     // Tarmoq yiqildi yoki kirilmagan — keyingi safar qayta so'raladi.
@@ -156,7 +153,8 @@ export function useAvatarThumb(uid: string | undefined): string {
 export async function readFullAvatar(uid: string): Promise<string> {
   try {
     const { data } = await api.get<{ data?: unknown }>(
-      `/v1/avatars/${encodeURIComponent(uid)}`,
+      `/v1/public/avatars/${encodeURIComponent(uid)}`,
+      { auth: false },
     );
     return typeof data === 'string' ? data.trim() : '';
   } catch {

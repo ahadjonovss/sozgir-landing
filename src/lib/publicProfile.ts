@@ -8,16 +8,14 @@
  *  Jang reytingi alohida so'raladi — u boshqa jadvalda va profilga
  *  kirmagan.
  *
- *  **Marshrut token talab qiladi.** Ochiq ro'yxatda
- *  (`backend/src/site/`) profil yo'q, shuning uchun kirmagan
- *  tashrifchi o'yinchi sahifasini ocha olmaydi: javob bo'sh profil
- *  bo'lib qaytadi va ekranda «izi yo'q» izohi turadi
- *  ([isEmptyProfile]). Ilgari bu sahifa hammaga ochiq edi.
- *  `/v1/public/profiles/:uid` ochilsa shu faylda bitta manzil
- *  almashadi.
+ *  Marshrut **ochiq**: sahifa havola bilan ochiladi va kirish ekrani
+ *  chiqishi kerak emas. Mobil `/v1/profiles/:uid` dan farqi bitta
+ *  maydonda — oxirgi faollik vaqti bu yerda berilmaydi.
  *
- *  Manbalarning biri xato bersa ham qolgani qaytadi — ekran yarim
- *  ma'lumot bilan ham foydali. */
+ *  Jang reytingi esa hamon tokenli (`/v1/me/battle-rating`): u ochiq
+ *  ro'yxatga kirmagan. Kirmagan tashrifchida o'lja ko'rinmaydi,
+ *  qolgan profil to'liq chiqadi — manbalarning biri xato bersa ham
+ *  ikkinchisi qaytadi. */
 import { api } from '../api/client';
 import { EMPTY_RATING, played, type BattleRating } from './battleRating';
 import { dailyKey } from './daily';
@@ -96,8 +94,9 @@ export async function loadPublicProfile(uid: string): Promise<PublicProfile> {
     // Javob o'ralmagan: marshrut profilning o'zini qaytaradi.
     // Topilmagan yoki robot bo'lsa 404 — u ham bo'sh profil.
     api
-      .get<ApiProfile>(`/v1/profiles/${encodeURIComponent(uid)}`, {
+      .get<ApiProfile>(`/v1/public/profiles/${encodeURIComponent(uid)}`, {
         query: { day: dailyKey(), length: DAILY_LENGTH },
+        auth: false,
       })
       .catch(() => null),
     api
