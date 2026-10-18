@@ -11,7 +11,7 @@
  *  taklif qilinadi — o'yinning o'zi esa hisobsiz ham o'ynaladi. */
 import { useEffect, useState } from 'react';
 import { useAuth } from '../lib/auth';
-import { functionError } from '../firebase/functions';
+import { apiError } from '../api/errors';
 import {
   balanceHint,
   createDonation,
@@ -127,14 +127,14 @@ export function DonateForm({
     setBusy(true);
     setError('');
     try {
-      const payUrl = await createDonation({ amount: value, nickname });
+      const payUrl = await createDonation({ amount: value });
       // Yig'indi keshi eskiradi: qaytib kelganda yangi daraja ko'rinsin.
       forgetDonorTotals();
       // To'lov sahifasi o'sha oynada ochiladi: inPAY tugagach `/donat`
       // ga qaytaradi va u yerda natija ko'rinadi.
       window.location.href = payUrl;
     } catch (cause) {
-      setError(functionError(cause));
+      setError(apiError(cause));
       setBusy(false);
     }
   }

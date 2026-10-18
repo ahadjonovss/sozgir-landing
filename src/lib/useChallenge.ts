@@ -11,7 +11,7 @@
  *  odam boshqa qurilmadan kelsa, o'yin joyidan davom etadi. Brauzerda
  *  hech narsa saqlanmaydi. */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { functionError } from '../firebase/functions';
+import { apiError } from '../api/errors';
 import { useAuth } from './auth';
 import { autoFill, verdictsOf } from './battle';
 import {
@@ -113,7 +113,7 @@ export function useChallenge(code: string): Challenge {
       .catch((raw) => {
         // Serverning izohi o'zbekcha va aniq: «Bunday kod topilmadi»,
         // «Bu so'z yopilgan», «Bu so'zni o'zingiz yashirgansiz».
-        if (alive) setLoaded({ key, state: null, error: functionError(raw) });
+        if (alive) setLoaded({ key, state: null, error: apiError(raw) });
       });
 
     return () => {
@@ -258,7 +258,7 @@ export function useChallenge(code: string): Challenge {
       setFlip({ key, row: myRows.length });
       setTyped({ row: myRows.length + 1, units: [] });
     } catch (raw) {
-      bump(functionError(raw));
+      bump(apiError(raw));
     } finally {
       setBusy(false);
     }

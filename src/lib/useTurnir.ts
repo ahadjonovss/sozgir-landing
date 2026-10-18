@@ -11,7 +11,7 @@
  *  u o'sha mardu maydonining o'zi. */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAuth } from './auth';
-import { functionError } from '../firebase/functions';
+import { apiError } from '../api/errors';
 import { showBattle } from './activeBattle';
 import { gameOf, type BattleDoc, type BattleGame } from './battle';
 import { watchMardu, type MarduDoc } from './mardu';
@@ -294,7 +294,7 @@ export function useTurnir(code: string) {
       try {
         await action();
       } catch (cause) {
-        setError(functionError(cause));
+        setError(apiError(cause));
       } finally {
         setBusy(false);
       }

@@ -25,7 +25,7 @@ import {
   watchFriendship,
   type FriendRequest,
 } from '../lib/friends';
-import type { Unsubscribe } from '../firebase/live';
+import type { Unsubscribe } from '../api/poll';
 import { pretty } from '../lib/uz';
 import { Person, Swords } from './Icons';
 
@@ -52,18 +52,13 @@ export default function FriendButton({
   useEffect(() => {
     if (!me || !uid || me === uid) return;
     let alive = true;
-    let stop: Unsubscribe | null = null;
-
-    void watchFriendship(me, uid, (next) => {
+    const stop: Unsubscribe = watchFriendship(me, uid, (next) => {
       if (alive) setLink(next);
-    }).then((unsubscribe) => {
-      if (alive) stop = unsubscribe;
-      else unsubscribe();
     });
 
     return () => {
       alive = false;
-      stop?.();
+      stop();
       setLink(null);
     };
   }, [me, uid]);
@@ -132,7 +127,7 @@ export default function FriendButton({
               disabled={busy}
               onClick={() =>
                 void run(() =>
-                  respondFriendRequest(request.id, true, account.nickname),
+                  respondFriendRequest(request.fromUid, true),
                 )
               }
             >
@@ -143,7 +138,7 @@ export default function FriendButton({
               disabled={busy}
               onClick={() =>
                 void run(() =>
-                  respondFriendRequest(request.id, false, account.nickname),
+                  respondFriendRequest(request.fromUid, false),
                 )
               }
             >
@@ -173,7 +168,7 @@ export default function FriendButton({
           <button
             className="btn btn--lg"
             disabled={busy}
-            onClick={() => void run(() => sendFriendRequest(uid, account.nickname))}
+            onClick={() => void run(() => sendFriendRequest(uid))}
           >
             <Person size={18} />
             Do‘stlikka qo‘shish

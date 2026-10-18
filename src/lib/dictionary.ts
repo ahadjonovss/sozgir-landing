@@ -1,18 +1,23 @@
 /** Lug'at — ilovadagi bilan bir xil manbadan.
  *
- *  Firestore'dagi `dictionaries/uz_{4..7}` hujjatini o'qiydi: ilovaning
- *  `assets/words/uz_5.json` fayli ham, admin panel ham shu hujjatga
- *  tayanadi, ya'ni sayt hech qachon eski so'zlar bilan qolmaydi.
+ *  Serverdagi `/v1/dictionary/{uzunlik}` ni o'qiydi: ilova ham, admin
+ *  panel ham shu jadvalga tayanadi, ya'ni sayt hech qachon eski so'zlar
+ *  bilan qolmaydi.
  *
- *  Hujjat ochiq (`allow read: if true`), shuning uchun Firebase SDK kerak
- *  emas — REST yetadi. Siqilgan holda ~74 KB, keyin brauzerda saqlanadi:
+ *  Marshrut ochiq — token kerak emas, shuning uchun Firebase SDK
+ *  yuklanmaydi. Siqilgan holda ~74 KB, keyin brauzerda saqlanadi:
  *  ikkinchi tashrifda o'yin darhol boshlanadi.
  *
  *  Versiya tekshiruvi fon rejimida: keshdagi lug'at bilan darhol
  *  o'ynaladi, yangisi bo'lsa keshga yoziladi va **keyingi** o'yindan
- *  qo'llanadi — so'z o'yin o'rtasida almashmasligi kerak. */
-import { readDoc } from '../firebase/rest';
-import { dictionaryDoc, PATHS } from '../firebase/paths';
+ *  qo'llanadi — so'z o'yin o'rtasida almashmasligi kerak.
+ *
+ *  So'z **ma'nolari serverda yo'q**: Postgres'dagi `dictionary_words`
+ *  da faqat so'zning o'zi, uzunligi va javob bo'la olishi saqlanadi
+ *  (`backend/src/tools/migrate.ts` ma'nolarni ataylab ko'chirmagan).
+ *  Shu sabab `words` bo'sh qoladi va `wordMeaning` `null` qaytaradi —
+ *  chaqiruvchilar buni allaqachon odatiy hol deb qaraydi. */
+import { api } from '../api/client';
 import { normalize } from './uz';
 
 export interface WordInfo {
@@ -79,27 +84,50 @@ function writeCache(stored: StoredDictionary): void {
   }
 }
 
+interface ApiDictionary {
+  length?: number;
+  version?: number;
+  answers?: unknown;
+  valid?: unknown;
+}
+
+const strings = (value: unknown): string[] =>
+  Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : [];
+
 async function fetchDictionary(length: number): Promise<StoredDictionary | null> {
-  const data = await readDoc(`${PATHS.dictionaries}/${dictionaryDoc(length)}`);
-  const answers = data?.answers;
-  if (!Array.isArray(answers) || answers.length === 0) return null;
+  let data: ApiDictionary;
+  try {
+    data = await api.get<ApiDictionary>(`/v1/dictionary/${length}`, { auth: false });
+  } catch {
+    // Tarmoq yoki server yiqildi — chaqiruvchi keshdagisi bilan qoladi.
+    return null;
+  }
+
+  const answers = strings(data.answers);
+  if (answers.length === 0) return null;
 
   return {
-    length: typeof data?.length === 'number' ? data.length : length,
-    version: typeof data?.version === 'number' ? data.version : 1,
-    answers: answers.filter((word): word is string => typeof word === 'string'),
-    valid: Array.isArray(data?.valid)
-      ? data.valid.filter((word): word is string => typeof word === 'string')
-      : [],
-    words: (data?.words as Record<string, WordInfo> | undefined) ?? {},
+    length: typeof data.length === 'number' ? data.length : length,
+    version: typeof data.version === 'number' ? data.version : 1,
+    answers,
+    valid: strings(data.valid),
+    words: {},
   };
 }
 
 /** Serverdagi versiya yuqori bo'lsa keshni yangilaydi (fon rejimida). */
 async function refreshInBackground(length: number, version: number): Promise<void> {
-  const manifest = await readDoc(`${PATHS.dictionaries}/${PATHS.manifest}`);
-  const versions = manifest?.versions as Record<string, number> | undefined;
-  const latest = versions?.[String(length)];
+  let manifest: { versions?: Record<string, number> };
+  try {
+    manifest = await api.get<{ versions?: Record<string, number> }>(
+      '/v1/dictionary/manifest',
+      { auth: false },
+    );
+  } catch {
+    return;
+  }
+
+  const latest = manifest.versions?.[String(length)];
   if (typeof latest !== 'number' || latest <= version) return;
 
   const fresh = await fetchDictionary(length);
@@ -137,7 +165,12 @@ export function loadDictionary(length: number): Promise<Dictionary> {
 }
 
 /** Backend belgilagan kunlik so'z. Bo'lmasa `null` — chaqiruvchi lokal
- *  deterministik tanlovga o'tadi (ilovadagi mantiq shunday). */
+ *  deterministik tanlovga o'tadi (ilovadagi mantiq shunday).
+ *
+ *  Firestore'da bu hujjat hammaga ochiq edi, serverda esa marshrut
+ *  token talab qiladi. Kirmagan odam uchun `null` qaytadi va o'sha
+ *  lokal tanlov ishlaydi — ya'ni kirmasdan o'ynash avvalgidek qoladi,
+ *  faqat so'z serverdagisi bilan bir xil bo'lishi kafolatlanmaydi. */
 export async function fetchDailyAnswer({
   dateKey,
   length,
@@ -145,9 +178,15 @@ export async function fetchDailyAnswer({
   dateKey: string;
   length: number;
 }): Promise<string | null> {
-  const data = await readDoc(`${PATHS.daily}/${dateKey}_${length}`);
-  const answer = data?.answer;
-  return typeof answer === 'string' && answer.length > 0 ? normalize(answer) : null;
+  try {
+    const data = await api.get<{ answer?: unknown }>('/v1/daily/answer', {
+      query: { day: dateKey, length },
+    });
+    const answer = data.answer;
+    return typeof answer === 'string' && answer.length > 0 ? normalize(answer) : null;
+  } catch {
+    return null;
+  }
 }
 
 /** So'zning ma'nosi — lug'atdagi ta'rif. Topilmasa (yoki lug'at

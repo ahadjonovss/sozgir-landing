@@ -1,29 +1,22 @@
 /** «Bugun necha kishi o'ynadi» — bosh sahifadagi jonli sanoq.
  *
- *  Son `daily_scores/{sana}/entries` dagi yozuvlar soni: shu kunda ball
- *  yozgan har bir o'yinchida bitta hujjat bor (`scores.ts`), ya'ni bu
- *  aynan **bugun o'ynagan odamlar** soni. Ro'yxatning o'zi o'qilmaydi —
- *  `count()` bitta arzon so'rov (`firebase/rest.ts`).
+ *  Hozircha **o'chiq**: `null` qaytadi va qator umuman chizilmaydi.
  *
- *  Nega kerak: yangi mehmon sahifaga kirganda «bu yer tirikmi?» degan
- *  savolga javob oladi. Raqam o'ylab topilmaydi va bo'rttirilmaydi —
- *  serverdagi haqiqiy sanoq, shuning uchun u kun davomida o'sib boradi.
+ *  Sabab ko'chishda. Firestore'da bu `daily_scores/{sana}/entries`
+ *  dagi hujjatlar soni edi va uni `count()` bitta arzon so'rov bilan
+ *  berardi. Yangi serverda esa sanoq marshruti yo'q: eng yaqini
+ *  `/v1/daily/aqcha`, lekin u eng yuqoridagi 100 tani qaytaradi —
+ *  ro'yxat, sanoq emas. Undan son yasash kun davomida «100» da qotib
+ *  qolardi, ya'ni qator haqiqatni emas, chegarani ko'rsatardi.
  *
- *  Kun boshida son kichik bo'ladi (ertalab o'nlab odam). O'shanda ham
- *  ko'rsatiladi: kichik, lekin haqiqiy son yo'q raqamdan yaxshi. Faqat
- *  butunlay bo'sh bo'lsa (`0` yoki so'rov yiqilsa) qator umuman
- *  chizilmaydi. */
+ *  Bu yerda tanlov ongli: **yo'q raqam noto'g'ri raqamdan yaxshi.**
+ *  Serverda sanoq marshruti ochilganda (`/v1/daily/players` kabi) shu
+ *  funksiyaning ichi bir qatorda tiklanadi — qolgan hamma narsa,
+ *  formatlash ham, hook ham, joyida turibdi. */
 import { useEffect, useState } from 'react';
-import { PATHS } from '../firebase/paths';
-import { countDocs } from '../firebase/rest';
-import { dailyKey } from './daily';
-
-/** Sahifa umrida bir marta o'qiladi: sanoq sekin o'sadi, uni har
- *  komponentda qayta so'rashning ma'nosi yo'q. */
-let cached: Promise<number | null> | null = null;
 
 export function todayPlayers(): Promise<number | null> {
-  return (cached ??= countDocs(`${PATHS.dailyScores}/${dailyKey()}/${PATHS.entries}`));
+  return Promise.resolve(null);
 }
 
 /** Ekrandagi ko'rinishi: `72`, `1,2 ming`, `26 ming`.

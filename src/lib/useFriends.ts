@@ -4,7 +4,7 @@
  *  boshqa joyda ham shu yerdan olinadi. Kirilmagan bo'lsa bo'sh —
  *  do'stlar ro'yxatini faqat egasi o'qiydi. */
 import { useEffect, useState } from 'react';
-import type { Unsubscribe } from '../firebase/live';
+import type { Unsubscribe } from '../api/poll';
 import { useAuth } from './auth';
 import { inviteRequiresFriends, watchFriends, type Friend } from './friends';
 
@@ -16,18 +16,13 @@ export function useFriends(): Friend[] {
   useEffect(() => {
     if (!uid) return;
     let alive = true;
-    let stop: Unsubscribe | null = null;
-
-    void watchFriends(uid, (list) => {
+    const stop: Unsubscribe = watchFriends(uid, (list) => {
       if (alive) setFriends(list);
-    }).then((unsubscribe) => {
-      if (alive) stop = unsubscribe;
-      else unsubscribe();
     });
 
     return () => {
       alive = false;
-      stop?.();
+      stop();
     };
   }, [uid]);
 

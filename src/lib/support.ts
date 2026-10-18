@@ -10,8 +10,8 @@
  *  o'tadi. Funksiya hisobni talab qiladi (`requireUid`), donat esa
  *  webhook orqali tasdiqlanadi — mijoz hech narsa yozmaydi. */
 
-import { callFunction } from '../firebase/functions';
-import { listDocs, readDoc } from '../firebase/rest';
+import { api } from '../api/client';
+import { API_BASE } from '../api/config';
 
 /** Eng kam donat — reklamasiz rejim narxi bilan bir xil (ilovadagi
  *  `AdFreePlan.price`).
@@ -64,15 +64,22 @@ export function formatSum(value: number): string {
   return out;
 }
 
-/** Loyiha hisobi. Hujjat bo'lmasa yoki tarmoq yiqilsa — nol hisob.
+/** Loyiha hisobi. Server javob bermasa — nol hisob.
  *
  *  `donation.hidden_version` ilovaning do'kondagi versiyasi uchun:
  *  tekshiruv paytida aynan o'sha versiyada donat ko'rinmaydi. Saytda
  *  versiya tushunchasi yo'q, shuning uchun bu yerda faqat umumiy
- *  kalit (`show`) ishlaydi. */
+ *  kalit (`show`) ishlaydi.
+ *
+ *  Yig'indi va sanoqni server hisoblaydi (`donations.totals()`), ya'ni
+ *  ular sozlama hujjatidagi qo'lda yozilgan songa tayanmaydi. */
 export async function loadBalance(): Promise<SupportBalance> {
-  const data = await readDoc('app/support');
-  if (!data) return EMPTY_BALANCE;
+  let data: Record<string, unknown>;
+  try {
+    data = await api.get<Record<string, unknown>>('/v1/support', { auth: false });
+  } catch {
+    return EMPTY_BALANCE;
+  }
 
   const donation = (data.donation ?? {}) as Record<string, unknown>;
   return {
@@ -82,54 +89,78 @@ export async function loadBalance(): Promise<SupportBalance> {
   };
 }
 
+interface DonationRow {
+  uid?: unknown;
+  nickname?: unknown;
+  amount?: unknown;
+  created_at?: unknown;
+}
+
+const rowsOf = (value: unknown): DonationRow[] =>
+  Array.isArray(value) ? (value as DonationRow[]) : [];
+
+/** Serverdagi chegara — undan ortig'ini so'rashning ma'nosi yo'q. */
+const RECENT_MAX = 100;
+
+async function recentDonations(limit: number): Promise<DonationRow[]> {
+  try {
+    const data = await api.get<{ items?: unknown }>('/v1/donations/recent', {
+      query: { limit: Math.min(limit, RECENT_MAX) },
+      auth: false,
+    });
+    return rowsOf(data.items);
+  } catch {
+    return [];
+  }
+}
+
 /** Oxirgi donatlar.
  *
- *  Saralash **serverda** — ilovadagidek (`SupportBalanceDataSource`).
- *  Ilgari tartib mijozda berilardi: `createdAt` maydoni yo'q hujjatni
- *  Firestore saralashda butunlay tashlab ketadi, adminka qo'lda
- *  qo'shgan donatda esa sana bo'lmasligi mumkin edi. Endi sanani server
- *  qo'yadi (`onDonationWrite` uni yozuv paytida to'ldiradi), ya'ni
- *  sanasiz hujjat qolmadi.
- *
- *  Tartibsiz `limit` esa yomonroq ish qilardi: Firestore hujjat
- *  nomi bo'yicha birinchi ellikta yozuvni beradi va «oxirgi donatlar»
- *  o'sha tasodifiy to'plamning eng yangisi bo'lib qolardi. */
+ *  Saralash **serverda** (`ORDER BY created_at DESC`) — ilovadagidek.
+ *  Ism endi `nickname`: serverda donat yozuvi hisob taxallusi bilan
+ *  qo'yiladi, mijoz yuborgan nom bilan emas. */
 export async function loadDonations(limit = 10): Promise<Donation[]> {
-  const docs = await listDocs('donations', {
-    orderBy: 'createdAt desc',
-    pageSize: limit,
-  });
+  const rows = await recentDonations(limit);
 
-  return docs
-    .map((doc) => {
-      const amount = Number(doc.fields.amount ?? 0);
-      const created = doc.fields.createdAt;
-      return {
-        name: String(doc.fields.name ?? '').trim(),
-        amount: Math.round(amount),
-        uid: String(doc.fields.uid ?? '').trim() || undefined,
-        at: typeof created === 'string' ? Date.parse(created) || 0 : 0,
-      };
-    })
-    // Summasi yo'q yoki manfiy hujjat ro'yxatga ham, hisobga ham
-    // kirmaydi — serverdagi `rebuildDonations` xuddi shunday qiladi.
-    .filter((donation) => donation.amount > 0);
+  return rows
+    .map((row) => ({
+      name: String(row.nickname ?? '').trim(),
+      amount: Math.round(Number(row.amount ?? 0)),
+      uid: String(row.uid ?? '').trim() || undefined,
+      at: Date.parse(String(row.created_at ?? '')) || 0,
+    }))
+    // Summasi yo'q yoki manfiy yozuv ro'yxatga ham, hisobga ham
+    // kirmaydi.
+    .filter((donation) => Number.isFinite(donation.amount) && donation.amount > 0);
 }
 
 /** To'lovni ochadi va inPAY sahifasining manzilini qaytaradi.
  *
- *  Funksiya hisobni talab qiladi — chaqirishdan oldin foydalanuvchi
- *  kirgan bo'lishi kerak. */
+ *  Marshrut hisobni talab qiladi — chaqirishdan oldin foydalanuvchi
+ *  kirgan bo'lishi kerak.
+ *
+ *  Taxallus **yuborilmaydi**: serverdagi yozuvga hisobning o'z
+ *  taxallusi qo'yiladi (`startDonation`). Ilgari uni mijoz berardi,
+ *  ya'ni ro'yxatdagi nomni istagancha yozish mumkin edi.
+ *
+ *  `callbackUrl` — serverning o'z manzili: to'lovni inPAY shu yerga
+ *  xabar qiladi va server holatni provayderdan qayta so'rab
+ *  tasdiqlaydi. `returnUrl` esa odam to'lovdan keyin qaytadigan
+ *  sahifa (`public/donat`).
+ *
+ *  Ilgari ikkala manzilni Cloud Function o'zi qo'yardi; yangi marshrut
+ *  ularni mijozdan oladi. */
 export async function createDonation({
   amount,
-  nickname,
 }: {
   amount: number;
-  nickname: string;
 }): Promise<string> {
-  const data = await callFunction<{ payUrl?: string }>('donationCreate', {
-    amount,
-    nickname,
+  const data = await api.post<{ payUrl?: string }>('/v1/donations', {
+    body: {
+      amount,
+      callbackUrl: `${API_BASE}/v1/donations/callback`,
+      returnUrl: `${location.origin}/donat`,
+    },
   });
   const payUrl = data?.payUrl ?? '';
   if (!payUrl) throw new Error('To‘lov manzili kelmadi');
@@ -173,23 +204,43 @@ export interface TopDonor {
 
 /** Eng ko'p hissa qo'shganlar — yig'indi bo'yicha.
  *
- *  Hisobli donatlar `uid` bo'yicha, hisobsizlari ism bo'yicha yig'iladi
- *  (bir odam ikki marta chiqmasin). Tarix uzayganda ham 300 yozuv
- *  yetadi — ro'yxat oxirgilaridan hisoblanadi. */
+ *  Yig'indini **server** beradi (`/v1/donors`) va u to'liq: ilgari
+ *  ro'yxat oxirgi 300 yozuvdan hisoblangani uchun eski donatlar
+ *  yig'indidan tushib qolardi.
+ *
+ *  Donatlar soni esa oxirgi yozuvlardan sanaladi — serverda uni
+ *  beradigan maydon yo'q. Shu sabab son **kamida bitta**: ro'yxatda
+ *  turgan odam hech bo'lmasa bir marta qo'llagan, lekin o'sha qo'llov
+ *  oxirgi yuztalikdan tashqarida bo'lishi mumkin. Son faqat darajasi
+ *  yo'q (ya'ni eng kichik) donatchilarda ko'rsatiladi, shuning uchun
+ *  bu yaqinlashish ekranda deyarli sezilmaydi. */
 export async function loadTopDonors(limit = 5): Promise<TopDonor[]> {
-  const docs = await listDocs('donations', { pageSize: 300 });
-  const map = new Map<string, TopDonor>();
-  for (const doc of docs) {
-    const amount = Math.round(Number(doc.fields.amount ?? 0));
-    if (!Number.isFinite(amount) || amount <= 0) continue;
-    const uid = String(doc.fields.uid ?? '').trim();
-    const name = String(doc.fields.name ?? '').trim() || 'Xayrixoh';
-    const key = uid ? `u:${uid}` : `n:${name.toLowerCase()}`;
-    const row = map.get(key) ?? { uid: uid || undefined, name, total: 0, count: 0 };
-    row.total += amount;
-    row.count += 1;
-    if (!row.name || row.name === 'Xayrixoh') row.name = name;
-    map.set(key, row);
+  const [donorList, recent] = await Promise.all([
+    api
+      .get<{ items?: unknown }>('/v1/donors', { auth: false })
+      .catch(() => ({ items: [] as unknown })),
+    recentDonations(RECENT_MAX),
+  ]);
+
+  const counts = new Map<string, number>();
+  for (const row of recent) {
+    const uid = String(row.uid ?? '').trim();
+    const amount = Number(row.amount ?? 0);
+    if (!uid || !Number.isFinite(amount) || amount <= 0) continue;
+    counts.set(uid, (counts.get(uid) ?? 0) + 1);
   }
-  return [...map.values()].sort((a, b) => b.total - a.total).slice(0, limit);
+
+  return rowsOf(donorList.items)
+    .map((row): TopDonor => {
+      const uid = String(row.uid ?? '').trim();
+      return {
+        uid: uid || undefined,
+        name: String(row.nickname ?? '').trim() || 'Xayrixoh',
+        total: Math.round(Number((row as { total?: unknown }).total ?? 0)),
+        count: Math.max(1, counts.get(uid) ?? 0),
+      };
+    })
+    .filter((donor) => Number.isFinite(donor.total) && donor.total > 0)
+    .sort((a, b) => b.total - a.total)
+    .slice(0, limit);
 }

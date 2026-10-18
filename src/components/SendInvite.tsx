@@ -14,7 +14,7 @@
  *  qabul qilgan bo'lishi va javob yo'lda bo'lishi mumkin. */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { functionError } from '../firebase/functions';
+import { apiError } from '../api/errors';
 import type { Unsubscribe } from '../firebase/live';
 import { useAuth } from '../lib/auth';
 import {
@@ -88,7 +88,7 @@ export default function SendInvite({
       })
       .catch((raw) => {
         if (!alive) return;
-        setError(functionError(raw));
+        setError(apiError(raw));
         setOutcome('error');
       });
     return () => {

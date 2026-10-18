@@ -8,7 +8,7 @@
  *  Boshlangan jang brauzerda eslab qolinadi — sahifa yangilansa yoki
  *  odam adashib chiqib ketsa, o'yin joyidan davom etadi. */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { functionError } from '../firebase/functions';
+import { apiError } from '../api/errors';
 import { arenaTiles, isMardu, rankArena } from './mardu';
 import type { Unsubscribe } from '../firebase/live';
 import {
@@ -441,7 +441,7 @@ export function useSozjang() {
         bump(`Maslahat: ${reply.hint.index + 1}-katak`);
       }
     } catch (raw) {
-      bump(functionError(raw));
+      bump(apiError(raw));
     } finally {
       setBusy(false);
     }
@@ -517,7 +517,7 @@ export function useSozjang() {
     try {
       await action();
     } catch (raw) {
-      setError(functionError(raw));
+      setError(apiError(raw));
     } finally {
       setBusy(false);
     }

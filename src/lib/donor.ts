@@ -9,15 +9,18 @@
  *  yuqorisi intilish uchun. Hisobsiz
  *  qilingan donat sanalmaydi — unda `uid` yo'q.
  *
- *  Yig'indi hamma uchun bir marta olinadi: `donations` ochiq kolleksiya,
- *  bir necha yuz yozuv, ya'ni bitta REST so'rov. Har avatar alohida
- *  so'ramaydi — do'kondan **so'raydi** (avatarlar do'koni kabi). Natija
- *  xotirada va brauzer keshida (bir soat) turadi.
+ *  Yig'indi hamma uchun bir marta olinadi: `/v1/donors` tayyor
+ *  jadvalni beradi (`uid` → so'm). Har avatar alohida so'ramaydi —
+ *  do'kondan **so'raydi** (avatarlar do'koni kabi). Natija xotirada va
+ *  brauzer keshida (bir soat) turadi.
  *
- *  O'sha bitta o'qishdan reklamasizlik muddati ham chiqadi ([isAdFree]):
- *  yozuvlar baribir qo'lda, ikkinchi so'rovning hojati yo'q. */
+ *  Reklamasizlik muddati esa oxirgi qo'llovlar ro'yxatidan chiqadi
+ *  ([isAdFree]) — `/v1/donations/recent`. Ikkita so'rov bitta joyda:
+ *  ilgari ikkalasi ham `donations` kolleksiyasining bitta o'qishidan
+ *  chiqardi, serverda esa yig'indi tayyor turadi va uni qayta
+ *  hisoblashning ma'nosi yo'q. */
 import { useEffect, useState } from 'react';
-import { listDocs } from '../firebase/rest';
+import { api } from '../api/client';
 
 export type DonorTier =
   | 'saxovatpesha'
@@ -104,9 +107,14 @@ function adFreeUntil(
 
 const CACHE_KEY = 'sozgir.donors';
 const TTL_MS = 60 * 60 * 1000;
-/** Shuncha yozuv bir so'rovda — tarix uzayganda yig'indi ham shuncha
- *  yozuvdan hisoblanadi. */
-const PAGE = 300;
+/** Oxirgi qo'llovlardan shuncha olinadi — serverdagi chegara ham shu.
+ *
+ *  Reklamasizlik oynasi yetti kunlik, ya'ni javobga o'sha oynadagi
+ *  qo'llovlar deyarli har doim to'liq sig'adi. Yetti kunda yuztadan
+ *  ortiq qo'llov bo'lsa eng eskilari tushib qolishi mumkin; u holda
+ *  rejim bir necha kun erta tugaydi — yo'q narsani ko'rsatib
+ *  qo'yishdan ko'ra shu yaxshi. */
+const RECENT_LIMIT = 100;
 
 /** Bitta o'qishdan chiqadigan ikki javob: yig'indi va reklamasizlik
  *  muddati (`uid` → millisekund; rejim yo'q bo'lsa kalit ham yo'q). */
@@ -136,7 +144,17 @@ function fromCache(): Donors | null {
   }
 }
 
-/** Donatchilar: yig'indi va reklamasizlik muddati — bitta so'rovda. */
+interface Row {
+  uid?: unknown;
+  total?: unknown;
+  amount?: unknown;
+  created_at?: unknown;
+}
+
+const asRows = (value: unknown): Row[] =>
+  Array.isArray(value) ? (value as Row[]) : [];
+
+/** Donatchilar: yig'indi va reklamasizlik muddati. */
 function loadDonors(): Promise<Donors> {
   if (donors) return Promise.resolve(donors);
   const cached = fromCache();
@@ -145,18 +163,34 @@ function loadDonors(): Promise<Donors> {
     return Promise.resolve(cached);
   }
   if (loading) return loading;
-  loading = listDocs('donations', { pageSize: PAGE })
-    .then((docs) => {
+  loading = Promise.all([
+    api
+      .get<{ items?: unknown }>('/v1/donors', { auth: false })
+      .catch(() => ({ items: [] as unknown })),
+    api
+      .get<{ items?: unknown }>('/v1/donations/recent', {
+        query: { limit: RECENT_LIMIT },
+        auth: false,
+      })
+      .catch(() => ({ items: [] as unknown })),
+  ])
+    .then(([donorList, recentList]) => {
       const totals: Record<string, number> = {};
+      for (const row of asRows(donorList.items)) {
+        const uid = String(row.uid ?? '').trim();
+        const total = Number(row.total ?? 0);
+        if (!uid || !Number.isFinite(total) || total <= 0) continue;
+        totals[uid] = Math.round(total);
+      }
+
       const history: Record<string, { at: number; amount: number }[]> = {};
-      for (const doc of docs) {
-        const uid = String(doc.fields.uid ?? '').trim();
-        const amount = Number(doc.fields.amount ?? 0);
+      for (const row of asRows(recentList.items)) {
+        const uid = String(row.uid ?? '').trim();
+        const amount = Number(row.amount ?? 0);
         if (!uid || !Number.isFinite(amount) || amount <= 0) continue;
-        totals[uid] = (totals[uid] ?? 0) + Math.round(amount);
         // Sanasiz yozuv (adminka qo'lda qo'shgani) yig'indiga kiradi,
         // lekin oynaga joylashtirib bo'lmaydi — ilovadagi qoida shu.
-        const at = Date.parse(String(doc.fields.createdAt ?? ''));
+        const at = Date.parse(String(row.created_at ?? ''));
         if (Number.isFinite(at)) {
           (history[uid] ??= []).push({ at, amount: Math.round(amount) });
         }

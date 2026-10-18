@@ -1,0 +1,156 @@
+/** Server bilan gaplashadigan yagona joy.
+ *
+ *  Ilovadagi `api_client.dart` ning ko'zgusi: bir xil sarlavhalar, bir
+ *  xil xato shakli (`{"error": "..."}`) va 401'da bir marta tokenni
+ *  majburan yangilab qayta urinish. Ikkalasi bir serverga uradi, demak
+ *  farq qilsa — farqi xatoga aylanadi.
+ *
+ *  Token Firebase'dan olinadi: auth ko'chmadi, server faqat ID token'ni
+ *  tekshiradi. SDK shu sabab kechiktirib yuklanadi — ochiq marshrutlar
+ *  (lug'at, reyting, kunlik so'z) uchun u umuman kerak emas. */
+import { client } from '../firebase/client';
+import { API_BASE } from './config';
+
+/** Server qaytargan xato.
+ *
+ *  Matn serverdan keladi va u **odamga ko'rsatiladigan** qilib yozilgan,
+ *  shuning uchun uni qayta tarjima qilish shart emas. */
+export class ApiError extends Error {
+  readonly status: number | null;
+  readonly path: string | null;
+
+  constructor(
+    message: string,
+    status: number | null = null,
+    path: string | null = null,
+  ) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.path = path;
+  }
+
+  /** Token eskirgan yoki yo'q. */
+  get unauthenticated(): boolean {
+    return this.status === 401;
+  }
+}
+
+/** Oxirgi olingan token va uning muddati.
+ *
+ *  `getIdToken()` keshdan beradi, lekin u ham har chaqiruvda bir oz ish
+ *  qiladi; jangda so'rovlar tez-tez ketadi. */
+let token: string | null = null;
+let tokenUntil = 0;
+
+async function idToken(force = false): Promise<string | null> {
+  if (!force && token !== null && Date.now() < tokenUntil) return token;
+
+  const { auth } = await client();
+  const user = auth.currentUser;
+  if (user === null) return null;
+
+  token = await user.getIdToken(force);
+  // Token bir soat yashaydi; besh daqiqa zaxira qoldiriladi.
+  tokenUntil = Date.now() + 55 * 60 * 1000;
+  return token;
+}
+
+/** Chiqishda chaqiriladi — aks holda keyingi so'rov eski egasining
+ *  token'i bilan ketardi. */
+export function forgetToken(): void {
+  token = null;
+  tokenUntil = 0;
+}
+
+export interface Options {
+  query?: Record<string, string | number | undefined>;
+  body?: unknown;
+  /** Token qo'shilsinmi. Ochiq marshrutlarda `false` — shunda SDK
+   *  yuklanmaydi. */
+  auth?: boolean;
+  timeout?: number;
+}
+
+type Method = 'GET' | 'POST' | 'PUT' | 'DELETE';
+
+function url(path: string, query: Options['query']): string {
+  const base = `${API_BASE}${path}`;
+  if (query === undefined) return base;
+
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(query)) {
+    if (value !== undefined) params.set(key, String(value));
+  }
+  const tail = params.toString();
+  return tail === '' ? base : `${base}?${tail}`;
+}
+
+async function send<T>(
+  method: Method,
+  path: string,
+  { query, body, auth = true, timeout = 12_000 }: Options = {},
+  retried = false,
+): Promise<T> {
+  const headers: Record<string, string> = { Accept: 'application/json' };
+  if (body !== undefined) headers['Content-Type'] = 'application/json';
+
+  if (auth) {
+    const bearer = await idToken();
+    if (bearer !== null) headers.Authorization = `Bearer ${bearer}`;
+  }
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+
+  let response: Response;
+  try {
+    response = await fetch(url(path, query), {
+      method,
+      headers,
+      body: body === undefined ? undefined : JSON.stringify(body),
+      signal: controller.signal,
+    });
+  } catch (error) {
+    throw new ApiError(`Serverga ulanib bo'lmadi: ${String(error)}`, null, path);
+  } finally {
+    clearTimeout(timer);
+  }
+
+  // Token eskirgan bo'lsa bir marta majburan yangilab, so'rov
+  // qaytariladi. Ikkinchi marta urinilmaydi: sabab token emas, hisobning
+  // o'zi.
+  if (response.status === 401 && auth && !retried) {
+    await idToken(true);
+    return send<T>(method, path, { query, body, auth, timeout }, true);
+  }
+
+  const text = await response.text();
+  let data: unknown = {};
+  if (text !== '') {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      // Javob JSON emas — proksi yoki xato sahifasi. Matnni ko'rsatish
+      // foydasiz, shuning uchun holat kodi yetadi.
+    }
+  }
+
+  if (response.ok) return data as T;
+
+  const message = (data as { error?: unknown }).error;
+  throw new ApiError(
+    typeof message === 'string' && message !== ''
+      ? message
+      : `Server xatosi (${response.status})`,
+    response.status,
+    path,
+  );
+}
+
+export const api = {
+  get: <T>(path: string, options?: Options) => send<T>('GET', path, options),
+  post: <T>(path: string, options?: Options) => send<T>('POST', path, options),
+  put: <T>(path: string, options?: Options) => send<T>('PUT', path, options),
+  delete: <T>(path: string, options?: Options) => send<T>('DELETE', path, options),
+};

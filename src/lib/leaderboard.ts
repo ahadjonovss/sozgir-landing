@@ -1,11 +1,12 @@
 /** Reyting jadvallari — ilovadagi ikki ro'yxatning aynan o'zi.
  *
- *  Ikkisi ham ochiq hujjatlardan o'qiladi (`allow read: if true`), shuning
- *  uchun jadvalni ko'rish uchun kirish shart emas va Firebase SDK ham
- *  yuklanmaydi. Saralash bitta maydon bo'yicha — qo'shimcha indeks kerak
- *  emas, ilova ham xuddi shunday qiladi. */
-import { PATHS } from '../firebase/paths';
-import { listDocs } from '../firebase/rest';
+ *  Hammasi ochiq marshrutlardan o'qiladi, ya'ni jadvalni ko'rish uchun
+ *  kirish shart emas va Firebase SDK yuklanmaydi.
+ *
+ *  Robotlarni **server** ajratadi (`users.is_bot = false`): Firestore
+ *  REST filtr bilmagani uchun sayt ilgari ko'proq olib, o'zi saralardi —
+ *  endi uning hojati yo'q. */
+import { api } from '../api/client';
 import { GUEST } from './nickname';
 
 export interface Entry {
@@ -17,10 +18,34 @@ export interface Entry {
   won: boolean;
 }
 
+interface Row {
+  uid?: unknown;
+  nickname?: unknown;
+  points?: unknown;
+  attempts?: unknown;
+  aqcha?: unknown;
+  wordsFound?: unknown;
+  rating?: unknown;
+  wins?: unknown;
+  losses?: unknown;
+  draws?: unknown;
+}
+
 const text = (value: unknown, fallback: string) =>
   typeof value === 'string' && value.trim() ? value.trim() : fallback;
 
 const int = (value: unknown) => (typeof value === 'number' ? value : 0);
+
+/** Bo'sh yoki chala javob jadvalni yiqitmasligi kerak: bo'lim shunchaki
+ *  bo'sh ko'rinadi, avvalgi xulq ham shunday edi. */
+async function items(path: string, query?: Record<string, string | number>): Promise<Row[]> {
+  try {
+    const data = await api.get<{ items?: unknown }>(path, { query, auth: false });
+    return Array.isArray(data.items) ? (data.items as Row[]) : [];
+  } catch {
+    return [];
+  }
+}
 
 /** Bugungi eng yaxshi natijalar. */
 export async function dailyTop({
@@ -32,27 +57,23 @@ export async function dailyTop({
   length: number;
   limit?: number;
 }): Promise<Entry[]> {
-  const documents = await listDocs(
-    `${PATHS.dailyResults}/${dateKey}_${length}/${PATHS.entries}`,
-    { orderBy: 'points desc', pageSize: limit },
-  );
+  const rows = await items('/v1/daily/ranking', { day: dateKey, length });
 
-  return documents.map((document) => ({
-    uid: document.id,
-    nickname: text(document.fields.nickname, GUEST),
-    count: int(document.fields.attempts),
-    points: int(document.fields.points),
-    won: document.fields.won === true,
+  return rows.slice(0, limit).map((row) => ({
+    uid: text(row.uid, ''),
+    nickname: text(row.nickname, GUEST),
+    count: int(row.attempts),
+    points: int(row.points),
+    // Serverdagi jadvalga faqat yakunlangan natija tushadi.
+    won: true,
   }));
 }
 
 /** Bugun barcha o'yinlarda ishlangan aqcha — ilovadagi «Bugun»
- *  jadvalining o'zi (`daily_scores/{sana}/entries`).
+ *  jadvalining o'zi.
  *
  *  Kunlik jadvaldan farqi: u faqat bugungi **so'z** natijasi, bu esa shu
- *  kunda So'ztop, G'uncha va jangda yig'ilgan ballning yig'indisi. Yozuvni
- *  har o'yinchining o'zi qo'yadi (`scores.ts`), ya'ni kun boshidan beri
- *  qancha ishlagani shu yerda turadi. */
+ *  kunda So'ztop, G'uncha va jangda yig'ilgan ballning yig'indisi. */
 export async function todayTop({
   dateKey,
   limit = 10,
@@ -60,46 +81,34 @@ export async function todayTop({
   dateKey: string;
   limit?: number;
 }): Promise<Entry[]> {
-  const documents = await listDocs(
-    `${PATHS.dailyScores}/${dateKey}/${PATHS.entries}`,
-    { orderBy: 'points desc', pageSize: limit },
-  );
+  const rows = await items('/v1/daily/aqcha', { day: dateKey, limit });
 
-  return documents.map((document) => ({
-    uid: document.id,
-    nickname: text(document.fields.nickname, GUEST),
-    // Urinish ham, topilgan so'z ham yo'q: hujjat faqat shu kunda
+  return rows.map((row) => ({
+    uid: text(row.uid, ''),
+    nickname: text(row.nickname, GUEST),
+    // Urinish ham, topilgan so'z ham yo'q: yozuv faqat shu kunda
     // yig'ilgan ballni saqlaydi — u bitta so'zniki emas.
     count: 0,
-    points: int(document.fields.points),
+    points: int(row.points),
     won: true,
   }));
 }
 
 /** Umumiy (all-time) reyting — yig'ilgan aqcha bo'yicha.
  *
- *  Saralash `wealth` bo'yicha: jadvaldagi son endi o'yinlarda yig'ilgan
- *  ball bilan o'lja ustamasining yig'indisi (`docs/aqcha.md`, 5-bo'lim).
- *  Maydonni server yozadi (`onScoreWealth` triggeri) — jang aqcha
- *  bermasdi, chunki o'lja hech qayerda aqchaga aylanmasdi.
- *
- *  Maydoni yo'q hujjat so'rovga **tushmaydi**, shuning uchun eski
- *  hisoblar bir marta to'ldirilgan (`functions/src/tools/backfill_wealth.ts`);
- *  o'qishda ham `totalScore` ga qaytish qoldirilgan — trigger hali
- *  tegmagan yangi hujjat noldan emas, kamida o'z ballidan ko'rinsin. */
+ *  Serverdagi `aqcha` — o'yinlarda yig'ilgan ball bilan o'lja
+ *  ustamasining yig'indisi (`docs/aqcha.md`, 5-bo'lim), ya'ni
+ *  Firestore'dagi `wealth` maydonining o'rnini bosadi. */
 export async function totalTop({ limit = 10 }: { limit?: number } = {}): Promise<
   Entry[]
 > {
-  const documents = await listDocs(PATHS.scores, {
-    orderBy: 'wealth desc',
-    pageSize: limit,
-  });
+  const rows = await items('/v1/ranking', { limit });
 
-  return documents.map((document) => ({
-    uid: document.id,
-    nickname: text(document.fields.nickname, GUEST),
-    count: int(document.fields.wordsFound),
-    points: int(document.fields.wealth) || int(document.fields.totalScore),
+  return rows.map((row) => ({
+    uid: text(row.uid, ''),
+    nickname: text(row.nickname, GUEST),
+    count: int(row.wordsFound),
+    points: int(row.aqcha),
     won: true,
   }));
 }
@@ -113,32 +122,19 @@ export interface BattleEntry {
   draws: number;
 }
 
-/** So'zjang reytingi — `battle_ratings`, `rating desc`. Hujjatni server jang
- *  yakunida yozadi, o'qish hammaga ochiq; jang o'ynamagan odam jadvalga
- *  tushmaydi (hujjati yo'q).
- *
- *  Robotlar (`bot: true`) jadvalga chiqmaydi: ular navbatda odam
- *  bo'lmaganda raqib bo'lish uchun yaratilgan va eng yuqori reytinglarni
- *  egallab olgan — jadvalda o'ntaning hammasi robot bo'lib turardi. REST
- *  ro'yxati filtr bilmaydi, shuning uchun ko'proq olinib shu yerda
- *  saralanadi. */
+/** So'zjang reytingi. Yozuvni server jang yakunida qo'yadi, o'qish
+ *  hammaga ochiq; jang o'ynamagan odam jadvalga tushmaydi. */
 export async function battleTop({ limit = 10 }: { limit?: number } = {}): Promise<
   BattleEntry[]
 > {
-  const documents = await listDocs(PATHS.battleRatings, {
-    orderBy: 'rating desc',
-    pageSize: limit * 4,
-  });
+  const rows = await items('/v1/battle-ratings', { limit });
 
-  return documents
-    .filter((document) => document.fields.bot !== true)
-    .slice(0, limit)
-    .map((document) => ({
-    uid: document.id,
-    nickname: text(document.fields.nickname, GUEST),
-    rating: int(document.fields.rating),
-    wins: int(document.fields.wins),
-    losses: int(document.fields.losses),
-    draws: int(document.fields.draws),
+  return rows.map((row) => ({
+    uid: text(row.uid, ''),
+    nickname: text(row.nickname, GUEST),
+    rating: int(row.rating),
+    wins: int(row.wins),
+    losses: int(row.losses),
+    draws: int(row.draws),
   }));
 }

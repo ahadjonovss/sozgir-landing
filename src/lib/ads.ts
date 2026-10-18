@@ -26,7 +26,7 @@
  *  ko'rinib turganda. Shu sababli Yandex skripti sahifa ochilishida
  *  yuklanmaydi: reklamagacha surmagan odamning brauzeriga umuman
  *  tushmaydi. */
-import { readDoc } from '../firebase/rest';
+import { api } from '../api/client';
 
 /** Banner qaysi sahifada turibdi — ilovadagi `AdPlacement` kabi.
  *
@@ -75,7 +75,7 @@ export const adsSupported = !import.meta.env.DEV;
 
 /* ── Masofadan o'chirish ────────────────────────────────────────────── */
 
-/** Firestore'dagi `app/ads` hujjati — ilova bilan **bitta** kalit.
+/** Serverdagi `config/ads` kaliti — ilova bilan **bitta** yozuv.
  *
  *  ```
  *  app/ads
@@ -90,7 +90,7 @@ export const adsSupported = !import.meta.env.DEV;
  *  `false` o'chiradi**: maydon yo'q yoki noto'g'ri turda bo'lsa
  *  yuqoridagi qatlamga tushiladi, oxirida esa standart yoqiq.
  *
- *  Hujjat yo'q yoki Firestore javob bermasa reklama yoqiq qoladi:
+ *  Yozuv yo'q yoki server javob bermasa reklama yoqiq qoladi:
  *  tarmoq uzilishi daromadni jimgina nolga tushirmasligi kerak. */
 const PLATFORM = 'web';
 
@@ -121,9 +121,17 @@ let settings: Promise<boolean> | null = null;
 /** Reklama hozir ko'rsatiladimi. Sahifa umrida bir marta o'qiladi. */
 export function adsEnabled(): Promise<boolean> {
   if (!adsSupported) return Promise.resolve(false);
-  return (settings ??= readDoc('app/ads').then((data) =>
-    parseAdsSettings(data ?? {}),
-  ));
+  return (settings ??= api
+    .get<{ value?: unknown }>('/v1/config/ads', { auth: false })
+    // 404 ham, tarmoq xatosi ham bir xil ma'noda: sozlama yo'q,
+    // demak standart yoqiq.
+    .catch(() => ({ value: null }))
+    .then((data) => {
+      const value = data.value;
+      return parseAdsSettings(
+        value !== null && typeof value === 'object' ? (value as Section) : {},
+      );
+    }));
 }
 
 /* ── Yandex skripti ─────────────────────────────────────────────────── */

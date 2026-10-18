@@ -10,7 +10,7 @@
  *  ekranda bir vaqtda paydo bo'ladi — tashkilotchi «kim kirdi» deb
  *  so'rab turmaydi. */
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { functionError } from '../firebase/functions';
+import { apiError } from '../api/errors';
 import { watchFriends, type Friend } from '../lib/friends';
 import { qrMatrix, qrPath } from '../lib/qr';
 import {
@@ -19,7 +19,7 @@ import {
   turnirRounds,
   TURNIR_MIN_PLAYERS,
 } from '../lib/turnir';
-import type { Unsubscribe } from '../firebase/live';
+import type { Unsubscribe } from '../api/poll';
 import type { Turnir } from '../lib/useTurnir';
 import Avatar from './Avatar';
 import Modal from './Modal';
@@ -234,18 +234,13 @@ function useFriends(uid: string | null | undefined) {
     // uchun esa qo'shimcha render ketardi.
     if (!uid) return;
     let alive = true;
-    let stop: Unsubscribe | null = null;
-
-    void watchFriends(uid, (list) => {
+    const stop: Unsubscribe = watchFriends(uid, (list) => {
       if (alive) setFriends(list);
-    }).then((unsubscribe) => {
-      if (alive) stop = unsubscribe;
-      else unsubscribe();
     });
 
     return () => {
       alive = false;
-      stop?.();
+      stop();
     };
   }, [uid]);
 
@@ -285,7 +280,7 @@ function InviteSheet({
     } catch (raw) {
       // Serverning izohi o'zbekcha va aniq: «Turnir to'ldi»,
       // «Turnir allaqachon boshlandi».
-      setError(functionError(raw));
+      setError(apiError(raw));
     } finally {
       setBusy('');
     }

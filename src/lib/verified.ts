@@ -7,11 +7,11 @@
  *  belgini ham olardi — ya'ni belgi aynan o'zi to'xtatishi kerak bo'lgan
  *  narsani osonlashtirardi.
  *
- *  Ro'yxat ilgari shu faylda, qo'lda yozilgan edi. Endi u bulutdagi
- *  bitta hujjatda (`config/verified`) va ikkala platforma o'shani
- *  o'qiydi: yangi odam qo'shish uchun sayt qaytadan yig'ilmaydi, belgi
- *  adminkadan qo'yiladi. Hujjatni faqat admin yozadi (`firestore.rules`),
- *  o'qish hammaga ochiq — kim tasdiqlangani baribir ekranda ko'rinadi.
+ *  Ro'yxat ilgari shu faylda, qo'lda yozilgan edi. Endi u serverda
+ *  (`users.verified`) va ikkala platforma `/v1/verified` ni o'qiydi:
+ *  yangi odam qo'shish uchun sayt qaytadan yig'ilmaydi, belgi
+ *  adminkadan qo'yiladi. Marshrut ochiq — kim tasdiqlangani baribir
+ *  ekranda ko'rinadi.
  *
  *  Ro'yxat sahifa umrida **bir marta** o'qiladi: u kamdan-kam o'zgaradi,
  *  lekin jadvalning har qatorida kerak bo'ladi. Brauzerda ham saqlanadi
@@ -21,10 +21,10 @@
  *  Belgi bilan birga reklamasizlik ham keladi ([isVerifiedAsync]):
  *  banner talabni yuborishdan oldin shu javobni kutadi. */
 import { useEffect, useState } from 'react';
-import { readDoc } from '../firebase/rest';
+import { api } from '../api/client';
 
-/** Ro'yxat turgan hujjat: `{ uids: ["...", "..."] }`. */
-const DOC = 'config/verified';
+/** Ro'yxat turgan marshrut: `{ items: ["uid", "uid"] }` — ochiq. */
+const ROUTE = '/v1/verified';
 
 const CACHE_KEY = 'sozgir.verified';
 
@@ -90,8 +90,11 @@ function fromCache(): Set<string> | null {
  *  chala kelganidan ajratib bo'lmaydi. */
 function load(): Promise<Set<string>> {
   uids ??= fromCache();
-  const fresh = (loading ??= readDoc(DOC).then((data) => {
-    const raw = data?.uids;
+  const fresh = (loading ??= api
+    .get<{ items?: unknown }>(ROUTE, { auth: false })
+    .catch(() => ({ items: [] as unknown }))
+    .then((data) => {
+    const raw = data.items;
     const list = Array.isArray(raw)
       ? raw.filter((value): value is string => typeof value === 'string' && !!value)
       : [];
@@ -105,7 +108,7 @@ function load(): Promise<Set<string>> {
     }
     for (const listener of listeners) listener();
     return uids ?? new Set<string>();
-  }));
+    }));
   return uids ? Promise.resolve(uids) : fresh;
 }
 

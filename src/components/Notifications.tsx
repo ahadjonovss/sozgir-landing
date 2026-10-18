@@ -10,7 +10,7 @@
  *  Qatorga javob berilishi bilan u ro'yxatdan o'zi ketadi: ro'yxat
  *  alohida kolleksiyadan emas, manbalarning o'zidan yig'iladi. */
 import { useState } from 'react';
-import { callFunction } from '../firebase/functions';
+import { acceptInvite, declineInvite } from '../lib/invites';
 import { showBattle } from '../lib/activeBattle';
 import { useAuth } from '../lib/auth';
 import { gameOf, inviteSource } from '../lib/battle';
@@ -163,13 +163,10 @@ function Row({ item, onDone }: { item: NotificationItem; onDone: () => void }) {
 
   const accept = () =>
     run(async () => {
-      const reply = await callFunction<{ battleId?: string }>('battleInviteAccept', {
-        inviteId: item.id,
-        nickname: account.nickname,
-      });
+      const battleId = await acceptInvite(item.id);
       // Chaqiruvning o'zi qaysi o'yin ekanini aytadi: g'uncha jangi
       // So'zjang ekranida ochilsa, taxta bo'sh turib qolardi.
-      if (reply.battleId) showBattle(gameOf(item.invite?.game ?? 'soztop'), reply.battleId);
+      if (battleId) showBattle(gameOf(item.invite?.game ?? 'soztop'), battleId);
       onDone();
     });
 
@@ -199,7 +196,7 @@ function Row({ item, onDone }: { item: NotificationItem; onDone: () => void }) {
             className="btn btn--sm"
             disabled={busy}
             onClick={() =>
-              void run(() => respondFriendRequest(item.id, true, account.nickname))
+              void run(() => respondFriendRequest(item.who, true))
             }
           >
             <Person size={14} />
@@ -209,7 +206,7 @@ function Row({ item, onDone }: { item: NotificationItem; onDone: () => void }) {
             className="btn btn--sm btn--ghost"
             disabled={busy}
             onClick={() =>
-              void run(() => respondFriendRequest(item.id, false, account.nickname))
+              void run(() => respondFriendRequest(item.who, false))
             }
           >
             Rad
@@ -228,7 +225,7 @@ function Row({ item, onDone }: { item: NotificationItem; onDone: () => void }) {
             disabled={busy}
             onClick={() =>
               void run(async () => {
-                await callFunction('battleInviteDecline', { inviteId: item.id });
+                await declineInvite(item.id);
               })
             }
           >

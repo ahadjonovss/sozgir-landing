@@ -14,7 +14,8 @@
  *  (chaqiruv so'nadi, so'rovga javob beriladi) va sanoq kamayganda
  *  hisob buzilardi. */
 import { useEffect, useState } from 'react';
-import { watchInvites, type LiveInvite, type Unsubscribe } from '../firebase/live';
+import { watchInvites, type LiveInvite } from './invites';
+import type { Unsubscribe } from '../api/poll';
 import {
   watchAcceptedRequests,
   watchIncomingRequests,
@@ -154,9 +155,9 @@ export function useNotifications(uid: string | null | undefined): Notifications 
       else stop();
     };
 
-    void watchIncomingRequests(uid, (list) => alive && setIncoming(list)).then(keep);
-    void watchAcceptedRequests(uid, (list) => alive && setAccepted(list)).then(keep);
-    void watchInvites(uid, (list) => alive && setInvites(list)).then(keep);
+    keep(watchIncomingRequests(uid, (list) => alive && setIncoming(list)));
+    keep(watchAcceptedRequests(uid, (list) => alive && setAccepted(list)));
+    keep(watchInvites(uid, (list) => alive && setInvites(list)));
 
     return () => {
       alive = false;

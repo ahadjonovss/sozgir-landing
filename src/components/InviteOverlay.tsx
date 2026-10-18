@@ -13,8 +13,13 @@
  *  izohida. */
 import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { callFunction } from '../firebase/functions';
-import { watchInvites, type LiveInvite, type Unsubscribe } from '../firebase/live';
+import {
+  acceptInvite,
+  declineInvite,
+  watchInvites,
+  type LiveInvite,
+  type Unsubscribe,
+} from '../lib/invites';
 import { useAuth } from '../lib/auth';
 import { gameOf, inviteSource, watchBattle, type BattleDoc } from '../lib/battle';
 import { showBattle, useActiveBattle } from '../lib/activeBattle';
@@ -97,19 +102,14 @@ export default function InviteOverlay() {
   useEffect(() => {
     if (!uid) return;
 
-    let stop: Unsubscribe | null = null;
     let alive = true;
-
-    void watchInvites(uid, (list) => {
+    const stop: Unsubscribe = watchInvites(uid, (list) => {
       if (alive) setLive(list);
-    }).then((unsubscribe) => {
-      if (alive) stop = unsubscribe;
-      else unsubscribe();
     });
 
     return () => {
       alive = false;
-      stop?.();
+      stop();
     };
   }, [uid]);
 
@@ -124,14 +124,11 @@ export default function InviteOverlay() {
     if (!invite || !account || busy) return;
     setBusy(true);
     try {
-      const reply = await callFunction<{ battleId?: string }>(
-        'battleInviteAccept',
-        { inviteId: invite.id, nickname: account.nickname },
-      );
+      const battleId = await acceptInvite(invite.id);
       setAnswered((ids) => [...ids, invite.id]);
       // Chaqiruvning o'zi qaysi o'yin ekanini aytadi: g'uncha jangi
       // So'zjang ekranida ochilsa, taxta bo'sh turib qolardi.
-      if (reply.battleId) showBattle(gameOf(invite.game), reply.battleId);
+      if (battleId) showBattle(gameOf(invite.game), battleId);
     } catch {
       // Xato bo'lsa chaqiruv joyida qoladi — qayta urinish mumkin.
     } finally {
@@ -143,7 +140,7 @@ export default function InviteOverlay() {
     if (!invite || busy) return;
     setAnswered((ids) => [...ids, invite.id]);
     try {
-      await callFunction('battleInviteDecline', { inviteId: invite.id });
+      await declineInvite(invite.id);
     } catch {
       // Rad etish serverda yozilmasa ham xabar qaytib chiqmaydi.
     }

@@ -17,7 +17,7 @@
  *  deyarli har doim mos keladi — mos kelmaydigan holat muddat o'tib
  *  ketgani va u jangning oxirgi soniyasida bo'ladi. */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { functionError } from '../firebase/functions';
+import { apiError } from '../api/errors';
 import { arenaTiles, isMardu, rankArena } from './mardu';
 import type { Unsubscribe } from '../firebase/live';
 import { onBattleOpen, readActive, setActive } from './activeBattle';
@@ -459,7 +459,7 @@ export function useGunchaJang() {
       })
       .catch((raw) => {
         remember((words) => words.filter((item) => item !== word));
-        bump(functionError(raw));
+        bump(apiError(raw));
       });
   }, [battleId, bump, later, mine, phase, puzzle, remember, typed]);
 
@@ -522,7 +522,7 @@ export function useGunchaJang() {
     try {
       await action();
     } catch (raw) {
-      setError(functionError(raw));
+      setError(apiError(raw));
     } finally {
       setBusy(false);
     }

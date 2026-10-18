@@ -6,19 +6,25 @@
  *  odam istalgancha chaqiruv yuborib turardi va qabul qilmagan
  *  o'yinchining ekrani chaqiruv oynalaridan iborat bo'lib qolardi.
  *
- *  Qolgan chaqiruvlar tegilmaydi: qasos (jang allaqachon o'ynalgan),
- *  yaqindagilar (odam yonma-yon turibdi), kod bilan qo'shilish va
- *  tezkor jang — hammasida tanishuv boshqa yo'ldan bo'lgan.
+ *  **Yozishni server qiladi.** Do'stlik ikki tomonli yozuv va u bitta
+ *  tranzaksiyada qo'yiladi (`friends/respond`); mijozga qoldirilsa, odam
+ *  o'zini xohlagan kishining ro'yxatiga qo'shib qo'yardi.
  *
- *  **Yozishni faqat funksiyalar qiladi.** Do'stlik ikki tomonli yozuv
- *  (`friends/{a}/list/{b}` va teskarisi); mijozga qoldirilsa, odam
- *  o'zini xohlagan kishining ro'yxatiga qo'shib qo'yardi va profildagi
- *  cheklov ma'nosini yo'qotardi. Saytga o'qish va chaqirish qoladi. */
-import { callFunction, functionError } from '../firebase/functions';
-import { readDoc } from '../firebase/rest';
-import { client } from '../firebase/client';
-import { EMULATOR, useEmulator } from '../firebase/config';
-import type { Unsubscribe } from '../firebase/live';
+ *  Kuzatuv endi `onSnapshot` emas, davriy so'rov (`api/poll.ts`) —
+ *  ilovada ham shunday. Do'stlar ro'yxati kamdan-kam o'zgaradi va bir
+ *  necha soniya kechikish sezilmaydi.
+ *
+ *  **Serverda hali yo'q:** o'zi yuborgan so'rovlar ro'yxati. Shu sabab
+ *  ikki narsa ishlamaydi va ularning o'rni shu faylda ochiq
+ *  belgilangan: «so'rovingiz qabul qilindi» xabari
+ *  ([watchAcceptedRequests]) va profildagi «so'rov yuborilgan» holati
+ *  ([watchFriendship] dagi `outgoing`). Marshrut ochilganda ikkalasi
+ *  ham shu yerda tiklanadi. */
+import { api } from '../api/client';
+import { apiError } from '../api/errors';
+import { poll, sharedPoll, type Unsubscribe } from '../api/poll';
+
+export type { Unsubscribe };
 
 export interface Friend {
   uid: string;
@@ -40,200 +46,196 @@ export interface FriendRequest {
   respondedAt: number;
 }
 
-/** Ikki o'yinchi uchun **barqaror** so'rov hujjatining nomi — serverdagi
- *  `friendPairId` bilan bir xil.
+/** Ikki o'yinchi uchun **barqaror** nom.
  *
- *  Nega tasodifiy nom emas: shunda ikki odam orasida bir vaqtda ikkita
- *  ochiq so'rov bo'lib qolishi mumkin emas. Qarama-qarshi so'rov
- *  kelganda server shu hujjatni topadi va ikkinchisini yaratish
- *  o'rniga birinchisini qabul qiladi. */
+ *  Serverda so'rov (`from_uid`, `to_uid`) juftligi bilan taniladi va
+ *  alohida `id` yo'q. Bu yerdagi nom esa ro'yxatlarda kalit sifatida
+ *  ishlatiladi — u barqaror bo'lishi kifoya. */
 export const friendPairId = (a: string, b: string) => (a < b ? `${a}_${b}` : `${b}_${a}`);
 
-/** Ro'yxatlar chegarasi — ilovadagi bilan bir xil.
+/** Kuzatuv davri — ilovadagi `polledStream` bilan bir xil o'lchamda.
  *
- *  So'rovlar `orderBy` siz o'qiladi, tartib esa ro'yxat yig'ilganda
- *  beriladi (`notifications.ts`): ilovadagi saralangan so'rovlar
- *  qo'shma indeks talab qiladi va indeks yetib bormagan muhitda
- *  so'rov jimgina bo'sh qaytadi. Chegara ikkalasiga ham yetarli. */
-const LIMIT = 200;
-const ACCEPTED_LIMIT = 30;
+ *  Do'stlik holati jang emas: uch soniyalik kechikish ko'rinmaydi,
+ *  lekin har ekran uchun socket ochish ancha qimmat tushardi. */
+const PERIOD = 10_000;
 
 const millis = (value: unknown): number => {
-  const stamp = value as { seconds?: number; toMillis?: () => number } | undefined;
-  if (stamp?.toMillis) return stamp.toMillis();
-  return stamp?.seconds ? stamp.seconds * 1000 : 0;
+  if (typeof value === 'number') return value;
+  if (typeof value === 'string') return Date.parse(value) || 0;
+  return 0;
 };
+
+interface ApiFriend {
+  uid?: unknown;
+  nickname?: unknown;
+  since?: unknown;
+}
+
+interface ApiRequest {
+  fromUid?: unknown;
+  toUid?: unknown;
+  fromNickname?: unknown;
+  toNickname?: unknown;
+  status?: unknown;
+  createdAt?: unknown;
+  created_at?: unknown;
+}
 
 const statusOf = (value: unknown): RequestStatus =>
   value === 'accepted' ? 'accepted' : value === 'declined' ? 'declined' : 'pending';
 
-function requestOf(id: string, data: Record<string, unknown>): FriendRequest {
+function requestOf(data: ApiRequest): FriendRequest {
+  const fromUid = String(data.fromUid ?? '');
+  const toUid = String(data.toUid ?? '');
   return {
-    id,
-    fromUid: String(data.fromUid ?? ''),
+    id: friendPairId(fromUid, toUid),
+    fromUid,
     fromNickname: String(data.fromNickname ?? '').trim(),
-    toUid: String(data.toUid ?? ''),
+    toUid,
     toNickname: String(data.toNickname ?? '').trim(),
     status: statusOf(data.status),
-    createdAt: millis(data.createdAt),
-    respondedAt: millis(data.respondedAt),
+    createdAt: millis(data.createdAt ?? data.created_at),
+    // Serverdagi ro'yxatda faqat javob kutayotganlar bor, ya'ni javob
+    // vaqti har doim bo'sh.
+    respondedAt: 0,
   };
 }
 
-/** Jonli kuzatuv uchun umumiy tayyorgarlik — `live.ts` dagidek to'liq
- *  SDK: do'stlik holati va so'rovlar darhol ko'rinishi kerak. */
-async function firestore() {
-  const { app } = await client();
-  const sdk = await import('firebase/firestore');
-  const db = sdk.getFirestore(app);
-  if (useEmulator) sdk.connectFirestoreEmulator(db, EMULATOR.host, EMULATOR.firestore);
-  return { db, sdk };
-}
+const items = (value: unknown): unknown[] => (Array.isArray(value) ? value : []);
 
-/** Do'stlar ro'yxati — yangisi tepada. Faqat egasi o'qiydi: kim kim
- *  bilan do'st ekani ochiq ma'lumot emas. */
-export async function watchFriends(
+/** Do'stlar ro'yxati. Faqat egasi o'qiydi: kim kim bilan do'st ekani
+ *  ochiq ma'lumot emas.
+ *
+ *  Tartibni server beradi (taxallus bo'yicha). Ilgari sayt uni «yangisi
+ *  tepada» qilib saralardi — serverdagi jadvalda esa `since` bo'yicha
+ *  tartib yo'q va ikkala platformada bir xil ko'rinish muhimroq. */
+export function watchFriends(
   uid: string,
   onData: (friends: Friend[]) => void,
-): Promise<Unsubscribe> {
-  const { db, sdk } = await firestore();
-  return sdk.onSnapshot(
-    sdk.query(
-      sdk.collection(db, `friends/${uid}/list`),
-      sdk.orderBy('since', 'desc'),
-      sdk.limit(LIMIT),
-    ),
-    (snapshot) =>
-      onData(
-        snapshot.docs.map((item) => {
-          const data = item.data() as Record<string, unknown>;
-          return {
-            uid: item.id,
-            nickname: String(data.nickname ?? '').trim(),
-            since: millis(data.since),
-          };
-        }),
-      ),
-    () => onData([]),
+): Unsubscribe {
+  return sharedPoll<Friend[]>(
+    `friends:${uid}`,
+    async () => {
+      const data = await api.get<{ items?: unknown }>('/v1/friends');
+      return items(data.items).map((row): Friend => {
+        const friend = row as ApiFriend;
+        return {
+          uid: String(friend.uid ?? ''),
+          nickname: String(friend.nickname ?? '').trim(),
+          since: millis(friend.since),
+        };
+      });
+    },
+    onData,
+    { period: PERIOD },
   );
 }
 
 /** Menga kelgan, javob kutayotgan so'rovlar. */
-export async function watchIncomingRequests(
+export function watchIncomingRequests(
   uid: string,
   onData: (requests: FriendRequest[]) => void,
-): Promise<Unsubscribe> {
-  const { db, sdk } = await firestore();
-  return sdk.onSnapshot(
-    sdk.query(
-      sdk.collection(db, 'friend_requests'),
-      sdk.where('toUid', '==', uid),
-      sdk.where('status', '==', 'pending'),
-      sdk.limit(LIMIT),
-    ),
-    (snapshot) =>
-      onData(snapshot.docs.map((item) => requestOf(item.id, item.data() as Record<string, unknown>))),
-    () => onData([]),
+): Unsubscribe {
+  return sharedPoll<FriendRequest[]>(
+    `friend-requests:${uid}`,
+    async () => {
+      const data = await api.get<{ items?: unknown }>('/v1/friends/requests');
+      return items(data.items).map((row) => requestOf(row as ApiRequest));
+    },
+    onData,
+    { period: PERIOD },
   );
 }
 
-/** Men yuborgan va **qabul qilingan** so'rovlar — «so'rovingiz qabul
- *  qilindi» degan xabar shulardan yasaladi. */
-export async function watchAcceptedRequests(
-  uid: string,
+/** Men yuborgan va **qabul qilingan** so'rovlar.
+ *
+ *  Serverda bunday ro'yxat yo'q (`friend_requests` dan faqat kelgani
+ *  o'qiladi), shuning uchun hozircha doim bo'sh: «so'rovingiz qabul
+ *  qilindi» xabari ko'rinmaydi. Do'stlikning o'zi esa buzilmaydi —
+ *  qabul qilingan odam oddiygina do'stlar ro'yxatida paydo bo'ladi.
+ *
+ *  Marshrut (`/v1/friends/sent` kabi) ochilganda bu funksiyaning ichi
+ *  [watchIncomingRequests] bilan bir xil shaklda yoziladi. */
+export function watchAcceptedRequests(
+  _uid: string,
   onData: (requests: FriendRequest[]) => void,
-): Promise<Unsubscribe> {
-  const { db, sdk } = await firestore();
-  return sdk.onSnapshot(
-    sdk.query(
-      sdk.collection(db, 'friend_requests'),
-      sdk.where('fromUid', '==', uid),
-      sdk.where('status', '==', 'accepted'),
-      sdk.limit(ACCEPTED_LIMIT),
-    ),
-    (snapshot) =>
-      onData(snapshot.docs.map((item) => requestOf(item.id, item.data() as Record<string, unknown>))),
-    () => onData([]),
-  );
+): Unsubscribe {
+  onData([]);
+  return () => {};
 }
 
 /** Bitta odam bilan aloqa: do'stmizmi va orada so'rov bormi.
  *
- *  Ikkalasi bitta kuzatuvda: tugma holati ikkovi kelmaguncha
- *  chizilmaydi — bir ko'rinishdan ikkinchisiga sakrab o'tsa ekran
- *  titrab ketardi. */
-export async function watchFriendship(
-  uid: string,
+ *  Ikkalasi bitta so'rovdan chiqadi, ya'ni tugma holati bir
+ *  ko'rinishdan ikkinchisiga sakramaydi.
+ *
+ *  `request` faqat **menga kelgan** so'rovni ko'rsatadi. O'zim
+ *  yuborgan so'rov serverdan o'qilmaydi, shuning uchun «so'rov
+ *  yuborilgan» holati chiqmaydi: tugma yuborilgandan keyin ham
+ *  «do'stlikka chaqirish» bo'lib turadi va qayta bosilsa server
+ *  so'rovni yangilaydi (`ON CONFLICT DO UPDATE`), ya'ni takror bosish
+ *  zarar qilmaydi. */
+export function watchFriendship(
+  _uid: string,
   otherUid: string,
   onData: (link: { friend: boolean; request: FriendRequest | null }) => void,
-): Promise<Unsubscribe> {
-  const { db, sdk } = await firestore();
-  let friend = false;
-  let request: FriendRequest | null = null;
-  const push = () => onData({ friend, request });
+): Unsubscribe {
+  return poll<{ friend: boolean; request: FriendRequest | null }>(
+    async () => {
+      const [friends, requests] = await Promise.all([
+        api.get<{ items?: unknown }>('/v1/friends'),
+        api.get<{ items?: unknown }>('/v1/friends/requests'),
+      ]);
 
-  const stopFriend = sdk.onSnapshot(
-    sdk.doc(db, `friends/${uid}/list/${otherUid}`),
-    (snapshot) => {
-      friend = snapshot.exists();
-      push();
+      const friend = items(friends.items).some(
+        (row) => String((row as ApiFriend).uid ?? '') === otherUid,
+      );
+
+      const incoming = items(requests.items)
+        .map((row) => requestOf(row as ApiRequest))
+        .find((request) => request.fromUid === otherUid);
+
+      return { friend, request: incoming ?? null };
     },
-    () => push(),
+    onData,
+    { period: PERIOD },
   );
-
-  const stopRequest = sdk.onSnapshot(
-    sdk.doc(db, `friend_requests/${friendPairId(uid, otherUid)}`),
-    (snapshot) => {
-      request = snapshot.exists()
-        ? requestOf(snapshot.id, snapshot.data() as Record<string, unknown>)
-        : null;
-      push();
-    },
-    () => push(),
-  );
-
-  return () => {
-    stopFriend();
-    stopRequest();
-  };
 }
 
-/* ── Yozish: faqat funksiyalar orqali ─────────────────────────────── */
+/* ── Yozish ───────────────────────────────────────────────────────── */
 
-/** Server sababni o'zbekcha yozadi (bloklangan, allaqachon yopilgan),
+/** Server sababni o'zbekcha yozadi (bloklangan, allaqachon do'st),
  *  shuning uchun xabar shundoq uzatiladi. */
-async function call(name: string, payload: Record<string, unknown>): Promise<void> {
+async function write(run: () => Promise<unknown>): Promise<void> {
   try {
-    await callFunction(name, payload);
+    await run();
   } catch (error) {
-    throw new Error(functionError(error));
+    throw new Error(apiError(error));
   }
 }
 
-export const sendFriendRequest = (toUid: string, nickname: string) =>
-  call('friendRequest', { toUid, nickname });
+/** Taxallus yuborilmaydi: serverdagi so'rovga hisobning o'z taxallusi
+ *  qo'shiladi (`users` jadvalidan), ya'ni uni mijozdan olishning
+ *  hojati yo'q. */
+export const sendFriendRequest = (toUid: string) =>
+  write(() => api.post('/v1/friends/request', { body: { toUid } }));
 
-export const respondFriendRequest = (
-  requestId: string,
-  accept: boolean,
-  nickname: string,
-) => call('friendRespond', { requestId, accept, nickname });
+/** So'rovga javob. Serverda so'rov juftlik bilan tanilgani uchun
+ *  hujjat nomi emas, **yuboruvchining `uid` si** beriladi. */
+export const respondFriendRequest = (fromUid: string, accept: boolean) =>
+  write(() => api.post('/v1/friends/respond', { body: { fromUid, accept } }));
 
-/** Do'stlikni ikki tomondan bekor qiladi.
- *
- *  So'rov hujjatini ham o'chirgani uchun **yuborilgan so'rovni qaytarib
- *  olish** ham shu funksiya: o'chiradigan do'stlik yo'q, amalda faqat
- *  so'rov ketadi. */
-export const removeFriend = (friendUid: string) => call('friendRemove', { friendUid });
+/** Do'stlikni ikki tomondan bekor qiladi. */
+export const removeFriend = (friendUid: string) =>
+  write(() => api.delete(`/v1/friends/${encodeURIComponent(friendUid)}`));
 
 /* ── Cheklov bayrog'i ─────────────────────────────────────────────── */
 
 /** Profildan chaqirish do'stlik talab qiladimi — `config/friends`.
  *
- *  Server ilovadan oldin chiqqani uchun cheklov bayroq ortida turadi:
- *  hujjat yo'q bo'lsa chaqirish avvalgidek ishlayveradi. O'qish yiqilsa
- *  ham cheklov o'chiq deb hisoblanadi — bu spamdan himoya, xavfsizlik
- *  chegarasi emas.
+ *  Cheklov bayroq ortida turadi: sozlama yo'q bo'lsa chaqirish
+ *  avvalgidek ishlayveradi. O'qish yiqilsa ham cheklov o'chiq deb
+ *  hisoblanadi — bu spamdan himoya, xavfsizlik chegarasi emas.
  *
  *  Saytdagi tugma bayroqqa qaramaydi (ilovadagidek): u har doim
  *  do'stlik oqimini ko'rsatadi. Bayroq faqat reyting qatoridagi tezkor
@@ -241,8 +243,16 @@ export const removeFriend = (friendUid: string) => call('friendRemove', { friend
 let flag: Promise<boolean> | null = null;
 
 export function inviteRequiresFriends(): Promise<boolean> {
-  flag ??= readDoc('config/friends')
-    .then((data) => data?.inviteRequiresFriends === true)
+  flag ??= api
+    .get<{ value?: unknown }>('/v1/config/friends', { auth: false })
+    .then((data) => {
+      const value = data.value;
+      return (
+        value !== null &&
+        typeof value === 'object' &&
+        (value as { inviteRequiresFriends?: unknown }).inviteRequiresFriends === true
+      );
+    })
     .catch(() => false);
   return flag;
 }

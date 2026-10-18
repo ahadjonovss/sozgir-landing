@@ -10,7 +10,7 @@
  *  o'tadi. Shu sababli bu yerda o'yin mantiqi yo'q. */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAuth } from './auth';
-import { functionError } from '../firebase/functions';
+import { apiError } from '../api/errors';
 import { showBattle } from './activeBattle';
 import type { BattleGame } from './battle';
 import type { Unsubscribe } from '../firebase/live';
@@ -168,7 +168,7 @@ export function useMardu() {
       try {
         open((await action()) as MarduReply);
       } catch (cause) {
-        setError(functionError(cause));
+        setError(apiError(cause));
       } finally {
         setBusy(false);
       }
@@ -202,7 +202,7 @@ export function useMardu() {
     try {
       await startMardu(battleId);
     } catch (cause) {
-      setError(functionError(cause));
+      setError(apiError(cause));
     } finally {
       setBusy(false);
     }
