@@ -2,6 +2,52 @@
    Bu sayt ilovaning nusxasi emas, tanishtiruv sahifasi: tepada oddiy
    sarlavha, keng hero, kartochkali bo'limlar va footer. */
 
+/* ── Sinov rejimi ogohlantirishi ──────────────────────────────────────── */
+
+/* Vaqtinchalik: sayt yangi serverda tekshirilmoqda. Sarlavhadan
+   yuqorida turadi va u bilan birga yopishmaydi — odam o'qiydi va
+   varaqlab ketadi, har ekranda to'sib turishi shart emas. */
+.testnotice {
+  background: var(--yellow-soft);
+  box-shadow: inset 0 -1px 0 var(--divider);
+}
+
+.testnotice__inner {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 10px 0;
+}
+
+.testnotice__tag {
+  flex: none;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--yellow);
+}
+
+.testnotice__text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--text);
+}
+
+.testnotice__text a {
+  color: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+@media (max-width: 560px) {
+  .testnotice__inner {
+    flex-direction: column;
+    gap: 4px;
+  }
+}
+
 /* ── Sarlavha ─────────────────────────────────────────────────────────── */
 
 .header {

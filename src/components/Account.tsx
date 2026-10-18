@@ -89,13 +89,10 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
       if (nameProblem) return setInvalid(nameProblem);
       if (loginProblem) return setInvalid(loginProblem);
       if (passProblem) return setInvalid(passProblem);
-      if (!birthDate) return setInvalid('Tug‘ilgan sanani tanlang');
-      if (!gender) return setInvalid('Jinsni tanlang');
       const joined = await auth.register({
         email: phone,
         password,
         nickname: name,
-        details: { birthDate, gender },
       });
       if (joined) close();
       return;
@@ -148,8 +145,13 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
     </label>
   );
 
-  /** Tug'ilgan sana va jins — ro'yxatdan o'tishda so'raladi, profil
-   *  oynasida esa eski hisoblar to'ldiradi. */
+  /** Tug'ilgan sana va jins — **faqat profil oynasida**.
+   *
+   *  Hisob ochishda so'ralmaydi. Ikkalasi ham o'yinga ta'sir qilmaydi:
+   *  na ball, na jadval, na jang ularga qaraydi. Yangi odam uchun esa
+   *  bu shaklning yarmi edi va har qo'shimcha maydon bir qancha odamni
+   *  yo'ldan qaytaradi. Xohlagan odam keyin profilda to'ldiradi —
+   *  oyna o'sha-o'sha. */
   const detailFields = (
     <div className="form__pair">
       <label className="field">
@@ -267,7 +269,6 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
               autoComplete="new-password"
             />
           </label>
-          {detailFields}
           {status}
           <button className="btn" disabled={auth.busy}>
             {auth.busy ? 'Yaratilmoqda…' : 'Ro‘yxatdan o‘tish'}
