@@ -599,6 +599,17 @@ function Playing({ game }: { game: Sozjang }) {
     <div className="stage stage--fight">
       {/* Maydonda raqib bitta emas: ikki tomonlama hisob o'rnida uchta
           kartochka va muddat turadi. */}
+      {/* Muddat **ikkala** shaklda ham ko'rsatiladi.
+          Ilgari u faqat maydonda chizilardi, chunki 1v1 da qattiq
+          muddat yo'q edi. Endi server unga ham chegara qo'yadi (besh
+          daqiqa) va vaqti tugagan jangni o'zi yopadi — ya'ni sanoq
+          bor, lekin yashirin edi: odam ogohlantirishsiz uzilardi. */}
+      {!game.mardu && game.left > 0 && (
+        <div className={`arena__time${game.left <= 20 ? ' arena__time--urgent' : ''}`}>
+          <strong>{clock(game.left)}</strong>
+          <span>jang muddati</span>
+        </div>
+      )}
       {game.mardu ? (
         <>
           {game.left > 0 && (

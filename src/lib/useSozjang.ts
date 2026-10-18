@@ -263,9 +263,11 @@ export function useSozjang() {
   const mardu = isMardu(battle);
   const tiles = useMemo(() => arenaTiles(arena), [arena]);
 
-  /** Maydonda muddat bor va u **shart**: bitta sekin o'yinchi yetti
-   *  kishini garovda ushlab turmasin. 1v1 So'zjangda qattiq muddat yo'q,
-   *  shuning uchun sanoq faqat maydonda ko'rinadi. */
+  /** Muddat ikkala shaklda ham bor: maydonda bitta sekin o'yinchi
+   *  yetti kishini garovda ushlab turmasligi uchun, 1v1 da esa server
+   *  besh daqiqalik chegara qo'ygani uchun. Vaqti tugagan jangni
+   *  server o'zi yopadi, demak sanoqni yashirish odamni
+   *  ogohlantirishsiz uzish degani bo'lardi. */
   const endsAt = battle?.endsAt?.seconds;
   // Soat holatda, qolgan vaqt esa **hisoblanadi**: shunda muddat
   // o'zgarganda sanoq bir render kechikmaydi.
