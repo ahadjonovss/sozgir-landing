@@ -13,16 +13,22 @@
  *  vaqtda tugaydi, shu sababli kutish yo'q: pley-off juftlarida
  *  keyingi davra eng sekin juftni kutardi.
  *
- *  Yozishning hammasi Cloud Functions qo'lida — `mardu_series/{KOD}`
- *  hujjatiga mijoz yoza olmaydi (Firestore qoidasi `write: if false`).
- *  Saytga o'qish va chaqirish qoladi. */
-import { callFunction } from '../firebase/functions';
-import {
-  watchDoc,
-  watchOpenTurnirs,
-  watchTurnirHistory,
-  type Unsubscribe,
-} from '../firebase/live';
+ *  Yozishning hammasi serverda — turnir jadvallariga mijoz yoza
+ *  olmaydi. Saytga o'qish va chaqirish qoladi.
+ *
+ *  Ko'rinish bitta so'rovdan keladi (`/v1/turnirs/by-code/:code`):
+ *  jadval, joriy bosqich guruhlari va o'tgan bosqichlar birga. Uch
+ *  marshrutga bo'linsa har biri o'z vaqtida kelib, jadval sakrab
+ *  turardi.
+ *
+ *  **Serverda hali yo'q** va shu sababli ekranda ko'rinmaydigan
+ *  narsalar: tezkor turnir sanog'i (`startsAt`), mukofot summalari
+ *  (`prize`), ikkinchi va uchinchi o'rin (`runnerUpUid`, `thirdUid`)
+ *  hamda turnirda ishlangan aqcha (`aqcha`, `balance`). Turnir
+ *  jadvali `turnirs` jadvalida bu maydonlarsiz yashaydi. Ular
+ *  qo'shilsa [docOf] ning ichi to'ldiriladi, qolgan kod tegilmaydi. */
+import { api } from '../api/client';
+import { poll, sharedPoll, type Unsubscribe } from '../api/poll';
 import type { BattleDoc, BattleGame } from './battle';
 import type { ArenaStanding, MarduDoc } from './mardu';
 import { rankArena } from './mardu';
@@ -166,71 +172,197 @@ export interface TurnirDoc {
 
 // ── Chaqiruvlar ────────────────────────────────────────────────────────
 
-export const createTurnir = (input: {
+export async function createTurnir(input: {
   game: BattleGame;
   capacity: TurnirCapacity;
   length?: number;
   title?: string;
-}) => callFunction<{ code: string }>('turnirCreate', input);
+}): Promise<{ code: string }> {
+  const { turnir } = await api.post<{ turnir: { code?: string } }>('/v1/turnirs', {
+    body: {
+      game: input.game,
+      capacity: input.capacity,
+      title: input.title,
+      length: input.length,
+    },
+  });
+  return { code: turnir.code ?? '' };
+}
 
 /** Kod bilan qo'shilish. Takroriy chaqiruv xato bermaydi — sahifasini
  *  yangilagan odam o'sha turnirga qaytadi. */
-export const joinTurnir = (input: { code: string; nickname: string }) =>
-  callFunction<{ code: string; round?: number }>('turnirJoin', input);
+export async function joinTurnir(input: { code: string }): Promise<{ code: string }> {
+  const { turnir } = await api.post<{ turnir: { code?: string } }>(
+    '/v1/turnirs/join-by-code',
+    { body: { code: input.code } },
+  );
+  return { code: turnir.code ?? input.code };
+}
 
 /** Tezkor turnir — ochiq xona topiladi yoki yangisi ochiladi.
  *
- *  Ko'rsatkich hujjat serverda: ro'yxatdan so'rov «o'qi-keyin-yarat»
- *  poygasiga ochiq bo'lardi va bir soniya farq bilan kirgan ikki
- *  odam ikkita bo'sh turnir ochib yuborardi. */
-export const quickTurnir = (input: { game: BattleGame; nickname: string }) =>
-  callFunction<{ code: string; startsAt?: number | null; serverNow?: number }>(
-    'turnirQuick',
-    input,
+ *  Tanlashni **server** qiladi: ro'yxatdan so'rov «o'qi-keyin-yarat»
+ *  poygasiga ochiq bo'lardi va bir soniya farq bilan kirgan ikki odam
+ *  ikkita bo'sh turnir ochib yuborardi. */
+export async function quickTurnir(input: {
+  game: BattleGame;
+}): Promise<{ code: string; startsAt?: number | null; serverNow?: number }> {
+  const { turnir } = await api.post<{ turnir: { code?: string } }>(
+    '/v1/turnirs/quick',
+    { body: { game: input.game } },
   );
+  // Sanoq serverda saqlanmaydi, shuning uchun `startsAt` yo'q: xona
+  // boshlanishni tashkilotchining bosishi bilan kutadi.
+  return { code: turnir.code ?? '', serverNow: Date.now() };
+}
 
 /** Do'stni turnirga chaqiradi — unga push xabar boradi.
  *
- *  Ilovadagi tugmaning aynan o'zi (`turnirInvite`). Takroriy
- *  chaqiruv xabar yubormaydi: server `invites/{toUid}` hujjatini bir
- *  marta yozadi va ikkinchi bosish jimgina o'tadi. */
-export const inviteToTurnir = (input: {
+ *  Takroriy chaqiruv xabar yubormaydi: serverdagi yozuv bir marta
+ *  qo'yiladi va ikkinchi bosish jimgina o'tadi. */
+export async function inviteToTurnir(input: {
   code: string;
   toUid: string;
-  nickname: string;
-}) =>
-  callFunction<{ sent?: boolean; joined?: boolean; repeated?: boolean }>(
-    'turnirInvite',
-    input,
-  );
+}): Promise<{ sent?: boolean }> {
+  const id = await turnirIdOf(input.code);
+  await api.post(`/v1/turnirs/${encodeURIComponent(id)}/invite`, {
+    body: { toUid: input.toUid },
+  });
+  return { sent: true };
+}
 
-export const leaveTurnir = (code: string) =>
-  callFunction<{ left: boolean }>('turnirLeave', { code });
+export async function leaveTurnir(code: string): Promise<{ left: boolean }> {
+  const id = await turnirIdOf(code);
+  await api.post(`/v1/turnirs/${encodeURIComponent(id)}/leave`);
+  return { left: true };
+}
 
 /** Boshlashni tashkilotchi bosadi. Idempotent: ikki marta bosilsa
  *  ikkinchi davra ochilmaydi. */
-export const startTurnir = (code: string) =>
-  callFunction<{ round: number; startsAt?: number }>('turnirStart', { code });
-
-export const kickFromTurnir = (code: string, uid: string) =>
-  callFunction<{ removed: boolean }>('turnirKick', { code, uid });
-
-/** Hozir yig'ilayotgan turnirlar — bo'lim sahifasidagi ro'yxat. */
-export const watchOpenTurnirList = (
-  onData: (list: TurnirRow[]) => void,
-): Promise<Unsubscribe> =>
-  watchOpenTurnirs<TurnirDoc>((docs) =>
-    onData(docs.map((item) => rowOf(item.id, item.data))),
+export async function startTurnir(code: string): Promise<{ round: number }> {
+  const id = await turnirIdOf(code);
+  const reply = await api.post<{ round?: number }>(
+    `/v1/turnirs/${encodeURIComponent(id)}/start`,
   );
+  return { round: reply.round ?? 1 };
+}
 
-/** Shu odam o'ynagan tugagan turnirlar. */
-export const watchMyTurnirHistory = (
+export async function kickFromTurnir(
+  code: string,
   uid: string,
-  onData: (list: TurnirRow[]) => void,
-): Promise<Unsubscribe> =>
-  watchTurnirHistory<TurnirDoc>(uid, (docs) =>
-    onData(docs.map((item) => rowOf(item.id, item.data))),
+): Promise<{ removed: boolean }> {
+  const id = await turnirIdOf(code);
+  await api.post(`/v1/turnirs/${encodeURIComponent(id)}/kick`, { body: { uid } });
+  return { removed: true };
+}
+
+/* ── O'qish ────────────────────────────────────────────────────────── */
+
+/** Kod → ichki raqam.
+ *
+ *  Marshrutlarning bir qismi kod bilan ishlaydi, bir qismi `id` bilan.
+ *  Moslik bir marta olinadi va eslab qolinadi: turnirning kodi
+ *  o'zgarmaydi, ya'ni jadvalni eskirtirish kerak emas. */
+const ids = new Map<string, string>();
+
+async function turnirIdOf(code: string): Promise<string> {
+  const known = ids.get(code);
+  if (known !== undefined) return known;
+
+  const full = await api.get<{ turnir?: { id?: string } }>(
+    `/v1/turnirs/by-code/${encodeURIComponent(code)}`,
   );
+  const id = String(full.turnir?.id ?? '');
+  if (id) ids.set(code, id);
+  return id;
+}
+
+interface ApiPlayer {
+  uid?: unknown;
+  nickname?: unknown;
+}
+
+interface ApiFull {
+  turnir?: Record<string, unknown>;
+  players?: unknown;
+  seeds?: unknown;
+  order?: unknown;
+  points?: unknown;
+  isFinalRound?: unknown;
+  groups?: unknown;
+  ladder?: unknown;
+}
+
+const list = (value: unknown): unknown[] => (Array.isArray(value) ? value : []);
+const strings = (value: unknown): string[] =>
+  list(value).filter((item): item is string => typeof item === 'string');
+
+/** Serverdagi ko'rinishni saytning hujjat shakliga o'giradi.
+ *
+ *  Shakl ataylab o'zgarmadi: `TurnirDoc` ni turnir sahifasining har
+ *  bo'lagi o'qiydi. */
+function docOf(full: ApiFull): TurnirDoc {
+  const turnir = full.turnir ?? {};
+  const players = list(full.players).map((row) => row as ApiPlayer);
+
+  const members: Record<string, TurnirMember> = {};
+  for (const player of players) {
+    const uid = String(player.uid ?? '');
+    if (!uid) continue;
+    members[uid] = { nickname: String(player.nickname ?? '').trim() };
+  }
+
+  const code = String(turnir.code ?? '');
+  if (code && typeof turnir.id === 'string') ids.set(code, turnir.id);
+
+  return {
+    code,
+    title: typeof turnir.title === 'string' ? turnir.title : '',
+    game: turnir.game === 'guncha' ? 'guncha' : 'soztop',
+    capacity: typeof turnir.capacity === 'number' ? turnir.capacity : 8,
+    status: turnir.status as TurnirStatus,
+    host: typeof turnir.hostUid === 'string' ? turnir.hostUid : undefined,
+    createdBy: typeof turnir.hostUid === 'string' ? turnir.hostUid : undefined,
+    round: typeof turnir.round === 'number' ? turnir.round : 1,
+    rounds: typeof turnir.rounds === 'number' ? turnir.rounds : undefined,
+    winnerUid: typeof turnir.winnerUid === 'string' ? turnir.winnerUid : undefined,
+    members,
+    uids: Object.keys(members),
+    seeds: strings(full.seeds),
+    order: strings(full.order),
+    points: (full.points ?? {}) as Record<string, number>,
+    final: full.isFinalRound === true,
+    groups: list(full.groups).map((row) => {
+      const group = row as { battleId?: unknown; uids?: unknown; done?: unknown };
+      return {
+        battleId: typeof group.battleId === 'string' ? group.battleId : undefined,
+        uids: strings(group.uids),
+        done: group.done === true,
+      };
+    }),
+    ladder: ladderOf(full.ladder),
+  };
+}
+
+/** O'tgan bosqichlar — to'rni chizish uchun.
+ *
+ *  Serverda ular yassi ro'yxat (`{round, slot, standings}`), saytda
+ *  esa davra bo'yicha guruhlangan. */
+function ladderOf(value: unknown): TurnirPastRound[] {
+  const rounds = new Map<number, TurnirPastGroup[]>();
+
+  for (const row of list(value)) {
+    const entry = row as { round?: unknown; standings?: unknown };
+    const round = typeof entry.round === 'number' ? entry.round : 0;
+    const groups = rounds.get(round) ?? [];
+    groups.push({ standings: (entry.standings ?? []) as ArenaStanding[] });
+    rounds.set(round, groups);
+  }
+
+  return [...rounds.entries()]
+    .sort(([a], [b]) => a - b)
+    .map(([round, groups]) => ({ round, groups }));
+}
 
 /** Ro'yxatdagi bitta qator.
  *
@@ -252,10 +384,69 @@ export interface TurnirRow {
   doc: TurnirDoc;
 }
 
-function rowOf(id: string, doc: TurnirDoc): TurnirRow {
+/** Hozir yig'ilayotgan turnirlar — bo'lim sahifasidagi ro'yxat.
+ *
+ *  Ro'yxatda to'liq ko'rinish kerak emas: nom, hajm va yig'ilganlar
+ *  yetadi, shuning uchun server alohida, yengilroq javob beradi. */
+export const watchOpenTurnirList = (
+  onData: (rows: TurnirRow[]) => void,
+): Unsubscribe =>
+  sharedPoll<TurnirRow[]>(
+    'turnirs/open',
+    async () => {
+      const data = await api.get<{ items?: unknown }>('/v1/turnirs/open', {
+        auth: false,
+      });
+      return list(data.items).map((row) => {
+        const item = row as Record<string, unknown>;
+        const names = (item.names ?? {}) as Record<string, string>;
+        const uids = strings(item.uids);
+        return {
+          code: String(item.code ?? ''),
+          title: String(item.title ?? ''),
+          game: item.game === 'guncha' ? 'guncha' : 'soztop',
+          players: typeof item.players === 'number' ? item.players : uids.length,
+          capacity: typeof item.capacity === 'number' ? item.capacity : 8,
+          // Serverda turnir turi saqlanmaydi; ro'yxatdagi hamma xona
+          // bir xil ko'rinadi.
+          quick: false,
+          status: 'gathering' as TurnirStatus,
+          winnerUid: '',
+          winnerName: '',
+          prize: 0,
+          doc: {
+            code: String(item.code ?? ''),
+            uids,
+            members: Object.fromEntries(
+              uids.map((uid) => [uid, { nickname: names[uid] ?? '' }]),
+            ),
+          },
+        };
+      });
+    },
+    onData,
+    { period: 10_000 },
+  );
+
+/** Shu odam o'ynagan tugagan turnirlar. */
+export const watchMyTurnirHistory = (
+  uid: string,
+  onData: (rows: TurnirRow[]) => void,
+): Unsubscribe =>
+  sharedPoll<TurnirRow[]>(
+    `turnirs/history:${uid}`,
+    async () => {
+      const data = await api.get<{ items?: unknown }>('/v1/turnirs/history');
+      return list(data.items).map((row) => rowOf(docOf(row as ApiFull)));
+    },
+    onData,
+    { period: 30_000 },
+  );
+
+function rowOf(doc: TurnirDoc): TurnirRow {
   const winnerUid = doc.winnerUid ?? '';
   return {
-    code: doc.code ?? id,
+    code: doc.code ?? '',
     title: doc.title ?? '',
     game: doc.game === 'soztop' ? 'soztop' : 'guncha',
     players: doc.uids?.length ?? Object.keys(doc.members ?? {}).length,
@@ -269,10 +460,45 @@ function rowOf(id: string, doc: TurnirDoc): TurnirRow {
   };
 }
 
+/** Shu odamning tugamagan turniri — ko'pi bilan bittasi.
+ *
+ *  Bir vaqtda bitta turnir qoidasi serverda, ya'ni bu yerda ro'yxat
+ *  emas, bitta yozuv kutiladi: bo'lim tepasida o'z turniri turadi. */
+export const watchMyTurnir = (
+  uid: string,
+  onData: (turnir: { code: string; doc: TurnirDoc } | null) => void,
+): Unsubscribe =>
+  sharedPoll<{ code: string; doc: TurnirDoc } | null>(
+    `turnirs/mine:${uid}`,
+    async () => {
+      const full = await api.get<ApiFull>('/v1/turnirs/mine');
+      if (!full.turnir) return null;
+      const doc = docOf(full);
+      return { code: doc.code ?? '', doc };
+    },
+    onData,
+    { period: 10_000 },
+  );
+
+/** Bitta turnirning to'liq ko'rinishi. */
 export const watchTurnir = (
   code: string,
   onData: (doc: TurnirDoc | null) => void,
-): Promise<Unsubscribe> => watchDoc<TurnirDoc>(`mardu_series/${code}`, onData);
+): Unsubscribe =>
+  poll<TurnirDoc | null>(
+    async () => {
+      try {
+        const full = await api.get<ApiFull>(
+          `/v1/turnirs/by-code/${encodeURIComponent(code)}`,
+        );
+        return full.turnir ? docOf(full) : null;
+      } catch {
+        return null;
+      }
+    },
+    onData,
+    { period: 3000 },
+  );
 
 /** Ulashiladigan havola — QR ham, «Nusxa olish» ham shuni beradi. */
 export const turnirLink = (code: string) =>

@@ -274,7 +274,6 @@ function InviteSheet({
       await inviteToTurnir({
         code: turnir.code,
         toUid: friend.uid,
-        nickname: turnir.members.find((item) => item.mine)?.nickname ?? '',
       });
       setInvited((previous) => [...previous, friend.uid]);
     } catch (raw) {

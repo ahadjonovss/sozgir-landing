@@ -15,7 +15,7 @@ import { apiError } from '../api/errors';
 import { showBattle } from './activeBattle';
 import { gameOf, type BattleDoc, type BattleGame } from './battle';
 import { watchMardu, type MarduDoc } from './mardu';
-import { watchMyTurnir, type Unsubscribe } from '../firebase/live';
+import type { Unsubscribe } from '../api/poll';
 import {
   buildLadder,
   createTurnir,
@@ -26,6 +26,7 @@ import {
   playerCount,
   placeOf,
   quickTurnir,
+  watchMyTurnir,
   watchMyTurnirHistory,
   watchOpenTurnirList,
   seriesOf,
@@ -71,7 +72,7 @@ function go(path: string): void {
 }
 
 export function useTurnir(code: string) {
-  const { account, nickname, openPrompt } = useAuth();
+  const { account, openPrompt } = useAuth();
   const uid = account?.uid ?? '';
 
   const [snap, setSnap] = useState<{ code: string; doc: TurnirDoc | null } | null>(null);
@@ -96,18 +97,13 @@ export function useTurnir(code: string) {
   useEffect(() => {
     if (!code) return;
     let alive = true;
-    let stop: Unsubscribe | null = null;
-
-    void watchTurnir(code, (next) => {
+    const stop: Unsubscribe = watchTurnir(code, (next) => {
       if (alive) setSnap({ code, doc: next });
-    }).then((unsubscribe) => {
-      if (alive) stop = unsubscribe;
-      else unsubscribe();
     });
 
     return () => {
       alive = false;
-      stop?.();
+      stop();
     };
   }, [code]);
 
@@ -126,18 +122,13 @@ export function useTurnir(code: string) {
     // Shuning uchun eskirgan javob quyida, qaytarishda qirqiladi.
     if (!uid || code) return;
     let alive = true;
-    let stop: Unsubscribe | null = null;
-
-    void watchMyTurnir<TurnirDoc>(uid, (next) => {
-      if (alive) setActive(next ? { code: next.id, doc: next.data } : null);
-    }).then((unsubscribe) => {
-      if (alive) stop = unsubscribe;
-      else unsubscribe();
+    const stop: Unsubscribe = watchMyTurnir(uid, (next) => {
+      if (alive) setActive(next);
     });
 
     return () => {
       alive = false;
-      stop?.();
+      stop();
     };
   }, [uid, code]);
 
@@ -152,38 +143,28 @@ export function useTurnir(code: string) {
   // xonani darhol ko'radi va qayta yuklashi shart emas.
   useEffect(() => {
     let alive = true;
-    let stop: Unsubscribe | null = null;
-
-    void watchOpenTurnirList((list) => {
+    const stop: Unsubscribe = watchOpenTurnirList((list) => {
       if (alive) setOpen(list);
-    }).then((unsubscribe) => {
-      if (alive) stop = unsubscribe;
-      else unsubscribe();
     });
 
     return () => {
       alive = false;
-      stop?.();
+      stop();
     };
   }, []);
 
   useEffect(() => {
     if (!uid) return;
     let alive = true;
-    let stop: Unsubscribe | null = null;
-
-    void watchMyTurnirHistory(uid, (list) => {
+    const stop: Unsubscribe = watchMyTurnirHistory(uid, (list) => {
       if (alive) setHistory(list);
-    }).then((unsubscribe) => {
-      if (alive) stop = unsubscribe;
-      else unsubscribe();
     });
 
     // Tozalashda bo'shatiladi: hisobdan chiqqan odamda oldingi
     // hisobning tarixi ekranda qolib ketmasin.
     return () => {
       alive = false;
-      stop?.();
+      stop();
       setHistory([]);
     };
   }, [uid]);
@@ -201,12 +182,11 @@ export function useTurnir(code: string) {
     const stops: Unsubscribe[] = [];
 
     for (const id of ids) {
-      void watchMardu(id, (battle) => {
-        if (alive) setBattles((prev) => ({ ...prev, [id]: battle }));
-      }).then((unsubscribe) => {
-        if (alive) stops.push(unsubscribe);
-        else unsubscribe();
-      });
+      stops.push(
+        watchMardu(id, (battle) => {
+          if (alive) setBattles((prev) => ({ ...prev, [id]: battle }));
+        }),
+      );
     }
 
     return () => {
@@ -318,19 +298,19 @@ export function useTurnir(code: string) {
   const join = useCallback(
     (value: string) =>
       call(async () => {
-        const reply = await joinTurnir({ code: value.toUpperCase(), nickname });
+        const reply = await joinTurnir({ code: value.toUpperCase() });
         go(turnirPath(reply.code ?? value));
       }),
-    [nickname, call],
+    [call],
   );
 
   const quick = useCallback(
     () =>
       call(async () => {
-        const reply = await quickTurnir({ game, nickname });
+        const reply = await quickTurnir({ game });
         go(turnirPath(reply.code));
       }),
-    [game, nickname, call],
+    [game, call],
   );
 
   const start = useCallback(() => call(() => startTurnir(code)), [code, call]);
@@ -444,18 +424,13 @@ export function useTurnirHop(
   useEffect(() => {
     if (!code) return;
     let alive = true;
-    let stop: Unsubscribe | null = null;
-
-    void watchTurnir(code, (next) => {
+    const stop: Unsubscribe = watchTurnir(code, (next) => {
       if (alive) setSnap({ code, doc: next });
-    }).then((unsubscribe) => {
-      if (alive) stop = unsubscribe;
-      else unsubscribe();
     });
 
     return () => {
       alive = false;
-      stop?.();
+      stop();
     };
   }, [code]);
 

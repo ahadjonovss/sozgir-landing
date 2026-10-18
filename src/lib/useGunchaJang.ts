@@ -191,18 +191,13 @@ export function useGunchaJang() {
   useEffect(() => {
     if (!battleId || !account) return;
     let alive = true;
-    let stop: Unsubscribe | null = null;
-
-    void watchBattle(battleId, (doc) => {
+    const stop: Unsubscribe = watchBattle(battleId, (doc) => {
       if (alive) setBattle(doc);
-    }).then((unsubscribe) => {
-      if (alive) stop = unsubscribe;
-      else unsubscribe();
     });
 
     return () => {
       alive = false;
-      stop?.();
+      stop();
     };
   }, [account, battleId]);
 
@@ -210,19 +205,14 @@ export function useGunchaJang() {
   useEffect(() => {
     if (!battleId || !uid) return;
     let alive = true;
-    let stop: Unsubscribe | null = null;
-
-    void watchReactions(battleId, uid, (key) => {
+    const stop: Unsubscribe = watchReactions(battleId, uid, (key) => {
       if (!alive) return;
       setIncoming((previous) => ({ key, token: (previous?.token ?? 0) + 1 }));
-    }).then((unsubscribe) => {
-      if (alive) stop = unsubscribe;
-      else unsubscribe();
     });
 
     return () => {
       alive = false;
-      stop?.();
+      stop();
     };
   }, [battleId, uid]);
 
@@ -261,22 +251,17 @@ export function useGunchaJang() {
   useEffect(() => {
     if (!searching || !uid) return;
     let alive = true;
-    let stop: Unsubscribe | null = null;
-
-    void watchQueue(uid, (entry) => {
+    const stop: Unsubscribe = watchQueue(uid, (entry) => {
       if (!alive) return;
       waiting.current = !entry || entry.status === 'waiting';
       if (!entry?.matchId || entry.matchId === lastLeft.current) return;
       setSearching(false);
       open(entry.matchId);
-    }).then((unsubscribe) => {
-      if (alive) stop = unsubscribe;
-      else unsubscribe();
     });
 
     return () => {
       alive = false;
-      stop?.();
+      stop();
     };
   }, [open, searching, uid]);
 
@@ -289,7 +274,6 @@ export function useGunchaJang() {
       if (!waiting.current) return;
       void quickMatch({
         length: DEFAULT_LENGTH,
-        nickname: account.nickname,
         game: 'guncha',
       })
         .then((reply) => {
@@ -544,7 +528,6 @@ export function useGunchaJang() {
         if (!account) return;
         const reply = await joinByCode({
           code: code.toUpperCase().trim(),
-          nickname: account.nickname,
         });
         open(reply.battleId);
         // Sanoq shu ikki sondan boshlanadi.
@@ -561,7 +544,6 @@ export function useGunchaJang() {
         waiting.current = true;
         const reply = await quickMatch({
           length: DEFAULT_LENGTH,
-          nickname: account.nickname,
           game: 'guncha',
         });
         if (reply.battleId) open(reply.battleId);

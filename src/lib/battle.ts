@@ -3,11 +3,16 @@
  *  Ma'lumot modeli va chaqiruvlar ilova bilan bir xil, ya'ni saytda
  *  yaratilgan chaqiruvga telefondan qo'shilish mumkin va aksincha.
  *
- *  Yozishning hammasi Cloud Functions orqali: qoidalar mijozga
- *  `serverAuthoritative` jangni o'zgartirishga ruxsat bermaydi. O'qish
- *  esa to'g'ridan-to'g'ri Firestore'dan — u tez va jonli. */
-import { callFunction } from '../firebase/functions';
-import { watchDoc, type Unsubscribe } from '../firebase/live';
+ *  Yozishning hammasi serverda: javob so'zi mijozga hech qachon
+ *  yuborilmaydi va har taxmin `/v1/battles/:id/guess` da tekshiriladi.
+ *
+ *  O'qish endi `onSnapshot` emas, davriy so'rov (`api/poll.ts`) —
+ *  ilovada ham shunday (`battle_api_repository.dart`, uch soniya).
+ *  Jang holati jadvalda turadi va uni kuzatish uchun ochiq kanal
+ *  shart emas; g'uncha jangining har so'zi esa socket orqali ketadi
+ *  (`api/socket.ts`). */
+import { api } from '../api/client';
+import { poll, type Unsubscribe } from '../api/poll';
 import { split, type Verdict } from './uz';
 
 export type BattleStatus = 'waiting' | 'running' | 'finished' | 'expired';
@@ -151,70 +156,254 @@ export function autoFill(
   return out;
 }
 
-export const createChallenge = (input: { length: number; nickname: string }) =>
-  callFunction<{ battleId: string; code: string }>('battleCreate', input);
-
-/** Kod bilan qo'shilish — ikkala o'yin uchun bir xil funksiya.
+/** Jangni **server** yaratadi va javob so'zini o'zi tanlaydi.
  *
- *  G'uncha jangida sanoq shu javobdan boshlanadi: mijoz `endsAt` va
- *  `serverNow` **farqini** oladi, ya'ni qurilma soati o'zgarsa ham vaqt
- *  sakramaydi. */
-export const joinByCode = (input: { code: string; nickname: string }) =>
-  callFunction<{ battleId: string; endsAt?: number; serverNow?: number }>(
-    'battleJoin',
-    input,
-  );
-
-/** Tezkor jang. `game` yuborilmasa server So'ztop deb qabul qiladi —
- *  navbat o'yin bo'yicha ajratilgan. */
-export const quickMatch = (input: {
+ *  Kod alohida so'raladi (`/code`): tezkor o'yinda u kerak emas va
+ *  har jangga bekorga kod yozib yurishning ma'nosi yo'q.
+ *
+ *  Taxallus yuborilmaydi — serverdagi yozuvga hisobning o'z taxallusi
+ *  qo'yiladi. */
+export async function createChallenge(input: {
   length: number;
-  nickname: string;
+}): Promise<{ battleId: string; code: string }> {
+  const { battle } = await api.post<{ battle: { id: string } }>('/v1/battles', {
+    body: { game: 'soztop', length: input.length },
+  });
+  const { code } = await api.post<{ code: string }>(
+    `/v1/battles/${encodeURIComponent(battle.id)}/code`,
+  );
+  return { battleId: battle.id, code };
+}
+
+/** Kod bilan qo'shilish — ikkala o'yin uchun bir xil marshrut.
+ *
+ *  `serverNow` qaytmaydi (serverda bunday maydon yo'q), shuning uchun
+ *  u javob kelgan paytdagi brauzer soati bilan to'ldiriladi: mijoz
+ *  baribir `endsAt` bilan **farqni** oladi, ya'ni qurilma soati
+ *  keyinchalik o'zgarsa ham sanoq sakramaydi. Tarmoqdagi kechikish
+ *  sanoqqa bir necha yuz millisekund xato qo'shadi — g'uncha jangi
+ *  uchun bu sezilmaydi. */
+export async function joinByCode(input: {
+  code: string;
+}): Promise<{ battleId: string; endsAt?: number; serverNow?: number }> {
+  const { battle } = await api.post<{ battle: { id: string; endsAt?: string | null } }>(
+    '/v1/battles/join-by-code',
+    { body: { code: input.code } },
+  );
+  const endsAt = battle.endsAt ? Date.parse(battle.endsAt) : undefined;
+  return { battleId: battle.id, endsAt, serverNow: Date.now() };
+}
+
+/** Tezkor jang. Raqib topilmasa `queued` — mijoz navbatda qoladi va
+ *  javobni `watchQueue` orqali oladi. */
+export async function quickMatch(input: {
+  length: number;
   game?: BattleGame;
-}) => callFunction<{ battleId?: string; queued?: boolean }>('battleQuick', input);
+}): Promise<{ battleId?: string; queued?: boolean }> {
+  const reply = await api.post<{ battleId?: string | null }>('/v1/battles/quick', {
+    body: { game: input.game ?? 'soztop', length: input.length },
+  });
+  const battleId = reply.battleId ?? undefined;
+  return battleId ? { battleId } : { queued: true };
+}
 
-export const leaveQueue = () => callFunction<unknown>('battleLeaveQueue');
+export const leaveQueue = () => api.delete<unknown>('/v1/battles/quick');
 
-export const sendGuess = (input: { battleId: string; word: string }) =>
-  callFunction<GuessReply>('battleGuess', input);
+/** Taxmin. `attempt` — nechanchi urinish ekani: server uni yozib
+ *  boradi va yakunda ballni mijozdan so'ramaydi. */
+export async function sendGuess(input: {
+  battleId: string;
+  word: string;
+  attempt: number;
+}): Promise<GuessReply> {
+  const reply = await api.post<{
+    accepted?: boolean;
+    statuses?: unknown;
+    won?: boolean;
+    answer?: string | null;
+  }>(`/v1/battles/${encodeURIComponent(input.battleId)}/guess`, {
+    body: { guess: input.word, attempt: input.attempt },
+  });
+
+  const statuses = Array.isArray(reply.statuses)
+    ? reply.statuses.filter((mark): mark is string => typeof mark === 'string')
+    : [];
+
+  return {
+    accepted: reply.accepted === true,
+    // Server naqshni massiv qilib beradi, sayt esa satr bilan ishlaydi
+    // (`verdictsOf`) — ikkalasining alifbosi bir xil.
+    row: statuses.join(''),
+    won: reply.won === true,
+    attempts: input.attempt,
+    // Javob faqat o'yin tugaganda qaytadi, ya'ni uning borligining
+    // o'zi «tugadi» degani.
+    finished: reply.won === true || typeof reply.answer === 'string',
+  };
+}
 
 export const forfeit = (battleId: string) =>
-  callFunction<unknown>('battleForfeit', { battleId });
+  api.post<unknown>(`/v1/battles/${encodeURIComponent(battleId)}/forfeit`);
 
-/** Aniq raqibga chaqiruv. Hujjatni server yaratadi (mijozga yozish yo'q),
- *  raqibga push boradi va ilova yoki sayt ochiq bo'lsa chaqiruv oynasi
- *  chiqadi. Javobsiz chaqiruv 2 daqiqada eskiradi. `repeated` — o'sha
- *  raqibga hali ochiq chaqiruv bor edi, yangisi yaratilmadi. */
-export const sendInvite = (input: {
+/** Aniq raqibga chaqiruv. Yozuvni server yaratadi, raqibga push boradi
+ *  va ilova yoki sayt ochiq bo'lsa chaqiruv oynasi chiqadi. Javobsiz
+ *  chaqiruv bir necha daqiqada eskiradi.
+ *
+ *  Takrorini server **jim** to'xtatadi: o'sha raqibga ochiq chaqiruv
+ *  bor bo'lsa yangisi yaratilmaydi va o'shaning raqami qaytadi. Shu
+ *  sabab `repeated` bayrog'i yo'q — ekran baribir «yuborildi» deb
+ *  ko'rsatadi va odam ikkinchi marta bosganini bilmay qoladi. */
+export async function sendInvite(input: {
   toUid: string;
-  nickname: string;
   length: number;
   kind: InviteKind;
   game?: BattleGame;
-}) => callFunction<{ inviteId: string; repeated?: boolean }>('battleInvite', input);
+}): Promise<{ inviteId: string }> {
+  const reply = await api.post<{ id?: string }>('/v1/invites', {
+    body: {
+      toUid: input.toUid,
+      game: input.game ?? 'soztop',
+      length: input.length,
+      kind: input.kind,
+    },
+  });
+  return { inviteId: String(reply.id ?? '') };
+}
 
-/** Chaqiruvni bekor qilish — chaqirganning o'zi ham shu funksiya bilan
- *  yopadi (server `declinedBy` ni yozadi va raqibga xabar yubormaydi). */
+/** Chaqiruvni bekor qilish — chaqirganning o'zi ham shu marshrut bilan
+ *  yopadi. */
 export const cancelInvite = (inviteId: string) =>
-  callFunction<unknown>('battleInviteDecline', { inviteId });
+  api.post<unknown>(`/v1/invites/${encodeURIComponent(inviteId)}/decline`);
+
+const millis = (value: unknown): number =>
+  typeof value === 'string' ? Date.parse(value) || 0 : 0;
 
 /** Yuborilgan chaqiruvning javobi: qabul qilinsa `battleId` tushadi. */
 export const watchInvite = (
   inviteId: string,
   onData: (invite: InviteDoc | null) => void,
-): Promise<Unsubscribe> => watchDoc<InviteDoc>(`battle_invites/${inviteId}`, onData);
+): Unsubscribe =>
+  poll<InviteDoc | null>(
+    async () => {
+      const { invite } = await api.get<{ invite?: Record<string, unknown> }>(
+        `/v1/invites/${encodeURIComponent(inviteId)}`,
+      );
+      if (!invite) return null;
+      return {
+        status: invite.status as InviteDoc['status'],
+        battleId: typeof invite.battleId === 'string' ? invite.battleId : undefined,
+        game: gameOf(invite.game),
+        expiresAt: { seconds: Math.floor(millis(invite.expiresAt) / 1000) },
+      };
+    },
+    onData,
+    // Chaqiruv javobi kutib turilgan payt — bu yerda kechikish
+    // seziladi, shuning uchun davr qisqaroq.
+    { period: 3000 },
+  );
 
+/** Jang holati. Ilovadagi `watch` bilan bir xil davr (uch soniya). */
 export const watchBattle = (
   battleId: string,
   onData: (battle: BattleDoc | null) => void,
-): Promise<Unsubscribe> => watchDoc<BattleDoc>(`battles/${battleId}`, onData);
+): Unsubscribe =>
+  poll<BattleDoc | null>(
+    () => readBattle(battleId),
+    onData,
+    { period: 3000 },
+  );
 
-/** Navbat yozuvi. Faqat serverdan kelgan holat: keshdagi eski yozuvda
- *  o'tgan jangning `matchId` si turadi. */
+interface ApiPlayer {
+  uid?: unknown;
+  nickname?: unknown;
+  score?: unknown;
+  attempts?: unknown;
+  words?: unknown;
+  statuses?: unknown;
+  finishedAt?: unknown;
+}
+
+const strings = (value: unknown): string[] =>
+  Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : [];
+
+/** Serverdagi yozuvni saytning hujjat shakliga o'giradi.
+ *
+ *  Shakl ataylab o'zgarmadi: `BattleDoc` ni o'nlab joy o'qiydi va uni
+ *  almashtirish butun So'zjangni qayta yozish degani bo'lardi.
+ *
+ *  Ikki maydon serverda yo'q va shu sabab to'ldirilmaydi:
+ *  `durationMs` (yakuniy ball ichida hisoblangan) va `hintUsed`
+ *  (saytda maslahat yo'q). */
+export async function readBattle(battleId: string): Promise<BattleDoc | null> {
+  let data: {
+    battle?: Record<string, unknown>;
+    players?: unknown;
+  };
+  try {
+    data = await api.get(`/v1/battles/${encodeURIComponent(battleId)}`);
+  } catch {
+    // Topilmadi yoki tarmoq uzildi — chaqiruvchi oxirgi holat bilan
+    // qoladi, `live.ts` dagi xulq ham shunday edi.
+    return null;
+  }
+
+  const battle = data.battle;
+  if (!battle) return null;
+
+  const players: Record<string, BattlePlayer> = {};
+  for (const row of Array.isArray(data.players) ? data.players : []) {
+    const player = row as ApiPlayer;
+    const uid = String(player.uid ?? '');
+    if (!uid) continue;
+
+    const rows = strings(player.statuses);
+    const words = strings(player.words);
+    players[uid] = {
+      nickname: typeof player.nickname === 'string' ? player.nickname : undefined,
+      rows,
+      attempts: typeof player.attempts === 'number' ? player.attempts : rows.length,
+      // Oxirgi qator butunlay to'g'ri bo'lsa — topgan.
+      won: rows.length > 0 && /^s+$/.test(rows[rows.length - 1]),
+      finished: player.finishedAt !== null && player.finishedAt !== undefined,
+      score: typeof player.score === 'number' ? player.score : 0,
+      words,
+      wordCount: words.length,
+      found: words,
+    };
+  }
+
+  return {
+    game: gameOf(battle.game),
+    type: battle.type as BattleType,
+    status: battle.status as BattleStatus,
+    length: typeof battle.length === 'number' ? battle.length : undefined,
+    createdBy: typeof battle.hostUid === 'string' ? battle.hostUid : undefined,
+    players,
+    winnerUid: typeof battle.winnerUid === 'string' ? battle.winnerUid : null,
+    endsAt: { seconds: Math.floor(millis(battle.endsAt) / 1000) },
+    expiresAt: { seconds: Math.floor(millis(battle.expiresAt) / 1000) },
+  };
+}
+
+/** Navbat yozuvi — tezkor o'yin juftlashdimi.
+ *
+ *  Keshdan eski yozuv kelishi muammosi yo'q bo'ldi: har so'rov
+ *  serverga boradi. */
 export const watchQueue = (
-  uid: string,
+  _uid: string,
   onData: (entry: { status?: string; matchId?: string } | null) => void,
-): Promise<Unsubscribe> => watchDoc(`battle_queue/${uid}`, onData, { skipCache: true });
+): Unsubscribe =>
+  poll<{ status?: string; matchId?: string } | null>(
+    async () => {
+      const data = await api.get<{ battleId?: string | null }>('/v1/battles/quick');
+      const battleId = data.battleId;
+      return typeof battleId === 'string' && battleId
+        ? { status: 'matched', matchId: battleId }
+        : { status: 'waiting' };
+    },
+    onData,
+    { period: 3000 },
+  );
 
 /** Chaqiruv havolasi — bosgan odam kodni terib o'tirmasligi uchun.
  *

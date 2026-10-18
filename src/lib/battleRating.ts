@@ -1,14 +1,13 @@
 /** So'zjang reytingi — ilovadagi `BattleRating` ning porti.
  *
- *  Hujjat `battle_ratings/{uid}`: server har jangdan keyin yangilaydi,
- *  o'qish hammaga ochiq. Darajalar va chegaralar ilova bilan bir xil,
- *  aks holda saytda bir daraja, telefonda boshqasi ko'rinardi.
+ *  Yozuvni server har jangdan keyin yangilaydi. Darajalar va
+ *  chegaralar ilova bilan bir xil, aks holda saytda bir daraja,
+ *  telefonda boshqasi ko'rinardi.
  *
- *  Hujjatdagi son — **xom reyting**. Ekranga u `battleAqcha()` dan o'tib
+ *  Yozuvdagi son — **xom reyting**. Ekranga u `battleAqcha()` dan o'tib
  *  chiqadi (`lib/aqcha.ts`), chegaralar esa xom sonda tekshiriladi. */
-import { client } from '../firebase/client';
-import { PATHS } from '../firebase/paths';
-import { watchDoc, type Unsubscribe } from '../firebase/live';
+import { api } from '../api/client';
+import { poll, type Unsubscribe } from '../api/poll';
 
 export interface BattleRating {
   rating: number;
@@ -82,39 +81,46 @@ export const tierSlug = (rating: number) => TIERS[tierIndex(rating)].slug;
 const int = (value: unknown, fallback = 0) =>
   typeof value === 'number' && Number.isFinite(value) ? Math.round(value) : fallback;
 
-/** Reytingni jonli kuzatish: jang tugagach server yozadi va kartochka
- *  o'zi yangilanadi. Hujjat yo'q bo'lsa — hali jang qilmagan. */
+/** Reytingni kuzatish: jang tugagach server yozadi va kartochka
+ *  keyingi so'rovda yangilanadi. Yozuv yo'q bo'lsa — hali jang
+ *  qilmagan. */
 export function watchRating(
   uid: string,
   onData: (value: BattleRating) => void,
-): Promise<Unsubscribe> {
-  return watchDoc<Record<string, unknown>>(`${PATHS.battleRatings}/${uid}`, (data) => {
-    if (!data) return onData(EMPTY_RATING);
-    onData({
-      rating: int(data.rating, START_RATING),
-      wins: int(data.wins),
-      losses: int(data.losses),
-      draws: int(data.draws),
-      streak: int(data.streak),
-    });
-  });
+): Unsubscribe {
+  return poll<BattleRating>(
+    async () => {
+      const reply = await api.get<{ rating?: Record<string, unknown> | null }>(
+        '/v1/me/battle-rating',
+        { query: { uid } },
+      );
+      const data = reply.rating;
+      if (!data) return EMPTY_RATING;
+      return {
+        rating: int(data.rating, START_RATING),
+        wins: int(data.wins),
+        losses: int(data.losses),
+        draws: int(data.draws),
+        streak: int(data.streak),
+      };
+    },
+    onData,
+    // Reyting faqat jang yakunida o'zgaradi — tez-tez so'rashning
+    // ma'nosi yo'q.
+    { period: 15_000 },
+  );
 }
 
-/** So'zjang jadvalidagi taxallusni yangilaydi — ilovadagi
- *  `patchBattleNickname`.
+/** So'zjang jadvalidagi taxallus endi **o'zi** to'g'ri bo'ladi.
  *
- *  Hujjatni server jang yakunida yozadi va u paytdagi nomni qo'yadi.
- *  Taxallus keyin o'zgarsa u yerda eski nom (ko'pincha «Mehmon») qolib
- *  ketardi: odam kunlik jadvalda o'z ismi bilan, So'zjangda esa mehmon
- *  bo'lib turardi. Faqat mavjud hujjat: jang o'ynamagan odam jadvalga
- *  tushmasin, shuning uchun `not-found` jimgina o'tkaziladi. */
-export async function patchBattleNickname(uid: string, nickname: string): Promise<void> {
-  const { db } = await client();
-  const { doc, updateDoc } = await import('firebase/firestore/lite');
-  try {
-    await updateDoc(doc(db, PATHS.battleRatings, uid), { nickname });
-  } catch (error) {
-    if ((error as { code?: string })?.code === 'not-found') return;
-    throw error;
-  }
+ *  Firestore'da nom har jadvalga nusxa ko'chirilardi va taxallus
+ *  o'zgarganda eskisi qolib ketardi: odam kunlik jadvalda o'z ismi
+ *  bilan, So'zjangda esa mehmon bo'lib turardi. Shu sabab sayt
+ *  yozuvni qo'lda tuzatardi.
+ *
+ *  Serverda reyting so'rovi `users` ga qo'shiladi (`SELECT_RATING`),
+ *  ya'ni nom har doim joriy nom. Funksiya chaqiruv joylari
+ *  o'zgarmasin deb qoldirilgan va hech narsa qilmaydi. */
+export async function patchBattleNickname(): Promise<void> {
+  // Ataylab bo'sh.
 }

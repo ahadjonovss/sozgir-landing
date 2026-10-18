@@ -9,12 +9,20 @@
  *  o'tganini tozalash o'zgarmaydi — ular bitta o'yinchi yozuvini biladi,
  *  nechtaligi ularning ishi emas.
  *
- *  Yozishning hammasi Cloud Functions orqali (`battle.ts` dagidek): xona
- *  ochish, qo'shilish va boshlash — hammasi tranzaksiyada, chunki bir
- *  vaqtda kirgan ikki odam bitta xonaga tushishi kerak. */
-import { callFunction } from '../firebase/functions';
-import { watchDoc, type Unsubscribe } from '../firebase/live';
-import type { BattleGame, BattleDoc, BattlePlayer } from './battle';
+ *  Yozishning hammasi serverda (`battle.ts` dagidek): xona ochish,
+ *  qo'shilish va boshlash — hammasi tranzaksiyada, chunki bir vaqtda
+ *  kirgan ikki odam bitta xonaga tushishi kerak.
+ *
+ *  Maydon jang marshrutlarining o'zidan foydalanadi, faqat
+ *  `type: 'mardu'` bilan — yangi marshrut ochilmagani ham shu
+ *  sababdan.
+ *
+ *  Jadval (`standings`) endi mijozda yig'ilmaydi: uni
+ *  `/v1/battles/:id/live` beradi va tartib **serverda** qo'yiladi —
+ *  ikki ekran ikki xil tartib ko'rsatmasligi uchun. */
+import { api } from '../api/client';
+import { poll, type Unsubscribe } from '../api/poll';
+import { readBattle, type BattleGame, type BattleDoc, type BattlePlayer } from './battle';
 
 /** Bir maydonga sig'adigan eng ko'p o'yinchi (serverdagi `MARDU_CAPACITY`).
  *
@@ -192,43 +200,132 @@ export interface MarduReply {
   serverNow?: number;
 }
 
-/** Do'stlar maydoni — kod va havola bilan yig'iladi, sanoq yo'q. */
-export const createMardu = (input: {
+/** Do'stlar maydoni — kod va havola bilan yig'iladi, sanoq yo'q.
+ *
+ *  `mode` yuborilmaydi: kod bilan ochilgan xona har doim do'stlar
+ *  maydoni. */
+export async function createMardu(input: {
   game: BattleGame;
-  nickname: string;
   length?: number;
-}) =>
-  // `mode` yuborilmaydi: server uni o'zi qo'yadi — kod bilan ochilgan
-  // xona har doim do'stlar maydoni.
-  callFunction<{ battleId: string; code: string }>('marduCreate', input);
+}): Promise<{ battleId: string; code: string }> {
+  const { battle } = await api.post<{ battle: { id: string } }>('/v1/battles', {
+    body: { game: input.game, type: 'mardu', length: input.length },
+  });
+  const { code } = await api.post<{ code: string }>(
+    `/v1/battles/${encodeURIComponent(battle.id)}/code`,
+  );
+  return { battleId: battle.id, code };
+}
+
+const endsOf = (value: unknown): number | undefined => {
+  const at = typeof value === 'string' ? Date.parse(value) : NaN;
+  return Number.isFinite(at) ? at : undefined;
+};
 
 /** Kod bilan qo'shilish. Takroriy chaqiruv xato bermaydi: xonadan chiqib
  *  qaytgan odam o'sha maydonga tushadi. */
-export const joinMardu = (input: { code: string; nickname: string }) =>
-  callFunction<MarduReply>('marduJoin', input);
+export async function joinMardu(input: { code: string }): Promise<MarduReply> {
+  const { battle } = await api.post<{
+    battle: { id: string; endsAt?: string | null };
+  }>('/v1/battles/join-by-code', { body: { code: input.code } });
+  return {
+    battleId: battle.id,
+    endsAt: endsOf(battle.endsAt),
+    serverNow: Date.now(),
+  };
+}
 
-/** Tezkor maydon — ochiq xonani ko'rsatkichdan topadi yoki yangisini
- *  ochadi. Navbat hujjati kerak emas: maydonning o'zi navbat vazifasini
- *  bajaradi. */
-export const quickMardu = (input: { game: BattleGame; nickname: string }) =>
-  callFunction<MarduReply>('marduQuick', input);
+/** Tezkor maydon — ochiq xonani topadi yoki yangisini ochadi. Navbat
+ *  yozuvi kerak emas: maydonning o'zi navbat vazifasini bajaradi. */
+export async function quickMardu(input: { game: BattleGame }): Promise<MarduReply> {
+  const reply = await api.post<{ battleId?: string | null }>('/v1/battles/quick', {
+    body: { game: input.game, type: 'mardu' },
+  });
+  return { battleId: reply.battleId ?? '', serverNow: Date.now() };
+}
 
 /** Maydonni boshlash. Do'stlar maydonida yaratuvchi bosadi; tezkorda esa
- *  sanog'i nolga yetgan mijoz ham chaqiradi — Cloud Tasks ishlamay qolsa
- *  ham maydon boshlanishi kerak. Idempotent. */
-export const startMardu = (battleId: string) =>
-  callFunction<{ endsAt?: number; serverNow?: number }>('marduStart', {
-    battleId,
-  });
+ *  sanog'i nolga yetgan mijoz ham chaqiradi — davriy ish kechiksa ham
+ *  maydon boshlanishi kerak. Server o'z soatini tekshiradi, ya'ni erta
+ *  chaqiruv zarar qilmaydi. Idempotent. */
+export async function startMardu(
+  battleId: string,
+): Promise<{ endsAt?: number; serverNow?: number }> {
+  const { battle } = await api.post<{ battle: { endsAt?: string | null } }>(
+    `/v1/battles/${encodeURIComponent(battleId)}/start`,
+  );
+  return { endsAt: endsOf(battle.endsAt), serverNow: Date.now() };
+}
 
-/** Xonadan chiqish — boshlangunicha izsiz. */
-export const leaveMardu = (battleId: string) =>
-  callFunction<{ left: boolean; closed?: boolean }>('marduLeave', { battleId });
+/** Xonani yopish — boshlangunicha.
+ *
+ *  Serverda «chiqish» degan amal yo'q: `DELETE /v1/battles/:id` xonani
+ *  **yopadi** va uni faqat egasi chaqira oladi. Shu sabab:
+ *
+ *   * egasi bosganda xona yopiladi (`closed: true`) — avvalgi xulq;
+ *   * qolganlar uchun sahifadan chiqishning o'zi yetadi va bu yerda
+ *     hech narsa yuborilmaydi (`left: true`). Ular xonada yozuv bo'lib
+ *     qolishadi va maydon boshlanganda qatnashmagan hisoblanadi.
+ *
+ *  Serverda chiqish marshruti ochilganda shu funksiyaning ichi
+ *  almashadi, chaqiruv joylari esa tegilmaydi. */
+export async function leaveMardu(
+  battleId: string,
+  { host = false }: { host?: boolean } = {},
+): Promise<{ left: boolean; closed?: boolean }> {
+  if (!host) return { left: true };
+  await api.delete(`/v1/battles/${encodeURIComponent(battleId)}`);
+  return { left: true, closed: true };
+}
 
+interface Seat {
+  uid?: unknown;
+  rank?: unknown;
+  score?: unknown;
+}
+
+/** Maydon holati — jang yozuvi va jonli jadval bitta so'rovda.
+ *
+ *  Jadval faqat **boshlangan** maydonda so'raladi: kutish xonasida
+ *  o'rinlar yo'q va ikkinchi so'rov bekorga ketardi. */
 export const watchMardu = (
   battleId: string,
   onData: (battle: MarduDoc | null) => void,
-): Promise<Unsubscribe> => watchDoc<MarduDoc>(`battles/${battleId}`, onData);
+): Unsubscribe =>
+  poll<MarduDoc | null>(
+    async () => {
+      const base = await readBattle(battleId);
+      if (base === null) return null;
+
+      const doc: MarduDoc = {
+        ...base,
+        host: base.createdBy,
+        capacity: MARDU_CAPACITY,
+      };
+      if (base.status === 'waiting') return doc;
+
+      try {
+        const live = await api.get<{ startsAt?: string | null; seats?: unknown }>(
+          `/v1/battles/${encodeURIComponent(battleId)}/live`,
+        );
+        const seats = Array.isArray(live.seats) ? (live.seats as Seat[]) : [];
+        return {
+          ...doc,
+          startsAt: { seconds: Math.floor((endsOf(live.startsAt) ?? 0) / 1000) },
+          standings: seats.map((seat) => ({
+            uid: String(seat.uid ?? ''),
+            rank: typeof seat.rank === 'number' ? seat.rank : 0,
+            score: typeof seat.score === 'number' ? seat.score : 0,
+          })),
+        };
+      } catch {
+        // Jadval kelmasa maydonning o'zi baribir ko'rinadi.
+        return doc;
+      }
+    },
+    onData,
+    { period: 3000 },
+  );
 
 /** Maydonga havola — ilova ulashadigan manzilning o'zi
  *  (`lib/core/deeplink/deep_link.dart`). Telefonda u ilovani ochadi,

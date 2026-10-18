@@ -54,11 +54,8 @@ function useRating(uid: string | null | undefined): BattleRating | null {
     if (!uid) return;
     let alive = true;
     let stop: (() => void) | null = null;
-    void watchRating(uid, (next) => {
+    stop = watchRating(uid, (next) => {
       if (alive) setValue(next);
-    }).then((off) => {
-      if (alive) stop = off;
-      else off();
     });
     return () => {
       alive = false;

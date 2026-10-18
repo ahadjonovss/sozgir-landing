@@ -28,11 +28,8 @@ export default function BattleStats({ uid, compact = false }: { uid: string; com
   useEffect(() => {
     let alive = true;
     let stop: (() => void) | null = null;
-    void watchRating(uid, (next) => {
+    stop = watchRating(uid, (next) => {
       if (alive) setValue(next);
-    }).then((unsubscribe) => {
-      if (alive) stop = unsubscribe;
-      else unsubscribe();
     });
     return () => {
       alive = false;

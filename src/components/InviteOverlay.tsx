@@ -72,11 +72,8 @@ function useInBattle(uid: string): boolean {
     let stop: Unsubscribe | null = null;
     let alive = true;
 
-    void watchBattle(battleId, (doc) => {
+    stop = watchBattle(battleId, (doc) => {
       if (alive) setWatched({ id: battleId, doc });
-    }).then((unsubscribe) => {
-      if (alive) stop = unsubscribe;
-      else unsubscribe();
     });
 
     return () => {

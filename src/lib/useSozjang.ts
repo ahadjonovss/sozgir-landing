@@ -189,18 +189,13 @@ export function useSozjang() {
   useEffect(() => {
     if (!battleId || !account) return;
     let alive = true;
-    let stop: Unsubscribe | null = null;
-
-    void watchBattle(battleId, (doc) => {
+    const stop: Unsubscribe = watchBattle(battleId, (doc) => {
       if (alive) setBattle(doc);
-    }).then((unsubscribe) => {
-      if (alive) stop = unsubscribe;
-      else unsubscribe();
     });
 
     return () => {
       alive = false;
-      stop?.();
+      stop();
     };
   }, [account, battleId]);
 
@@ -209,19 +204,14 @@ export function useSozjang() {
   useEffect(() => {
     if (!battleId || !uid) return;
     let alive = true;
-    let stop: Unsubscribe | null = null;
-
-    void watchReactions(battleId, uid, (key) => {
+    const stop: Unsubscribe = watchReactions(battleId, uid, (key) => {
       if (!alive) return;
       setIncoming((previous) => ({ key, token: (previous?.token ?? 0) + 1 }));
-    }).then((unsubscribe) => {
-      if (alive) stop = unsubscribe;
-      else unsubscribe();
     });
 
     return () => {
       alive = false;
-      stop?.();
+      stop();
     };
   }, [battleId, uid]);
 
@@ -229,22 +219,17 @@ export function useSozjang() {
   useEffect(() => {
     if (!searching || !uid) return;
     let alive = true;
-    let stop: Unsubscribe | null = null;
-
-    void watchQueue(uid, (entry) => {
+    const stop: Unsubscribe = watchQueue(uid, (entry) => {
       if (!alive) return;
       waiting.current = !entry || entry.status === 'waiting';
       if (!entry?.matchId || entry.matchId === lastLeft.current) return;
       setSearching(false);
       open(entry.matchId);
-    }).then((unsubscribe) => {
-      if (alive) stop = unsubscribe;
-      else unsubscribe();
     });
 
     return () => {
       alive = false;
-      stop?.();
+      stop();
     };
   }, [open, searching, uid]);
 
@@ -255,7 +240,7 @@ export function useSozjang() {
     const tick = window.setInterval(() => setSeconds((value) => value + 1), 1000);
     const retry = window.setInterval(() => {
       if (!waiting.current) return;
-      void quickMatch({ length, nickname: account.nickname })
+      void quickMatch({ length })
         .then((reply) => {
           if (reply.battleId) {
             setSearching(false);
@@ -423,7 +408,7 @@ export function useSozjang() {
 
     setBusy(true);
     try {
-      const reply = await sendGuess({ battleId, word });
+      const reply = await sendGuess({ battleId, word, attempt: words.length + 1 });
       if (!reply.accepted) {
         bump(reply.reason ?? 'Bu so‘z qabul qilinmadi');
         return;
@@ -533,7 +518,6 @@ export function useSozjang() {
         if (!account) return;
         const reply = await createChallenge({
           length,
-          nickname: account.nickname,
         });
         open(reply.battleId);
       }),
@@ -546,7 +530,6 @@ export function useSozjang() {
         if (!account) return;
         const reply = await joinByCode({
           code: code.toUpperCase().trim(),
-          nickname: account.nickname,
         });
         open(reply.battleId);
       }),
@@ -559,7 +542,7 @@ export function useSozjang() {
         if (!account) return;
         setSeconds(0);
         waiting.current = true;
-        const reply = await quickMatch({ length, nickname: account.nickname });
+        const reply = await quickMatch({ length });
         if (reply.battleId) open(reply.battleId);
         else setSearching(true);
       }),

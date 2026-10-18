@@ -49,7 +49,7 @@ function writeRoom(id: string | null): void {
 }
 
 export function useMardu() {
-  const { account, nickname, openPrompt } = useAuth();
+  const { account, openPrompt } = useAuth();
   const uid = account?.uid ?? '';
 
   const [game, setGame] = useState<BattleGame>('guncha');
@@ -90,18 +90,13 @@ export function useMardu() {
   useEffect(() => {
     if (!battleId) return;
     let alive = true;
-    let stop: Unsubscribe | null = null;
-
-    void watchMardu(battleId, (doc) => {
+    const stop: Unsubscribe = watchMardu(battleId, (doc) => {
       if (alive) setBattle(doc);
-    }).then((unsubscribe) => {
-      if (alive) stop = unsubscribe;
-      else unsubscribe();
     });
 
     return () => {
       alive = false;
-      stop?.();
+      stop();
     };
   }, [battleId]);
 
@@ -178,19 +173,19 @@ export function useMardu() {
 
   const quick = useCallback(
     (choice: BattleGame = game) =>
-      run(() => quickMardu({ game: choice, nickname })),
-    [game, nickname, run],
+      run(() => quickMardu({ game: choice })),
+    [game, run],
   );
 
   const create = useCallback(
     (choice: BattleGame = game) =>
-      run(() => createMardu({ game: choice, nickname })),
-    [game, nickname, run],
+      run(() => createMardu({ game: choice })),
+    [game, run],
   );
 
   const join = useCallback(
-    (code: string) => run(() => joinMardu({ code: code.toUpperCase(), nickname })),
-    [nickname, run],
+    (code: string) => run(() => joinMardu({ code: code.toUpperCase() })),
+    [run],
   );
 
   /** Do'stlar maydonini yaratuvchi boshlaydi. Kamida ikki kishi bo'lishi

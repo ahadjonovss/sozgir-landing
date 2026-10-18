@@ -78,7 +78,6 @@ export default function SendInvite({
     let alive = true;
     void sendInvite({
       toUid: target.uid,
-      nickname: account.nickname,
       length: target.length ?? DEFAULT_LENGTH,
       kind: target.kind,
       game: target.game ?? 'soztop',
@@ -100,9 +99,7 @@ export default function SendInvite({
   useEffect(() => {
     if (!inviteId) return;
     let alive = true;
-    let stop: Unsubscribe | null = null;
-
-    void watchInvite(inviteId, (invite) => {
+    const stop: Unsubscribe = watchInvite(inviteId, (invite) => {
       if (!alive || !invite) return;
       if (invite.expiresAt?.seconds) setExpiresAt(invite.expiresAt.seconds * 1000);
       if (invite.status === 'accepted' && invite.battleId) {
@@ -117,14 +114,11 @@ export default function SendInvite({
       } else if (invite.status === 'expired') {
         setOutcome('expired');
       }
-    }).then((unsubscribe) => {
-      if (alive) stop = unsubscribe;
-      else unsubscribe();
     });
 
     return () => {
       alive = false;
-      stop?.();
+      stop();
     };
   }, [inviteId, onClose]);
 

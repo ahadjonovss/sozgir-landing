@@ -338,7 +338,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await saveProfile({ uid: auth.currentUser.uid, nickname: clean });
         // So'zjang jadvali ham yangi nomga o'tadi — aks holda u yerda
         // jangdagi eski nom qolib ketardi.
-        await patchBattleNickname(auth.currentUser.uid, clean);
+        await patchBattleNickname();
       });
     },
     [run, user],
