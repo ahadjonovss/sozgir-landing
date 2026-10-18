@@ -1,19 +1,24 @@
 /** Boshqa o'yinchining ochiq profili — ilovadagi `PublicProfile` va
  *  `PublicProfileDataSource` ning porti.
  *
- *  Faqat hammaga ochiq ma'lumot yig'iladi: umumiy ball (`scores/{uid}`),
- *  bellashuv reytingi (`battle_ratings/{uid}`), bugungi kunlik natija va
- *  loyihaga qo'shgan hissasi (`donations`). Shaxsiy statistika
- *  (`users/{uid}` va ichidagi hujjatlar) o'qilmaydi — u faqat egasiga
- *  ochiq, shuning uchun bu yerda ketma-ketlik yoki urinishlar taqsimoti
- *  yo'q.
+ *  Hammasi bitta so'rovda (`/v1/profiles/:uid`): ball, o'rin, bugungi
+ *  natija, donat va nishonlar. Firestore'da bu beshta hujjatdan beshta
+ *  o'qish edi.
  *
- *  Hammasi ochiq hujjatlar, ya'ni REST bilan, SDK'siz: uch hujjat bitta
- *  `batchGet` da, o'rinlar `count()` bilan, donatlar `runQuery` bilan.
+ *  Jang reytingi alohida so'raladi — u boshqa jadvalda va profilga
+ *  kirmagan.
+ *
+ *  **Marshrut token talab qiladi.** Ochiq ro'yxatda
+ *  (`backend/src/site/`) profil yo'q, shuning uchun kirmagan
+ *  tashrifchi o'yinchi sahifasini ocha olmaydi: javob bo'sh profil
+ *  bo'lib qaytadi va ekranda «izi yo'q» izohi turadi
+ *  ([isEmptyProfile]). Ilgari bu sahifa hammaga ochiq edi.
+ *  `/v1/public/profiles/:uid` ochilsa shu faylda bitta manzil
+ *  almashadi.
+ *
  *  Manbalarning biri xato bersa ham qolgani qaytadi — ekran yarim
  *  ma'lumot bilan ham foydali. */
-import { PATHS, dailyDoc } from '../firebase/paths';
-import { batchGetDocs, countAbove, queryDocs } from '../firebase/rest';
+import { api } from '../api/client';
 import { EMPTY_RATING, played, type BattleRating } from './battleRating';
 import { dailyKey } from './daily';
 import { DAILY_LENGTH } from './modes';
@@ -59,88 +64,93 @@ export const isEmptyProfile = (profile: PublicProfile) =>
   profile.today === null &&
   profile.donated === 0;
 
-/** Bir odamning donatlari — tarixi uzun bo'lsa ham yig'indi shuncha
- *  yozuvdan hisoblanadi. */
-const DONATION_LIMIT = 50;
-
 const int = (value: unknown) =>
   typeof value === 'number' && Number.isFinite(value) ? Math.round(value) : 0;
 
 const text = (value: unknown) => (typeof value === 'string' ? value.trim() : '');
 
+const EMPTY: Omit<PublicProfile, 'uid'> = {
+  nickname: '',
+  totalScore: 0,
+  wealth: 0,
+  wordsFound: 0,
+  scoreRank: null,
+  battle: null,
+  battleRank: null,
+  today: null,
+  donated: 0,
+  donations: 0,
+};
+
+interface ApiProfile {
+  nickname?: unknown;
+  aqcha?: unknown;
+  wordsFound?: unknown;
+  rank?: unknown;
+  today?: { won?: unknown; attempts?: unknown; points?: unknown } | null;
+  donated?: unknown;
+}
+
 export async function loadPublicProfile(uid: string): Promise<PublicProfile> {
-  const scorePath = `${PATHS.scores}/${uid}`;
-  const ratingPath = `${PATHS.battleRatings}/${uid}`;
-  const dailyPath = `${PATHS.dailyResults}/${dailyDoc(dailyKey(), DAILY_LENGTH)}/${PATHS.entries}/${uid}`;
-
-  const docs = await batchGetDocs([scorePath, ratingPath, dailyPath]);
-  const score = docs[scorePath] ?? null;
-  const ratingDoc = docs[ratingPath] ?? null;
-  const daily = docs[dailyPath] ?? null;
-
-  const totalScore = int(score?.totalScore);
-  // Boylik serverdan tayyor keladi (`onScoreWealth`): ball va o'lja
-  // ustamasining yig'indisi. Eski hujjatda maydon yo'q — o'shanda yalang
-  // ball ishlatiladi, ya'ni profil bo'shab qolmaydi.
-  const wealth = int(score?.wealth) || totalScore;
-  const rating: BattleRating | null = ratingDoc
-    ? {
-        rating: int(ratingDoc.rating) || EMPTY_RATING.rating,
-        wins: int(ratingDoc.wins),
-        losses: int(ratingDoc.losses),
-        draws: int(ratingDoc.draws),
-        streak: int(ratingDoc.streak),
-      }
-    : null;
-  const battle = rating && played(rating) > 0 ? rating : null;
-
-  // O'rinlar ball ma'lum bo'lgach sanaladi, donatlar esa mustaqil —
-  // uchalasi baravar ketadi.
-  const [scoreRank, battleRank, donations] = await Promise.all([
-    // O'rin ham boylik bo'yicha: jadval shu maydonni saralaydi
-    // (`leaderboard.ts`), ikki xil maydon bo'lsa profildagi o'rin
-    // jadvaldagisiga to'g'ri kelmasdi.
-    wealth > 0
-      ? countAbove(PATHS.scores, { field: 'wealth', value: wealth })
-      : Promise.resolve(null),
-    battle
-      ? countAbove(PATHS.battleRatings, { field: 'rating', value: battle.rating })
-      : Promise.resolve(null),
-    queryDocs('donations', { field: 'uid', equals: uid, limit: DONATION_LIMIT }),
+  const [profile, rating] = await Promise.all([
+    // Javob o'ralmagan: marshrut profilning o'zini qaytaradi.
+    // Topilmagan yoki robot bo'lsa 404 — u ham bo'sh profil.
+    api
+      .get<ApiProfile>(`/v1/profiles/${encodeURIComponent(uid)}`, {
+        query: { day: dailyKey(), length: DAILY_LENGTH },
+      })
+      .catch(() => null),
+    api
+      .get<{ rating?: Record<string, unknown> | null }>('/v1/me/battle-rating', {
+        query: { uid },
+      })
+      .then((reply) => reply.rating ?? null)
+      .catch(() => null),
   ]);
 
-  let donated = 0;
-  let count = 0;
-  for (const doc of donations) {
-    const amount = int(doc.fields.amount);
-    if (amount <= 0) continue;
-    donated += amount;
-    count += 1;
-  }
+  if (profile === null) return { uid, ...EMPTY };
 
-  // Jadvallarda nomi bo'lmagan donatchi (o'yin o'ynamagan) donatdagi
-  // ismi bilan chiqadi — «O'yinchi» o'rniga.
-  const donorName = donations.map((doc) => text(doc.fields.name)).find(Boolean) ?? '';
+  const full: BattleRating | null = rating
+    ? {
+        rating: int(rating.rating) || EMPTY_RATING.rating,
+        wins: int(rating.wins),
+        losses: int(rating.losses),
+        draws: int(rating.draws),
+        streak: int(rating.streak),
+      }
+    : null;
+
+  const wealth = int(profile.aqcha);
+  const rank = profile.rank;
 
   return {
     uid,
-    nickname:
-      text(score?.nickname) || text(ratingDoc?.nickname) || text(daily?.nickname) || donorName,
-    totalScore,
+    nickname: text(profile.nickname),
+    // Serverda yalang ball alohida saqlanmaydi — `aqcha` ning o'zi
+    // ball bilan o'lja ustamasining yig'indisi. Ekranda baribir
+    // [wealth] turadi, shuning uchun ikkalasi bir xil.
+    totalScore: wealth,
     wealth,
-    wordsFound: int(score?.wordsFound),
-    scoreRank: scoreRank === null ? null : scoreRank + 1,
-    battle,
-    battleRank: battleRank === null ? null : battleRank + 1,
-    today: daily
+    wordsFound: int(profile.wordsFound),
+    // O'rin serverda hisoblanadi va **birdan** boshlanadi.
+    scoreRank: typeof rank === 'number' ? rank : null,
+    battle: full && played(full) > 0 ? full : null,
+    // Jang jadvalidagi o'rin serverda sanalmaydi: `battle_ratings` da
+    // o'rin so'rovi yo'q va uni mijozda hisoblash butun jadvalni
+    // yuklashni talab qilardi.
+    battleRank: null,
+    today: profile.today
       ? {
-          won: daily.won === true,
-          attempts: int(daily.attempts),
-          points: int(daily.points),
-          number: int(daily.number),
+          won: profile.today.won === true,
+          attempts: int(profile.today.attempts),
+          points: int(profile.today.points),
+          // Kunlik o'yinning tartib raqami javobda yo'q.
+          number: 0,
         }
       : null,
-    donated,
-    donations: count,
+    donated: int(profile.donated),
+    // Donatlar **soni** serverda qaytmaydi, faqat yig'indisi. Nol
+    // emas, bor-yo'qligi bo'yicha: yig'indisi bo'lsa kamida bitta.
+    donations: int(profile.donated) > 0 ? 1 : 0,
   };
 }

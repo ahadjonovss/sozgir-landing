@@ -1,15 +1,18 @@
 /** Onlayn maydondagi janglar tarixi — ilovadagi `ArenaHistoryDataSource`
  *  ning veb ko'chirmasi.
  *
- *  So'rov ikkala o'yin uchun bitta: `battles` to'plami umumiy, ro'yxat ham
+ *  So'rov ikkala o'yin uchun bitta: `battles` jadvali umumiy, ro'yxat ham
  *  ataylab ikkalasini birga ko'rsatadi — «kim bilan o'ynadim» degan savol
  *  o'yinga qarab bo'linmaydi.
  *
- *  Saralash `players.{uid}.joinedAt` bo'yicha: hujjatda ishtirokchilar
- *  xarita bo'lib yotadi, ya'ni «mening janglarim» aynan shu yo'l bilan
- *  topiladi va alohida indeks kerak emas. */
-import { client } from '../firebase/client';
-import { battleAqchaDelta } from './aqcha';
+ *  Raqibni **server** topadi (`LATERAL`): maydon jangida u birinchi
+ *  qo'shilgan boshqa qatnashchi bo'ladi.
+ *
+ *  Ikki narsa javobda yo'q va shu sabab ro'yxatda ko'rinmaydi:
+ *  jangdagi o'lja o'zgarishi (reyting yozuvi tarixda saqlanmaydi) va
+ *  So'zjangdagi yashirin so'z. G'unchaning hisobi ham faqat o'z balli
+ *  bilan chiqadi — raqibniki javobda yo'q. */
+import { api } from '../api/client';
 import { gameOf, type BattleGame } from './battle';
 
 /** Jang natijasi — ikkala o'yin uchun ham bir xil uchta holat. */
@@ -34,21 +37,18 @@ export interface ArenaBattle {
 const int = (value: unknown) =>
   typeof value === 'number' && Number.isFinite(value) ? Math.round(value) : null;
 
-/** Hujjatdan tarix qatori. */
+/** Serverdagi qatordan tarix qatori. */
 export function arenaBattleFrom(
-  id: string,
   data: Record<string, unknown>,
   uid: string,
 ): ArenaBattle {
   // Maydoni yo'q eski janglar So'ztopniki.
   const game = gameOf(data.game);
-  const players = (data.players ?? {}) as Record<string, Record<string, unknown>>;
-  const me = players[uid] ?? {};
-  const rivalUid = Object.keys(players).find((key) => key !== uid) ?? null;
-  const rival = (rivalUid ? players[rivalUid] : {}) ?? {};
+  const rivalUid =
+    typeof data.opponent_uid === 'string' ? data.opponent_uid : null;
 
   const finished = data.status === 'finished';
-  const winner = data.winnerUid;
+  const winner = data.winner_uid;
   const outcome: ArenaOutcome = !finished
     ? 'open'
     : !winner
@@ -57,22 +57,16 @@ export function arenaBattleFrom(
         ? 'win'
         : 'loss';
 
-  const before = int(me.ratingBefore);
-  const after = int(me.ratingAfter);
-
   return {
-    id,
+    id: String(data.id ?? ''),
     game,
-    opponent: typeof rival.nickname === 'string' ? rival.nickname : '',
+    opponent:
+      typeof data.opponent_nickname === 'string' ? data.opponent_nickname : '',
     opponentUid: rivalUid,
     outcome,
-    detail:
-      game === 'guncha'
-        ? `${int(me.score) ?? 0} : ${int(rival.score) ?? 0}`
-        : typeof data.answer === 'string'
-          ? data.answer
-          : '',
-    battleAqchaDelta: before === null || after === null ? null : battleAqchaDelta(before, after),
+    // G'unchada o'z balli: raqibniki javobda yo'q.
+    detail: game === 'guncha' ? String(int(data.my_score) ?? 0) : '',
+    battleAqchaDelta: null,
   };
 }
 
@@ -88,19 +82,11 @@ export async function myBattles({
   limit?: number;
 }): Promise<ArenaBattle[]> {
   try {
-    const { db } = await client();
-    const { collection, getDocs, limit, orderBy, query } =
-      await import('firebase/firestore/lite');
-
-    const snapshot = await getDocs(
-      query(
-        collection(db, 'battles'),
-        orderBy(`players.${uid}.joinedAt`, 'desc'),
-        limit(max),
-      ),
-    );
-    return snapshot.docs.map((item) =>
-      arenaBattleFrom(item.id, item.data() as Record<string, unknown>, uid),
+    const { items } = await api.get<{ items?: unknown }>('/v1/me/battles', {
+      query: { limit: max },
+    });
+    return (Array.isArray(items) ? items : []).map((row) =>
+      arenaBattleFrom(row as Record<string, unknown>, uid),
     );
   } catch {
     return [];

@@ -1,16 +1,20 @@
 /** Avatarlar do'koni — ilovadagi `AvatarStore` + `AvatarCache` porti.
  *
  *  Har bir avatar o'zi so'rov yubormaydi — shu yerdan **so'raydi**.
- *  Do'kon qisqa oyna (60 ms) ichida yig'ilgan uid'larni bitta
- *  `batchGet` so'roviga to'playdi: reytingdagi o'nlab qator bir so'rovga
- *  tushadi. Tartib: xotira → brauzer keshi (3 kun, «rasmi yo'q» ham
- *  keshlanadi) → Firestore. Hujjatlar ochiq, shuning uchun SDK kerak emas.
+ *  Do'kon qisqa oyna (60 ms) ichida yig'ilgan uid'larni bitta so'rovga
+ *  to'playdi (`/v1/avatars?uids=`): reytingdagi o'nlab qator bir
+ *  so'rovga tushadi. Tartib: xotira → brauzer keshi (3 kun, «rasmi
+ *  yo'q» ham keshlanadi) → server.
  *
- *  Yozish (o'z rasmi) SDK orqali: ikki hujjat bitta batch'da. */
+ *  Marshrut **token talab qiladi** va ochiq ro'yxatga kirmagan:
+ *  avatar — odamning o'z rasmi va uni butun internetga ochib qo'yish
+ *  alohida qaror. Shu sabab kirmagan tashrifchiga avatarlar
+ *  ko'rinmaydi va uning o'rnida harf-nishon chiziladi
+ *  (`Avatar.tsx` buni allaqachon qiladi: bo'sh satr — odatiy hol).
+ *
+ *  Yozish ham shu yerda: ikki o'lcham bitta so'rovda. */
 import { useEffect, useState } from 'react';
-import { client } from '../firebase/client';
-import { PATHS } from '../firebase/paths';
-import { batchGetDocs, readDoc } from '../firebase/rest';
+import { api } from '../api/client';
 import type { AvatarImages } from './avatarImage';
 
 const CACHE_KEY = 'sozgir.avatars';
@@ -72,15 +76,29 @@ async function flush(): Promise<void> {
   pending.clear();
   if (batch.length === 0) return;
 
-  const found = await batchGetDocs(
-    batch.map((uid) => `${PATHS.avatars}/${uid}`),
-    { fields: ['thumb'] },
-  );
+  let items: unknown;
+  try {
+    ({ items } = await api.get<{ items?: unknown }>('/v1/avatars', {
+      query: { uids: batch.join(',') },
+    }));
+  } catch {
+    // Tarmoq yiqildi yoki kirilmagan — keyingi safar qayta so'raladi.
+    return;
+  }
+
+  // Rasmi yo'q odam javobga **tushmaydi**, shuning uchun topilganlar
+  // avval yig'iladi: qolgani «rasmi yo'q» bo'lib keshlanadi va u ham
+  // javob, ya'ni qayta so'ralmaydi.
+  const found = new Map<string, string>();
+  for (const row of Array.isArray(items) ? items : []) {
+    const item = row as { uid?: unknown; thumb?: unknown };
+    const uid = String(item.uid ?? '').trim();
+    if (uid) found.set(uid, String(item.thumb ?? '').trim());
+  }
+
   const learned: Record<string, string> = {};
   for (const uid of batch) {
-    const doc = found[`${PATHS.avatars}/${uid}`];
-    if (doc === undefined) continue; // tarmoq yiqildi — keyingi safar qayta
-    const thumb = typeof doc?.thumb === 'string' ? doc.thumb.trim() : '';
+    const thumb = found.get(uid) ?? '';
     memory.set(uid, thumb);
     learned[uid] = thumb;
   }
@@ -136,33 +154,26 @@ export function useAvatarThumb(uid: string | undefined): string {
 
 /** Profil oynasidagi katta nusxa. Yo'q bo'lsa `''`. */
 export async function readFullAvatar(uid: string): Promise<string> {
-  const doc = await readDoc(
-    `${PATHS.avatars}/${uid}/${PATHS.avatarSizes}/${PATHS.avatarFull}`,
-    { fields: ['data'] },
-  );
-  return typeof doc?.data === 'string' ? doc.data.trim() : '';
+  try {
+    const { data } = await api.get<{ data?: unknown }>(
+      `/v1/avatars/${encodeURIComponent(uid)}`,
+    );
+    return typeof data === 'string' ? data.trim() : '';
+  } catch {
+    return '';
+  }
 }
 
-/** Ikki o'lchamni birga yozadi — ilovadagi `save` bilan bir xil maydonlar. */
+/** Ikki o'lchamni birga yozadi — ilovadagi `save` bilan bir xil
+ *  maydonlar. Kimning rasmi ekanini server token'dan biladi. */
 export async function saveAvatar(uid: string, images: AvatarImages): Promise<void> {
-  const { db } = await client();
-  const { doc, serverTimestamp, writeBatch } = await import('firebase/firestore/lite');
-  const batch = writeBatch(db);
-  batch.set(doc(db, PATHS.avatars, uid), { thumb: images.thumb, updatedAt: serverTimestamp() });
-  batch.set(doc(db, PATHS.avatars, uid, PATHS.avatarSizes, PATHS.avatarFull), {
-    data: images.full,
-    updatedAt: serverTimestamp(),
+  await api.put('/v1/me/avatar', {
+    body: { thumb: images.thumb, full: images.full },
   });
-  await batch.commit();
   put(uid, images.thumb);
 }
 
 export async function removeAvatar(uid: string): Promise<void> {
-  const { db } = await client();
-  const { doc, writeBatch } = await import('firebase/firestore/lite');
-  const batch = writeBatch(db);
-  batch.delete(doc(db, PATHS.avatars, uid));
-  batch.delete(doc(db, PATHS.avatars, uid, PATHS.avatarSizes, PATHS.avatarFull));
-  await batch.commit();
+  await api.delete('/v1/me/avatar');
   put(uid, '');
 }
