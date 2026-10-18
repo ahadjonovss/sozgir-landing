@@ -18,6 +18,7 @@
  *  ketgani va u jangning oxirgi soniyasida bo'ladi. */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { apiError } from '../api/errors';
+import { refreshRating } from './battleRating';
 import { arenaTiles, isMardu, rankArena } from './mardu';
 import type { Unsubscribe } from '../api/poll';
 import { onBattleOpen, readActive, setActive } from './activeBattle';
@@ -315,6 +316,12 @@ export function useGunchaJang() {
           : finishing
             ? 'finishing'
             : 'playing';
+
+  /* Jang tugadi — reyting kartochkasi darhol qayta so'raladi
+   *  (`useSozjang` dagi bilan bir sabab). */
+  useEffect(() => {
+    if (done) refreshRating();
+  }, [done]);
 
   /** Serverdan qolgan vaqtni so'raydi.
    *

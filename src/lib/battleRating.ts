@@ -81,34 +81,66 @@ export const tierSlug = (rating: number) => TIERS[tierIndex(rating)].slug;
 const int = (value: unknown, fallback = 0) =>
   typeof value === 'number' && Number.isFinite(value) ? Math.round(value) : fallback;
 
-/** Reytingni kuzatish: jang tugagach server yozadi va kartochka
- *  keyingi so'rovda yangilanadi. Yozuv yo'q bo'lsa — hali jang
- *  qilmagan. */
-export function watchRating(
-  uid: string,
-  onData: (value: BattleRating) => void,
-): Unsubscribe {
-  return poll<BattleRating>(
-    async () => {
-      const reply = await api.get<{ rating?: Record<string, unknown> | null }>(
-        '/v1/me/battle-rating',
-        { query: { uid } },
-      );
-      const data = reply.rating;
-      if (!data) return EMPTY_RATING;
-      return {
+const ratingOf = (data: Record<string, unknown> | null | undefined): BattleRating =>
+  !data
+    ? EMPTY_RATING
+    : {
         rating: int(data.rating, START_RATING),
         wins: int(data.wins),
         losses: int(data.losses),
         draws: int(data.draws),
         streak: int(data.streak),
       };
+
+/** Reytingni darhol qayta so'raydiganlar.
+ *
+ *  Jang tugagan zahoti chaqiriladi: natija ekrani shu kartochkani
+ *  ko'rsatadi va o'n besh soniya kutish uni eski son bilan chizardi —
+ *  endigina yutgan odam «0 jang» ni ko'rardi. */
+const listeners = new Set<() => void>();
+
+export function refreshRating(): void {
+  for (const listener of [...listeners]) listener();
+}
+
+/** Reytingni kuzatish: jang tugagach server yozadi va kartochka
+ *  darhol yangilanadi. Yozuv yo'q bo'lsa — hali jang qilmagan.
+ *
+ *  `null` — hali kelmagani: chaqiruvchi uni **bo'sh reytingdan**
+ *  ajratishi kerak, aks holda yuklanish payti haqiqiy ma'lumotday
+ *  ko'rinadi. */
+export function watchRating(
+  uid: string,
+  onData: (value: BattleRating) => void,
+): Unsubscribe {
+  const stop = poll<BattleRating>(
+    async () => {
+      const reply = await api.get<{ rating?: Record<string, unknown> | null }>(
+        '/v1/me/battle-rating',
+        { query: { uid } },
+      );
+      return ratingOf(reply.rating);
     },
     onData,
     // Reyting faqat jang yakunida o'zgaradi — tez-tez so'rashning
-    // ma'nosi yo'q.
+    // ma'nosi yo'q. Yakun esa [refreshRating] bilan darhol keladi.
     { period: 15_000 },
   );
+
+  const again = () => {
+    void api
+      .get<{ rating?: Record<string, unknown> | null }>('/v1/me/battle-rating', {
+        query: { uid },
+      })
+      .then((reply) => onData(ratingOf(reply.rating)))
+      .catch(() => undefined);
+  };
+  listeners.add(again);
+
+  return () => {
+    listeners.delete(again);
+    stop();
+  };
 }
 
 /** So'zjang jadvalidagi taxallus endi **o'zi** to'g'ri bo'ladi.

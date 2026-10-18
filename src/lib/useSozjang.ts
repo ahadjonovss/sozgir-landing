@@ -9,6 +9,7 @@
  *  odam adashib chiqib ketsa, o'yin joyidan davom etadi. */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { apiError } from '../api/errors';
+import { refreshRating } from './battleRating';
 import { arenaTiles, isMardu, rankArena } from './mardu';
 import type { Unsubscribe } from '../api/poll';
 import {
@@ -296,6 +297,15 @@ export function useSozjang() {
         : battle.status === 'waiting'
           ? 'waiting'
           : 'playing';
+
+  /* Jang tugadi — reyting kartochkasi darhol qayta so'raladi.
+   *
+   *  Natija ekrani o'sha kartochkani ko'rsatadi, reyting esa
+   *  o'n besh soniyada bir so'raladi: endigina yutgan odam
+   *  «0 jang» va boshlang'ich o'ljani ko'rardi. */
+  useEffect(() => {
+    if (phase === 'finished') refreshRating();
+  }, [phase]);
 
   // `me` hujjat bilan birga o'zgaradi — ro'yxat har renderda yangi
   // bo'lib qolmasligi uchun eslab qo'yiladi.
