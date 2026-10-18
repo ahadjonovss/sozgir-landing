@@ -15,9 +15,14 @@
  *  So'z **ma'nolari serverda yo'q**: Postgres'dagi `dictionary_words`
  *  da faqat so'zning o'zi, uzunligi va javob bo'la olishi saqlanadi
  *  (`backend/src/tools/migrate.ts` ma'nolarni ataylab ko'chirmagan).
- *  Shu sabab `words` bo'sh qoladi va `wordMeaning` `null` qaytaradi —
- *  chaqiruvchilar buni allaqachon odatiy hol deb qaraydi. */
+ *  Shu sabab `wordMeaning` `null` qaytaradi — chaqiruvchilar buni
+ *  allaqachon odatiy hol deb qaraydi.
+ *
+ *  Mavzu (`c`) esa tiklanadi: u alohida marshrutda turadi va
+ *  `categories.ts` undan «so'z → mavzu» jadvalini yasaydi. Ya'ni
+ *  yordamning birinchi bosqichi ishlashda davom etadi. */
 import { api } from '../api/client';
+import { loadCategories } from './categories';
 import { normalize } from './uz';
 
 export interface WordInfo {
@@ -106,12 +111,21 @@ async function fetchDictionary(length: number): Promise<StoredDictionary | null>
   const answers = strings(data.answers);
   if (answers.length === 0) return null;
 
+  // Mavzular alohida keladi va faqat javob bo'la oladigan so'zlar uchun
+  // kerak: yordam **javobning** mavzusini ochadi, taxminnikini emas.
+  const { wordCategory } = await loadCategories();
+  const words: Record<string, WordInfo> = {};
+  for (const answer of answers) {
+    const category = wordCategory[answer];
+    if (category) words[answer] = { c: category };
+  }
+
   return {
     length: typeof data.length === 'number' ? data.length : length,
     version: typeof data.version === 'number' ? data.version : 1,
     answers,
     valid: strings(data.valid),
-    words: {},
+    words,
   };
 }
 

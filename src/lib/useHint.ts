@@ -7,11 +7,10 @@
  *  turgani yaxshi. Kunlik o'yinda yordam yo'q: so'z hamma uchun bir xil,
  *  reyting adolatli bo'lishi kerak.
  *
- *  Mavzu nomi `categories/{id}` dan olinadi (ochiq hujjat, faqat `name`
- *  va `emoji` maydonlari) va brauzerda eslab qolinadi. */
+ *  Mavzu nomi `/v1/categories` dan olinadi va brauzerda eslab qolinadi
+ *  (`categories.ts`). */
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { PATHS } from '../firebase/paths';
-import { readDoc } from '../firebase/rest';
+import { categoryLabel, type CategoryLabel } from './categories';
 import type { HintLevel } from './score';
 import type { Puzzle, Phase } from './useSozTop';
 import { play } from './sounds';
@@ -21,39 +20,7 @@ export const hintDelayMs = (length: number) => 15 * (length - 1) * 1000;
 /** Ma'no — ikki barobar uzoqroq o'ylagandan keyin. */
 export const descriptionDelayMs = (length: number) => hintDelayMs(length) * 2;
 
-export interface CategoryLabel {
-  name: string;
-  emoji: string;
-}
-
-const CACHE_KEY = 'sozgir.categories';
-const memory = new Map<string, CategoryLabel>();
-
-function readCache(): Record<string, CategoryLabel> {
-  try {
-    return JSON.parse(localStorage.getItem(CACHE_KEY) ?? '{}') as Record<string, CategoryLabel>;
-  } catch {
-    return {};
-  }
-}
-
-export async function categoryLabel(id: string): Promise<CategoryLabel | null> {
-  const cached = memory.get(id) ?? readCache()[id];
-  if (cached) {
-    memory.set(id, cached);
-    return cached;
-  }
-  const data = await readDoc(`${PATHS.categories}/${id}`, { fields: ['name', 'emoji'] });
-  if (!data || typeof data.name !== 'string') return null;
-  const label = { name: data.name, emoji: typeof data.emoji === 'string' ? data.emoji : '' };
-  memory.set(id, label);
-  try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify({ ...readCache(), [id]: label }));
-  } catch {
-    // kesh shart emas
-  }
-  return label;
-}
+export type { CategoryLabel };
 
 export interface Hint {
   /** Yordam umuman bormi (kunlikda va tugagan o'yinda — yo'q). */
