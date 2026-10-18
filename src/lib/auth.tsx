@@ -29,7 +29,7 @@ import {
 import type { User } from 'firebase/auth';
 import { client } from '../firebase/client';
 import { authError } from '../firebase/errors';
-import { saveProfile, type ProfileDetails } from '../firebase/profile';
+import { saveProfile, type ProfileDetails } from './profile';
 import { patchBattleNickname } from './battleRating';
 import { claimDevice, releaseDevice } from './device';
 import { toLoginEmail } from './loginId';
@@ -129,6 +129,34 @@ function hadSession(): boolean {
  *
  *  Hisobning nomi bo'lmasa, brauzerdagi nom faqat **egasiz** bo'lsa yoki
  *  aynan shu hisobniki bo'lsa qoladi. */
+/** Yiqilsa ham amalni to'xtatmaydigan qadam.
+ *
+ *  Kirish va ro'yxatdan o'tishdan **keyingi** yozuvlar uchun: odam u
+ *  paytda allaqachon kirgan va uni xato ekrani bilan qaytarib
+ *  yuborish noto'g'ri bo'lardi. Sabab jurnalda qoladi. */
+async function quietly(step: () => Promise<unknown>): Promise<void> {
+  try {
+    await step();
+  } catch (raw) {
+    console.error('[auth] kirishdan keyingi yozuv o‘tmadi:', raw);
+  }
+}
+
+/** Kodsiz xatoning matni.
+ *
+ *  Serverning o'zbekcha izohi bo'lsa — o'sha ko'rsatiladi. Bo'lmasa
+ *  umumiy matn, lekin **nima qilish kerakligi** bilan: «xatolik yuz
+ *  berdi» degan gap odamga hech narsa bermaydi. */
+function messageOf(raw: unknown): string {
+  const message = String((raw as { message?: string })?.message ?? '').trim();
+  // Texnik matn ekranga chiqmaydi: u faqat jurnalda foydali.
+  if (message && /[\u0400-\u04FF\u2018\u2019a-z]/i.test(message) && message.length < 120
+      && !message.includes('http') && !/[{}<>]/.test(message)) {
+    return message;
+  }
+  return 'Ulanib bo‘lmadi — internetni tekshirib, qayta urinib ko‘ring';
+}
+
 function adoptNickname(user: User): string {
   const own = user.displayName?.trim();
   if (own) {
@@ -192,8 +220,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await action();
         return true;
       } catch (raw) {
+        /*
+         * Sabab **jurnalga** yoziladi.
+         *
+         * Firebase xatosining kodi bor va u matnga o'giriladi. Kodsiz
+         * xato esa (tarmoq uzilishi, yuklanmagan bo'lak, serverning
+         * javobi) ekranda «Amalni bajarib bo'lmadi» bo'lib qolardi va
+         * nima bo'lganini **hech kim** bilmasdi — na foydalanuvchi, na
+         * biz. Shu sabab xom xato konsolga chiqadi: ekrandagi matn
+         * qisqa qoladi, sabab esa yo'qolmaydi.
+         */
         const code = (raw as { code?: string }).code;
-        setError(code ? authError(code) : 'Amalni bajarib bo‘lmadi');
+        if (!code) console.error('[auth] kirishda xato:', raw);
+        setError(code ? authError(code) : messageOf(raw));
         return false;
       } finally {
         setBusy(false);
@@ -239,12 +278,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await credential.user.reload();
         writeStoredNickname(clean, credential.user.uid);
         setUser(auth.currentUser);
-        await saveProfile({
-          uid: credential.user.uid,
-          email: credential.user.email,
-          nickname: clean,
-          details,
-        });
+        // Kirishdagi bilan bir sabab: hisob allaqachon ochilgan va uni
+        // profil yozuvi tufayli xato deb ko'rsatish odamni yo'q
+        // muammoga ishontirardi.
+        await quietly(() =>
+          saveProfile({
+            email: credential.user.email,
+            nickname: clean,
+            details,
+          }),
+        );
       }),
     [run],
   );
@@ -263,11 +306,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // hamma yo'llarida (kirish, ro'yxatdan o'tish, sessiya tiklanishi)
         // bir marta ishlaydi, ya'ni qoida bitta joyda turadi.
         setNickname(adoptNickname(credential.user));
-        await saveProfile({
-          uid: credential.user.uid,
-          email: credential.user.email,
-          nickname: credential.user.displayName?.trim(),
-        });
+        // Profil yozuvi kirishni **yiqitmaydi**: odam shu paytda
+        // allaqachon kirgan va yozuv keyingi kirishda baribir qayta
+        // yuboriladi. Ilgari u yiqilsa butun amal xato bo'lib
+        // ko'rinardi — parol to'g'ri bo'lsa ham.
+        await quietly(() =>
+          saveProfile({
+            email: credential.user.email,
+            nickname: credential.user.displayName?.trim(),
+          }),
+        );
       }),
     [run],
   );

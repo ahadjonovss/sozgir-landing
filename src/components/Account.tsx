@@ -14,7 +14,7 @@ import Modal from './Modal';
 import { VerifiedMark } from './PlayerName';
 import { nicknameError } from '../lib/nickname';
 import { isValidLogin, looksLikePhone, PHONE_LENGTH, prettyLogin } from '../lib/loginId';
-import { loadDetails, MAX_AGE, MIN_AGE, type ProfileDetails } from '../firebase/profile';
+import { loadDetails, MAX_AGE, MIN_AGE, type ProfileDetails } from '../lib/profile';
 import PhoneField from './PhoneField';
 import { toLatin } from '../lib/useScript';
 import { links, playerLink } from '../data/site';
@@ -55,7 +55,7 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
   useEffect(() => {
     if (mode !== 'profile' || !uid) return;
     let alive = true;
-    void loadDetails(uid).then((details) => {
+    void loadDetails().then((details) => {
       if (!alive) return;
       if (details.birthDate) setBirthDate(details.birthDate);
       if (details.gender) setGender(details.gender);
