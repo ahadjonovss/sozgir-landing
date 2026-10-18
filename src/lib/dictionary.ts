@@ -1,6 +1,6 @@
 /** Lug'at — ilovadagi bilan bir xil manbadan.
  *
- *  Serverdagi `/v1/dictionary/{uzunlik}` ni o'qiydi: ilova ham, admin
+ *  Serverdagi `/v1/public/dictionary/{uzunlik}` ni o'qiydi: ilova ham, admin
  *  panel ham shu jadvalga tayanadi, ya'ni sayt hech qachon eski so'zlar
  *  bilan qolmaydi.
  *
@@ -102,7 +102,7 @@ const strings = (value: unknown): string[] =>
 async function fetchDictionary(length: number): Promise<StoredDictionary | null> {
   let data: ApiDictionary;
   try {
-    data = await api.get<ApiDictionary>(`/v1/dictionary/${length}`, { auth: false });
+    data = await api.get<ApiDictionary>(`/v1/public/dictionary/${length}`, { auth: false });
   } catch {
     // Tarmoq yoki server yiqildi — chaqiruvchi keshdagisi bilan qoladi.
     return null;
@@ -134,7 +134,7 @@ async function refreshInBackground(length: number, version: number): Promise<voi
   let manifest: { versions?: Record<string, number> };
   try {
     manifest = await api.get<{ versions?: Record<string, number> }>(
-      '/v1/dictionary/manifest',
+      '/v1/public/dictionary/manifest',
       { auth: false },
     );
   } catch {

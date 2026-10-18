@@ -9,13 +9,13 @@
  *  yuqorisi intilish uchun. Hisobsiz
  *  qilingan donat sanalmaydi — unda `uid` yo'q.
  *
- *  Yig'indi hamma uchun bir marta olinadi: `/v1/donors` tayyor
+ *  Yig'indi hamma uchun bir marta olinadi: `/v1/public/donors` tayyor
  *  jadvalni beradi (`uid` → so'm). Har avatar alohida so'ramaydi —
  *  do'kondan **so'raydi** (avatarlar do'koni kabi). Natija xotirada va
  *  brauzer keshida (bir soat) turadi.
  *
  *  Reklamasizlik muddati esa oxirgi qo'llovlar ro'yxatidan chiqadi
- *  ([isAdFree]) — `/v1/donations/recent`. Ikkita so'rov bitta joyda:
+ *  ([isAdFree]) — `/v1/public/donations/recent`. Ikkita so'rov bitta joyda:
  *  ilgari ikkalasi ham `donations` kolleksiyasining bitta o'qishidan
  *  chiqardi, serverda esa yig'indi tayyor turadi va uni qayta
  *  hisoblashning ma'nosi yo'q. */
@@ -165,10 +165,10 @@ function loadDonors(): Promise<Donors> {
   if (loading) return loading;
   loading = Promise.all([
     api
-      .get<{ items?: unknown }>('/v1/donors', { auth: false })
+      .get<{ items?: unknown }>('/v1/public/donors', { auth: false })
       .catch(() => ({ items: [] as unknown })),
     api
-      .get<{ items?: unknown }>('/v1/donations/recent', {
+      .get<{ items?: unknown }>('/v1/public/donations/recent', {
         query: { limit: RECENT_LIMIT },
         auth: false,
       })

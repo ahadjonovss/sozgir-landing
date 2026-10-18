@@ -82,7 +82,7 @@ export async function fetchDailyGuncha({
   if (cached) return cached;
 
   const data = await api
-    .get<Record<string, unknown>>(`/v1/guncha/${encodeURIComponent(dateKey)}`, {
+    .get<Record<string, unknown>>(`/v1/public/guncha/${encodeURIComponent(dateKey)}`, {
       auth: false,
     })
     .catch(() => null);

@@ -233,7 +233,7 @@ export async function inviteToTurnir(input: {
 
 export async function leaveTurnir(code: string): Promise<{ left: boolean }> {
   const id = await turnirIdOf(code);
-  await api.post(`/v1/turnirs/${encodeURIComponent(id)}/leave`);
+  await api.delete(`/v1/turnirs/${encodeURIComponent(id)}/leave`);
   return { left: true };
 }
 
@@ -394,7 +394,7 @@ export const watchOpenTurnirList = (
   sharedPoll<TurnirRow[]>(
     'turnirs/open',
     async () => {
-      const data = await api.get<{ items?: unknown }>('/v1/turnirs/open', {
+      const data = await api.get<{ items?: unknown }>('/v1/public/turnirs/open', {
         auth: false,
       });
       return list(data.items).map((row) => {

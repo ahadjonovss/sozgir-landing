@@ -76,7 +76,7 @@ export function formatSum(value: number): string {
 export async function loadBalance(): Promise<SupportBalance> {
   let data: Record<string, unknown>;
   try {
-    data = await api.get<Record<string, unknown>>('/v1/support', { auth: false });
+    data = await api.get<Record<string, unknown>>('/v1/public/support', { auth: false });
   } catch {
     return EMPTY_BALANCE;
   }
@@ -104,7 +104,7 @@ const RECENT_MAX = 100;
 
 async function recentDonations(limit: number): Promise<DonationRow[]> {
   try {
-    const data = await api.get<{ items?: unknown }>('/v1/donations/recent', {
+    const data = await api.get<{ items?: unknown }>('/v1/public/donations/recent', {
       query: { limit: Math.min(limit, RECENT_MAX) },
       auth: false,
     });
@@ -204,7 +204,7 @@ export interface TopDonor {
 
 /** Eng ko'p hissa qo'shganlar — yig'indi bo'yicha.
  *
- *  Yig'indini **server** beradi (`/v1/donors`) va u to'liq: ilgari
+ *  Yig'indini **server** beradi (`/v1/public/donors`) va u to'liq: ilgari
  *  ro'yxat oxirgi 300 yozuvdan hisoblangani uchun eski donatlar
  *  yig'indidan tushib qolardi.
  *
@@ -217,7 +217,7 @@ export interface TopDonor {
 export async function loadTopDonors(limit = 5): Promise<TopDonor[]> {
   const [donorList, recent] = await Promise.all([
     api
-      .get<{ items?: unknown }>('/v1/donors', { auth: false })
+      .get<{ items?: unknown }>('/v1/public/donors', { auth: false })
       .catch(() => ({ items: [] as unknown })),
     recentDonations(RECENT_MAX),
   ]);

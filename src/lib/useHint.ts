@@ -7,7 +7,7 @@
  *  turgani yaxshi. Kunlik o'yinda yordam yo'q: so'z hamma uchun bir xil,
  *  reyting adolatli bo'lishi kerak.
  *
- *  Mavzu nomi `/v1/categories` dan olinadi va brauzerda eslab qolinadi
+ *  Mavzu nomi `/v1/public/categories` dan olinadi va brauzerda eslab qolinadi
  *  (`categories.ts`). */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { categoryLabel, type CategoryLabel } from './categories';

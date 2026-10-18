@@ -4,7 +4,7 @@
  *  lug'atdagi `words[word].c` maydonidan olinardi. Yangi serverda
  *  lug'at jadvalida bunday maydon yo'q (`dictionary_words` da faqat
  *  so'z, uzunligi va javob bo'la olishi), lekin mavzular **alohida**
- *  turadi va ular so'zlari bilan keladi: `/v1/categories` → 22 mavzu,
+ *  turadi va ular so'zlari bilan keladi: `/v1/public/categories` → 22 mavzu,
  *  ~6 000 so'z, ~57 KB.
  *
  *  Shu sabab yo'nalish teskari aylantirildi: ro'yxat bir marta olinadi
@@ -95,7 +95,7 @@ export function loadCategories(): Promise<Categories> {
   }
 
   loading ??= api
-    .get<{ items?: unknown }>('/v1/categories', { auth: false })
+    .get<{ items?: unknown }>('/v1/public/categories', { auth: false })
     .then((data) => {
       const built = build(data.items);
       memory = built;

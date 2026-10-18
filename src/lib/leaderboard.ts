@@ -57,7 +57,7 @@ export async function dailyTop({
   length: number;
   limit?: number;
 }): Promise<Entry[]> {
-  const rows = await items('/v1/daily/ranking', { day: dateKey, length });
+  const rows = await items('/v1/public/daily/ranking', { day: dateKey, length });
 
   return rows.slice(0, limit).map((row) => ({
     uid: text(row.uid, ''),
@@ -81,7 +81,7 @@ export async function todayTop({
   dateKey: string;
   limit?: number;
 }): Promise<Entry[]> {
-  const rows = await items('/v1/daily/aqcha', { day: dateKey, limit });
+  const rows = await items('/v1/public/daily/aqcha', { day: dateKey, limit });
 
   return rows.map((row) => ({
     uid: text(row.uid, ''),
@@ -102,7 +102,7 @@ export async function todayTop({
 export async function totalTop({ limit = 10 }: { limit?: number } = {}): Promise<
   Entry[]
 > {
-  const rows = await items('/v1/ranking', { limit });
+  const rows = await items('/v1/public/ranking', { limit });
 
   return rows.map((row) => ({
     uid: text(row.uid, ''),
@@ -127,7 +127,7 @@ export interface BattleEntry {
 export async function battleTop({ limit = 10 }: { limit?: number } = {}): Promise<
   BattleEntry[]
 > {
-  const rows = await items('/v1/battle-ratings', { limit });
+  const rows = await items('/v1/public/battle-ratings', { limit });
 
   return rows.map((row) => ({
     uid: text(row.uid, ''),

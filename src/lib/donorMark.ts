@@ -197,7 +197,7 @@ function loadCatalog(): Promise<void> {
   }
 
   catalogLoading = api
-    .get<{ version?: unknown }>('/v1/donor-marks/version', { auth: false })
+    .get<{ version?: unknown }>('/v1/public/donor-marks/version', { auth: false })
     .catch(() => ({ version: 0 }))
     .then(async (data) => {
     const raw = data.version;
@@ -207,7 +207,7 @@ function loadCatalog(): Promise<void> {
     if (version === 0 || version === catalogVersion) return;
 
     const list = await api
-      .get<{ items?: unknown }>('/v1/donor-marks', { auth: false })
+      .get<{ items?: unknown }>('/v1/public/donor-marks', { auth: false })
       .catch(() => ({ items: [] as unknown }));
 
     const fresh: Mark[] = [];

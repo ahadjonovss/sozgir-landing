@@ -8,7 +8,7 @@
  *  narsani osonlashtirardi.
  *
  *  Ro'yxat ilgari shu faylda, qo'lda yozilgan edi. Endi u serverda
- *  (`users.verified`) va ikkala platforma `/v1/verified` ni o'qiydi:
+ *  (`users.verified`) va ikkala platforma `/v1/public/verified` ni o'qiydi:
  *  yangi odam qo'shish uchun sayt qaytadan yig'ilmaydi, belgi
  *  adminkadan qo'yiladi. Marshrut ochiq — kim tasdiqlangani baribir
  *  ekranda ko'rinadi.
@@ -24,7 +24,7 @@ import { useEffect, useState } from 'react';
 import { api } from '../api/client';
 
 /** Ro'yxat turgan marshrut: `{ items: ["uid", "uid"] }` — ochiq. */
-const ROUTE = '/v1/verified';
+const ROUTE = '/v1/public/verified';
 
 const CACHE_KEY = 'sozgir.verified';
 

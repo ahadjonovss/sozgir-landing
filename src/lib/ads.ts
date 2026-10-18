@@ -122,7 +122,7 @@ let settings: Promise<boolean> | null = null;
 export function adsEnabled(): Promise<boolean> {
   if (!adsSupported) return Promise.resolve(false);
   return (settings ??= api
-    .get<{ value?: unknown }>('/v1/config/ads', { auth: false })
+    .get<{ value?: unknown }>('/v1/public/config/ads', { auth: false })
     // 404 ham, tarmoq xatosi ham bir xil ma'noda: sozlama yo'q,
     // demak standart yoqiq.
     .catch(() => ({ value: null }))

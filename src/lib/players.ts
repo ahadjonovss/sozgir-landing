@@ -5,7 +5,7 @@
  *  Sabab ko'chishda. Firestore'da bu `daily_scores/{sana}/entries`
  *  dagi hujjatlar soni edi va uni `count()` bitta arzon so'rov bilan
  *  berardi. Yangi serverda esa sanoq marshruti yo'q: eng yaqini
- *  `/v1/daily/aqcha`, lekin u eng yuqoridagi 100 tani qaytaradi —
+ *  `/v1/public/daily/aqcha`, lekin u eng yuqoridagi 100 tani qaytaradi —
  *  ro'yxat, sanoq emas. Undan son yasash kun davomida «100» da qotib
  *  qolardi, ya'ni qator haqiqatni emas, chegarani ko'rsatardi.
  *

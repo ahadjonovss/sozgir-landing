@@ -244,7 +244,7 @@ let flag: Promise<boolean> | null = null;
 
 export function inviteRequiresFriends(): Promise<boolean> {
   flag ??= api
-    .get<{ value?: unknown }>('/v1/config/friends', { auth: false })
+    .get<{ value?: unknown }>('/v1/public/config/friends', { auth: false })
     .then((data) => {
       const value = data.value;
       return (
