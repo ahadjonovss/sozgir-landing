@@ -396,7 +396,6 @@ function Playing({ game }: { game: GunchaJang }) {
               <Avatar name={game.account?.nickname ?? 'Siz'} uid={game.account?.uid} size={24} />
               <b>
                 {pretty(game.account?.nickname ?? 'Siz')}
-                <VerifiedMark uid={game.account?.uid} size={13} />
               </b>
               <em>{game.score}</em>
               <span>{game.mine.length} so‘z</span>
@@ -409,7 +408,6 @@ function Playing({ game }: { game: GunchaJang }) {
               />
               <b>
                 {pretty(game.opponent?.nickname ?? 'Raqib')}
-                <VerifiedMark uid={game.opponentUid} size={13} />
               </b>
               <em>{game.opponent?.score ?? 0}</em>
               <span>{game.opponent?.wordCount ?? 0} so‘z</span>

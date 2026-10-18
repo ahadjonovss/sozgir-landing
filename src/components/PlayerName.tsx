@@ -147,7 +147,15 @@ function VerifiedSheet({ mine, onClose }: { mine: boolean; onClose: () => void }
   );
 }
 
-/** Nom va uning yonidagi belgi — jadval, jang va tarix uchun. */
+/** Nom va uning yonidagi muhr — jadval, jang va tarix uchun.
+ *
+ *  Tasdiq belgisi bu yerda **yo'q**: u o'yinchining rasmida, uning
+ *  burchagida turadi (`Avatar`). Ikkisi boshqa-boshqa narsa:
+ *  tasdiq — «bu o'sha odam», ya'ni rasmga tegishli; muhr esa
+ *  «bu odam loyihani qo'llagan» va nom bilan yuradi.
+ *
+ *  Rasmi ko'rinmaydigan joyda belgi ham ko'rinmaydi — o'sha yerda
+ *  `VerifiedMark` ni qo'lda qo'yish mumkin. */
 export default function PlayerName({
   uid,
   name,
@@ -160,7 +168,6 @@ export default function PlayerName({
   return (
     <>
       {pretty(name)}
-      <VerifiedMark uid={uid} size={size} />
       <DonorMarkIcon uid={uid} size={size - 1} />
     </>
   );

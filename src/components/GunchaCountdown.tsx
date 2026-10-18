@@ -19,7 +19,6 @@ import { useEffect, useState } from 'react';
 import { EMPTY_RATING, watchRating, type BattleRating } from '../lib/battleRating';
 import { pretty } from '../lib/uz';
 import Avatar from './Avatar';
-import { VerifiedMark } from './PlayerName';
 import { BattleAqcha, TierBadge } from './Units';
 
 /** Gulning o'lchovlari — `GunchaFlower` bilan bir xil maydonda
@@ -84,7 +83,6 @@ function Face({
       </span>
       <strong className="gcount__name">
         {pretty(name)}
-        <VerifiedMark uid={uid} size={13} />
       </strong>
       {rating && (
         <span className="gcount__rating">

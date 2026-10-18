@@ -8,7 +8,9 @@ import { avatarColor, initialOf } from '../lib/avatar';
 import { avatarSrc } from '../lib/avatarImage';
 import { useAvatarThumb } from '../lib/avatars';
 import { donorLabel, useDonorTier } from '../lib/donor';
+import { useVerified } from '../lib/verified';
 import { Users } from './Icons';
+import { VerifiedMark } from './PlayerName';
 
 export default function Avatar({
   name,
@@ -17,6 +19,7 @@ export default function Avatar({
   size = 42,
   waiting = false,
   className = '',
+  mark = true,
 }: {
   name: string;
   /** Kimning rasmi — berilmasa faqat bosh harf. */
@@ -27,6 +30,13 @@ export default function Avatar({
   /** Raqib hali yo'q: harf o'rniga belgi va so'lg'un rang. */
   waiting?: boolean;
   className?: string;
+  /** Tasdiq belgisi burchakda chizilsinmi.
+   *
+   *  Odatda — ha: belgi o'yinchining **rasmiga** tegishli va nom
+   *  qayerda yozilganidan qat'i nazar o'sha yerda turishi kerak.
+   *  Juda kichik avatarlarda (20 px dan past) belgi rasmni bosib
+   *  ketadi va o'shanda `false` qilinadi. */
+  mark?: boolean;
 }) {
   const thumb = useAvatarThumb(waiting ? undefined : uid);
   const photo = waiting ? '' : image || thumb;
@@ -44,6 +54,20 @@ export default function Avatar({
     .filter(Boolean)
     .join(' ');
 
+  /* Tasdiq belgisi — rasmning o'ng pastki burchagida.
+   *
+   *  Ilgari u nom yonida turardi va shu sabab har xil joyda har xil
+   *  ko'rinardi: ba'zi ro'yxatda nomdan keyin, ba'zisida umuman
+   *  yo'q. Belgi odamning o'ziga tegishli, ya'ni uning rasmida
+   *  turgani to'g'ri — va o'shanda u nom qayerda yozilganiga
+   *  bog'liq bo'lmaydi. */
+  const verified = useVerified(waiting ? undefined : uid);
+  /* Kichik avatarlarda nisbat yetmaydi: 28 px dan 36 % — o'n piksel,
+     ya'ni belgi bor-yo'qligi bilinmaydi. Shuning uchun pastki chegara
+     ham bor. */
+  const badge =
+    verified && mark && size >= 20 ? Math.max(12, Math.round(size * 0.34)) : 0;
+
   return (
     <span
       className={classes}
@@ -54,14 +78,31 @@ export default function Avatar({
         fontSize: Math.round(size * 0.42),
         ...(empty || photo ? {} : { background: avatarColor(name) }),
       }}
-      aria-hidden="true"
     >
-      {photo ? (
-        <img src={avatarSrc(photo)} alt="" width={size} height={size} draggable={false} />
-      ) : empty ? (
-        <Users size={Math.round(size * 0.5)} />
-      ) : (
-        initialOf(name)
+      {/* Rasmning o'zi bezak: nom yonida yozilgan va uni ekran
+          o'quvchiga ikkinchi marta aytish shart emas. Tasdiq belgisi
+          esa boshqa gap — u yashirilmaydi, chunki endi faqat shu
+          yerda turadi. */}
+      <span className="avatar-mark__face" aria-hidden="true">
+        {photo ? (
+          <img
+            className="avatar-mark__photo"
+            src={avatarSrc(photo)}
+            alt=""
+            width={size}
+            height={size}
+            draggable={false}
+          />
+        ) : empty ? (
+          <Users size={Math.round(size * 0.5)} />
+        ) : (
+          initialOf(name)
+        )}
+      </span>
+      {badge > 0 && (
+        <span className="avatar-mark__verified" style={{ width: badge, height: badge }}>
+          <VerifiedMark uid={uid} size={badge} />
+        </span>
       )}
     </span>
   );

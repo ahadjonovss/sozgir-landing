@@ -13,7 +13,6 @@
 import { useDonorTier } from '../lib/donor';
 import Avatar from './Avatar';
 import DonorChip from './DonorChip';
-import { VerifiedMark } from './PlayerName';
 import { Clock, Close, Person, Swords } from './Icons';
 
 /** Arena qaysi holatda: raqib kutilmoqda, kelmadi yoki ikkalasi joyida. */
@@ -51,7 +50,6 @@ function Side({
       </span>
       <strong className="versus__name">
         {name}
-        <VerifiedMark uid={uid} size={15} />
       </strong>
       {donor && <DonorChip tier={donor} className="versus__chip versus__donor" />}
       <span className="versus__chip">

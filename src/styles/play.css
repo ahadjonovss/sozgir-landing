@@ -48,6 +48,7 @@
 /* ── Avatar (ilovadagi BattleAvatar) ──────────────────────────────────── */
 
 .avatar-mark {
+  position: relative;
   flex: none;
   display: inline-grid;
   place-items: center;
@@ -62,16 +63,44 @@
   color: var(--text-2);
 }
 
+/* `overflow: hidden` emas: tasdiq belgisi doiradan chetga chiqib
+   turadi va qirqilib qolardi. Rasmning o'zi yumaloqlanadi. */
 .avatar-mark--photo {
-  overflow: hidden;
   background: var(--surface-2);
 }
 
-.avatar-mark img {
+/* Yuz — doiraning o'zini to'ldiradi; belgi undan tashqarida turadi. */
+.avatar-mark__face {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.avatar-mark__photo {
   display: block;
   width: 100%;
   height: 100%;
+  border-radius: 50%;
   object-fit: cover;
+}
+
+/* Tasdiq belgisi — o'ng pastki burchakda, fon rangidagi halqa bilan.
+   Halqa kerak: belgi rasmning ustiga tushadi va usiz u rasmning
+   rangiga singib ketardi. */
+.avatar-mark__verified {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--bg);
+  box-shadow: 0 0 0 1.5px var(--bg);
+}
+
+.avatar-mark__verified .verified {
+  display: block;
 }
 
 /* Homiylik halqasi: daraja rangida, avatar bilan orasida fon rangidagi
