@@ -1,35 +1,50 @@
-/** Hisob: anonim «mehmon», email yoki telefon raqam bilan ro'yxatdan
- *  o'tish va kirish.
+/** Hisob — ro'yxatdan o'tish, kirish va seans.
+ *
+ *  Endi **o'z serverimizda**: parol ham, seans ham `api.sozgir.uz` da
+ *  (`/v1/auth/*`). Firebase Auth olib tashlandi va saytda Firebase'dan
+ *  hech narsa qolmadi.
  *
  *  Ilovadagi mantiq saqlanadi:
  *   * kirish maydoniga **telefon raqam** ham yozish mumkin — u
- *     `loginId.ts` da `<raqam>@gmail.com` ga o'giriladi. Firebase uchun bu
- *     o'sha email provayderi, ya'ni telefonda raqam bilan ro'yxatdan
- *     o'tgan odam saytga ham o'sha raqam bilan kiradi;
- *   * mehmon sifatida o'ynagan odam keyin email qo'shsa, hisob **bog'lanadi**
- *     (`linkWithCredential`) — uid o'zgarmaydi, ya'ni ball va streak joyida
- *     qoladi;
- *   * ko'rinadigan nom bir joyda hal qilinadi: brauzerdagi tanlov →
- *     hisobdagi `displayName` → «Mehmon».
+ *     `loginId.ts` da `<raqam>@gmail.com` ga o'giriladi. Server uchun
+ *     bu oddiy pochta, ya'ni telefonda raqam bilan ro'yxatdan o'tgan
+ *     odam saytga ham o'sha raqam bilan kiradi;
+ *   * ko'rinadigan nom bir joyda hal qilinadi: hisobdagi taxallus →
+ *     brauzerdagi tanlov → «Mehmon».
  *
- *  Ilovadan farqi bitta va u ataylab: sayt hech kimni **avtomatik**
- *  anonim hisobga kirgizmaydi. Aks holda har bir tashrif Firebase'da yangi
- *  foydalanuvchi yasab, admin paneldagi statistikani buzardi. Kirmasdan ham
- *  o'ynash mumkin — natija shunda faqat brauzerda saqlanadi. */
+ *  Uch narsa Firebase bilan birga ketdi:
+ *
+ *   * **mehmon hisobi yo'q** — server nomsiz qator ochmaydi. Sayt
+ *     ilgari ham anonim hisob yaratmasdi (har tashrif admin paneldagi
+ *     sanoqni buzardi), ya'ni amalda hech narsa o'zgarmadi: kirmasdan
+ *     o'ynash mumkin va natija brauzerda qoladi;
+ *   * **hisobni bog'lash** (`linkWithCredential`) — bog'lanadigan
+ *     anonim hisob qolmagani uchun keraksiz;
+ *   * **parolni tiklash** — xabar yuborish kanali hali sozlanmagan.
+ *     Ilovada ham shunday, ya'ni ikkalasi bir xil gapni aytadi.
+ *
+ *  Eski Firebase paroli ishlayveradi: server uning xeshini saqlab
+ *  qo'ygan va birinchi kirishda uni o'z sxemasiga jimgina ko'chiradi
+ *  (`backend/src/app/auth.ts`). */
 import {
   createContext,
   useCallback,
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
   type ReactNode,
 } from 'react';
-import type { User } from 'firebase/auth';
-import { client } from '../firebase/client';
-import { authError } from '../firebase/errors';
-import { saveProfile, type ProfileDetails } from './profile';
+import { api, ApiError } from '../api/client';
+import {
+  clearSession,
+  readSession,
+  saveSession,
+  sessionFrom,
+  watchSession,
+  type Session,
+} from '../api/session';
+import { loadProfile, saveProfile, type ProfileDetails } from './profile';
 import { patchBattleNickname } from './battleRating';
 import { claimDevice, releaseDevice } from './device';
 import { toLoginEmail } from './loginId';
@@ -42,15 +57,10 @@ import {
   writeStoredNickname,
 } from './nickname';
 
-/** Oldingi tashrifda kirilganini eslab qolish kaliti.
- *
- *  Firebase sessiyasi IndexedDB'da yotadi, lekin uni o'qish uchun SDK
- *  yuklanishi kerak. Bu bayroq shu savolga javob beradi: SDK'ni darhol
- *  yuklash kerakmi, yoki tashrifchi umuman kirmaganmi. */
-const SESSION_KEY = 'sozgir.session';
-
 export interface Account {
   uid: string;
+  /** Har doim `false` — mehmon hisobi qolmadi. Maydon ekranlar uchun
+   *  qoldirilgan: ular «kirganmi yoki mehmonmi» deb so'raydi. */
   isAnonymous: boolean;
   email: string | null;
   /** Reytingda ko'rinadigan nom — har doim to'ldirilgan. */
@@ -73,7 +83,7 @@ export type AuthPrompt = 'register' | 'signIn' | 'profile' | 'password';
 
 export interface AuthValue {
   account: Account | null;
-  /** Hisob holati aniqlanganmi (SDK yuklanib bo'ldimi). */
+  /** Hisob holati aniqlanganmi. */
   ready: boolean;
   busy: boolean;
   error: string | null;
@@ -83,14 +93,10 @@ export interface AuthValue {
     input: Credentials & { nickname: string; details?: ProfileDetails },
   ) => Promise<boolean>;
   signIn: (input: Credentials) => Promise<boolean>;
-  resetPassword: (email: string) => Promise<boolean>;
-  /** Parolni yangilash — kirgan holatda. Joriy parol ham so'raladi:
-   *  Firebase parolni almashtirishdan oldin yaqinda kirilgan bo'lishini
-   *  talab qiladi. */
+  /** Parolni yangilash — kirgan holatda. Joriy parol ham so'raladi. */
   updatePassword: (input: { current: string; next: string }) => Promise<boolean>;
   saveNickname: (nickname: string) => Promise<boolean>;
-  /** Tug'ilgan sana va jins — ro'yxatdan o'tishda so'raladi, eski
-   *  hisoblarda profil oynasidan to'ldiriladi. */
+  /** Tug'ilgan sana va jins — profil oynasida to'ldiriladi. */
   saveDetails: (details: ProfileDetails) => Promise<boolean>;
   signOut: () => Promise<void>;
   clearError: () => void;
@@ -102,33 +108,30 @@ export interface AuthValue {
 
 const AuthContext = createContext<AuthValue | null>(null);
 
-function flagSession(active: boolean): void {
-  try {
-    if (active) localStorage.setItem(SESSION_KEY, '1');
-    else localStorage.removeItem(SESSION_KEY);
-  } catch {
-    // Bayroq yo'q bo'lsa ham hammasi ishlaydi, faqat SDK keyinroq yuklanadi.
+/** Server xatosining kodini odam tushunadigan matnga o'giradi.
+ *
+ *  Kodlar `backend/src/app/auth.ts` dagi `AuthError` dan. Ro'yxat
+ *  qisqa va ataylab: server «bunday pochta yo'q» bilan «parol xato» ni
+ *  ajratmaydi — aks holda hujumchi ro'yxatdagi pochtalarni bittalab
+ *  tekshirib chiqardi. */
+function authMessage(error: unknown): string {
+  const code = error instanceof ApiError ? error.message : '';
+  switch (code) {
+    case 'bad_email':
+      return 'Email manzili noto‘g‘ri';
+    case 'email_taken':
+      return 'Bu raqam allaqachon band — kirish bo‘limidan foydalaning';
+    case 'weak_password':
+      return 'Parol juda oddiy — kamida 6 belgi bo‘lsin';
+    case 'bad_credentials':
+      return 'Raqam yoki parol xato';
+    case 'no_session':
+      return 'Kirish muddati tugadi — qaytadan kiring';
+    default:
+      return 'Ulanib bo‘lmadi — internetni tekshirib, qayta urinib ko‘ring';
   }
 }
 
-function hadSession(): boolean {
-  try {
-    return localStorage.getItem(SESSION_KEY) === '1';
-  } catch {
-    return false;
-  }
-}
-
-/** Kirilgan hisob uchun ko'rinadigan nomni hal qiladi va brauzerga
- *  yozib qo'yadi.
- *
- *  Tartib ataylab shunday: **hisobning o'z nomi ustun**. Ilgari brauzerdagi
- *  nom ustun edi va bitta qurilmadan ikkinchi hisobga kirilganda ekranda
- *  eskisining nomi turaverardi — odam o'zining hisobida deb o'ylab,
- *  aslida boshqasida o'ynardi. Reytingga ham o'sha nom yozilardi.
- *
- *  Hisobning nomi bo'lmasa, brauzerdagi nom faqat **egasiz** bo'lsa yoki
- *  aynan shu hisobniki bo'lsa qoladi. */
 /** Yiqilsa ham amalni to'xtatmaydigan qadam.
  *
  *  Kirish va ro'yxatdan o'tishdan **keyingi** yozuvlar uchun: odam u
@@ -142,46 +145,27 @@ async function quietly(step: () => Promise<unknown>): Promise<void> {
   }
 }
 
-/** Kodsiz xatoning matni.
+/** Kirilgan hisob uchun ko'rinadigan nomni hal qiladi.
  *
- *  Serverning o'zbekcha izohi bo'lsa — o'sha ko'rsatiladi. Bo'lmasa
- *  umumiy matn, lekin **nima qilish kerakligi** bilan: «xatolik yuz
- *  berdi» degan gap odamga hech narsa bermaydi.
+ *  Tartib ataylab shunday: **hisobning o'z nomi ustun**. Ilgari
+ *  brauzerdagi nom ustun edi va bitta qurilmadan ikkinchi hisobga
+ *  kirilganda ekranda eskisining nomi turaverardi — odam o'zining
+ *  hisobida deb o'ylab, aslida boshqasida o'ynardi.
  *
- *  Ishlab chiqishda xom sabab shu yerga qo'shiladi. Nega: kodsiz xato
- *  ekranda bir xil matnga aylanadi va uni ajratish uchun konsolni
- *  ochish kerak bo'lardi — nosozlik haqidagi xabar esa ko'pincha
- *  ekran rasmi bo'lib keladi. Yig'ilgan paketda bu shox butunlay
- *  yo'q: `import.meta.env.DEV` `false` bo'lganda bundler uni olib
- *  tashlaydi. */
-function messageOf(raw: unknown): string {
-  const message = String((raw as { message?: string })?.message ?? '').trim();
-
-  const human =
-    message &&
-    message.length < 120 &&
-    !message.includes('http') &&
-    !/[{}<>]/.test(message)
-      ? message
-      : 'Ulanib bo‘lmadi — internetni tekshirib, qayta urinib ko‘ring';
-
-  if (!import.meta.env.DEV) return human;
-  const raw_ = message || String(raw);
-  return raw_ && raw_ !== human ? `${human} · ${raw_.slice(0, 200)}` : human;
-}
-
-function adoptNickname(user: User): string {
-  const own = user.displayName?.trim();
-  if (own) {
-    writeStoredNickname(own, user.uid);
-    return own;
+ *  Hisobning nomi bo'lmasa, brauzerdagi nom faqat **egasiz** bo'lsa
+ *  yoki aynan shu hisobniki bo'lsa qoladi. */
+function adoptNickname(uid: string, own: string | null): string {
+  const mine = own?.trim();
+  if (mine) {
+    writeStoredNickname(mine, uid);
+    return mine;
   }
 
   const stored = readStoredNickname();
   const owner = readNicknameOwner();
-  if (stored && (!owner || owner === user.uid)) {
+  if (stored && (!owner || owner === uid)) {
     // Kirmasdan tanlangan nom shu hisobga o'tadi — endi egasi bor.
-    writeStoredNickname(stored, user.uid);
+    writeStoredNickname(stored, uid);
     return stored;
   }
 
@@ -190,38 +174,47 @@ function adoptNickname(user: User): string {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [ready, setReady] = useState(() => !hadSession());
+  const [session, setSession] = useState<Session | null>(readSession);
+  /* Seans `localStorage` da, ya'ni birinchi kadrda allaqachon ma'lum —
+     kutadigan narsa yo'q. Ilgari bu `false` dan boshlanardi: Firebase
+     SDK yuklanib, IndexedDB'dagi seansni o'qiguncha ekran «hali
+     bilmayman» holatida turardi. */
+  const [ready] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [nickname, setNickname] = useState(readStoredNickname);
   const [prompt, setPrompt] = useState<AuthPrompt | null>(null);
+  /** Hisobning pochtasi — token'da yo'q, profil so'rovidan keladi.
+   *
+   *  Egasi bilan birga saqlanadi: hisob almashganda avvalgisining
+   *  pochtasi bir lahza ko'rinib qolmasin. */
+  const [mail, setMail] = useState<{ uid: string; email: string | null } | null>(
+    null,
+  );
 
-  /** `onAuthStateChanged` bir marta ulanadi — keyin har qanday kirish va
-   *  chiqish shu orqali bildiriladi. */
-  const watching = useRef(false);
-  const watch = useCallback(async () => {
-    if (watching.current) return;
-    watching.current = true;
-    const { auth } = await client();
-    const { onAuthStateChanged } = await import('firebase/auth');
-    onAuthStateChanged(auth, (next) => {
-      setUser(next);
-      flagSession(next !== null);
-      setReady(true);
-      if (!next) return;
-      // Yozuvlar egasi — `adoptNickname` dan **oldin**: u nomning egasini
-      // yangi hisobga o'tkazadi va almashuv belgisi yo'qolib qolardi.
-      claimDevice(next.uid);
-      setNickname(adoptNickname(next));
-    });
-  }, []);
+  /* Seans boshqa joyda o'zgarsa (muddati tugadi, server bekor qildi,
+     ikkinchi varaqda chiqildi) ekran ham ergashadi. */
+  useEffect(() => watchSession(setSession), []);
 
-  // Oldin kirilgan bo'lsa — sessiyani tiklaymiz. Bo'lmasa SDK'ga tegmaymiz.
+  /* Kirilgan bo'lsa profil so'raladi: taxallus va pochta token'da yo'q.
+     Ilgari ularni Firebase'ning `displayName` i olib yurardi. */
+  const uid = session?.uid ?? null;
   useEffect(() => {
-    if (!hadSession()) return;
-    void watch();
-  }, [watch]);
+    /* Chiqilganda `email` tozalanmaydi — `account` baribir `null`
+       bo'ladi va kirmagan odamga u ko'rinmaydi. Shu yerda tozalash
+       effekt ichida ortiqcha qayta chizishni boshlab yuborardi. */
+    if (!uid) return;
+    claimDevice(uid);
+    let alive = true;
+    void loadProfile().then((profile) => {
+      if (!alive) return;
+      setMail({ uid, email: profile.email });
+      setNickname(adoptNickname(uid, profile.nickname));
+    });
+    return () => {
+      alive = false;
+    };
+  }, [uid]);
 
   /** Har bir amal uchun bir xil o'ram: bandlik, xato va natija. */
   const run = useCallback(
@@ -229,154 +222,85 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setBusy(true);
       setError(null);
       try {
-        await watch();
         await action();
         return true;
       } catch (raw) {
-        /*
-         * Sabab **jurnalga** yoziladi.
-         *
-         * Firebase xatosining kodi bor va u matnga o'giriladi. Kodsiz
-         * xato esa (tarmoq uzilishi, yuklanmagan bo'lak, serverning
-         * javobi) ekranda «Amalni bajarib bo'lmadi» bo'lib qolardi va
-         * nima bo'lganini **hech kim** bilmasdi — na foydalanuvchi, na
-         * biz. Shu sabab xom xato konsolga chiqadi: ekrandagi matn
-         * qisqa qoladi, sabab esa yo'qolmaydi.
-         */
-        const code = (raw as { code?: string }).code;
-        if (!code) console.error('[auth] kirishda xato:', raw);
-        setError(code ? authError(code) : messageOf(raw));
+        // Sabab jurnalda qoladi: ekrandagi matn qisqa, lekin nosozlik
+        // haqidagi xabar ko'pincha ekran rasmi bo'lib keladi.
+        console.error('[auth] xato:', raw);
+        setError(authMessage(raw));
         return false;
       } finally {
         setBusy(false);
       }
     },
-    [watch],
+    [],
   );
 
-  /** Ro'yxatdan o'tish.
-   *
-   *  Tartib muhim: hozir mehmon sifatida o'ynayotgan bo'lsa hisobni
-   *  **bog'laymiz** — uid o'zgarmaydi va yig'ilgan ball joyida qoladi. */
-  const register = useCallback(
-    ({
-      email,
-      password,
-      nickname: name,
-      details,
-    }: Credentials & { nickname: string; details?: ProfileDetails }) =>
-      run(async () => {
-        const { auth } = await client();
-        const {
-          createUserWithEmailAndPassword,
-          EmailAuthProvider,
-          linkWithCredential,
-          updateProfile,
-        } = await import('firebase/auth');
+  /** Seansni ochadi — kirish, ro'yxatdan o'tish va parol almashishi
+   *  uchun bitta yo'l. */
+  const open = useCallback(
+    async (path: string, body: Record<string, unknown>): Promise<void> => {
+      const data = await api.post<Record<string, unknown>>(path, {
+        // Token so'ralmaydi — aynan uni olyapmiz.
+        auth: false,
+        body: { ...body, platform: 'web' },
+      });
 
+      const next = sessionFrom(data);
+      if (next === null) throw new ApiError('Server javobi chala');
+      saveSession(next);
+    },
+    [],
+  );
+
+  const register = useCallback(
+    ({ email: login, password, nickname: name, details }: Credentials & {
+      nickname: string;
+      details?: ProfileDetails;
+    }) =>
+      run(async () => {
         const clean = sanitizeNickname(name);
+        await open('/v1/auth/register', {
+          email: toLoginEmail(login),
+          password,
+          ...(clean ? { nickname: clean } : {}),
+        });
+
         writeStoredNickname(clean);
         setNickname(clean);
-        const login = toLoginEmail(email);
-        const current = auth.currentUser;
-        const credential =
-          current && current.isAnonymous
-            ? await linkWithCredential(
-                current,
-                EmailAuthProvider.credential(login, password),
-              )
-            : await createUserWithEmailAndPassword(auth, login, password);
-
-        await updateProfile(credential.user, { displayName: clean });
-        await credential.user.reload();
-        writeStoredNickname(clean, credential.user.uid);
-        setUser(auth.currentUser);
-        // Kirishdagi bilan bir sabab: hisob allaqachon ochilgan va uni
-        // profil yozuvi tufayli xato deb ko'rsatish odamni yo'q
-        // muammoga ishontirardi.
-        await quietly(() =>
-          saveProfile({
-            email: credential.user.email,
-            nickname: clean,
-            details,
-          }),
-        );
+        // Qolgan maydonlar alohida: ro'yxatdan o'tish marshruti faqat
+        // taxallusni oladi. Yiqilsa ham hisob ochilgan.
+        if (details?.birthDate || details?.gender) {
+          await quietly(() => saveProfile({ details }));
+        }
       }),
-    [run],
+    [open, run],
   );
 
   const signIn = useCallback(
-    ({ email, password }: Credentials) =>
+    ({ email: login, password }: Credentials) =>
       run(async () => {
-        const { auth } = await client();
-        const { signInWithEmailAndPassword } = await import('firebase/auth');
-        const credential = await signInWithEmailAndPassword(
-          auth,
-          toLoginEmail(email),
-          password,
-        );
-        // Ko'rinadigan nomni `onAuthStateChanged` hal qiladi — u kirishning
-        // hamma yo'llarida (kirish, ro'yxatdan o'tish, sessiya tiklanishi)
-        // bir marta ishlaydi, ya'ni qoida bitta joyda turadi.
-        setNickname(adoptNickname(credential.user));
-        // Profil yozuvi kirishni **yiqitmaydi**: odam shu paytda
-        // allaqachon kirgan va yozuv keyingi kirishda baribir qayta
-        // yuboriladi. Ilgari u yiqilsa butun amal xato bo'lib
-        // ko'rinardi — parol to'g'ri bo'lsa ham.
-        await quietly(() =>
-          saveProfile({
-            email: credential.user.email,
-            nickname: credential.user.displayName?.trim(),
-          }),
-        );
+        await open('/v1/auth/login', { email: toLoginEmail(login), password });
       }),
-    [run],
-  );
-
-  const resetPassword = useCallback(
-    (email: string) =>
-      run(async () => {
-        const { auth } = await client();
-        const { sendPasswordResetEmail } = await import('firebase/auth');
-        await sendPasswordResetEmail(auth, toLoginEmail(email));
-      }),
-    [run],
+    [open, run],
   );
 
   /** Parolni yangilaydi.
    *
-   *  Ikki qadam: avval **qaytadan autentifikatsiya**, so'ng yangi parol.
-   *  Firebase parolni almashtirishni «yaqinda kirilgan» sessiyaga
-   *  bog'laydi (`auth/requires-recent-login`) — uzoq ochiq turgan
-   *  sahifada bu shart bajarilmaydi. Joriy parolni so'rash ikkala
-   *  savolni birdan yopadi: sessiya yangilanadi va o'g'irlangan
-   *  qurilmadan parol almashtirib bo'lmaydi.
-   *
-   *  Telefon raqamli hisobda ham ishlaydi: kirish nomi `loginId.ts`
-   *  orqali baribir pochta shakliga keltiriladi va hisobda o'sha
-   *  saqlanadi. */
+   *  Joriy parol ham kerak: o'g'irlangan qurilmadan parol almashtirib
+   *  bo'lmasligi uchun. Server parol almashgach **hamma seansni**
+   *  yopadi va shu qurilma uchun yangisini beradi — shuning uchun
+   *  javobdagi token saqlanadi, aks holda odam o'zi almashtirgan
+   *  paroldan keyin chiqib qolardi. */
   const updatePassword = useCallback(
     ({ current, next }: { current: string; next: string }) =>
       run(async () => {
-        const { auth } = await client();
-        const {
-          EmailAuthProvider,
-          reauthenticateWithCredential,
-          updatePassword: applyPassword,
-        } = await import('firebase/auth');
-
-        const person = auth.currentUser;
-        if (!person?.email) {
-          throw Object.assign(new Error('Hisob topilmadi'), {
-            code: 'auth/user-not-found',
-          });
-        }
-
-        await reauthenticateWithCredential(
-          person,
-          EmailAuthProvider.credential(person.email, current),
-        );
-        await applyPassword(person, next);
+        const data = await api.post<Record<string, unknown>>('/v1/auth/password', {
+          body: { current, next, platform: 'web' },
+        });
+        const renewed = sessionFrom(data);
+        if (renewed !== null) saveSession(renewed);
       }),
     [run],
   );
@@ -388,66 +312,62 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const clean = sanitizeNickname(name);
       // Kirilgan bo'lsa nom shu hisobga tegishli deb belgilanadi — keyin
       // boshqa hisobga kirilganda u o'zi bilan qolib ketmaydi.
-      writeStoredNickname(clean, user?.uid ?? null);
+      writeStoredNickname(clean, uid);
       setNickname(clean);
-      if (!user) return true;
+      if (!uid) return true;
       return run(async () => {
-        const { auth } = await client();
-        const { updateProfile } = await import('firebase/auth');
-        if (!auth.currentUser) return;
-        await updateProfile(auth.currentUser, { displayName: clean });
-        await saveProfile({ uid: auth.currentUser.uid, nickname: clean });
+        await saveProfile({ nickname: clean });
         // So'zjang jadvali ham yangi nomga o'tadi — aks holda u yerda
         // jangdagi eski nom qolib ketardi.
         await patchBattleNickname();
       });
     },
-    [run, user],
+    [run, uid],
   );
 
-  /** Tug'ilgan sana va jinsni saqlaydi.
-   *
-   *  Faqat kirilgan hisobda ma'nosi bor: ma'lumot `users/{uid}` da
-   *  turadi va boshqa qurilmada qayta so'ralmaydi. */
   const saveDetails = useCallback(
     (details: ProfileDetails) =>
       run(async () => {
-        const { auth } = await client();
-        const uid = auth.currentUser?.uid;
         if (!uid) return;
-        await saveProfile({ uid, details });
+        await saveProfile({ details });
       }),
-    [run],
+    [run, uid],
   );
 
   const signOut = useCallback(async () => {
-    if (!user) return;
-    const { auth } = await client();
-    const { signOut: leave } = await import('firebase/auth');
-    await leave(auth).catch(() => undefined);
-    flagSession(false);
+    const token = readSession()?.refreshToken;
+    if (token) {
+      // Serverdagi seans yopiladi: chiqqan qurilmadagi yangilash
+      // token'i boshqa ishlamasin. Tarmoq yo'q bo'lsa ham qurilmadagi
+      // seans baribir tozalanadi.
+      await quietly(() =>
+        api.post('/v1/auth/logout', { auth: false, body: { refreshToken: token } }),
+      );
+    }
+    clearSession();
     // Ball, statistika va topilgan so'zlar hisob bilan ketadi: ular
-    // bulutda o'z egasida qoladi va qaytib kirilganda tiklanadi. Aks
+    // serverda o'z egasida qoladi va qaytib kirilganda tiklanadi. Aks
     // holda keyingi odam avvalgi hisobning ballini meros qilib olardi.
     // Nom ataylab qoladi: chiqqan odam mehmon sifatida o'sha nom bilan
-    // o'ynayveradi. Boshqa hisobga kirilsa `adoptNickname` uni egasiga
-    // qarab o'zi tashlaydi.
+    // o'ynayveradi.
     releaseDevice();
-  }, [user]);
+  }, []);
 
   const account = useMemo<Account | null>(() => {
-    if (!user) return null;
-    const name = nickname.trim() || user.displayName?.trim() || GUEST;
-    const source = name || user.email || '';
+    if (!session) return null;
+    const name = nickname.trim() || GUEST;
+    const source = name || mail?.email || '';
     return {
-      uid: user.uid,
-      isAnonymous: user.isAnonymous,
-      email: user.email,
+      uid: session.uid,
+      isAnonymous: false,
+      // Boshqa hisobdan qolgan pochta ko'rinmasin: u faqat shu
+      // seansning profili yuklangach to'ladi.
+      email: mail?.uid === session.uid ? mail.email : null,
       nickname: sanitizeNickname(name),
-      linked: !user.isAnonymous && Boolean(user.email),
+      linked: true,
       initial: source ? source[0]!.toUpperCase() : '?',
     };
-  }, [nickname, user]);
+  }, [mail, nickname, session]);
 
   const value = useMemo<AuthValue>(
     () => ({
@@ -458,7 +378,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       nickname,
       register,
       signIn,
-      resetPassword,
       updatePassword,
       saveNickname,
       saveDetails,
@@ -482,7 +401,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       prompt,
       ready,
       register,
-      resetPassword,
       updatePassword,
       saveDetails,
       saveNickname,

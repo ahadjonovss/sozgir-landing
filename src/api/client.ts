@@ -5,11 +5,11 @@
  *  majburan yangilab qayta urinish. Ikkalasi bir serverga uradi, demak
  *  farq qilsa — farqi xatoga aylanadi.
  *
- *  Token Firebase'dan olinadi: auth ko'chmadi, server faqat ID token'ni
- *  tekshiradi. SDK shu sabab kechiktirib yuklanadi — ochiq marshrutlar
- *  (lug'at, reyting, kunlik so'z) uchun u umuman kerak emas. */
-import { client } from '../firebase/client';
+ *  Token seansdan olinadi (`api/session.ts`) — u ham shu serverniki.
+ *  Ochiq marshrutlarda (lug'at, reyting, kunlik so'z) token umuman
+ *  so'ralmaydi: `auth: false` bo'lsa seansga ham qaralmaydi. */
 import { API_BASE } from './config';
+import { accessToken } from './session';
 
 /** Server qaytargan xato.
  *
@@ -44,38 +44,11 @@ export class ApiError extends Error {
   }
 }
 
-/** Oxirgi olingan token va uning muddati.
- *
- *  `getIdToken()` keshdan beradi, lekin u ham har chaqiruvda bir oz ish
- *  qiladi; jangda so'rovlar tez-tez ketadi. */
-let token: string | null = null;
-let tokenUntil = 0;
-
-async function idToken(force = false): Promise<string | null> {
-  if (!force && token !== null && Date.now() < tokenUntil) return token;
-
-  const { auth } = await client();
-  const user = auth.currentUser;
-  if (user === null) return null;
-
-  token = await user.getIdToken(force);
-  // Token bir soat yashaydi; besh daqiqa zaxira qoldiriladi.
-  tokenUntil = Date.now() + 55 * 60 * 1000;
-  return token;
-}
-
-/** Chiqishda chaqiriladi — aks holda keyingi so'rov eski egasining
- *  token'i bilan ketardi. */
-export function forgetToken(): void {
-  token = null;
-  tokenUntil = 0;
-}
-
 export interface Options {
   query?: Record<string, string | number | undefined>;
   body?: unknown;
-  /** Token qo'shilsinmi. Ochiq marshrutlarda `false` — shunda SDK
-   *  yuklanmaydi. */
+  /** Token qo'shilsinmi. Ochiq marshrutlarda `false` — shunda seans
+   *  umuman o'qilmaydi va kirmagan odam ham javob oladi. */
   auth?: boolean;
   timeout?: number;
 }
@@ -109,7 +82,7 @@ async function send<T>(
   if (body !== undefined) headers['Content-Type'] = 'application/json';
 
   if (auth) {
-    const bearer = await idToken();
+    const bearer = await accessToken();
     if (bearer !== null) headers.Authorization = `Bearer ${bearer}`;
   }
 
@@ -134,7 +107,7 @@ async function send<T>(
   // qaytariladi. Ikkinchi marta urinilmaydi: sabab token emas, hisobning
   // o'zi.
   if (response.status === 401 && auth && !retried) {
-    await idToken(true);
+    await accessToken(true);
     return send<T>(method, path, { query, body, auth, timeout }, true);
   }
 

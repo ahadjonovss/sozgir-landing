@@ -9,7 +9,7 @@
  *  kanalni o'ldirishi mumkin, tarmoq ham almashadi. Jang holati
  *  ulanishda emas, serverdagi xonada turadi — qaytib kirgan
  *  o'yinchining balli saqlanadi. */
-import { client } from '../firebase/client';
+import { accessToken } from './session';
 import { SOCKET_URL } from './config';
 
 export interface SocketEvent {
@@ -70,9 +70,7 @@ export class BattleSocket {
   private async connect(): Promise<void> {
     if (this.closed) return;
 
-    const { auth } = await client();
-    const user = auth.currentUser;
-    const token = user === null ? null : await user.getIdToken();
+    const token = await accessToken();
     if (token === null) {
       this.scheduleRetry();
       return;

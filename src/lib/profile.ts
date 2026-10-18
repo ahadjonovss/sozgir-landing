@@ -50,6 +50,31 @@ export async function saveProfile({
   });
 }
 
+/** Hisobning ko'rinadigan qismi — taxallus va pochta.
+ *
+ *  Token'da ular yo'q (u faqat `uid` va muddatni saqlaydi), ya'ni
+ *  kirgandan keyin alohida so'raladi. Ilgari ismni Firebase'ning
+ *  `displayName` i olib yurardi va kirish bilan birga kelardi.
+ *
+ *  Yiqilsa bo'sh qaytadi: hisob baribir ochilgan va ism keyingi
+ *  yangilashda to'ladi. */
+export async function loadProfile(): Promise<{
+  nickname: string | null;
+  email: string | null;
+}> {
+  try {
+    const data = await api.get<{ nickname?: unknown; email?: unknown }>(
+      '/v1/me/profile',
+    );
+    return {
+      nickname: typeof data.nickname === 'string' ? data.nickname : null,
+      email: typeof data.email === 'string' ? data.email : null,
+    };
+  } catch {
+    return { nickname: null, email: null };
+  }
+}
+
 /** Profildagi tug'ilgan sana va jins.
  *
  *  Yangi qurilmada kerak: ma'lumot serverda turadi, ya'ni bir marta

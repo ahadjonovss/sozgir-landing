@@ -76,7 +76,8 @@ const uz: Policy = {
     {
       title: '4. Ma’lumot kim bilan bo‘lishiladi',
       blocks: [
-        'Ma’lumotlar Google Firebase xizmatlarida (Authentication, Cloud Firestore, Analytics, Crashlytics) saqlanadi va qayta ishlanadi. Google bu ma’lumotni bizning nomimizdan, xizmat ko‘rsatuvchi sifatida qayta ishlaydi: https://firebase.google.com/support/privacy',
+        'Hisobingiz, natijalaringiz va o‘yin ma’lumotlaringiz bizning o‘z serverimizda (api.sozgir.uz) saqlanadi va qayta ishlanadi.',
+        'Google Firebase xizmatlari faqat yordamchi vazifalar uchun ishlatiladi: foydalanish statistikasi (Analytics), nosozlik hisobotlari (Crashlytics va Performance) va ilovadagi push xabarlar (Cloud Messaging). Google bu ma’lumotni bizning nomimizdan, xizmat ko‘rsatuvchi sifatida qayta ishlaydi: https://firebase.google.com/support/privacy',
         'Taxallusingiz va aqchangiz reytingda boshqa o‘yinchilarga ko‘rinadi, Yangso‘zga yuborgan so‘zlaringiz esa ovoz berish uchun boshqalarga ko‘rsatiladi. Elektron pochtangiz boshqa foydalanuvchilarga hech qachon ko‘rsatilmaydi.',
         'Reklama Google AdMob orqali ko‘rsatiladi — bu yerda Google mustaqil ravishda, o‘z siyosati bo‘yicha ish ko‘radi (9-bo‘lim).',
       ],
@@ -108,7 +109,8 @@ const uz: Policy = {
     {
       title: '8. Ma’lumot xavfsizligi',
       blocks: [
-        'Ma’lumot shifrlangan ulanish (HTTPS/TLS) orqali uzatiladi va Google Firebase’da, har bir foydalanuvchi faqat o‘z ma’lumotini o‘qish va yozish huquqiga ega bo‘ladigan qoidalar bilan saqlanadi. Parollar Firebase Authentication tomonidan boshqariladi va ilovaning o‘zida hech qachon saqlanmaydi.',
+        'Ma’lumot shifrlangan ulanish (HTTPS/TLS) orqali uzatiladi va serverimizda saqlanadi. Har bir so‘rov hisobingizga bog‘langan token bilan tekshiriladi: siz faqat o‘z ma’lumotingizni o‘qiy va yoza olasiz.',
+        'Parolning o‘zi hech qayerda saqlanmaydi — serverda faqat uning qaytarib bo‘lmaydigan xeshi turadi.',
       ],
     },
     {
@@ -187,7 +189,8 @@ const en: Policy = {
     {
       title: '4. Who the data is shared with',
       blocks: [
-        'Data is stored and processed in Google Firebase services (Authentication, Cloud Firestore, Analytics, Crashlytics). Google processes this data on our behalf as a service provider; see https://firebase.google.com/support/privacy',
+        'Your account, results and game data are stored and processed on our own server (api.sozgir.uz).',
+        'Google Firebase services are used only for supporting functions: usage statistics (Analytics), crash and performance reports (Crashlytics, Performance) and push notifications in the app (Cloud Messaging). Google processes this data on our behalf as a service provider; see https://firebase.google.com/support/privacy',
         'Your nickname and score are visible to other players in the leaderboard, and words you submit to Yangso‘z are shown to other players for voting. Your email address is never shown to other users.',
         'Ads are served through Google AdMob, where Google acts independently under its own policies (see section 9).',
       ],
@@ -219,7 +222,8 @@ const en: Policy = {
     {
       title: '8. Data security',
       blocks: [
-        'Data is transmitted over encrypted connections (HTTPS/TLS) and stored in Google Firebase with access rules that allow each user to read and write only their own data. Passwords are handled by Firebase Authentication and are never stored by the app itself.',
+        'Data is transmitted over encrypted connections (HTTPS/TLS) and stored on our server. Every request is checked against a token bound to your account, so you can read and write only your own data.',
+        'Passwords themselves are never stored anywhere — the server keeps only an irreversible hash of them.',
       ],
     },
     {

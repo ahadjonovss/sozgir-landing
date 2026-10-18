@@ -12,7 +12,7 @@ import Avatar from './Avatar';
 import AvatarEditor from './AvatarEditor';
 import Modal from './Modal';
 import { nicknameError } from '../lib/nickname';
-import { isValidLogin, looksLikePhone, PHONE_LENGTH, prettyLogin } from '../lib/loginId';
+import { isValidLogin, PHONE_LENGTH, prettyLogin } from '../lib/loginId';
 import { loadDetails, MAX_AGE, MIN_AGE, type ProfileDetails } from '../lib/profile';
 import PhoneField from './PhoneField';
 import { toLatin } from '../lib/useScript';
@@ -113,20 +113,6 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
     };
     if (details.birthDate || details.gender) await auth.saveDetails(details);
     setNote('Saqlandi');
-  }
-
-  /** Parolni tiklash. Raqamli hisobda pochta yo'q: manzil
-   *  `<raqam>@gmail.com` bo'lib chiqadi va xat begona qutiga ketardi. */
-  async function forgot() {
-    setInvalid(null);
-    setNote(null);
-    if (!byEmail || looksLikePhone(email)) {
-      return setInvalid('Raqamli hisobda parolni Telegram orqali tiklaymiz');
-    }
-    if (!isValidLogin(email)) return setInvalid('Avval email manzilini kiriting');
-    if (await auth.resetPassword(email.trim())) {
-      setNote('Parolni tiklash havolasi emailga yuborildi');
-    }
   }
 
   const nameField = (placeholder: string, ref = false) => (
@@ -337,17 +323,14 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
       </form>
 
       <div className="modal__tabs">
-        {byEmail ? (
-          <button className="link" onClick={forgot}>
-            Parolni unutdingizmi?
-          </button>
-        ) : (
-          /* Raqamli hisobda tiklash xatini yuboradigan pochta yo'q —
-             yordam jonli odam orqali beriladi. */
-          <a className="link" href={links.telegram} target="_blank" rel="noreferrer">
-            Parolni unutdingizmi?
-          </a>
-        )}
+        {/* Parolni tiklash — hozircha jonli odam orqali.
+            Kirish o'z serverimizga ko'chgach avtomatik xat yuborish
+            kanali qolmadi (ilovada ham shunday). Raqamli hisobda u
+            baribir ishlamasdi: manzil `<raqam>@gmail.com` bo'lib
+            chiqadi va xat begona qutiga ketardi. */}
+        <a className="link" href={links.telegram} target="_blank" rel="noreferrer">
+          Parolni unutdingizmi?
+        </a>
         <button className="link" onClick={() => open('register')}>
           Hisobim yo‘q
         </button>
