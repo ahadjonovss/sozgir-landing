@@ -106,7 +106,7 @@ export function useChallenge(code: string): Challenge {
     if (!account || !code) return;
     let alive = true;
 
-    void openChallenge({ code, nickname })
+    void openChallenge({ code })
       .then((reply) => {
         if (alive) setLoaded({ key, state: reply, error: null });
       })

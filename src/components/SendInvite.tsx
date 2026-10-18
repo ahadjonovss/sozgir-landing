@@ -15,7 +15,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { apiError } from '../api/errors';
-import type { Unsubscribe } from '../firebase/live';
+import type { Unsubscribe } from '../api/poll';
 import { useAuth } from '../lib/auth';
 import {
   cancelInvite,

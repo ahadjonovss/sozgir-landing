@@ -5,10 +5,9 @@
  *  statistikaga tushadi — ya'ni so'zni yashirgan odam kim necha urinishda
  *  topganini telefonida ko'rib turadi.
  *
- *  **So'z saytga hech qachon yuborilmaydi.** U `word_challenges/{KOD}/
- *  secret/answer` da yotadi va qoida uni hech bir mijozga bermaydi
- *  (`soztop/firestore.rules`). Taxminni `challengeGuess` tekshiradi va
- *  faqat ranglar qatorini qaytaradi. Shundan ikkita natija kelib chiqadi
+ *  **So'z saytga hech qachon yuborilmaydi.** U serverda qoladi va
+ *  taxminni `/v1/challenges/:kod/guess` tekshiradi — javobda faqat
+ *  ranglar qatori. Shundan ikkita natija kelib chiqadi
  *  va ikkalasi ham ataylab: saytda lug'at yuklanmaydi (so'z to'g'rimi —
  *  serverning ishi) va yutqazgan odamga javob ko'rsatilmaydi, chunki biz
  *  uni bilmaymiz.
@@ -17,7 +16,7 @@
  *  qidiruv qurilmadagi lug'atga tayanadi (`soztop/docs/soztop.md`).
  *  Shuning uchun sayt — faqat o'ynaydigan tomon, yashiradigan tomon esa
  *  ilovada qolaveradi. */
-import { callFunction } from '../firebase/functions';
+import { api } from '../api/client';
 
 /** Kod — olti belgi (server `CODE_ALPHABET`: chalkashadigan `I`, `O`,
  *  `0`, `1` yo'q). Tekshiruv **shaklga** qarab: alifbo kengaysa sayt
@@ -56,14 +55,69 @@ export interface ChallengeGuess {
   attempts?: number;
 }
 
-/** O'ynashga kirish. Server yozuv ochadi va «o'ynadi» sanog'ini oshiradi,
- *  ya'ni yarmida tashlab ketgan odam ham statistikada ko'rinadi.
+/** O'ynashga kirish. Server yozuv ochadi va «o'ynadi» sanog'ini
+ *  oshiradi, ya'ni yarmida tashlab ketgan odam ham statistikada
+ *  ko'rinadi.
  *
- *  Taxallus yuboriladi: yashirgan odam jadvalda aynan shuni ko'radi. */
-export const openChallenge = (input: { code: string; nickname: string }) =>
-  callFunction<ChallengeState>('challengeOpen', input);
+ *  Taxallus yuborilmaydi: yozuvga hisobning o'z nomi qo'yiladi va
+ *  yashirgan odam jadvalda aynan shuni ko'radi. */
+export async function openChallenge(input: {
+  code: string;
+}): Promise<ChallengeState> {
+  const data = await api.post<{
+    code?: unknown;
+    length?: unknown;
+    title?: unknown;
+    host?: unknown;
+    rows?: unknown;
+    words?: unknown;
+    won?: unknown;
+    finished?: unknown;
+  }>(`/v1/challenges/${encodeURIComponent(input.code)}/open`);
+
+  const rows = strings(data.rows);
+  return {
+    code: String(data.code ?? input.code),
+    length: typeof data.length === 'number' ? data.length : 5,
+    title: typeof data.title === 'string' ? data.title : '',
+    // Serverda `host` — yashirgan odamning taxallusi.
+    hostNickname: typeof data.host === 'string' ? data.host : '',
+    rows,
+    words: strings(data.words),
+    // Urinishlar soni alohida kelmaydi — u qatorlar soniga teng.
+    attempts: rows.length,
+    won: data.won === true,
+    finished: data.finished === true,
+  };
+}
+
+const strings = (value: unknown): string[] =>
+  Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : [];
 
 /** Taxmin. Javob ikki xil bo'ladi: `accepted: false` — so'z lug'atda yo'q
  *  (urinish sarflanmaydi), aks holda ranglar qatori va o'yin holati. */
-export const guessChallenge = (input: { code: string; word: string }) =>
-  callFunction<ChallengeGuess>('challengeGuess', input);
+export async function guessChallenge(input: {
+  code: string;
+  word: string;
+}): Promise<ChallengeGuess> {
+  const data = await api.post<{
+    accepted?: unknown;
+    statuses?: unknown;
+    won?: unknown;
+    finished?: unknown;
+  }>(`/v1/challenges/${encodeURIComponent(input.code)}/guess`, {
+    body: { word: input.word },
+  });
+
+  if (data.accepted !== true) {
+    return { accepted: false, reason: 'Bunday so‘z lug‘atda yo‘q' };
+  }
+
+  return {
+    accepted: true,
+    // Server naqshni massiv qilib beradi, sayt satr bilan ishlaydi.
+    row: strings(data.statuses).join(''),
+    won: data.won === true,
+    finished: data.finished === true,
+  };
+}

@@ -13,7 +13,7 @@ import { useAuth } from './auth';
 import { apiError } from '../api/errors';
 import { showBattle } from './activeBattle';
 import type { BattleGame } from './battle';
-import type { Unsubscribe } from '../firebase/live';
+import type { Unsubscribe } from '../api/poll';
 import {
   createMardu,
   joinMardu,

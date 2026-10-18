@@ -19,7 +19,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { apiError } from '../api/errors';
 import { arenaTiles, isMardu, rankArena } from './mardu';
-import type { Unsubscribe } from '../firebase/live';
+import type { Unsubscribe } from '../api/poll';
 import { onBattleOpen, readActive, setActive } from './activeBattle';
 import { useAuth } from './auth';
 import {
@@ -333,12 +333,15 @@ export function useGunchaJang() {
     if (now - asked.current < RESYNC_GAP_MS) return;
     asked.current = now;
     try {
-      const reply = await finishGunchaBattle(battleId);
-      if (!reply.finished) sync(reply.endsAt, reply.serverNow);
+      // Yakun xabari javobsiz ketadi: muddatni server o'z soati
+      // bo'yicha tekshiradi va natija jang yozuvining keyingi
+      // o'qilishida ko'rinadi. Qayta sinxronlash ham o'sha yerdan —
+      // `watchBattle` har uch soniyada `endsAt` ni olib keladi.
+      await finishGunchaBattle(battleId);
     } catch {
       // Sinxronlanmadi — sanoq o'z tayanchi bilan davom etadi.
     }
-  }, [battleId, sync]);
+  }, [battleId]);
 
   // Jang boshlangan zahoti va har qaytishda qolgan vaqt qayta so'raladi.
   useEffect(() => {
@@ -516,7 +519,7 @@ export function useGunchaJang() {
     () =>
       run(async () => {
         if (!account) return;
-        const reply = await createGunchaBattle({ nickname: account.nickname });
+        const reply = await createGunchaBattle();
         open(reply.battleId);
       }),
     [account, open, run],

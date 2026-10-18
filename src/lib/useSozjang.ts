@@ -10,7 +10,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { apiError } from '../api/errors';
 import { arenaTiles, isMardu, rankArena } from './mardu';
-import type { Unsubscribe } from '../firebase/live';
+import type { Unsubscribe } from '../api/poll';
 import {
   onBattleOpen,
   readActive,
