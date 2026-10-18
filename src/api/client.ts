@@ -34,6 +34,14 @@ export class ApiError extends Error {
   get unauthenticated(): boolean {
     return this.status === 401;
   }
+
+  /** Kunlik chegaraga yetilgan — ekran premium taklifini ko'rsatadi.
+   *
+   *  Holat kodi bo'yicha, matn bo'yicha emas: xabar o'zgarsa
+   *  tekshiruv sinmasligi kerak. */
+  get payment(): boolean {
+    return this.status === 402;
+  }
 }
 
 /** Oxirgi olingan token va uning muddati.
@@ -92,7 +100,12 @@ async function send<T>(
   { query, body, auth = true, timeout = 12_000 }: Options = {},
   retried = false,
 ): Promise<T> {
-  const headers: Record<string, string> = { Accept: 'application/json' };
+  const headers: Record<string, string> = {
+    Accept: 'application/json',
+    // Sayt o'zini tanishtiradi: kunlik chegara shu bo'yicha
+    // qo'llanadi va ilovaga tegmaydi (`backend/src/app/site_limit.ts`).
+    'X-Soztop-Client': 'web',
+  };
   if (body !== undefined) headers['Content-Type'] = 'application/json';
 
   if (auth) {

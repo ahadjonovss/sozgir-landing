@@ -28,6 +28,7 @@
  *  jadvali `turnirs` jadvalida bu maydonlarsiz yashaydi. Ular
  *  qo'shilsa [docOf] ning ichi to'ldiriladi, qolgan kod tegilmaydi. */
 import { api } from '../api/client';
+import { refreshPlays } from './plays';
 import { poll, sharedPoll, type Unsubscribe } from '../api/poll';
 import type { BattleDoc, BattleGame } from './battle';
 import type { ArenaStanding, MarduDoc } from './mardu';
@@ -186,6 +187,7 @@ export async function createTurnir(input: {
       length: input.length,
     },
   });
+  refreshPlays();
   return { code: turnir.code ?? '' };
 }
 
@@ -196,6 +198,7 @@ export async function joinTurnir(input: { code: string }): Promise<{ code: strin
     '/v1/turnirs/join-by-code',
     { body: { code: input.code } },
   );
+  refreshPlays();
   return { code: turnir.code ?? input.code };
 }
 
@@ -211,6 +214,7 @@ export async function quickTurnir(input: {
     '/v1/turnirs/quick',
     { body: { game: input.game } },
   );
+  refreshPlays();
   // Sanoq serverda saqlanmaydi, shuning uchun `startsAt` yo'q: xona
   // boshlanishni tashkilotchining bosishi bilan kutadi.
   return { code: turnir.code ?? '', serverNow: Date.now() };

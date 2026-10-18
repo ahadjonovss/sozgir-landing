@@ -21,6 +21,7 @@
  *  `/v1/battles/:id/live` beradi va tartib **serverda** qo'yiladi —
  *  ikki ekran ikki xil tartib ko'rsatmasligi uchun. */
 import { api } from '../api/client';
+import { refreshPlays } from './plays';
 import { poll, type Unsubscribe } from '../api/poll';
 import { readBattle, type BattleGame, type BattleDoc, type BattlePlayer } from './battle';
 
@@ -214,6 +215,7 @@ export async function createMardu(input: {
   const { code } = await api.post<{ code: string }>(
     `/v1/battles/${encodeURIComponent(battle.id)}/code`,
   );
+  refreshPlays();
   return { battleId: battle.id, code };
 }
 
@@ -228,6 +230,7 @@ export async function joinMardu(input: { code: string }): Promise<MarduReply> {
   const { battle } = await api.post<{
     battle: { id: string; endsAt?: string | null };
   }>('/v1/battles/join-by-code', { body: { code: input.code } });
+  refreshPlays();
   return {
     battleId: battle.id,
     endsAt: endsOf(battle.endsAt),
@@ -241,6 +244,7 @@ export async function quickMardu(input: { game: BattleGame }): Promise<MarduRepl
   const reply = await api.post<{ battleId?: string | null }>('/v1/battles/quick', {
     body: { game: input.game, type: 'mardu' },
   });
+  if (reply.battleId) refreshPlays();
   return { battleId: reply.battleId ?? '', serverNow: Date.now() };
 }
 

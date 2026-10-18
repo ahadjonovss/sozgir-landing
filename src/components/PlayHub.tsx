@@ -27,6 +27,7 @@ import AdBanner from './AdBanner';
 import AppMark from './AppMark';
 import ArenaHistory from './ArenaHistory';
 import BattleStats from './BattleStats';
+import PlaysLeft from './PlaysLeft';
 import Leaderboard from './Leaderboard';
 import { Clock, Swords, Trophy, Users } from './Icons';
 import GunchaCard from './GunchaCard';
@@ -103,6 +104,8 @@ export default function PlayHub() {
             <BattleStats uid={account.uid} />
           </section>
         )}
+
+        <PlaysLeft />
 
         <div className="hub__grid">
           <article className="hub-card hub-card--soztop">

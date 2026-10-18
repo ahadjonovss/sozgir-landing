@@ -12,6 +12,7 @@
  *  shart emas; g'uncha jangining har so'zi esa socket orqali ketadi
  *  (`api/socket.ts`). */
 import { api } from '../api/client';
+import { refreshPlays } from './plays';
 import { poll, type Unsubscribe } from '../api/poll';
 import { split, type Verdict } from './uz';
 
@@ -172,6 +173,8 @@ export async function createChallenge(input: {
   const { code } = await api.post<{ code: string }>(
     `/v1/battles/${encodeURIComponent(battle.id)}/code`,
   );
+  // Kunlik sanoq o'zgardi — ekrandagi qolgani yangilansin.
+  refreshPlays();
   return { battleId: battle.id, code };
 }
 
@@ -190,6 +193,7 @@ export async function joinByCode(input: {
     '/v1/battles/join-by-code',
     { body: { code: input.code } },
   );
+  refreshPlays();
   const endsAt = battle.endsAt ? Date.parse(battle.endsAt) : undefined;
   return { battleId: battle.id, endsAt, serverNow: Date.now() };
 }
@@ -204,6 +208,8 @@ export async function quickMatch(input: {
     body: { game: input.game ?? 'soztop', length: input.length },
   });
   const battleId = reply.battleId ?? undefined;
+  // Navbatda qolgan odam hali o'ynamadi — sanoq ham o'zgarmadi.
+  if (battleId) refreshPlays();
   return battleId ? { battleId } : { queued: true };
 }
 

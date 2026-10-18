@@ -10,6 +10,7 @@
  *  (`expires_at > now()`), ya'ni ro'yxatda faqat javob berish mumkin
  *  bo'lganlari turadi. */
 import { api } from '../api/client';
+import { refreshPlays } from './plays';
 import { sharedPoll, type Unsubscribe } from '../api/poll';
 
 export type { Unsubscribe };
@@ -84,6 +85,7 @@ export async function acceptInvite(inviteId: string): Promise<string> {
   const reply = await api.post<{ battleId?: string; id?: string }>(
     `/v1/invites/${encodeURIComponent(inviteId)}/accept`,
   );
+  refreshPlays();
   return String(reply.battleId ?? reply.id ?? '');
 }
 

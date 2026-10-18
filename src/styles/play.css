@@ -801,6 +801,19 @@
 
 /* ── Mehmon chegarasi: taxta o'rnidagi panel ─────────────────────────── */
 
+/* Kunlik chegara — qolgan o'yinlar qatori.
+   Kartochkalar ustida turadi va ularga tegishli, shuning uchun
+   ohangi past: eslatma, e'lon emas. */
+.plays {
+  margin: 0 0 14px;
+  color: var(--text-2);
+  font-size: 14px;
+}
+
+.plays strong {
+  color: var(--text);
+}
+
 .gate {
   display: grid;
   justify-items: center;
