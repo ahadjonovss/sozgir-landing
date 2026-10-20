@@ -15,7 +15,7 @@
  *  **Klaviatura** faqat ko'rinib turgan o'yinga bog'lanadi
  *  (`useSozTop(..., active)`, `useGuncha(active)`): ikkalasi ham
  *  eshitsa, bitta bosilgan harf ikkala taxtaga ham tushardi. */
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { links } from '../data/site';
 import { useAuth } from '../lib/auth';
 import { dailyNumber } from '../lib/daily';
@@ -35,9 +35,28 @@ export type HubGame = 'soztop' | 'guncha';
 export default function GameHub({ game }: { game: HubGame }) {
   const { account, openPrompt } = useAuth();
   const choice = useGameChoice();
-  const soztop = useSozTop(choice, game === 'soztop');
-  const guncha = useGuncha(game === 'guncha');
-  const flower = game === 'guncha';
+
+  /** Almashtirgich: belgi bosilganda **hech qayerga o'tilmaydi**.
+   *
+   *  Manzil ham, sahifa ham o'sha-o'sha qoladi — faqat markazdagi
+   *  taxta almashadi. Ilgari belgi havola edi va `/oyin` dan
+   *  `/guncha` ga o'tardi: texnik jihatdan sahifa qayta chizilmasa
+   *  ham, manzil va yorliq sarlavhasi o'zgarib, boshqa sahifa
+   *  ochilgandek bo'lardi.
+   *
+   *  Tanlov marshrutning **ustiga** yoziladi va marshrut o'zgarishi
+   *  bilan o'zi bekor bo'ladi (`from` boshqa bo'lib qoladi): odam
+   *  menyudan `/guncha` ni ochsa, o'sha paytdagi almashtirish
+   *  qoldig'i unga ta'sir qilmaydi. Shu sabab alohida tozalash
+   *  effekti ham kerak emas. */
+  const [swap, setSwap] = useState<{ from: HubGame; to: HubGame } | null>(null);
+  const shown: HubGame = swap?.from === game ? swap.to : game;
+  const toggle = () =>
+    setSwap({ from: game, to: shown === 'guncha' ? 'soztop' : 'guncha' });
+
+  const soztop = useSozTop(choice, shown === 'soztop');
+  const guncha = useGuncha(shown === 'guncha');
+  const flower = shown === 'guncha';
 
   /* Ikkinchi o'yinning lug'ati fonda tayyorlanadi — almashganda
      «Lug'at yuklanmoqda…» chiqmasligi uchun. Ikkalasi ham bir marta
@@ -56,7 +75,11 @@ export default function GameHub({ game }: { game: HubGame }) {
             o'ynash uchun surish kerak emas (ilovadagidek). G'unchada
             bunday chegara yo'q: u o'zi ixcham. */}
         <div className={`oyin__board${flower ? '' : ' oyin__board--fit'}`}>
-          {flower ? <GunchaBoard guncha={guncha} /> : <Play choice={choice} game={soztop} />}
+          {flower ? (
+            <GunchaBoard guncha={guncha} onSwap={toggle} />
+          ) : (
+            <Play choice={choice} game={soztop} onSwap={toggle} />
+          )}
         </div>
 
         <aside className="oyin__side">

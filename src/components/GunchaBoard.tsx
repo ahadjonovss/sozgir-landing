@@ -16,11 +16,17 @@ import { display, pretty } from '../lib/uz';
 import GunchaFlower from './GunchaFlower';
 import ScoreRules from './ScoreRules';
 import { useState } from 'react';
-import { links } from '../data/site';
 
 type Guncha = ReturnType<typeof useGuncha>;
 
-export function GunchaBoard({ guncha }: { guncha: Guncha }) {
+export function GunchaBoard({
+  guncha,
+  onSwap,
+}: {
+  guncha: Guncha;
+  /** O'yin turini almashtirish — `Play` dagi bilan bir xil. */
+  onSwap?: () => void;
+}) {
   const [rules, setRules] = useState(false);
   const { mode, puzzle, order, typed, foundTargets, score, maxScore, rank, toNext,
     allFound, message, praise, shake, error, loading } = guncha;
@@ -43,17 +49,20 @@ export function GunchaBoard({ guncha }: { guncha: Guncha }) {
             </button>
           </div>
           <span className="guncha__head-right">
-            {/* O'yin turini almashtirish — So'ztopga o'tish. Taxta
-                ustidagi belgi ikkala o'yinda ham bir xil ishlaydi. */}
-            <a
-              className="play__ranks play__swap"
-              href={links.play}
-              data-scroll="keep"
-              aria-label="So‘ztopga o‘tish"
-              title="So‘ztopga o‘tish"
-            >
-              <span aria-hidden="true">🟩</span>
-            </a>
+            {/* O'yin turini almashtirish. Hech qayerga o'tilmaydi —
+                faqat shu belgining ostidagi taxta So'ztopga
+                almashadi. */}
+            {onSwap && (
+              <button
+                type="button"
+                className="play__ranks play__swap"
+                onClick={onSwap}
+                aria-label="So‘ztopga almashtirish"
+                title="So‘ztopga almashtirish"
+              >
+                <span aria-hidden="true">🟩</span>
+              </button>
+            )}
             <button className="link" onClick={() => setRules((open) => !open)}>
               Qoidalar
             </button>

@@ -19,7 +19,6 @@ import { puzzleKey, useHint } from '../lib/useHint';
 import { pretty } from '../lib/uz';
 import { Board, Keyboard } from './Board';
 import GameAside from './GameAside';
-import { links } from '../data/site';
 import { Refresh } from './Icons';
 import { Aqcha } from './Units';
 import DownloadPromo from './DownloadPromo';
@@ -59,7 +58,13 @@ function useHintCountdown(target: number | null): string {
 
 /** Har yangi so'zda ichki holat (yordam sanog'i, oynalar) noldan boshlanadi:
  *  komponent so'z kaliti bilan qayta yaratiladi. */
-export default function Play(props: { choice: GameChoice; game: Game }) {
+export default function Play(props: {
+  choice: GameChoice;
+  game: Game;
+  /** O'yin turini almashtirish — berilmasa belgi umuman chizilmaydi.
+   *  Bosh sahifadagi taxtada (`Hero`) almashtiradigan narsa yo'q. */
+  onSwap?: () => void;
+}) {
   /** Tashlab ketilgan so'z — taxta ostida bir necha soniya turadi.
    *
    *  Holat **shu yerda**, kalitdan tashqarida: `PlayBoard` har yangi
@@ -89,11 +94,13 @@ export default function Play(props: { choice: GameChoice; game: Game }) {
 function PlayBoard({
   choice,
   game,
+  onSwap,
   skipped,
   onSkip,
 }: {
   choice: GameChoice;
   game: Game;
+  onSwap?: () => void;
   /** Oldingi so'z — tashlab ketilgan bo'lsa. */
   skipped: string | null;
   onSkip: (word: string | null) => void;
@@ -252,20 +259,25 @@ function PlayBoard({
               <Refresh size={18} />
             </button>
           )}
-          {/* O'yin turini almashtirish — g'unchaga o'tish.
-              Belgi emoji: `gameLinks` dagi kartochkalarda ham o'sha
-              turadi, ya'ni odam uni allaqachon ko'rgan. Havola, tugma
-              emas: u boshqa sahifaga olib boradi va o'rta bosish bilan
-              yangi varaqda ochish ham ishlashi kerak. */}
-          <a
-            className="play__ranks play__swap"
-            href={links.guncha}
-            data-scroll="keep"
-            aria-label="G‘unchaga o‘tish"
-            title="G‘unchaga o‘tish"
-          >
-            <span aria-hidden="true">🌸</span>
-          </a>
+          {/* O'yin turini almashtirish. Hech qayerga o'tilmaydi:
+              manzil ham, sahifa ham o'sha-o'sha qoladi, faqat shu
+              belgining ostidagi taxta g'unchaga almashadi. Ilgari bu
+              havola edi va bosilganda manzil o'zgarib, boshqa sahifa
+              ochilgandek bo'lardi.
+
+              Belgi emoji: `gameLinks` kartochkalarida ham o'sha
+              turadi, ya'ni odam uni allaqachon ko'rgan. */}
+          {onSwap && (
+            <button
+              type="button"
+              className="play__ranks play__swap"
+              onClick={onSwap}
+              aria-label="G‘unchaga almashtirish"
+              title="G‘unchaga almashtirish"
+            >
+              <span aria-hidden="true">🌸</span>
+            </button>
+          )}
           {/* Yordam: o'ylash cho'zilganda o'zi paydo bo'ladi, undan oldin
               qancha qolgani sanab turiladi — ilovadagi `_HintIndicator`. */}
           {hint.ready ? (
