@@ -606,6 +606,25 @@
   margin-bottom: 10px;
 }
 
+/* Aytilgan javob va keyingi so'zga o'tish — bitta qatorda. */
+.play__revealed {
+  display: inline-flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.play__revealed b {
+  color: var(--text);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 .play__lengths {
   display: flex;
   gap: 5px;

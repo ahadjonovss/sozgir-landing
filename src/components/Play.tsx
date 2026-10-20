@@ -82,6 +82,10 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
    *  turadigan «Statistika» kartochkasi); saytda esa panel yon ustunda
    *  qolib ketardi — telefonda uni umuman ko'rmaslik mumkin edi. */
   const [statsOpen, setStatsOpen] = useState(false);
+  /** «Boshqa so'z» bosilgan: yashirin so'z ko'rsatildi, keyingisi
+   *  navbatdagi bosishda ochiladi. Shu so'zning o'zi saqlanadi, bayroq
+   *  emas — yangi so'z kelishi bilan blok o'zi yo'qoladi. */
+  const [revealed, setRevealed] = useState<string | null>(null);
   /** Kunlik so'z uchun hisob kerak.
    *
    *  Kunlik o'yin — hamma uchun bitta so'z va u reytingga tushadi:
@@ -260,9 +264,31 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
           butun mamlakat uchun bitta va uni almashtirib bo'lmaydi. */}
       {mode === 'endless' && game.phase === 'playing' && !needsAccount && (
         <div className="play__skip">
-          <button className="link" onClick={game.playAgain}>
-            Boshqa so‘z
-          </button>
+          {revealed !== null && revealed === game.puzzle?.answer ? (
+            /* Javob aytiladi, keyin keyingi so'z. Aytilmasa mashqning
+               ma'nosi qolmasdi: odam tiqilib qolgan so'zni bilmay
+               ketardi va o'sha so'z keyin yana uchraganda yana
+               tiqilardi. */
+            <p className="play__revealed" role="status">
+              Yashirin so‘z: <b data-script="word">{game.answerWord}</b>
+              <button
+                className="link"
+                onClick={() => {
+                  setRevealed(null);
+                  game.playAgain();
+                }}
+              >
+                Keyingi so‘z
+              </button>
+            </p>
+          ) : (
+            <button
+              className="link"
+              onClick={() => setRevealed(game.puzzle?.answer ?? null)}
+            >
+              Boshqa so‘z
+            </button>
+          )}
         </div>
       )}
 
