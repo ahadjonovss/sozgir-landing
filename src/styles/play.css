@@ -3434,13 +3434,12 @@
    ko'rinmasdi va oxirgisi yolg'iz qatorda qolardi.
 
    Yechim uch qismdan: maydon kengaytiriladi, kartochkalar siqiladi va
-   to'r olti ustunga bo'linadi — birinchi uchtasi ikki ustundan
-   (qatorda uchta), keyingi ikkitasi uch ustundan (qatorda ikkita).
-   Shunda ikkala qator ham to'la chiqadi, bo'sh katak qolmaydi.
+   to'rttasi **bitta qatorga** tushadi — nimani o'ynashni tanlash uchun
+   hammasi bir qarashda ko'rinishi kerak.
 
-   Oxirgi ikkitasi kengroq bo'lgani ham mantiqan to'g'ri: Mardu maydon
-   va Turnir — yangi o'yin emas, shakl, ya'ni ular boshqa qatorda
-   turishi kerak. */
+   Ilgari bu yerda olti ustunli hisob turardi: uchtasi ikki ustundan,
+   qolgan ikkitasi uch ustundan. U beshta kartochka uchun yozilgan edi;
+   to'rttasi qolgach oxirgisi yolg'iz qatorda osilib qolardi. */
 @media (min-width: 1080px) {
   .hub {
     max-width: 1240px;
@@ -3459,38 +3458,48 @@
   }
 
   .hub__grid {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
   }
 
-  .hub__grid > *:nth-child(-n + 3) {
-    grid-column: span 2;
-  }
-
-  .hub__grid > *:nth-child(n + 4) {
-    grid-column: span 3;
-  }
-
-  /* Kartochka o'zi ham ixchamlashadi: keng ekranda joy ko'p degani
-     har bir kartochka balandroq bo'lsin degani emas — aksincha,
-     beshtasi birdan ko'rinsin. */
+  /* Kartochka o'zi ham ixchamlashadi: ustun endi ikki barobar tor,
+     ya'ni avvalgi o'lchamlar bilan yozuv to'rt-besh qatorga
+     cho'zilib, kartochka ustunga aylanib qolardi. */
   .hub-card {
-    gap: 10px;
-    padding: 22px;
+    gap: 8px;
+    padding: 18px;
+    border-radius: var(--radius);
   }
 
   .hub-card__icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 15px;
+    width: 38px;
+    height: 38px;
+    border-radius: 13px;
+  }
+
+  .hub-card__icon svg {
+    width: 20px;
+    height: 20px;
   }
 
   .hub-card h2 {
-    font-size: 23px;
+    font-size: 19px;
   }
 
   .hub-card > p {
-    font-size: 14px;
+    font-size: 13.5px;
+    line-height: 1.45;
+  }
+
+  .hub-card__status {
+    font-size: 12.5px;
+  }
+
+  /* Tugmalar tor ustunda yonma-yon sig'masa ostma-ost tushadi —
+     yarmi kesilgan tugmadan ko'ra shu yaxshi. */
+  .hub-card__actions .btn {
+    flex: 1 1 auto;
+    justify-content: center;
   }
 
   /* Jadval va tarix yonma-yon. Jadval balandroq, shuning uchun
