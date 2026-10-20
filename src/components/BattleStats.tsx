@@ -18,6 +18,7 @@ import {
   winRate,
   type BattleRating,
 } from '../lib/battleRating';
+import { useCountUp } from '../lib/useCountUp';
 import { useDonorTier } from '../lib/donor';
 import DonorChip from './DonorChip';
 import { BattleAqcha, TierBadge } from './Units';
@@ -53,6 +54,16 @@ export default function BattleStats({
   }, [uid]);
 
   const rating = value ?? EMPTY_RATING;
+  /* Jang tugagach son eski o'ljadan yangisiga sanab o'tadi: shu
+     jangda nima bo'lganini raqamning o'zi ko'rsatadi. Boshqa
+     joylarda (profil, lobbi) «o'zgarish» degan tushuncha yo'q —
+     `change` bo'lmasa son darhol o'z qiymatida turadi. */
+  const shown = useCountUp(
+    rating.rating,
+    // Jadval hali yuklanmagan bo'lsa sanoq boshlanmaydi: aks holda
+    // son avval bo'sh qiymatga sakrab, keyin sanalardi.
+    change && value ? change.before : null,
+  );
   const next = nextTierAt(rating.rating);
   const games = played(rating);
   /** Homiylik darajasi: kartochka daraja ohangida, daraja yonida chip. */
@@ -67,7 +78,7 @@ export default function BattleStats({
       <div className="rating__main">
         <span className="rating__label">Jang aqchasi</span>
         <strong className="rating__value">
-          <BattleAqcha rating={rating.rating} size="lg" />
+          <BattleAqcha rating={shown} size="lg" />
           {change && battleAqcha(change.after) !== battleAqcha(change.before) && (
             <span
               className={`rating__delta rating__delta--${

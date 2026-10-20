@@ -327,6 +327,8 @@ interface ApiPlayer {
   words?: unknown;
   statuses?: unknown;
   finishedAt?: unknown;
+  ratingBefore?: unknown;
+  ratingAfter?: unknown;
 }
 
 const strings = (value: unknown): string[] =>
@@ -372,6 +374,14 @@ export async function readBattle(battleId: string): Promise<BattleDoc | null> {
       won: rows.length > 0 && /^s+$/.test(rows[rows.length - 1]),
       finished: player.finishedAt !== null && player.finishedAt !== undefined,
       score: typeof player.score === 'number' ? player.score : 0,
+      /* Jangdan oldingi va keyingi o'lja — «bu jang nima berdi»
+         degan farq shu ikkisidan hisoblanadi (natija ekranidagi
+         `+8` / `−8`). Server ularni jang yopilganda yozadi;
+         ketayotgan jangda `null` keladi va farq ko'rsatilmaydi. */
+      ratingBefore:
+        typeof player.ratingBefore === 'number' ? player.ratingBefore : undefined,
+      ratingAfter:
+        typeof player.ratingAfter === 'number' ? player.ratingAfter : undefined,
       words,
       wordCount: words.length,
       found: words,
