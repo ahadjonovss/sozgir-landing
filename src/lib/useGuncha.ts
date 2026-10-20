@@ -13,16 +13,17 @@ import { dailyKey, dailyNumber } from './daily';
 import {
   buildGuncha,
   gunchaFromLetters,
+  type GunchaPuzzle,
   judge,
   lettersOf,
   maxScoreOf,
-  targetsIn,
   nextRank,
   rankOf,
   scoreForRank,
+  targetsIn,
+  unitOfKey,
   VERDICT_TEXT,
   wordOf,
-  type GunchaPuzzle,
 } from './guncha';
 import { gunchaLexicon } from './gunchaLexicon';
 import { markPlayedAt, unlockBadge } from './badges';
@@ -297,7 +298,9 @@ export function useGuncha() {
 
       if (action.kind === 'enter') press('enter');
       else if (action.kind === 'back') press('back');
-      else if (action.kind === 'letter') press(action.unit);
+      else if (action.kind === 'letter') {
+        press(puzzle ? unitOfKey(lettersOf(puzzle), action.unit) : action.unit);
+      }
       else if (puzzle && lettersOf(puzzle).includes(action.unit)) {
         // Qo'shma harf oldingi katak bilan birikadi (`s` + `h` → `sh`).
         setTyped((units) => [...units.slice(0, -1), action.unit]);

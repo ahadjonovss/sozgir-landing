@@ -36,11 +36,12 @@ import {
 import { shuffled } from './daily';
 import {
   gunchaFromLetters,
+  type GunchaPuzzle,
   judge,
   maxScoreOf,
+  unitOfKey,
   VERDICT_TEXT,
   wordOf,
-  type GunchaPuzzle,
 } from './guncha';
 import {
   createGunchaBattle,
@@ -603,7 +604,7 @@ export function useGunchaJang() {
 
       if (action.kind === 'enter') press('enter');
       else if (action.kind === 'back') press('back');
-      else if (action.kind === 'letter') press(action.unit);
+      else if (action.kind === 'letter') press(unitOfKey(letters, action.unit));
       else if (letters.includes(action.unit)) {
         setTyped((units) => [...units.slice(0, -1), action.unit]);
       }

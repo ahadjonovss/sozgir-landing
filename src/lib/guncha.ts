@@ -17,6 +17,7 @@
  *  `LETTERS` ilovadagi klaviatura tartibi bilan bir xil, ya'ni saytdagi
  *  hisob serverdagi bilan belgima-belgi mos tushadi. */
 import { shuffled } from './daily';
+import { TOVUSH } from './uz';
 import type { Dictionary } from './dictionary';
 import { LETTERS, normalize, split, TUTUQ } from './uz';
 
@@ -86,6 +87,24 @@ export interface GunchaPuzzle {
   daily: boolean;
   /** Kunlik o'yin raqami yoki mashq raqami. */
   number: number;
+}
+
+/** Klaviaturadan kelgan harfni g'unchaning harfiga moslaydi.
+ *
+ *  `O‘` va `G‘` ni terib bo'lmasdi. Ular ikki bosishda yig'iladi —
+ *  avval `o`, keyin tutuq — lekin birinchi bosish g'unchada `o`
+ *  bo'lmasa rad etilardi: taxta faqat g'unchadagi harfni qabul
+ *  qiladi. Ya'ni birikish boshlanmasdan to'xtardi va o'sha ikki
+ *  harfni faqat sichqoncha bilan kiritish mumkin edi.
+ *
+ *  Endi oddiy harf g'unchada bo'lmasa-yu, tutuqli juftligi bo'lsa —
+ *  o'shanisi olinadi. Ikkalasi ham bo'lsa oddiysi qoladi va tutuq
+ *  avvalgidek birikadi. Keyin bosilgan tutuq o'z-o'zidan e'tiborsiz
+ *  qoladi: g'unchada yolg'iz tutuq harfi yo'q. */
+export function unitOfKey(letters: readonly string[], unit: string): string {
+  if (letters.includes(unit)) return unit;
+  const paired = `${unit}${TOVUSH}`;
+  return letters.includes(paired) ? paired : unit;
 }
 
 export const lettersOf = (puzzle: GunchaPuzzle): string[] => [
