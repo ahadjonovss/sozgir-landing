@@ -213,6 +213,14 @@ function Hub({ turnir }: { turnir: Turnir }) {
         </div>
         )}
 
+      </div>
+
+      {/* Ro'yxatlar yon ustunda: chap tomonda bitta ish bor — turnir
+          ochish yoki kod bilan kirish. Ilgari hammasi bitta tor
+          ustunga tizilgan edi va o'ngdagi butun maydon bo'sh
+          turardi; o'qiladigan narsa (ochiq turnirlar, tarix,
+          qoidalar) esa tugmalarning ostida qolib ketgandi. */}
+      <aside className="lobby__side">
         <OpenList turnir={turnir} />
         <HistoryList turnir={turnir} />
 
@@ -246,9 +254,7 @@ function Hub({ turnir }: { turnir: Turnir }) {
             <li>Har guruh jangi — oddiy maydon: aqcha ham o‘sha yo‘ldan keladi.</li>
           </ol>
         </div>
-      </div>
 
-      <aside className="lobby__side">
         {/* Telegram banneri vaqtincha olib turildi. */}
         {/* Faqat turnirga kirishdan oldin. Turnirning o'zi — zinapoya,
             jang va natija — reklamasiz: u yerda vaqt sanab turadi va
