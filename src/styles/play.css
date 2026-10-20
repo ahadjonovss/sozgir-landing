@@ -6765,3 +6765,17 @@
 .report-page .panel {
   width: 100%;
 }
+
+/* Natija kartochkasi torayganda ichidagilar ham torayishi kerak.
+   Ikkisi o'z enini talab qilardi va kartochkadan chiqib ketardi:
+   o'lja kartochkasi ikki ustunni (har biri eng kami 300px) va
+   statistika qatori beshta ustunni. Ikkalasi ham shu yerda joyga
+   qarab yig'iladi. */
+.stage--result .rating {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+}
+
+.stage--result .rating__stats {
+  grid-template-columns: repeat(auto-fit, minmax(76px, 1fr));
+}

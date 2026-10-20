@@ -1299,6 +1299,9 @@
 
 .result__actions {
   display: flex;
+  /* Uchta tugma tor kartochkada bitta qatorga sig'masdi va oxirgisi
+     chetdan chiqib ketardi — kesilgan «Natijani ulashish». */
+  flex-wrap: wrap;
   gap: 8px;
   justify-content: center;
   margin-top: 16px;

@@ -628,19 +628,18 @@ export function useSozjang() {
     }
   }, [battleId, close, finished, phase]);
 
-  /** Natijadagi «Yangi jang» — lobbiga qaytarmaydi.
+  /** Natijadagi «Yangi jang» — darhol raqib qidiriladi.
    *
-   *  Tezkor jangda darrov raqib qidiriladi, do'st bilan o'ynalgan
-   *  jangda esa yangi kod ochiladi va kutish ekrani chiqadi. Ilgari
-   *  ikkinchi holatda odam lobbiga tushardi va o'sha yerda yana
-   *  «Kod yaratish» ni bosardi — holbuki u nima qilmoqchi ekanini
-   *  allaqachon aytgan edi. */
+   *  Jang qanday boshlangani (tezkor yoki do'st bilan kod orqali)
+   *  bu yerda ahamiyatsiz: tugma bosgan odam **hozir yana
+   *  o'ynamoqchi**. Kod yaratib do'stni kutish esa boshqa niyat va
+   *  u lobbida o'z joyida turibdi — ilgari bu yerda o'sha chiqardi
+   *  va odam kutish ekranida qolib ketardi. Lobbiga qaytarish ham
+   *  to'g'ri emas: u yerda baribir bitta tugma bosilardi. */
   const again = useCallback(async () => {
-    const type = battle?.type;
     await leave();
-    if (type === 'quick') await quick();
-    else await create();
-  }, [battle?.type, create, leave, quick]);
+    await quick();
+  }, [leave, quick]);
 
   /** Raqibga reaksiya yuboradi.
    *

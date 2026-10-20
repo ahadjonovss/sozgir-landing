@@ -30,7 +30,6 @@ import { Board, Keyboard } from './Board';
 import CodeInput from './CodeInput';
 import { Check, Clock, Copy, Send, Swords, Trophy, Users } from './Icons';
 import { ReactionBurst, ReactionPicker } from './Reactions';
-import ProposeWord from './ProposeWord';
 import PlayerName from './PlayerName';
 import RotatingLine from './RotatingLine';
 import ScoreRules from './ScoreRules';
@@ -1073,7 +1072,7 @@ function Result({ game }: { game: Sozjang }) {
         {!series && (
           <button className="btn" onClick={() => void game.again()}>
             <Swords size={16} />
-            {game.battle?.type === 'quick' ? 'Yangi raqib qidirish' : 'Yangi jang'}
+            Yangi raqib qidirish
           </button>
         )}
         {series && (
@@ -1136,7 +1135,7 @@ function Result({ game }: { game: Sozjang }) {
               className="report-link"
               href={`/shikoyat/soz/${encodeURIComponent(game.battle.answer)}?qayerda=jang&orqaga=${encodeURIComponent(links.battle)}`}
             >
-              So‘z haqida xabar berish
+              Bu so‘z ustidan shikoyat
             </a>
           )}
           {!game.mardu && game.opponentUid && (
@@ -1149,7 +1148,6 @@ function Result({ game }: { game: Sozjang }) {
               Raqib ustidan shikoyat
             </a>
           )}
-          <ProposeWord />
         </div>
       )}
     </div>
