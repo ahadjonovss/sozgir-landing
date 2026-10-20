@@ -35,6 +35,11 @@ const TAB_LABEL: Record<Tab, string> = {
   total: 'Umumiy',
 };
 
+/** Seans davomida eslab qolinadigan jadval — komponentdan tashqarida,
+ *  ya'ni u qayta yaratilganda ham yo'qolmaydi. Ma'lumot baribir
+ *  yangilanadi: ochilganda yana so'raladi va kelgani o'rnini egallaydi. */
+const memo: Partial<Record<Tab, Entry[]>> = {};
+
 export default function Leaderboard() {
   const { account, openPrompt } = useAuth();
   /** Tasdiqlangan hisobni jadvaldan chaqirib bo'lmaydi — ilovadagi
@@ -50,7 +55,14 @@ export default function Leaderboard() {
    *  almashilganda darrov chiqadi, yuklanish paytida esa oldingi bo'limning
    *  qatorlari joyida qolib xiralashadi — ro'yxat o'rniga bitta qator
    *  «Yuklanmoqda…» chiqib panel kichrayib-kattalashib yubormaydi. */
-  const [cache, setCache] = useState<Partial<Record<Tab, Entry[]>>>({});
+  /* Boshlang'ich holat — shu seansda allaqachon olingan jadval.
+     Panel o'yin almashganda qayta yaratiladi (`/oynash` dagi tablar)
+     va keshsiz har safar «Yuklanmoqda» dan boshlanardi: ekranda
+     hech narsa o'zgarmagan bo'lsa ham jadval bo'shab, keyin o'sha
+     qatorlar bilan to'lardi. */
+  const [cache, setCache] = useState<Partial<Record<Tab, Entry[]>>>(() => ({
+    ...memo,
+  }));
   const rows = cache[tab] ?? null;
   /** Ekranda ko'rinadigan qatorlar: bu bo'limniki, bo'lmasa (hali
    *  yuklanmoqda) boshqa bo'limning qatorlari — o'sha balandlikda. */
@@ -84,7 +96,9 @@ export default function Leaderboard() {
           : tab === 'today'
             ? await todayTop({ dateKey: dailyKey() })
             : await totalTop({});
-      if (alive) setCache((current) => ({ ...current, [tab]: entries }));
+      if (!alive) return;
+      memo[tab] = entries;
+      setCache((current) => ({ ...current, [tab]: entries }));
     })();
 
     return () => {

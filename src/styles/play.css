@@ -1459,6 +1459,33 @@
   font-size: clamp(24px, 2.6vw, 30px);
 }
 
+/* Bir jumlalik izoh — oldida o'yinning belgisi. Belgi bezak emas:
+   to'rttala o'yin bitta sahifada tab bilan almashadi va ko'z avval
+   shu belgiga tushadi, ya'ni qaysi o'yin ochilgani matnni o'qimasdan
+   ham bilinadi. */
+.lobby__note {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  margin-top: 8px;
+  color: var(--text-2);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.lobby__note-icon {
+  flex: 0 0 auto;
+  /* Matnning birinchi qatori bilan bir chiziqda tursin. */
+  transform: translateY(2px);
+  color: var(--tone, var(--accent));
+}
+
+.lobby__emoji {
+  font-size: 15px;
+  line-height: 1;
+}
+
+
 .lobby__head .section__lead {
   margin-top: 6px;
 }
@@ -3386,7 +3413,7 @@
 }
 
 .hub__stage > section {
-  padding-top: 8px;
+  padding-top: 26px;
 }
 
 /* ── Bitta ustun ───────────────────────────────────────────────

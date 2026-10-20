@@ -26,8 +26,8 @@ import Avatar from './Avatar';
 import CodeInput from './CodeInput';
 import ScoreRules from './ScoreRules';
 import PlayerName from './PlayerName';
+import GameIntro from './GameIntro';
 import { Check, Copy, Swords, Users } from './Icons';
-import TelegramBanner from './TelegramBanner';
 
 /** Havoladagi kod: `/maydon/AB12CD` — ilova ulashadigan manzil. */
 function codeFromUrl(): string {
@@ -95,6 +95,13 @@ function Hub({ mardu }: { mardu: Mardu }) {
   return (
     <div className="lobby">
       <div className="lobby__main">
+        <GameIntro
+          tone="violet"
+          icon={<Users size={16} />}
+          title="Sakkiztagacha o‘yinchi"
+          note="O‘sha So‘zjang yoki G‘uncha, lekin ikki kishi emas — oxirida jadval tuziladi."
+        />
+
         <div className="panel lobby__card">
           <div className="panel__head">
             <h3>Mardu maydon</h3>
@@ -174,7 +181,7 @@ function Hub({ mardu }: { mardu: Mardu }) {
 
       <aside className="lobby__side">
         <ArenaHistory />
-        <TelegramBanner compact />
+        {/* Telegram banneri vaqtincha olib turildi. */}
         {/* Faqat kutish xonasiga kirishdan oldingi ro'yxatda: maydonning
             o'zi — sanoq, raqiblar va jang — reklamasiz qoladi. Bu yerda
             odam hali o'ynamayapti, kod kiritayotgan yoki tanlayotgan

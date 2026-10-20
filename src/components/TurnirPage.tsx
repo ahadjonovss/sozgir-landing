@@ -37,9 +37,9 @@ import { playerLink } from '../data/site';
 import Avatar from './Avatar';
 import CodeInput from './CodeInput';
 import PlayerName from './PlayerName';
-import TelegramBanner from './TelegramBanner';
 import TurnirLadder from './TurnirLadder';
 import TurnirLobby from './TurnirLobby';
+import GameIntro from './GameIntro';
 import { Send, Swords, Trophy, Users } from './Icons';
 
 const GAMES: { id: BattleGame; label: string }[] = [
@@ -84,6 +84,13 @@ function Hub({ turnir }: { turnir: Turnir }) {
   return (
     <div className="lobby">
       <div className="lobby__main">
+        <GameIntro
+          tone="yellow"
+          icon={<Trophy size={16} />}
+          title="Ketma-ket bir necha maydon"
+          note="Har davrada o‘zingizga teng ochkodagilar bilan o‘ynaysiz, oxirida birinchi ikki o‘rin finalga chiqadi."
+        />
+
         {/* Tugamagan turniri bor odamga — birinchi navbatda o'sha.
             Uchala yo'l (ochish, tezkor, kod) unga baribir yopiq:
             serverda bir vaqtda bitta turnir (`requireOneTurnir`) va
@@ -242,7 +249,7 @@ function Hub({ turnir }: { turnir: Turnir }) {
       </div>
 
       <aside className="lobby__side">
-        <TelegramBanner compact />
+        {/* Telegram banneri vaqtincha olib turildi. */}
         {/* Faqat turnirga kirishdan oldin. Turnirning o'zi — zinapoya,
             jang va natija — reklamasiz: u yerda vaqt sanab turadi va
             yonidagi banner bevosita xalaqit beradi. */}

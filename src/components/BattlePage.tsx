@@ -28,6 +28,7 @@ import BattleBoard from './BattleBoard';
 import BattleStats from './BattleStats';
 import { Board, Keyboard } from './Board';
 import CodeInput from './CodeInput';
+import GameIntro from './GameIntro';
 import { Check, Clock, Copy, Send, Swords, Trophy, Users } from './Icons';
 import { ReactionBurst, ReactionPicker } from './Reactions';
 import PlayerName from './PlayerName';
@@ -40,7 +41,6 @@ import SendInvite, { type InviteTarget } from './SendInvite';
 import MarduCountdown from './MarduCountdown';
 import Versus from './Versus';
 import Modal from './Modal';
-import TelegramBanner from './TelegramBanner';
 import OpponentBoard from './OpponentBoard';
 import ArenaStandings from './ArenaStandings';
 import ArenaTiles from './ArenaTiles';
@@ -97,16 +97,15 @@ function useShare() {
  *  odam «O'ynash» → «Jangga kirish» deb kelgan bo'lsa, unga yana bir
  *  tanishtiruv emas, tugma kerak. Qoidalar pastda, yig'ilgan holda. */
 function Head() {
+  /* «SO'ZJANG» yorlig'i yo'q: odam bu yerga o'yinni tanlab keladi
+     va nomi tanlov qatorida turibdi. */
   return (
-    <div className="lobby__head">
-      {/* «SO'ZJANG» yorlig'i yo'q: odam bu yerga o'yinni tanlab
-          keladi va nomi tanlov qatorida turibdi. Takror yorliq
-          faqat tepadan joy yeb, taxtani pastga itarardi. */}
-      <h1>Bir so‘z, ikki o‘yinchi</h1>
-      <p className="section__lead">
-        Ikkalangizga bir xil yashirin so‘z. Kim birinchi topsa — yutadi.
-      </p>
-    </div>
+    <GameIntro
+      tone="orange"
+      icon={<Swords size={16} />}
+      title="Bir so‘z, ikki o‘yinchi"
+      note="Ikkalangizga bir xil yashirin so‘z. Kim birinchi topsa — yutadi."
+    />
   );
 }
 
@@ -154,7 +153,7 @@ function Gate() {
       </div>
       <aside className="lobby__side">
         <BattleBoard />
-        <TelegramBanner compact />
+        {/* Telegram banneri vaqtincha olib turildi. */}
       </aside>
     </div>
   );
@@ -253,7 +252,7 @@ function Lobby({ game }: { game: Sozjang }) {
             kirishdan oldin. Jadvalning o'zi kirmaganlar uchun `Gate` da
             qolgan: u yerda sahifa aks holda bo'sh ko'rinardi. */}
         <ArenaHistory />
-        <TelegramBanner compact />
+        {/* Telegram banneri vaqtincha olib turildi. */}
         {/* Faqat lobbida: qidiruv, jang va natija ekranlari reklamasiz.
             Bu yerda odam hali o'ynamayapti — tanlab turibdi. */}
         <AdBanner placement="battle" />

@@ -19,6 +19,7 @@ import { useGunchaJang, type GunchaJang } from '../lib/useGunchaJang';
 import { GUNCHA_SECONDS } from '../lib/gunchaBattle';
 import { display, pretty } from '../lib/uz';
 import { useLongPress } from '../lib/useLongPress';
+import GameIntro from './GameIntro';
 import AccountCall from './AccountCall';
 import ArenaHistory from './ArenaHistory';
 import ArenaStandings from './ArenaStandings';
@@ -35,7 +36,6 @@ import { VerifiedMark } from './PlayerName';
 import RotatingLine from './RotatingLine';
 import ScoreRules from './ScoreRules';
 import SendInvite, { type InviteTarget } from './SendInvite';
-import TelegramBanner from './TelegramBanner';
 import { battleAqchaDelta } from '../lib/aqcha';
 import { AqchaDelta } from './Units';
 import { seriesOf, turnirPath } from '../lib/turnir';
@@ -182,6 +182,13 @@ function Lobby({ game }: { game: GunchaJang }) {
   return (
     <div className="lobby">
       <div className="lobby__main">
+        <GameIntro
+          tone="teal"
+          icon={<span className="lobby__emoji">🌸</span>}
+          title="Bitta g‘uncha, uch daqiqa"
+          note="Ikkalangizga bir xil yettita harf. Kim ko‘p so‘z yig‘sa — o‘sha yutadi."
+        />
+
         <div className="panel lobby__card">
           <div className="lobby__friend">
             <span className="panel__label">
@@ -242,16 +249,9 @@ function Lobby({ game }: { game: GunchaJang }) {
 
       <aside className="lobby__side">
         <ArenaHistory />
-        <TelegramBanner compact />
-        <div className="panel panel--call">
-          <h3>Yakka o‘ynash</h3>
-          <p className="panel__note">
-            Kunlik g‘uncha hamma uchun bir xil va vaqt cheklovi yo‘q.
-          </p>
-          <a className="btn btn--sm btn--ghost" href={links.guncha}>
-            G‘unchaga o‘tish
-          </a>
-        </div>
+        {/* Telegram banneri vaqtincha olib turildi. */}
+        {/* «Yakka o'ynash» taklifi ketdi: bu sahifa birov bilan
+            o'ynash haqida, kunlik g'unchaning o'z manzili bor. */}
       </aside>
     </div>
   );
