@@ -12,7 +12,6 @@
  *  esa faqat maydon qoladi — e'tibor taxtada bo'lsin. */
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { useAuth } from '../lib/auth';
-import { battleAqchaDelta } from '../lib/aqcha';
 import { countShare } from '../lib/badges';
 import { inviteLink, verdictsOf, type BattlePlayer } from '../lib/battle';
 import { useMeaning } from '../lib/useMeaning';
@@ -33,7 +32,6 @@ import { ReactionBurst, ReactionPicker } from './Reactions';
 import PlayerName from './PlayerName';
 import RotatingLine from './RotatingLine';
 import ScoreRules from './ScoreRules';
-import { AqchaDelta } from './Units';
 import SendInvite, { type InviteTarget } from './SendInvite';
 import MarduCountdown from './MarduCountdown';
 import Versus from './Versus';
@@ -823,13 +821,6 @@ function Result({ game }: { game: Sozjang }) {
   /** Javob so'zining ma'nosi — ilovadagi natija ekranidagidek, so'z
    *  ostida. Jang tugagan, yashirishdan ma'no yo'q. */
   const meaning = useMeaning(game.battle?.answer, game.boardLength);
-  /** Shu jangda aqcha qancha o'zgargani — xom reyting o'ljaga
-   *  o'girilib, ayirmasi olinadi (`lib/aqcha.ts`). */
-  const delta =
-    typeof game.me?.ratingBefore === 'number' && typeof game.me.ratingAfter === 'number'
-      ? battleAqchaDelta(game.me.ratingBefore, game.me.ratingAfter)
-      : null;
-
   /** Natijani ulashadi: avval rasm (ilovadagidek kartochka), brauzer
    *  rasmni ko'tarmasa — eski matnli yo'l. Emoji to'r chatda boshqa
    *  xabarlar orasida ko'zga tashlanmasdi. */
@@ -1050,19 +1041,6 @@ function Result({ game }: { game: Sozjang }) {
           />
         </div>
       </div>}
-
-      {/* «Bu jang nima berdi» — alohida qator.
-          Kartochkadagi son yig'indi: 992 ni ko'rgan odam shu jangda
-          sakkiztasini yo'qotganini bilmasdi. Farqni server yozadi
-          (jang yozuvidagi avvalgi va keyingi son), ya'ni uni
-          jadvaldan hisoblab bo'lmaydi. Nol bo'lsa chizilmaydi:
-          «+0» hech narsa aytmaydi. */}
-      {delta !== null && delta !== 0 && (
-        <p className={`result__delta result__delta--${delta > 0 ? 'up' : 'down'}`}>
-          <AqchaDelta value={delta} size="lg" />
-          <span>jang aqchasi</span>
-        </p>
-      )}
 
       {account && !expired && (
         <BattleStats

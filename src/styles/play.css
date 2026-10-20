@@ -3045,7 +3045,8 @@
    Yig'indi asosiy son bo'lib qolishi kerak: farq uni o'qishga
    xalal bermasin, lekin ko'zga tashlansin. */
 .rating__delta {
-  margin-left: 8px;
+  /* Raqamning oldida turadi, shuning uchun bo'shliq o'ng tomonda. */
+  margin-right: 8px;
   font-size: 15px;
   font-weight: 800;
   letter-spacing: 0;
@@ -6747,31 +6748,6 @@
   font-size: 11px;
 }
 
-/* Shu jang nima bergani — sarlavha emas, bitta qator. */
-.result__delta {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 14px;
-  border-radius: 999px;
-  background: var(--surface-2);
-  font-weight: 800;
-}
-
-.result__delta span {
-  color: var(--text-2);
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.result__delta--up {
-  background: var(--green-soft);
-}
-
-.result__delta--down {
-  background: var(--surface-2);
-}
-
 /* ── Shikoyat sahifasi ────────────────────────────────────────────────
    Oyna emas, o'z sahifasi (`/shikoyat/...`): shakl tor ustunda,
    o'qishga qulay enda turadi. */
@@ -6814,6 +6790,11 @@
   gap: 14px;
 }
 
+/* Natijada uchta sanoq (jang, g'alaba, mag'lubiyat) ko'rsatilmaydi.
+   Ular shu jang haqida emas, butun tarix haqida — ya'ni «hozir nima
+   bo'ldi» degan savolga javob bermaydi va kartochkaning yarmini
+   egallab turardi. Jadval o'z joyida: `/oynash` dagi to'liq
+   kartochkada va lobbida. */
 .stage--result .rating__stats {
-  grid-template-columns: repeat(auto-fit, minmax(76px, 1fr));
+  display: none;
 }
