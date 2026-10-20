@@ -15,6 +15,7 @@ import { useGameChoice } from '../lib/useGameChoice';
 import { useGameSwap } from '../lib/useGameSwap';
 import { useSozTop } from '../lib/useSozTop';
 import AdBanner from './AdBanner';
+import GameAside from './GameAside';
 import { GunchaBoard } from './GunchaBoard';
 import Play from './Play';
 import { ChevronLeft } from './Icons';
@@ -38,7 +39,15 @@ export default function EndlessPage({ page }: { page: LengthPage }) {
         </a>
 
         <div className="hero__play cheksiz__play">
-          <div className="hero__board">
+          <div className="hero__board game-slot">
+            {/* Yon ustunlar taxtaning **yonida**, oqimdan tashqarida
+                chiziladi (`position: absolute`) — markaz qimirlamaydi.
+                Ular taxtaning o'zida emas, shu o'ramda: o'yin turi
+                almashganda ham joyida qolishi kerak. Ilgari ular
+                `Play` ichida edi va g'unchaga o'tilganda butunlay
+                yo'qolardi. */}
+            <GameAside current={choice.mode === 'endless' ? 'cheksiz' : 'soztop'} />
+
             {/* Belgi bilan almashadigan taxta: g'uncha ham shu
                 yerda ochiladi, sahifa esa o'zgarmaydi. */}
             {swap.flower ? (

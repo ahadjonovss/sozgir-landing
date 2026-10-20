@@ -24,6 +24,7 @@ import { useGameSwap } from '../lib/useGameSwap';
 import { useSozTop } from '../lib/useSozTop';
 import AdBanner from './AdBanner';
 import ArenaHistory from './ArenaHistory';
+import GameAside from './GameAside';
 import BadgesCard from './BadgesCard';
 import { GunchaBoard, GunchaFound } from './GunchaBoard';
 import Play from './Play';
@@ -62,7 +63,11 @@ export default function GameHub({ game }: { game: HubGame }) {
         {/* `--fit`: telefonda taxta va klaviatura bitta ekranga sig'adi —
             o'ynash uchun surish kerak emas (ilovadagidek). G'unchada
             bunday chegara yo'q: u o'zi ixcham. */}
-        <div className={`oyin__board${flower ? '' : ' oyin__board--fit'}`}>
+        <div className={`oyin__board game-slot${flower ? '' : ' oyin__board--fit'}`}>
+          {/* Yon ustunlar taxtaning yonida, oqimdan tashqarida
+              chiziladi — markaz qimirlamaydi. Ular shu o'ramda, taxtaning
+              o'zida emas: o'yin turi almashganda joyida qolishi kerak. */}
+          <GameAside current={choice.mode === 'endless' ? 'cheksiz' : 'soztop'} />
           {flower ? (
             <GunchaBoard guncha={guncha} onSwap={swap.toggle} />
           ) : (

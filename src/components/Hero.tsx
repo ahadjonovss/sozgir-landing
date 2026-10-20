@@ -1,3 +1,4 @@
+import GameAside from './GameAside';
 import { GunchaBoard } from './GunchaBoard';
 import Play from './Play';
 import { useGameChoice } from '../lib/useGameChoice';
@@ -79,7 +80,15 @@ export default function Hero() {
             <span className="btn btn--sm daily-card__go">O‘ynash</span>
           </a>
 
-          <div className="hero__board">
+          <div className="hero__board game-slot">
+            {/* Yon ustunlar taxtaning **yonida**, oqimdan tashqarida
+                chiziladi (`position: absolute`) — markaz qimirlamaydi.
+                Ular taxtaning o'zida emas, shu o'ramda: o'yin turi
+                almashganda ham joyida qolishi kerak. Ilgari ular
+                `Play` ichida edi va g'unchaga o'tilganda butunlay
+                yo'qolardi. */}
+            <GameAside current={choice.mode === 'endless' ? 'cheksiz' : 'soztop'} />
+
             {/* Belgi bilan almashadigan taxta: g'uncha ham shu
                 yerda ochiladi, sahifa esa o'zgarmaydi. */}
             {swap.flower ? (

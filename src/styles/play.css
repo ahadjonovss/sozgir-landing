@@ -3707,6 +3707,38 @@
   background: var(--surface);
 }
 
+/* Maydon tepasidagi yorliq, ism ostidagi tasma va ta'rif — o'lchami
+   va joylashuvi hamma ko'rinishda bir xil, rangini esa pastdagi
+   `.player--skin` beradi. */
+.player__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.player__honorific {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.player__ribbon {
+  padding: 3px 10px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
 /* ── Premium profil ──────────────────────────────────────────────────
    Ilovadagi `ProfileSkin` ning o'zi (`lib/profileSkin.ts`): homiylik
    ko'rinishi ham, tasdiqlangan hisob ham bitta mashinani ishlatadi.
@@ -6859,8 +6891,15 @@
   text-align: left;
 }
 
-/* Taxta — ustunlar uchun o'lchov nuqtasi. Boshqa hech narsaga ta'sir
-   qilmaydi: `.play` ichida avval `absolute` element yo'q edi. */
+/* Taxta o'rami — ustunlar uchun o'lchov nuqtasi.
+   Ilgari bu `.play` ning o'zi edi va ustunlar ham o'sha komponentning
+   ichida chizilardi. Endi ular tashqarida: o'yin turi almashganda
+   (`useGameSwap`) `Play` butunlay almashadi va ustunlar u bilan birga
+   yo'qolardi. */
+.game-slot {
+  position: relative;
+}
+
 .play {
   position: relative;
 }
