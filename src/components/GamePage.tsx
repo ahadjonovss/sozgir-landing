@@ -19,6 +19,7 @@ import { useGameChoice } from '../lib/useGameChoice';
 import { gunchaLexicon } from '../lib/gunchaLexicon';
 import { useSozTop } from '../lib/useSozTop';
 import AdBanner from './AdBanner';
+import ArenaHistory from './ArenaHistory';
 import BadgesCard from './BadgesCard';
 import Play from './Play';
 import StatsPanel from './StatsPanel';
@@ -74,6 +75,12 @@ export default function GamePage() {
           {/* Nishonlar statistikadan keyin: ikkalasi ham «men qanday
               o'ynayapman» degan savolga javob beradi. */}
           <BadgesCard />
+
+          {/* Janglar tarixi — g'uncha sahifasida ham shu joyda turadi:
+              ikki o'yin orasida almashganda yon ustun qimirlamasligi
+              kerak, shunda ko'z uchun faqat taxta o'zgaradi. */}
+          <ArenaHistory />
+
           <TelegramBanner compact />
 
           <div className="panel panel--call">

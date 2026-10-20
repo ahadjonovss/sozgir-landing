@@ -16,6 +16,7 @@ import { display, pretty } from '../lib/uz';
 import { useLongPress } from '../lib/useLongPress';
 import AdBanner from './AdBanner';
 import ArenaHistory from './ArenaHistory';
+import BadgesCard from './BadgesCard';
 import GunchaFlower from './GunchaFlower';
 import TelegramBanner from './TelegramBanner';
 
@@ -221,6 +222,13 @@ export default function GunchaPage() {
           {/* Janglar tarixi — g'uncha jangi ham shu ro'yxatda:
               «kim bilan o'ynadim» degan savol o'yinga qarab
               bo'linmaydi. Hisobsiz odamga umuman chizilmaydi. */}
+          {/* Nishonlar so'zlar ro'yxatidan keyin: ikkalasi ham «men
+              qanday o'ynayapman» degan savolga javob beradi. */}
+          <BadgesCard />
+
+          {/* Janglar tarixi — g'uncha jangi ham shu ro'yxatda:
+              «kim bilan o'ynadim» degan savol o'yinga qarab
+              bo'linmaydi. Hisobsiz odamga umuman chizilmaydi. */}
           <ArenaHistory />
 
           <TelegramBanner compact />
@@ -233,6 +241,31 @@ export default function GunchaPage() {
             </p>
             <a className="btn btn--sm" href={links.gunchaBattle}>
               G‘uncha jangiga o‘tish
+            </a>
+          </div>
+
+          {/* Ikkinchi o'yinga o'tish — So'ztop sahifasidagi bilan
+              bir xil joyda turadi. Taxta ustidagi belgi ham shu ishni
+              qiladi, lekin u faqat keng ekranda ko'zga tashlanadi. */}
+          <div className="panel panel--call">
+            <h3>Bugungi so‘zni toping</h3>
+            <p className="panel__note">
+              So‘ztopda yashirin so‘z oltita urinishda topiladi. Kunlik
+              so‘z butun O‘zbekistonda bir xil.
+            </p>
+            <a className="btn btn--sm btn--ghost" href={links.play}>
+              So‘ztopni ochish
+            </a>
+          </div>
+
+          <div className="panel panel--call">
+            <h3>Ilovada ko‘proq</h3>
+            <p className="panel__note">
+              Yangso‘z, kategoriyalar va bildirishnomalar — bularning
+              hammasi ilovada. Internetsiz ham ishlaydi.
+            </p>
+            <a className="btn btn--sm btn--ghost" href="/#yuklab-olish">
+              Ilovani yuklab olish
             </a>
           </div>
 
