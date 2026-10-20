@@ -8,7 +8,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { playerLink } from '../data/site';
 import { useAuth } from '../lib/auth';
-import { myBattles, type ArenaBattle } from '../lib/battleHistory';
+import { cachedBattles, myBattles, type ArenaBattle } from '../lib/battleHistory';
 import { pretty } from '../lib/uz';
 import Avatar from './Avatar';
 import PlayerName from './PlayerName';
@@ -33,7 +33,14 @@ export default function ArenaHistory() {
    *  chiqarib tashlanadi va holatni effekt ichida tozalash kerak
    *  bo'lmaydi. */
   const [loaded, setLoaded] = useState<{ uid: string; list: ArenaBattle[] } | null>(
-    null,
+    /* Avval olingan ro'yxat bo'lsa — darhol o'sha. Komponent o'yin
+       almashganda qayta yaratiladi (`/oynash` dagi tablar) va
+       keshsiz har safar bo'sh holatdan boshlanardi: tarix
+       yo'qolib, keyin o'sha qatorlar bilan qaytardi. */
+    () => {
+      const list = uid ? cachedBattles(uid) : null;
+      return list ? { uid, list } : null;
+    },
   );
   const rows = loaded?.uid === uid ? loaded.list : null;
 

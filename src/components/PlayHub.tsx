@@ -49,7 +49,7 @@ export default function PlayHub() {
 
   return (
     <>
-      <section className="oyin">
+      <section className="oyin hub__top">
         <div className="wrap hub hub--pick">
           {/* Aqcha kartochkasi bu yerda yo'q: tanlangan o'yinning
               sahifasida «Jang aqchasi» allaqachon turibdi va

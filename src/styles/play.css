@@ -1452,8 +1452,11 @@
   gap: 16px;
 }
 
+/* Sarlavha kichraydi: lobbining ishi — jangni boshlash, ya'ni
+   birinchi ekranda «Raqib qidirish» turishi kerak, 40 pikselli
+   yozuv emas. */
 .lobby__head h1 {
-  font-size: clamp(28px, 3.6vw, 40px);
+  font-size: clamp(24px, 2.6vw, 30px);
 }
 
 .lobby__head .section__lead {
@@ -3370,6 +3373,20 @@
    bo'limlar orasidagicha bo'lmasligi kerak. */
 .hub--pick {
   padding-bottom: 0;
+}
+
+/* O'yin tanlov qatoridan darrov keyin boshlanadi.
+
+   Bo'sh joy ikki marta hisoblanardi: tanlov bo'limining pastki
+   hoshiyasi (bo'lim oxiri uchun — 96px gacha) va o'yin
+   bo'limining tepasidagisi. Ikkalasi ham bu yerda keraksiz:
+   tanlov bilan o'yin bitta narsa. */
+.hub__top {
+  padding-bottom: 0;
+}
+
+.hub__stage > section {
+  padding-top: 8px;
 }
 
 /* ── Bitta ustun ───────────────────────────────────────────────

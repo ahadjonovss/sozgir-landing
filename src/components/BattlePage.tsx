@@ -99,7 +99,9 @@ function useShare() {
 function Head() {
   return (
     <div className="lobby__head">
-      <span className="section__kicker">So‘zjang</span>
+      {/* «SO'ZJANG» yorlig'i yo'q: odam bu yerga o'yinni tanlab
+          keladi va nomi tanlov qatorida turibdi. Takror yorliq
+          faqat tepadan joy yeb, taxtani pastga itarardi. */}
       <h1>Bir so‘z, ikki o‘yinchi</h1>
       <p className="section__lead">
         Ikkalangizga bir xil yashirin so‘z. Kim birinchi topsa — yutadi.

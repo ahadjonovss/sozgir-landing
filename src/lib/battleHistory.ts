@@ -89,6 +89,20 @@ export function arenaBattleFrom(
   };
 }
 
+/** Oxirgi olingan ro'yxat — hisob bo'yicha.
+ *
+ *  Ro'yxat bir nechta ekranda turadi va o'yin almashganda ular qayta
+ *  yaratiladi (`/oynash` dagi tablar). Keshsiz har almashuvda tarix
+ *  bo'shab, «Yuklanmoqda» holatiga tushib, keyin yana o'sha
+ *  qatorlar bilan to'lardi — ekranda hech narsa o'zgarmagan
+ *  bo'lsa ham. Endi avvalgi ro'yxat darhol chiziladi, yangisi esa
+ *  kelganda jimgina o'rnini egallaydi. */
+const cache = new Map<string, ArenaBattle[]>();
+
+/** Shu hisob uchun eslab qolingan ro'yxat. Yo'q bo'lsa — `null`. */
+export const cachedBattles = (uid: string): ArenaBattle[] | null =>
+  cache.get(uid) ?? null;
+
 /** Mening janglarim — yangisidan boshlab.
  *
  *  Xato yutiladi: tarix ro'yxati ikkinchi darajali, u ochilmagani uchun
@@ -104,10 +118,14 @@ export async function myBattles({
     const { items } = await api.get<{ items?: unknown }>('/v1/web/me/battles', {
       query: { limit: max },
     });
-    return (Array.isArray(items) ? items : []).map((row) =>
+    const list = (Array.isArray(items) ? items : []).map((row) =>
       arenaBattleFrom(row as Record<string, unknown>, uid),
     );
+    cache.set(uid, list);
+    return list;
   } catch {
-    return [];
+    /* Xato bo'lsa eski ro'yxat qoladi: tarmoq uzilgani odamning
+       janglari yo'qoldi degani emas. */
+    return cache.get(uid) ?? [];
   }
 }
