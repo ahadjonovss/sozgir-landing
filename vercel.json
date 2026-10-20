@@ -102,7 +102,7 @@
       "destination": "/ol/index.html"
     },
     {
-      "source": "/((?!api/|\\.well-known/|app-ads\\.txt|ads\\.txt|robots\\.txt|sitemap\\.xml).*)",
+      "source": "/((?!api/|\\.well-known/|app-ads\\.txt|ads\\.txt|robots\\.txt|sitemap\\.xml|yandex_[0-9a-f]+\\.html).*)",
       "destination": "/index.html"
     }
   ],
