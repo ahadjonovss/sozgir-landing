@@ -11,6 +11,7 @@ import { useAuth, type AuthPrompt } from '../lib/auth';
 import Avatar from './Avatar';
 import AvatarEditor from './AvatarEditor';
 import Modal from './Modal';
+import PlayerName from './PlayerName';
 import { nicknameError } from '../lib/nickname';
 import { isValidLogin, PHONE_LENGTH, prettyLogin } from '../lib/loginId';
 import { loadDetails, MAX_AGE, MIN_AGE, type ProfileDetails } from '../lib/profile';
@@ -203,7 +204,7 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
         <div className="modal__row">
           <div>
             <strong>
-              {auth.account.nickname}
+              <PlayerName uid={auth.account.uid} name={auth.account.nickname} />
             </strong>
             <p className="modal__lead">
               {auth.account.linked
@@ -462,7 +463,7 @@ export default function Account() {
         >
           <Avatar name={auth.account.nickname} uid={auth.account.uid} size={26} />
           <span className="account__name">
-            {auth.account.nickname}
+            <PlayerName uid={auth.account.uid} name={auth.account.nickname} size={14} />
           </span>
         </button>
       ) : (

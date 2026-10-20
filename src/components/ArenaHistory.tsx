@@ -11,6 +11,7 @@ import { useAuth } from '../lib/auth';
 import { myBattles, type ArenaBattle } from '../lib/battleHistory';
 import { pretty } from '../lib/uz';
 import Avatar from './Avatar';
+import PlayerName from './PlayerName';
 import { AqchaDelta } from './Units';
 
 const OUTCOME: Record<ArenaBattle['outcome'], string> = {
@@ -76,8 +77,12 @@ export default function ArenaHistory() {
               {row.opponentUid ? (
                 <a className="history__who" href={playerLink(row.opponentUid)}>
                   <Avatar name={row.opponent || '?'} uid={row.opponentUid} size={26} />
+                  {/* Nom `PlayerName` orqali: homiylik muhri ism bilan
+                      yuradi va u nom turgan har joyda ko'rinishi kerak.
+                      Ilgari bu yerda ism to'g'ridan-to'g'ri chizilardi,
+                      ya'ni tarixda muhr umuman yo'q edi. */}
                   <span>
-                    {pretty(row.opponent) || 'Raqib'}
+                    <PlayerName uid={row.opponentUid} name={row.opponent || 'Raqib'} size={14} />
                   </span>
                 </a>
               ) : (
