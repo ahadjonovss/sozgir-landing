@@ -19,7 +19,7 @@ import { puzzleKey, useHint } from '../lib/useHint';
 import { pretty } from '../lib/uz';
 import { Board, Keyboard } from './Board';
 import GameAside from './GameAside';
-import { Chart } from './Icons';
+import { Chart, Refresh } from './Icons';
 import StatsPanel from './StatsPanel';
 import { Aqcha } from './Units';
 import DownloadPromo from './DownloadPromo';
@@ -61,10 +61,44 @@ function useHintCountdown(target: number | null): string {
 /** Har yangi so'zda ichki holat (yordam sanog'i, oynalar) noldan boshlanadi:
  *  komponent so'z kaliti bilan qayta yaratiladi. */
 export default function Play(props: { choice: GameChoice; game: Game }) {
-  return <PlayBoard key={puzzleKey(props.game.puzzle)} {...props} />;
+  /** Tashlab ketilgan so'z — taxta ostida bir necha soniya turadi.
+   *
+   *  Holat **shu yerda**, kalitdan tashqarida: `PlayBoard` har yangi
+   *  so'zda qaytadan o'rnashadi (`key={puzzleKey(...)}`), ya'ni uning
+   *  ichidagi holat o'sha zahoti tozalanardi va aytilgan so'z umuman
+   *  ko'rinmasdi. */
+  const [skipped, setSkipped] = useState<string | null>(null);
+
+  /* Bir necha soniyadan keyin ketadi: u yangi o'yinning ustida abadiy
+     osilib turmasligi kerak. */
+  useEffect(() => {
+    if (!skipped) return;
+    const timer = window.setTimeout(() => setSkipped(null), 4000);
+    return () => window.clearTimeout(timer);
+  }, [skipped]);
+
+  return (
+    <PlayBoard
+      key={puzzleKey(props.game.puzzle)}
+      {...props}
+      skipped={skipped}
+      onSkip={setSkipped}
+    />
+  );
 }
 
-function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
+function PlayBoard({
+  choice,
+  game,
+  skipped,
+  onSkip,
+}: {
+  choice: GameChoice;
+  game: Game;
+  /** Oldingi so'z — tashlab ketilgan bo'lsa. */
+  skipped: string | null;
+  onSkip: (word: string | null) => void;
+}) {
   const auth = useAuth();
   /* Ovoz fayllari taxta chiqishi bilan bo'sh vaqtda yuklanadi — shunda
      birinchi bosilgan harf ham ovozli bo'ladi (`lib/sounds.ts`). */
@@ -82,10 +116,6 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
    *  turadigan «Statistika» kartochkasi); saytda esa panel yon ustunda
    *  qolib ketardi — telefonda uni umuman ko'rmaslik mumkin edi. */
   const [statsOpen, setStatsOpen] = useState(false);
-  /** «Boshqa so'z» bosilgan: yashirin so'z ko'rsatildi, keyingisi
-   *  navbatdagi bosishda ochiladi. Shu so'zning o'zi saqlanadi, bayroq
-   *  emas — yangi so'z kelishi bilan blok o'zi yo'qoladi. */
-  const [revealed, setRevealed] = useState<string | null>(null);
   /** Kunlik so'z uchun hisob kerak.
    *
    *  Kunlik o'yin — hamma uchun bitta so'z va u reytingga tushadi:
@@ -204,6 +234,24 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
 
               Reyting tugmasi shu qatordan olindi: jadval `/oynash` da
               va taxtaning ostida baribir bor edi. */}
+          {/* Boshqa so'zga o'tish — oddiy yangilash belgisi.
+              Faqat cheksiz rejimda: kunlik so'z butun mamlakat uchun
+              bitta va uni almashtirib bo'lmaydi. Bosilganda tashlab
+              ketilgan so'z taxta ostida aytiladi. */}
+          {mode === 'endless' && game.phase === 'playing' && (
+            <button
+              type="button"
+              className="play__ranks"
+              onClick={() => {
+                onSkip(game.answerWord || null);
+                game.playAgain();
+              }}
+              aria-label="Boshqa so‘z"
+              title="Boshqa so‘z"
+            >
+              <Refresh size={18} />
+            </button>
+          )}
           <button
             type="button"
             className="play__ranks"
@@ -249,46 +297,6 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
               {item} harf
             </button>
           ))}
-        </div>
-      )}
-
-      {/* «Boshqa so'z» — o'yin ketayotganda.
-          Cheksiz rejim mashq uchun va u yerda tiqilib qolgan so'z
-          ustida o'tirishning ma'nosi yo'q: odam urinishlarini
-          tugatmasdan ham keyingisiga o'tishi kerak. Ilgari bunday yo'l
-          faqat **natijadan keyin** bor edi («Yana bir so'z»), ya'ni
-          so'zni topa olmagan odam avval olti urinishini bekorga
-          sarflashi kerak edi.
-
-          Kunlik so'zda bu tugma yo'q va bo'lishi ham mumkin emas: u
-          butun mamlakat uchun bitta va uni almashtirib bo'lmaydi. */}
-      {mode === 'endless' && game.phase === 'playing' && !needsAccount && (
-        <div className="play__skip">
-          {revealed !== null && revealed === game.puzzle?.answer ? (
-            /* Javob aytiladi, keyin keyingi so'z. Aytilmasa mashqning
-               ma'nosi qolmasdi: odam tiqilib qolgan so'zni bilmay
-               ketardi va o'sha so'z keyin yana uchraganda yana
-               tiqilardi. */
-            <p className="play__revealed" role="status">
-              Yashirin so‘z: <b data-script="word">{game.answerWord}</b>
-              <button
-                className="link"
-                onClick={() => {
-                  setRevealed(null);
-                  game.playAgain();
-                }}
-              >
-                Keyingi so‘z
-              </button>
-            </p>
-          ) : (
-            <button
-              className="link"
-              onClick={() => setRevealed(game.puzzle?.answer ?? null)}
-            >
-              Boshqa so‘z
-            </button>
-          )}
         </div>
       )}
 
@@ -366,6 +374,11 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
               {game.message && (
                 <p className="play__msg" role="status">
                   {game.message}
+                </p>
+              )}
+              {!game.message && skipped && (
+                <p className="play__msg play__msg--skip" role="status">
+                  Oldingi so‘z: <b data-script="word">{skipped}</b>
                 </p>
               )}
             </div>

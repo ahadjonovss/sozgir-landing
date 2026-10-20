@@ -597,31 +597,13 @@
   box-shadow: var(--shadow);
 }
 
-/* «Boshqa so'z» — uzunlik tugmalari ostida, o'ngda. Havola
-   ko'rinishida: u o'yinning asosiy amali emas, chiqish yo'li. */
-.play__skip {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: -6px;
-  margin-bottom: 10px;
-}
-
-/* Aytilgan javob va keyingi so'zga o'tish — bitta qatorda. */
-.play__revealed {
-  display: inline-flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 0;
-  color: var(--text-2);
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.play__revealed b {
-  color: var(--text);
-  font-weight: 900;
-  letter-spacing: 0.04em;
+/* Tashlab ketilgan so'z — o'yin xabarlari turadigan joyda.
+   Ranglar `play__msg` dan meros: u teskari (fon — matn rangida), ya'ni
+   bu yerda alohida rang berib bo'lmaydi — berilsa fon bilan
+   qo'shilib ketardi. So'zning o'zi faqat harf oralig'i bilan
+   ajratiladi. */
+.play__msg--skip b {
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
