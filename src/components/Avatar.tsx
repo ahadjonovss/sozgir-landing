@@ -64,9 +64,19 @@ export default function Avatar({
   const verified = useVerified(waiting ? undefined : uid);
   /* Kichik avatarlarda nisbat yetmaydi: 28 px dan 36 % — o'n piksel,
      ya'ni belgi bor-yo'qligi bilinmaydi. Shuning uchun pastki chegara
-     ham bor. */
+     ham bor.
+
+     Chegara esa o'zi muammo yasardi: 12 px 24 px li avatarning yarmi
+     bo'lib, belgi bosh harfni bosib ketardi — jang satridagi va
+     janglar tarixidagi avatarlar aynan shunday «xunuk» ko'rinardi.
+     Shu sababli belgi endi 32 px dan kichik avatarda umuman
+     chizilmaydi: o'sha o'lchamdan boshlab 12 px nisbatga
+     (0,34) to'g'ri keladi.
+
+     Yo'qolgan belgidan zarar yo'q — u o'lchamda baribir nuqtadan
+     farq qilmasdi, nom esa yonginasida yozilgan. */
   const badge =
-    verified && mark && size >= 20 ? Math.max(12, Math.round(size * 0.34)) : 0;
+    verified && mark && size >= 32 ? Math.max(12, Math.round(size * 0.34)) : 0;
 
   return (
     <span
