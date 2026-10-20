@@ -7,7 +7,7 @@
  *
  *  Jang saytda ham, ilovada ham bir xil hujjatlar va bir xil funksiyalar
  *  orqali ketadi: telefondagi do'stni kod bilan chaqirsa bo'ladi. */
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { links, site } from '../data/site';
 import { useAuth } from '../lib/auth';
 import { countShare } from '../lib/badges';
@@ -26,7 +26,7 @@ import Avatar from './Avatar';
 import CodeInput from './CodeInput';
 import GunchaCountdown from './GunchaCountdown';
 import GunchaFlower from './GunchaFlower';
-import { Check, Copy, Swords, Trophy, Users } from './Icons';
+import { Check, ChevronRight, Copy, Send, Swords, Trophy, Users } from './Icons';
 import Modal from './Modal';
 import MarduCountdown from './MarduCountdown';
 import { ReactionBurst, ReactionPicker } from './Reactions';
@@ -545,6 +545,8 @@ function Playing({ game }: { game: GunchaJang }) {
 
 function Result({ game }: { game: GunchaJang }) {
   const [rematch, setRematch] = useState<InviteTarget | null>(null);
+  /** Qaysi so'zlar ro'yxati ochiq. */
+  const [list, setList] = useState<'found' | 'missed' | null>(null);
   const uid = game.account?.uid;
   const winner = game.battle?.winnerUid;
   const mineScore = game.me?.score ?? game.score;
@@ -641,45 +643,120 @@ function Result({ game }: { game: GunchaJang }) {
         ? `Raqibingizdan ${mineScore - theirScore} ko‘p to‘pladingiz`
         : `${theirScore - mineScore} yetmadi`;
 
+  /* Topilgan va topilmagan so'zlar — ilovadagi natija ekranidagidek
+     (`guncha_battle_result.dart`). Ro'yxatning o'zi **yig'ilgan**:
+     natijani ko'rgan odam avval kim yutganini o'qiydi, so'zlarni esa
+     xohlasa ochadi. Ochiq tursa ekran cho'zilib, tugmalar pastga
+     tushib ketardi — ilovada ham aynan shu sabab bilan oynaga
+     ko'chirilgan. */
+  const found = useMemo(() => {
+    const all = new Set([...game.revealed.mine, ...game.revealed.theirs]);
+    return (game.puzzle?.words ?? []).filter((word) => all.has(word.word));
+  }, [game.puzzle, game.revealed]);
+
+  const missed = useMemo(() => {
+    const all = new Set([...game.revealed.mine, ...game.revealed.theirs]);
+    return (game.puzzle?.words ?? []).filter((word) => !all.has(word.word));
+  }, [game.puzzle, game.revealed]);
+
+  const mineSet = useMemo(() => new Set(game.revealed.mine), [game.revealed.mine]);
+  const theirSet = useMemo(() => new Set(game.revealed.theirs), [game.revealed.theirs]);
+
+  const tone = game.mardu
+    ? place === 1
+      ? 'won'
+      : 'draw'
+    : !winner
+      ? 'draw'
+      : winner === uid
+        ? 'won'
+        : 'lost';
+
   return (
-    <div className="panel gresult">
-      <div className="gresult__head">
-        <h2>{title}</h2>
-        <p className="panel__note">{lead}</p>
+    <div className={`stage stage--result stage--${tone}`}>
+      {/* Ulashish — burchakdagi belgi, So'zjangdagidek. Ilgari u
+          tugmalar qatorida «Natijani ulashish» bo'lib turardi va
+          «Qasos» bilan bir xil og'irlikda ko'rinardi. */}
+      <button
+        className="result__share"
+        onClick={() => void shareResult()}
+        aria-label="Natijani ulashish"
+        title="Natijani ulashish"
+      >
+        <Send size={16} />
+      </button>
+
+      <div className="verdict">
+        <span className="verdict__emoji" aria-hidden="true">
+          {tone === 'won' ? '🏆' : tone === 'draw' ? '🤝' : '⚔️'}
+        </span>
+        <h2 className="verdict__title">{title}</h2>
+        <p className="verdict__label">{lead}</p>
         {delta !== null && delta !== 0 && (
-          <span className={`gresult__delta${delta > 0 ? ' is-up' : ''}`}>
+          <p className="result__time">
             <AqchaDelta value={delta} />
-          </span>
+          </p>
         )}
       </div>
 
       {game.mardu ? (
         <ArenaStandings rows={game.arena} game="guncha" />
       ) : (
-        <div className="gresult__cols">
-          <Column
-            name={pretty(game.account?.nickname ?? 'Siz')}
-            uid={game.account?.uid}
-            score={mineScore}
-            words={game.revealed.mine}
-          />
-          <Column
-            name={pretty(game.opponent?.nickname ?? 'Raqib')}
-            uid={game.opponentUid}
-            score={theirScore}
-            words={game.revealed.theirs}
-          />
+        <div className="score">
+          <div className={`score__side${winner === uid ? ' score__side--win' : ''}`}>
+            <Avatar
+              name={pretty(game.account?.nickname ?? 'Siz')}
+              uid={game.account?.uid}
+              size={36}
+              className="score__avatar"
+            />
+            <span className="score__who">
+              {pretty(game.account?.nickname ?? 'Siz')}
+              <VerifiedMark uid={game.account?.uid} size={14} />
+            </span>
+            <strong className="score__points">{mineScore}</strong>
+            <span className="score__meta">{game.revealed.mine.length} so‘z</span>
+          </div>
+          <div
+            className={`score__side${winner && winner !== uid ? ' score__side--win' : ''}`}
+          >
+            <Avatar
+              name={pretty(game.opponent?.nickname ?? 'Raqib')}
+              uid={game.opponentUid ?? undefined}
+              size={36}
+              className="score__avatar"
+            />
+            <span className="score__who">
+              {pretty(game.opponent?.nickname ?? 'Raqib')}
+              <VerifiedMark uid={game.opponentUid} size={14} />
+            </span>
+            <strong className="score__points">{theirScore}</strong>
+            <span className="score__meta">{game.revealed.theirs.length} so‘z</span>
+          </div>
         </div>
+      )}
+
+      {found.length > 0 && (
+        <button className="word-open" onClick={() => setList('found')}>
+          <span>Topilgan so‘zlar</span>
+          <em>{found.length}</em>
+          <ChevronRight size={18} />
+        </button>
+      )}
+      {missed.length > 0 && (
+        <button className="word-open" onClick={() => setList('missed')}>
+          <span>Hech kim topmadi</span>
+          <em>{missed.length}</em>
+          <ChevronRight size={18} />
+        </button>
       )}
 
       {/* Davra tugadi — endi nima bo'ladi. Tugmalardan **oldin**:
           odam avval keyingi davra o'zi boshlanishini bilsin, keyin
-          qayerga borishni tanlasin. Ilgari bu yerda faqat
-          «Turnirga qaytish» turardi va odam turnir tugadi deb
-          o'ylab, ekranni yopib ketardi. */}
+          qayerga borishni tanlasin. */}
       {series && <TurnirNext code={series} />}
 
-      <div className="gresult__foot">
+      <div className="result__actions">
         {/* Qasos birinchi turadi: o'sha raqib bilan qayta o'ynash istagi
             natijani ko'rgan zahoti tug'iladi. */}
         {!game.mardu && game.opponentUid && game.opponent?.nickname && (
@@ -694,6 +771,7 @@ function Result({ game }: { game: GunchaJang }) {
               })
             }
           >
+            <Swords size={16} />
             Qasos
           </button>
         )}
@@ -714,13 +792,50 @@ function Result({ game }: { game: GunchaJang }) {
             Maydonga qaytish
           </a>
         )}
-        <button className="btn btn--sm btn--ghost" onClick={() => void shareResult()}>
-          Natijani ulashish
-        </button>
         <a className="btn btn--sm btn--ghost" href={links.guncha}>
           Yakka g‘uncha
         </a>
       </div>
+
+      {list === 'found' && (
+        <Modal title="Topilgan so‘zlar" onClose={() => setList(null)}>
+          <ul className="word-list">
+            {found.map((word) => {
+              const byMe = mineSet.has(word.word);
+              const byRival = theirSet.has(word.word);
+              const who = byMe && byRival ? 'both' : byMe ? 'me' : 'foe';
+              return (
+                <li key={word.word} className={`word-list__row word-list__row--${who}`}>
+                  <i aria-hidden="true" />
+                  <span className={word.pangram ? 'word-list__word is-pangram' : 'word-list__word'}>
+                    {pretty(word.word)}
+                  </span>
+                  <small>
+                    {byMe && byRival
+                      ? 'ikkalangiz'
+                      : byMe
+                        ? 'siz'
+                        : pretty(game.opponent?.nickname ?? 'raqib')}
+                  </small>
+                  <b>+{word.score}</b>
+                </li>
+              );
+            })}
+          </ul>
+        </Modal>
+      )}
+
+      {list === 'missed' && (
+        <Modal title="Hech kim topmadi" onClose={() => setList(null)}>
+          {/* Bu ro'yxatda kim topgani yo'q — faqat so'zning o'zi, ya'ni
+              qator emas, yorliq yetadi. Ilovada ham shunday. */}
+          <div className="word-chips">
+            {missed.map((word) => (
+              <span key={word.word}>{pretty(word.word)}</span>
+            ))}
+          </div>
+        </Modal>
+      )}
 
       {rematch && (
         <SendInvite
@@ -728,43 +843,6 @@ function Result({ game }: { game: GunchaJang }) {
           target={rematch}
           onClose={() => setRematch(null)}
         />
-      )}
-    </div>
-  );
-}
-
-/** Natijadagi bitta ustun: hisob va topilgan so'zlar.
- *
- *  So'zlar jang tugagach ochiladi — davomida ular raqibga tayyor javob
- *  bo'lardi. */
-function Column({
-  name,
-  uid,
-  score,
-  words,
-}: {
-  name: string;
-  uid?: string | null;
-  score: number;
-  words: string[];
-}) {
-  return (
-    <div className="gresult__col">
-      <div className="gresult__who">
-        <strong>
-          {name}
-          <VerifiedMark uid={uid} size={14} />
-        </strong>
-        <em>{score}</em>
-      </div>
-      {words.length === 0 ? (
-        <p className="panel__note">Hech narsa topilmadi</p>
-      ) : (
-        <ul className="gresult__words">
-          {words.map((word) => (
-            <li key={word}>{pretty(word)}</li>
-          ))}
-        </ul>
       )}
     </div>
   );

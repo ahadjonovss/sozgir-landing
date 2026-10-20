@@ -487,87 +487,154 @@
   box-shadow: inset 0 0 0 1.5px var(--green);
 }
 
-/* ── Natija ───────────────────────────────────────────────────────────── */
+/* ── Natija: so'zlar ro'yxati ─────────────────────────────────────────
+   Natija ekranining qolgan qismi So'zjangnikidan keladi (`.stage--result`,
+   `.verdict`, `.score`, `.result__actions`) — ikki o'yin bitta ko'rinishda
+   turishi kerak. Bu yerda faqat g'unchaga xos narsa qoldi: topilgan va
+   topilmagan so'zlar.
 
-.gresult {
-  max-width: 640px;
-  margin: 0 auto;
+   Ilgari bu yerda ikki ustun bo'lib, har birida o'yinchining so'zlari
+   yorliq-yorliq yotardi. Ro'yxat uzun bo'lsa kartochka cho'zilib, tugmalar
+   pastga tushib ketardi — ustiga «kim topdi» degan savolga javob ham
+   yo'q edi: raqib topgan so'z ikkinchi ustunda, o'zinikidan ajralib
+   turardi, ikkalasi topgan so'z esa ikki marta chiqardi.
+
+   Endi ilovadagidek (`guncha_battle_result.dart`): ro'yxat yig'ilgan
+   turadi va bosilganda oynada ochiladi, ya'ni ekranning o'zi
+   qimirlamaydi. */
+
+/* Ro'yxatni ochadigan qator: nomi, soni va o'ngga qaragan belgi. */
+.word-open {
   display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-.gresult__head {
-  text-align: center;
-}
-
-.gresult__head h2 {
-  margin: 0 0 4px;
-}
-
-.gresult__delta {
-  display: inline-block;
-  margin-top: 8px;
-  padding: 3px 10px;
-  border-radius: 999px;
-  background: var(--surface-2);
-  font-size: 12.5px;
-  font-weight: 800;
-}
-
-.gresult__delta.is-up {
-  background: var(--green-soft);
-  color: var(--green);
-}
-
-.gresult__cols {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-}
-
-.gresult__col {
-  padding: 14px;
-  border-radius: var(--radius-sm);
-  background: var(--surface-2);
-}
-
-.gresult__who {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.gresult__who em {
-  font-style: normal;
-  font-weight: 800;
-  color: var(--text-2);
-  font-size: 13px;
-}
-
-.gresult__words {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
+  align-items: center;
   gap: 6px;
-  font-size: 13.5px;
+  width: 100%;
+  padding: 12px 12px 12px 16px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--divider);
+  color: var(--text);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  text-align: start;
+  transition: background 0.16s ease;
 }
 
-.gresult__words li {
-  padding: 3px 9px;
-  border-radius: 999px;
+.word-open:hover {
   background: var(--bg);
 }
 
-.gresult__foot {
+.word-open span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.word-open em {
+  font-style: normal;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.word-open svg {
+  flex: none;
+  color: var(--text-2);
+}
+
+/* Topilgan so'zlar — qator: nuqta, so'z, kim topgani, ball.
+   Nuqtaning rangi kim topganini aytadi va shu sabab yorliq ham yozilgan:
+   rangning o'zi daltonik odamga hech narsa demaydi. */
+.word-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+}
+
+.word-list__row {
   display: flex;
-  justify-content: center;
+  align-items: center;
   gap: 10px;
+  padding: 7px 0;
+  font-size: 14.5px;
+}
+
+.word-list__row i {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--text-2);
+}
+
+.word-list__row--me i {
+  background: var(--green);
+}
+
+.word-list__row--foe i {
+  background: var(--accent);
+}
+
+.word-list__word {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Pangramma — yettala harf ishlatilgan so'z: ro'yxatdagi eng qimmati. */
+.word-list__word.is-pangram {
+  font-weight: 800;
+}
+
+.word-list__row small {
+  flex: none;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-2);
+}
+
+.word-list__row--me small {
+  color: var(--green);
+}
+
+.word-list__row--foe small {
+  color: var(--accent);
+}
+
+.word-list__row b {
+  flex: none;
+  width: 36px;
+  text-align: end;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Hech kim topmagan so'zlar — kim topgani yo'q, ya'ni qator emas,
+   yorliq yetadi. */
+.word-chips {
+  display: flex;
   flex-wrap: wrap;
+  gap: 8px;
+}
+
+.word-chips span {
+  padding: 5px 10px;
+  border-radius: 10px;
+  background: var(--bg);
+  box-shadow: inset 0 0 0 1px var(--divider);
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 700;
 }
 
 /* ── Janglar tarixi ───────────────────────────────────────────────────── */
@@ -654,7 +721,6 @@
   .history__detail {
     display: none;
   }
-  .gresult__cols,
   .gbar__rows {
     grid-template-columns: minmax(0, 1fr);
   }
