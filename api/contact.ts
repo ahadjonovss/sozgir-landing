@@ -4,9 +4,23 @@
  *  <code>value</code>` qatorlari), shunda ikki oqim bitta guruhda bir ko'rinishda
  *  bo'ladi. Token repozitoriyada saqlanmaydi — Vercel muhit o'zgaruvchilari:
  *
- *    TELEGRAM_BOT_TOKEN      bot tokeni
- *    TELEGRAM_CHAT_ID        guruh yoki kanal ID
- *    TELEGRAM_CONTACT_THREAD mavzu (topic) raqami, ixtiyoriy
+ *    TELEGRAM_SITE_BOT_TOKEN      sayt guruhidagi bot va
+ *    TELEGRAM_SITE_CHAT_ID        sayt guruhi — **ikkalasi birga**
+ *    TELEGRAM_SITE_CONTACT_THREAD sayt guruhidagi «Aloqa» mavzusi
+ *    TELEGRAM_BOT_TOKEN           ilova guruhidagi bot va
+ *    TELEGRAM_CHAT_ID             eski guruh — zaxira
+ *    TELEGRAM_CONTACT_THREAD      eski guruhdagi mavzu
+ *
+ *  Sayt guruhi sozlangandan keyin so'rovlar o'sha yerga tushadi: sayt
+ *  bilan bog'liq hamma narsa (tashrif, xato, reklama, aloqa) bir
+ *  joyda bo'lsin. Sozlanmagan bo'lsa eski guruh ishlaydi — preview
+ *  yig'ilishida ham forma ishlab turadi va xabar yo'qolmaydi.
+ *
+ *  Token va guruh **juft** olinadi, alohida emas. Ikkala guruhda
+ *  ikki xil bot turibdi va aralashtirilsa forma jimgina yiqilardi:
+ *  bot a'zo bo'lmagan guruhga yozmoqchi bo'lib, Telegram'dan
+ *  «chat not found» olardi — foydalanuvchi esa «yuborildi» degan
+ *  javobni ko'rardi.
  */
 
 export const config = { runtime: 'edge' };
@@ -46,8 +60,14 @@ export default async function handler(request: Request): Promise<Response> {
     return json(405, { error: 'Faqat POST' });
   }
 
-  const token = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
+  // Sayt guruhi ustun, lekin faqat **to'liq** sozlangan bo'lsa:
+  // token ham, guruh ham. Yarimta sozlama eskisiga tushadi.
+  const siteToken = process.env.TELEGRAM_SITE_BOT_TOKEN;
+  const siteChat = process.env.TELEGRAM_SITE_CHAT_ID;
+  const site = Boolean(siteToken && siteChat);
+
+  const token = site ? siteToken : process.env.TELEGRAM_BOT_TOKEN;
+  const chatId = site ? siteChat : process.env.TELEGRAM_CHAT_ID;
   if (!token || !chatId) {
     return json(503, { error: 'Telegram sozlanmagan' });
   }
@@ -68,7 +88,13 @@ export default async function handler(request: Request): Promise<Response> {
     return json(422, { error: 'Maydonlar to‘liq emas' });
   }
 
-  const threadId = Number(process.env.TELEGRAM_CONTACT_THREAD ?? 0);
+  // Mavzu ham guruh bilan birga tanlanadi: boshqa guruhning mavzu
+  // raqami bilan yozilgan xabar umuman ketmaydi.
+  const threadId = Number(
+    (site
+      ? process.env.TELEGRAM_SITE_CONTACT_THREAD
+      : process.env.TELEGRAM_CONTACT_THREAD) ?? 0,
+  );
   const time = new Date().toLocaleString('uz-UZ', { timeZone: 'Asia/Tashkent' });
 
   // Birinchi qator — manba tegi: guruhda ilova va sayt xabarlari bir

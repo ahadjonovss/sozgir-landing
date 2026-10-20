@@ -42,6 +42,7 @@ import { prose, useScript } from './lib/useScript';
 import { useReveal } from './lib/useReveal';
 import AccountDeletion from './components/AccountDeletion';
 import { startMetrika, trackPage } from './lib/metrika';
+import { trackVisit, watchErrors, watchLinks } from './lib/track';
 import { useRoute } from './lib/useRoute';
 
 /** O'yin ekranlari — pastdagi footer shu yerda bir qatorga tushadi.
@@ -89,6 +90,19 @@ export default function App() {
     startMetrika();
     trackPage();
   }, [route]);
+
+  /* Telegram guruhiga: tashrif va tutilmagan xatolar. Metrikadan farqi
+     — u raqam to'playdi, bu esa darhol ko'rinadigan oqim. Ikkalasi
+     bir-birini almashtirmaydi: xatoni ertaga hisobotdan emas, bugun
+     guruhdan bilish kerak.
+
+     Bo'g'liqliklar ro'yxati bo'sh: tashrif seans boshiga bitta
+     ([trackVisit]) va kuzatuvchilar bir marta o'rnatiladi. */
+  useEffect(() => {
+    watchErrors();
+    watchLinks();
+    trackVisit();
+  }, []);
 
   return (
     <>

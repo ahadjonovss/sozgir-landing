@@ -10,6 +10,7 @@
 import { useEffect, useState, type CSSProperties } from 'react';
 import { untilNextWord } from '../lib/daily';
 import { useAuth } from '../lib/auth';
+import { trackGame, trackShare } from '../lib/track';
 import { askAppPromo } from '../lib/appPromo';
 import { countShare } from '../lib/badges';
 import { LENGTHS, type Mode } from '../lib/modes';
@@ -149,6 +150,28 @@ function PlayBoard({
     if (finished && !elsewhere) askAppPromo('result');
   }, [elsewhere, finished]);
 
+  /* Tugagan o'yin — Telegram guruhiga. Ilovada buni `Reporter`
+     qiladi (`dailySolved`/`dailyFailed`), saytda esa shu yer.
+     Javob so'zi **yozilmaydi**: guruhni ochgan odam kunlik so'zni
+     o'ynashdan oldin ko'rib qo'yardi. Ilovada ham shu sabab bor,
+     lekin u yerda guruh faqat jamoaga ochiq. */
+  useEffect(() => {
+    if (!finished || elsewhere) return;
+    trackGame([
+      ['Natija', game.phase === 'won' ? 'topdi' : 'topolmadi'],
+      ['Rejim', mode === 'daily' ? 'kunlik' : 'cheksiz'],
+      ['Uzunlik', game.puzzle?.length ?? length],
+      ['Urinish', game.phase === 'won' ? game.activeRow : game.rows.length],
+      ['Yordam', hint.used > 0 ? hint.used : null],
+      ['Hisob', auth.account ? 'bor' : 'mehmon'],
+    ]);
+    /* Bog'liqliklarda faqat shu ikkisi: o'yin tugashi bir marta sodir
+       bo'ladigan voqea va qolgan qiymatlar o'sha paytda o'qiladi.
+       Ularning keyingi o'zgarishi yangi xabar emas — masalan odam
+       natijadan keyin hisobga kirsa, o'sha o'yin qayta yozilardi. */
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [elsewhere, finished]);
+
   // Olingan yordam mukofot chegarasini tushiradi — natija yozilishidan
   // oldin o'yin holati buni bilishi kerak (`score.ts`).
   const { noteHint } = game;
@@ -165,10 +188,12 @@ function PlayBoard({
         // saqlanmasdi (`lib/badges.ts`). Bekor qilingan ulashish
         // sanalmaydi — u `catch` ga tushadi.
         countShare();
+        trackShare('Natijani ulashish', mode === 'daily' ? 'kunlik' : 'cheksiz');
         return;
       }
       await navigator.clipboard.writeText(text);
       countShare();
+      trackShare('Natijadan nusxa', mode === 'daily' ? 'kunlik' : 'cheksiz');
       setCopied(true);
       window.setTimeout(() => setCopied(false), 2000);
     } catch {

@@ -28,6 +28,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../lib/auth';
 import { isAdFree } from '../lib/donor';
 import { isVerifiedAsync } from '../lib/verified';
+import { trackAd } from '../lib/track';
 import {
   adUnit,
   adsEnabled,
@@ -130,7 +131,18 @@ export default function AdBanner({
 
       // Joy shu yerda band qilinadi — reklama kelishidan oldin.
       setPhase('asked');
-      timer = window.setTimeout(() => finish('gone'), TIMEOUT);
+      timer = window.setTimeout(() => {
+        finish('gone');
+        trackAd(placement, 'to‘ldirish yo‘q');
+      }, TIMEOUT);
+
+      /* Guruhga uchta holat ham yoziladi: so'ralgani, kelgani va
+         to'ldirish topilmagani. Faqat kelganini yozish yetmaydi —
+         «reklama ko'rinmayapti» degan savolga javob aynan so'rov
+         bilan natija orasidagi farqdan chiqadi. Xabar «so'raldi»
+         dan boshlanadi, chunki qolgan ikkitasi umuman kelmasligi
+         ham mumkin (skript bloklangan, tarmoq yiqilgan). */
+      trackAd(placement, 'so‘raldi');
 
       requestAd({
         blockId: unit,
@@ -138,10 +150,15 @@ export default function AdBanner({
         // Yandex «chizdim» deydi, lekin balandligi nol bo'lishi mumkin.
         // Bunda ham joy bo'shatiladi: bo'sh ramka reklamadan yomonroq.
         onRender: () =>
-          requestAnimationFrame(() =>
-            finish((box.current?.offsetHeight ?? 0) > 0 ? 'shown' : 'gone'),
-          ),
-        onFailed: () => finish('gone'),
+          requestAnimationFrame(() => {
+            const drawn = (box.current?.offsetHeight ?? 0) > 0;
+            finish(drawn ? 'shown' : 'gone');
+            trackAd(placement, drawn ? 'keldi' : 'to‘ldirish yo‘q');
+          }),
+        onFailed: () => {
+          finish('gone');
+          trackAd(placement, 'to‘ldirish yo‘q');
+        },
       });
     };
 
@@ -198,7 +215,7 @@ export default function AdBanner({
       observer.disconnect();
       document.removeEventListener('visibilitychange', wake);
     };
-  }, [allowed, ready, account?.uid, unit, id]);
+  }, [allowed, ready, account?.uid, unit, id, placement]);
 
   if (!allowed || phase === 'gone') return null;
 
