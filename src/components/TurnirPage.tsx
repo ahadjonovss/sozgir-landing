@@ -31,7 +31,7 @@ import { shareCardImage } from '../lib/shareCard';
 import { pretty } from '../lib/uz';
 import type { BattleGame } from '../lib/battle';
 import AccountCall from './AccountCall';
-import { AqchaCount, AqchaDelta } from './Units';
+import { Aqcha, AqchaDelta } from './Units';
 import { playerLink } from '../data/site';
 import Avatar from './Avatar';
 import CodeInput from './CodeInput';
@@ -585,7 +585,7 @@ function FinalTable({ turnir }: { turnir: Turnir }) {
               {/* Umumiy hisob o'zgarishning yonida: odam «qancha
                   ishladim» bilan «qancham qoldi» ni birga ko'radi. */}
               <span className="standings__total">
-                {balance === undefined ? '' : <AqchaCount value={balance} />}
+                {balance === undefined ? '' : <Aqcha value={balance} size="sm" />}
               </span>
             </li>
           );

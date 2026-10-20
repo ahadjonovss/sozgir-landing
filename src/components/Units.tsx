@@ -33,23 +33,26 @@ function Unit({
   );
 }
 
-/** Tiyinni aqcha belgisi bilan ko'rsatadi: «belgi 598».
+/** Aqchani belgisi bilan ko'rsatadi: «belgi 598».
+ *
+ *  Son qayerdan kelsa ham — serverdan, brauzerdan yoki hisobdan —
+ *  bitta shkalada: aqcha butun son (`lib/aqcha.ts`).
  *
  *  `sign` — mukofot uchun: qo'shuv ishorasi belgidan **keyin** turadi
  *  («belgi +20»), aks holda u belgidan ajralib, ikkita alohida narsadek
  *  o'qilardi. */
 export function Aqcha({
-  tiyin,
+  value,
   size = 'md',
   sign = false,
 }: {
-  tiyin: number;
+  value: number;
   size?: Size;
   sign?: boolean;
 }) {
   return (
     <Unit src="/aqcha.png" alt="Aqcha" size={size}>
-      {sign ? `+${formatAqcha(tiyin)}` : formatAqcha(tiyin)}
+      {sign ? `+${formatAqcha(value)}` : formatAqcha(value)}
     </Unit>
   );
 }
@@ -59,19 +62,6 @@ export function BattleAqcha({ rating, size = 'md' }: { rating: number; size?: Si
   return (
     <Unit src="/aqcha.png" alt="Aqcha" size={size}>
       {formatBattleAqcha(rating)}
-    </Unit>
-  );
-}
-
-/** Tayyor sonni belgisi bilan ko'rsatadi.
- *
- *  `Aqcha` tiyindan o'giradi, `BattleAqcha` xom reytingdan — bu esa
- *  allaqachon aqchada yozilgan son uchun (`mardu_series.balance`).
- *  Ikkinchi marta o'girilsa son o'n barobar kichrayib qolardi. */
-export function AqchaCount({ value, size = 'sm' }: { value: number; size?: Size }) {
-  return (
-    <Unit src="/aqcha.png" alt="Aqcha" size={size}>
-      {value}
     </Unit>
   );
 }

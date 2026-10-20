@@ -166,7 +166,7 @@ export default function Leaderboard() {
                     : `${row.count} so‘z`}
               </span>
               <span className="rank__points">
-                <Aqcha tiyin={row.points} size="sm" />
+                <Aqcha value={row.points} size="sm" />
               </span>
               {row.uid !== account?.uid && canInvite(row.uid) && !verified(row.uid) && (
                 <button

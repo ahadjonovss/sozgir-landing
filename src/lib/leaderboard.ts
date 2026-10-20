@@ -14,6 +14,7 @@ export interface Entry {
   nickname: string;
   /** Kunlik jadvalda — urinishlar soni, umumiyda — topilgan so'zlar soni. */
   count: number;
+  /** Aqchada — server qanday yuborsa, shunday. */
   points: number;
   won: boolean;
 }

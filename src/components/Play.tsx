@@ -346,7 +346,7 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
 
               {game.result && game.result.points > 0 && (
                 <p className="result__points">
-                  <Aqcha tiyin={game.result.points} size="lg" sign />
+                  <Aqcha value={game.result.points} size="lg" sign />
                 </p>
               )}
 

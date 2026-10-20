@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 import { AuthProvider } from './lib/auth';
+import { scaleStoredAqcha } from './lib/aqchaScale';
 import './styles/theme.css';
 import './styles/landing.css';
 import './styles/play.css';
@@ -19,6 +20,11 @@ document.documentElement.dataset.theme =
 if ('IntersectionObserver' in window) {
   document.documentElement.classList.add('js');
 }
+
+// Brauzerda qolgan eski (o'nlangan) ballar — birinchi chizishdan
+// oldin o'giriladi, aks holda ekranda bir lahza o'n barobar katta
+// son turib ketardi.
+scaleStoredAqcha();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

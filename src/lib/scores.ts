@@ -14,7 +14,7 @@
  *  keraksiz bo'ldi.
  *
  *  Qolgani — o'yinlarning nomi va bitta o'yindagi xom ballning shakli:
- *  ular ekranda hamon ishlatiladi. Sonlar **tiyinda**, aqcha uning o'ni
+ *  ular ekranda hamon ishlatiladi. Sonlar aqchada — bitta shkala
  *  (`lib/aqcha.ts`). */
 
 /** Ilovadagi `GameId` — barqaror nomlar. */

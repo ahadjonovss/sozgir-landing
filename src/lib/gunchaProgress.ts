@@ -20,7 +20,7 @@
  *  yozuvchisi bitta bo'lishi kerak, aks holda bir o'yin ikkinchisining
  *  hissasini o'chirib yuborardi. */
 import { api } from '../api/client';
-import { tiyin } from './aqcha';
+import { toStored } from './aqcha';
 import type { Account } from './auth';
 import { maxScoreOf, puzzleId, signatureOf, wordOf, type GunchaPuzzle } from './guncha';
 
@@ -38,14 +38,14 @@ interface Round {
   /** Shu yozuv yig'ma hisobga nima qo'shgani — keyingi saqlashda aynan
    *  shu ayiriladi.
    *
-   *  `paid` — to'langan tiyin. Islohotdan oldingi yozuvlarda u yo'q:
+   *  `paid` — to'langan aqcha. Islohotdan oldingi yozuvlarda u yo'q:
    *  o'shalarda hisobga xom ball (`score`) tushgan, ya'ni ayiriladigani
    *  ham o'sha. Shu tufayli ko'chirish kerak emas. */
   applied: { score: number; words: number; paid?: number };
 }
 
 export interface GunchaTotals {
-  /** Hamyondagi ulush — **tiyinda** (ekranda aqcha bo'lib ko'rinadi). */
+  /** Hamyondagi ulush — aqchada. */
   score: number;
   words: number;
 }
@@ -53,11 +53,11 @@ export interface GunchaTotals {
 /** To'liq yechilgan g'uncha uchun mukofot — aqchada. */
 const GUNCHA_BASE = 20;
 
-/** Raundning hamyonga tushadigan ulushi — tiyinda. */
+/** Raundning hamyonga tushadigan ulushi — aqchada. */
 export function roundPaid(puzzle: GunchaPuzzle, score: number): number {
   const max = maxScoreOf(puzzle);
   if (max <= 0 || score <= 0) return 0;
-  return tiyin(Math.floor((GUNCHA_BASE * score) / max));
+  return toStored(Math.floor((GUNCHA_BASE * score) / max));
 }
 
 function read<T>(key: string, fallback: T): T {

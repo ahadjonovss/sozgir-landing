@@ -1,50 +1,46 @@
 /** Aqcha va O'lja — ko'rsatish birliklari (`docs/aqcha.md`).
  *
- *  Saqlanadigan son o'zgarmaydi. Uni **tiyin** deymiz: `totalScore`,
- *  `points`, `found_words.score` — hammasi tiyinda, ya'ni migratsiya
- *  yo'q va eski yozuvlar o'z joyida qolaveradi. Ekranga chiqishdan
- *  oldin sonlar shu yerdan o'tadi.
+ *  **Aqcha butun son.** Kasr ham, tiyin ham yo'q — ilovadagi
+ *  `Aqcha` sinfining o'zi (`soztop/lib/core/economy/aqcha.dart`).
+ *  Saqlanadigan son ekrandagi sonning aynan o'zi, ya'ni hech
+ *  qayerda ko'paytirish ham, bo'lish ham yo'q.
  *
- *  Reyting ham shunday: hujjatda xom Elo turadi, ekranda esa uning
- *  yarim shkalasi — o'lja. Chegaralar (daraja) **xom reytingda**
- *  tekshiriladi, aks holda yaxlitlash chegarani surib qo'yadi.
+ *  Ilgari sayt ichida «tiyin» degan shkala yurardi: saqlashga
+ *  `aqcha × 10` tushar, ekranda esa o'nga bo'linardi. Server va
+ *  ilova esa hech qachon unday hisoblamagan — ular aqchani butun
+ *  yuritadi. Natijada serverdan kelgan har bir son saytda o'n
+ *  barobar kichrayib ko'rinardi: jadvalda 6 aqcha ishlagan odamning
+ *  yonida nol turardi. Yomoni, sayt o'sha o'nlangan sonni
+ *  `/v1/me/words` ga ham yozardi va uni ilova o'z shkalasida
+ *  o'qib, ballni o'n barobar katta ko'rsatardi.
  *
- *  Funksiyalar ilovadagi `Aqcha` va `BattleAqcha` sinflarining aynan nusxasi
- *  (`soztop/docs/aqcha_tz.md`, 2-bo'lim): bir xil son ikki platformada
- *  bir xil ko'rinishi shart.
+ *  O'lja ham shunday: u **reytingning o'zi**. Ilgari sayt uning
+ *  yarmini ko'rsatardi (`1000 + floor((reyting − 1000) / 2)`) va
+ *  bitta odam ikki joyda ikki xil son bo'lib chiqardi. Ilovada bu
+ *  yarimlash olib tashlangan, saytda ham shunday.
  *
- *  «Boylik» — aqcha va o'ljani bitta songa yig'ish — endi jadvalda ham,
- *  ochiq profilda ham turadi, lekin saytda **shu nom bilan atalmaydi**:
- *  jamlangan hisobning nomi har doim **aqcha**. Ikkinchi nom odamni
- *  chalkashtirardi — jadvalda bir son, profilda boshqasi bo'lib qolardi.
+ *  Brauzerda qolgan eski (o'nlangan) yozuvlar bir marta
+ *  o'giriladi — `aqchaScale.ts`. */
+
+/** Saqlangan son → ekrandagi aqcha. Bir xil son.
  *
- *  Yig'indining o'zini bu yerda hisoblamaymiz: uni server yozadi
- *  (`scores/{uid}.wealth`, `onScoreWealth` triggeri) va sayt tayyor
- *  sonni o'qiydi (`leaderboard.ts`, `publicProfile.ts`). Ikki tomonda
- *  ikki marta hisoblangan formula ertami-kech ajralib ketadi. */
+ *  Funksiya ataylab qoldirilgan: chaqirilgan joylarda «bu son
+ *  aqcha» degan ma'no ko'rinib tursin, kelajakda shkala
+ *  o'zgarsa ham bitta joy tahrirlansin. */
+export const aqcha = (value: number) => Math.trunc(value);
 
-/** Bitta aqchada shuncha tiyin — mukofot hisobi ham shundan. */
-export const TIYIN = 10;
-
-/** Saqlangan tiyin → ekrandagi aqcha. Har doim butun son.
+/** Ekrandagi aqcha → saqlanadigan son. Bir xil son.
  *
- *  `Math.floor`, `Math.trunc` emas: manfiy tomonda ikkisi farq qiladi
- *  va farqi ko'rinadi. */
-export const aqcha = (tiyin: number) => Math.floor(tiyin / TIYIN);
+ *  Yaxlitlash qoladi: mukofot formulalari bo'lish bilan hisoblanadi
+ *  va kasr son hech qayerga yozilmasligi kerak. */
+export const toStored = (value: number) => Math.round(value);
 
-/** Ekrandagi aqcha → saqlanadigan tiyin. Mukofot butun aqchada
- *  hisoblanadi va shu yo'l bilan yoziladi — aks holda pastga
- *  yaxlitlash eng kichik mukofotni yeb qo'yardi. */
-export const tiyin = (value: number) => Math.round(value) * TIYIN;
+/** Xom reyting → o'lja. Bir xil son — ilovadagidek. */
+export const battleAqcha = (rating: number) => Math.trunc(rating);
 
-/** Xom reyting → o'lja. Ikki reyting — bitta o'lja, 1000 dan og'ish
- *  bo'yicha. Boshlang'ich 1000 ikkala shkalada ham bir xil. */
-export const battleAqcha = (rating: number) => 1000 + Math.floor((rating - 1000) / 2);
-
-/** Jangdagi o'zgarish — ikki o'ljaning ayirmasi, o'zgarishning yarmi
- *  emas: 12 reytinglik siljish 6 o'lja bo'lib ko'rinadi, lekin
- *  chegaraga tushib qolgan jang 7 ham bo'lishi mumkin. */
-export const battleAqchaDelta = (before: number, after: number) => battleAqcha(after) - battleAqcha(before);
+/** Jangdagi o'zgarish — ikki o'ljaning ayirmasi. */
+export const battleAqchaDelta = (before: number, after: number) =>
+  battleAqcha(after) - battleAqcha(before);
 
 /** Minglar ajratgichi — ingichka bo'shliq (U+2009), vergul emas. */
 const THIN = ' ';
@@ -55,16 +51,16 @@ const group = (value: number) => {
   return sign + digits.replace(/\B(?=(\d{3})+(?!\d))/g, THIN);
 };
 
-/** Tiyinni ekrandagi songa aylantiradi: `598`, `1 198`. Kasr yo'q. */
-export const formatAqcha = (tiyinValue: number) => group(aqcha(tiyinValue));
+/** Ekrandagi son: `598`, `1 198`. Kasr yo'q. */
+export const formatAqcha = (value: number) => group(aqcha(value));
 
 /** Birligi bilan: `598 aqcha`. */
-export const aqchaText = (tiyinValue: number) => `${formatAqcha(tiyinValue)} aqcha`;
+export const aqchaText = (value: number) => `${formatAqcha(value)} aqcha`;
 
 /** Xom reytingni o'ljada ko'rsatadi: `1 120`. */
 export const formatBattleAqcha = (rating: number) => group(battleAqcha(rating));
 
-/** Birligi bilan: `1 120 o'lja`. */
+/** Birligi bilan: `1 120 aqcha`. */
 export const battleAqchaText = (rating: number) => `${formatBattleAqcha(rating)} aqcha`;
 
 /** Ishorali son — jang natijasidagi o'zgarish uchun: `+6`, `−6`. */

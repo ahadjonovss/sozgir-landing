@@ -129,7 +129,7 @@ export default function PlayHub() {
                     {daily.won ? (
                       <>
                         <b>{daily.guesses}/{max}</b> urinishda ·{' '}
-                        <b><Aqcha tiyin={daily.points} size="sm" sign /></b>
+                        <b><Aqcha value={daily.points} size="sm" sign /></b>
                       </>
                     ) : (
                       'Bugun topa olmadingiz'

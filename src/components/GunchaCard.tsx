@@ -29,7 +29,7 @@ export default function GunchaCard() {
       <div className="hub-card__status">
         {totals.words > 0 ? (
           <span>
-            Jami <b>{totals.words}</b> so‘z · <b><Aqcha tiyin={totals.score} size="sm" /></b>
+            Jami <b>{totals.words}</b> so‘z · <b><Aqcha value={totals.score} size="sm" /></b>
           </span>
         ) : (
           <span>Kunlik g‘uncha hamma uchun bir xil</span>

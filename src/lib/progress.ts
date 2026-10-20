@@ -1,7 +1,7 @@
 /** Natija, statistika va aqcha — brauzerda va (kirilgan bo'lsa) cloud'da.
  *
- *  Saqlanadigan son **tiyin**: aqcha uning o'ni (`lib/aqcha.ts`). Hujjatga
- *  ham, `localStorage` ga ham tiyin tushadi — ko'rsatishdagina bo'linadi.
+ *  Saqlanadigan son — **aqchaning o'zi** (`lib/aqcha.ts`): ekranda ham,
+ *  `localStorage` da ham, serverda ham bitta shkala.
  *
  *  Ilovadagi tartib saqlanadi: **asosiy manba — qurilma**, cloud esa
  *  nusxa va boshqa qurilmada tiklash uchun. Shu sabab natija darhol
@@ -129,7 +129,7 @@ export function foundSummary(
   };
 }
 
-/** So'ztopning xom hisobi (tiyin) — ilovadagi `SoztopScoreSource` ko'chirmasi.
+/** So'ztopning xom hisobi — ilovadagi `SoztopScoreSource` ko'chirmasi.
  *
  *  So'zjangda topilgan so'z ham shu ro'yxatda turadi (ilova unga
  *  `mode: 'battle'` yozadi), ya'ni yakka va raqib bilan o'ynalgani

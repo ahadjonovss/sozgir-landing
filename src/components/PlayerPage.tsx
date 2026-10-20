@@ -200,7 +200,7 @@ export default function PlayerPage() {
                     {/* Boylik: o'yinlarda yig'ilgan ball va o'lja
                         ustamasi. Saytda ikkinchi nom yo'q — jamlangan
                         hisobning nomi har doim aqcha (`lib/aqcha.ts`). */}
-                    <Aqcha tiyin={profile.wealth} size="lg" />
+                    <Aqcha value={profile.wealth} size="lg" />
                   </strong>
                   <span className="player__score-label">
                     {profile.wordsFound} topilgan so‘z
@@ -220,7 +220,7 @@ export default function PlayerPage() {
                       </li>
                       <li className="metrics__cell--accent">
                         <strong>
-                          <Aqcha tiyin={profile.today.points} size="sm" />
+                          <Aqcha value={profile.today.points} size="sm" />
                         </strong>
                         <span>Aqcha</span>
                       </li>

@@ -1,15 +1,15 @@
 /** Mukofot hisobi — ilovaning `ScoreCalculator` ko'chirmasi
  *  (`docs/aqcha.md`, 4.1).
  *
- *  Mukofot **butun aqchada** hisoblanadi va saqlashga `aqcha × 10`
- *  bo'lib tushadi: ekranda aqcha hech qachon kasr bilan chiqmaydi,
+ *  Mukofot **butun aqchada** hisoblanadi va shundayligicha
+ *  saqlanadi: ekranda aqcha hech qachon kasr bilan chiqmaydi,
  *  demak u kasr bilan berilmasligi ham kerak.
  *
  *  Uchta shift bor va uchtasi ham butun son: kunlik o'yin — 20 aqcha
  *  (kuniga bir marta, shuning uchun eng qimmat), yakka o'yin — 8
  *  aqchagacha (cheksiz o'ynaladi, shuning uchun arzon), jang esa
  *  umuman aqcha bermaydi — u o'ljaga tushadi va uni server hisoblaydi. */
-import { tiyin } from './aqcha';
+import { toStored } from './aqcha';
 import type { Mode } from './modes';
 
 /** Kunlik o'yin uchun asos — aqchada. */
@@ -36,7 +36,7 @@ export type HintLevel = 0 | 1 | 2;
 export const maxAqcha = ({ mode, length }: { mode: Mode; length: number }) =>
   mode === 'daily' ? DAILY_BASE : length + 1;
 
-/** Natija uchun beriladigan mukofot — **tiyinda** (saqlanadigan birlik). */
+/** Natija uchun beriladigan mukofot — butun aqchada. */
 export function scoreFor({
   mode,
   attempts,
@@ -56,7 +56,7 @@ export function scoreFor({
   // Kunlik: asos urinish samaradorligiga ko'paytiriladi — 20, 17, 13,
   // 10, 7, 3. Takror koeffitsienti ham, yordam ham yo'q.
   if (mode === 'daily') {
-    return tiyin((DAILY_BASE * (maxAttempts - attempts + 1)) / maxAttempts);
+    return toStored((DAILY_BASE * (maxAttempts - attempts + 1)) / maxAttempts);
   }
 
   // Yakka o'yin: asos urinishlar soniga teng, ya'ni qoida ko'paytirishsiz
@@ -64,5 +64,5 @@ export function scoreFor({
   let value = maxAttempts - attempts + 1;
   if (repeated) value = Math.max(REPEAT_MIN, Math.round(value * REPEAT_FACTOR));
   // Chegara oxirida: u yakuniy shift, undan yuqori chiqilmaydi.
-  return tiyin(Math.min(HINT_CAP[hint], value));
+  return toStored(Math.min(HINT_CAP[hint], value));
 }

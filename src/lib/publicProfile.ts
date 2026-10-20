@@ -38,8 +38,8 @@ export interface PublicProfile {
   /** Yalang ball — faqat o'yinlarda yig'ilgani (`scores/{uid}.totalScore`).
    *  Ekranda u ko'rinmaydi: jadvalda ham, profilda ham [wealth] turadi. */
   totalScore: number;
-  /** Ekrandagi son: ball va o'lja ustamasi, tiyinda
-   *  (`scores/{uid}.wealth`). Maydon yo'q bo'lsa yalang ball. */
+  /** Ekrandagi son: ball va o'lja ustamasining yig'indisi, aqchada
+   *  (server uni `aqcha` deb yuboradi). */
   wealth: number;
   wordsFound: number;
   /** Umumiy reytingdagi o'rni (1 — birinchi). Sanab bo'lmasa `null`. */
