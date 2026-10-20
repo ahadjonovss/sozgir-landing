@@ -18,7 +18,6 @@ import { useGameChoice } from '../lib/useGameChoice';
 import { useSozTop } from '../lib/useSozTop';
 import AdBanner from './AdBanner';
 import BadgesCard from './BadgesCard';
-import ArenaHistory from './ArenaHistory';
 import Play from './Play';
 import StatsPanel from './StatsPanel';
 import TelegramBanner from './TelegramBanner';
@@ -57,12 +56,6 @@ export default function GamePage() {
           {/* Nishonlar statistikadan keyin: ikkalasi ham «men qanday
               o'ynayapman» degan savolga javob beradi. */}
           <BadgesCard />
-          {/* Reyting o'rnida janglar tarixi: jadvalning birinchi o'nligi
-              har sahifada bir xil turardi va o'ynab turgan odamga u
-              hech narsa aytmasdi. Tarix esa uning o'zi haqida — kim
-              bilan o'ynagani va qanday tugagani. To'liq reyting o'z
-              joyida: taxtadagi kubok tugmasi va `/oynash`. */}
-          <ArenaHistory />
           <TelegramBanner compact />
 
           <div className="panel panel--call">

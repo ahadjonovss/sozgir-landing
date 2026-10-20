@@ -14,7 +14,7 @@ import { links } from '../data/site';
 import { useAuth } from '../lib/auth';
 import { recordProfileView } from '../lib/profileViews';
 import { isEmptyProfile, loadPublicProfile, type PublicProfile } from '../lib/publicProfile';
-import { routeParam } from '../lib/useRoute';
+import { canGoBack, routeParam } from '../lib/useRoute';
 import { pretty } from '../lib/uz';
 import { formatSum } from '../lib/support';
 import { donorTier } from '../lib/donor';
@@ -82,6 +82,10 @@ export default function PlayerPage() {
    *  Yaltiroq bezak qimmatbaho emas, bayramona ko'rinadi. */
   const premium = useVerified(uid);
 
+  /* Bir marta o'qiladi: sahifa ochilgandan keyin sanoq o'zgarsa ham
+     tugmaning yorlig'i ko'z oldida almashib ketmasligi kerak. */
+  const [back] = useState(canGoBack);
+
   const invite = () => {
     // Jang hisobga bog'lanadi, shuning uchun mehmon avval kiradi.
     if (!account) {
@@ -94,9 +98,29 @@ export default function PlayerPage() {
   return (
     <section className={`oyin player${premium ? ' player--premium' : ''}`}>
       <div className="wrap player__wrap">
-        <a className="player__back" href={links.play}>
+        {/* Ortga — qayerdan kelingan bo'lsa o'sha yerga.
+            Ilgari bu tugma har doim `/oyin` ga olib borardi va yorlig'i
+            «Reyting» edi: profil faqat reytingdan ochiladi deb
+            o'ylangandi. Aslida unga janglar tarixidan,
+            qo'llab-quvvatlaganlar ro'yxatidan va jang natijasidan ham
+            kiriladi — So'zjangdan kelgan odam ortga bosib So'ztopda
+            paydo bo'lardi.
+
+            Sayt ichida qaytadigan joy bo'lmasa (profil havolasi
+            tashqaridan ochilgan) tugma o'zining eski manziliga
+            qolaveradi: `history.back()` bunday paytda odamni butunlay
+            boshqa saytga olib ketardi. */}
+        <a
+          className="player__back"
+          href={links.play}
+          onClick={(event) => {
+            if (!back) return;
+            event.preventDefault();
+            window.history.back();
+          }}
+        >
           <ChevronLeft size={18} />
-          Reyting
+          {back ? 'Ortga' : 'Reyting'}
         </a>
 
         {state.kind === 'failed' && (

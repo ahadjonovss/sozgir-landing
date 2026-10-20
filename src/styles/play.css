@@ -473,8 +473,10 @@
   gap: 8px;
 }
 
-/* Reyting tugmasi taxtaning o'zida: telefonda jadval ancha pastda
-   qolardi va uni ko'rish uchun o'yindan chiqish kerak bo'lardi. */
+/* Taxtaning o'zidagi yumaloq tugma — hozir faqat statistika.
+   Ilgari yonida reyting tugmasi ham turardi, shu sababli nomi ko'plikda
+   qolgan: sinfni qayta nomlash uchun uni uch faylda almashtirish kerak
+   bo'lardi va ko'rinishga hech narsa qo'shmasdi. */
 .play__ranks {
   display: inline-grid;
   place-items: center;
@@ -4740,11 +4742,9 @@
     display: none;
   }
 
-  /* Yordam tugmasi chiqqanda o'yin raqami ketadi: ikkalasi birga
-     qatorga sig'maydi, bosiladigani esa muhimroq. */
-  .oyin__board--fit .play__top-right:has(.play__hint--ready) .phone__live {
-    display: none;
-  }
+  /* Ilgari yordam tugmasi chiqqanda o'yin raqami yashirinardi: qatorda
+     to'rtta element bo'lib, ular tor ekranga sig'masdi. Reyting tugmasi
+     olingach joy bo'shadi va raqam o'z o'rnida qolaveradi. */
 }
 
 /* Maydonda raqib taxtasi yo'q — taxta o'rtada yolg'iz qoladi. */

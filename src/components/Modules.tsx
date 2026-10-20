@@ -13,12 +13,24 @@ import { links, modules } from '../data/site';
  *  tushadi. */
 const SHOWN_POINTS = 2;
 
+/** Bu bo'limda ko'rsatilmaydigan modullar.
+ *
+ *  So'ztop shu ro'yxatda: bosh sahifaning o'zi So'ztopdan boshlanadi —
+ *  tepada uning taxtasi turibdi va odam unda o'ynab ham ko'rgan
+ *  bo'ladi. Pastda yana o'sha nom bilan kartochka chiqishi «yana nima
+ *  bor» degan savolga javob bermasdi, shunchaki takror edi.
+ *
+ *  Yozuvning o'zi `data/site.ts` da qoladi: undan o'yin sahifalarining
+ *  yon ustuni (`gameLinks`) va statik HTML oziqlanadi. */
+const HIDDEN = new Set(['soztop']);
+
 /** Saytda ham ishlaydigan modullar — kartochkada havola chiqadi,
  *  qolganlarida «Ilovada» belgisi turadi. */
 const ON_SITE: Record<string, { href: string; label: string }> = {
   soztop: { href: links.play, label: 'Saytda o‘ynash' },
   sozjang: { href: links.battle, label: 'Saytda o‘ynash' },
   guncha: { href: links.guncha, label: 'Saytda o‘ynash' },
+  turnir: { href: links.turnir, label: 'Saytda o‘ynash' },
   qollab: { href: links.donate, label: 'Hissa qo‘shish' },
 };
 
@@ -36,7 +48,9 @@ export default function Modules() {
         </div>
 
         <div className="modules">
-          {modules.map((m, i) => {
+          {modules
+            .filter((m) => !HIDDEN.has(m.id))
+            .map((m, i) => {
             const site = ON_SITE[m.id];
             return (
               <article

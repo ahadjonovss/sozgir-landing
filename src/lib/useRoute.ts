@@ -111,9 +111,6 @@ export function useRoute(): Route {
 
   useEffect(() => {
     const sync = () => {
-      // Orqaga qaytish ham sanoqdan ayiriladi, aks holda bir marta
-      // qaytgan odamda tugma qayta ko'rinib, uni saytdan chiqarardi.
-      if (pushes > 0) pushes -= 1;
       setRoute(read());
       setPath(window.location.pathname);
     };
@@ -147,10 +144,19 @@ export function useRoute(): Route {
       : null;
     target?.scrollIntoView({ behavior: 'instant' });
 
-    window.addEventListener('popstate', sync);
+    /* Orqaga qaytish sanoqdan ayiriladi — aks holda bir marta qaytgan
+       odamda ham «ortga» tugmasi qolib, keyingi bosishda uni saytdan
+       chiqarib yuborardi. Ayirish aynan shu yerda: `sync` ni bosilgan
+       havola ham chaqiradi va u yerda sanoq o'sishi kerak. */
+    const onPop = () => {
+      if (pushes > 0) pushes -= 1;
+      sync();
+    };
+
+    window.addEventListener('popstate', onPop);
     document.addEventListener('click', onClick);
     return () => {
-      window.removeEventListener('popstate', sync);
+      window.removeEventListener('popstate', onPop);
       document.removeEventListener('click', onClick);
     };
   }, []);

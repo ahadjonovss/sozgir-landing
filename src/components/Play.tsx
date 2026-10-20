@@ -23,7 +23,6 @@ import { Chart } from './Icons';
 import StatsPanel from './StatsPanel';
 import { Aqcha } from './Units';
 import DownloadPromo from './DownloadPromo';
-import Leaderboard from './Leaderboard';
 import Modal from './Modal';
 import ProposeWord from './ProposeWord';
 import ReportWord from './ReportWord';
@@ -79,7 +78,6 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
   const [copied, setCopied] = useState(false);
   /** Reyting oynasi. Telefonda jadval taxtadan ancha pastda qolardi —
    *  endi taxtaning o'zidan bir bosishda ochiladi. */
-  const [ranksOpen, setRanksOpen] = useState(false);
   /** Statistika oynasi. Ilovada bu alohida sahifa (Reyting bilan yonma-yon
    *  turadigan «Statistika» kartochkasi); saytda esa panel yon ustunda
    *  qolib ketardi — telefonda uni umuman ko'rmaslik mumkin edi. */
@@ -180,22 +178,16 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
           ))}
         </div>
         <div className="play__top-right">
-          {/* Yordam: o'ylash cho'zilganda o'zi paydo bo'ladi, undan oldin
-              qancha qolgani sanab turiladi — ilovadagi `_HintIndicator`. */}
-          {hint.ready ? (
-            <button
-              type="button"
-              className="play__hint play__hint--ready"
-              onClick={hint.reveal}
-              title="Yordam olish"
-            >
-              💡 Yordam
-            </button>
-          ) : hint.nextAt !== null ? (
-            <span className="play__hint" title="Yordam shuncha vaqtdan keyin ochiladi">
-              💡 {hintLeft}
-            </span>
-          ) : null}
+          {/* Tartib chapdan o'ngga: o'yin raqami, statistika, yordam.
+              Yordam eng o'ngda turadi — qatordagi yagona «bosiladigan
+              va o'zgaradigan» narsa shu, ya'ni ko'z uni chekkadan
+              tezroq topadi. Raqam esa eng chapda: u o'zgarmaydi va
+              o'qiladigan narsa.
+
+              Reyting tugmasi shu qatordan olindi: jadval `/oynash` da
+              va taxtaning ostida baribir bor edi, bu yerda esa to'rtta
+              element tor ekranga sig'may, o'yin raqamini siqib
+              chiqarardi. */}
           <span className="phone__live">
             <i />
             {game.puzzle
@@ -213,28 +205,24 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
           >
             <Chart size={20} />
           </button>
-          <button
-            type="button"
-            className="play__ranks"
-            onClick={() => setRanksOpen(true)}
-            aria-label="Reyting"
-            title="Reyting"
-          >
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path
-                fill="currentColor"
-                d="M18 4h2a1 1 0 0 1 1 1v2a4 4 0 0 1-3.6 3.98A6 6 0 0 1 13 14.92V18h3a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2h3v-3.08a6 6 0 0 1-4.4-3.94A4 4 0 0 1 3 7V5a1 1 0 0 1 1-1h2V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1ZM6 6H5v1a2 2 0 0 0 1 1.73V6Zm12 2.73A2 2 0 0 0 19 7V6h-1v2.73Z"
-              />
-            </svg>
-          </button>
+          {/* Yordam: o'ylash cho'zilganda o'zi paydo bo'ladi, undan oldin
+              qancha qolgani sanab turiladi — ilovadagi `_HintIndicator`. */}
+          {hint.ready ? (
+            <button
+              type="button"
+              className="play__hint play__hint--ready"
+              onClick={hint.reveal}
+              title="Yordam olish"
+            >
+              💡 Yordam
+            </button>
+          ) : hint.nextAt !== null ? (
+            <span className="play__hint" title="Yordam shuncha vaqtdan keyin ochiladi">
+              💡 {hintLeft}
+            </span>
+          ) : null}
         </div>
       </div>
-
-      {ranksOpen && (
-        <Modal title="Reyting" onClose={() => setRanksOpen(false)}>
-          <Leaderboard />
-        </Modal>
-      )}
 
       {statsOpen && (
         <Modal title="Statistika" onClose={() => setStatsOpen(false)}>

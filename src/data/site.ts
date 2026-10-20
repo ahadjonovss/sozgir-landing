@@ -127,6 +127,20 @@ export const modules: Module[] = [
     accent: 'orange',
   },
   {
+    id: 'turnir',
+    emoji: '🥇',
+    name: 'Turnir',
+    tagline: 'Ketma-ket bir necha maydon: har davradan yuqori yarmi o‘tadi.',
+    points: [
+      'Saytda ham o‘ynaladi: kod, havola yoki QR bilan qo‘shiladi',
+      'Hajmi uchta: 8 kishi — uch davra, 16 — to‘rt, 32 — besh davra',
+      'Sakkiztadan ko‘p bo‘lsa guruhlarga bo‘linadi va ular bir vaqtda o‘ynaydi',
+      'Har guruh jangi — oddiy mardu maydonining o‘zi: o‘sha so‘z, o‘sha aqcha',
+      'Yig‘ilish ikki soat davom etadi, boshlashni tashkilotchi bosadi',
+    ],
+    accent: 'green',
+  },
+  {
     id: 'yangsoz',
     emoji: '💡',
     name: 'Yangso‘z',
