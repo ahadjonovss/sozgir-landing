@@ -18,12 +18,15 @@
  *  ilovada qolaveradi. */
 import { api } from '../api/client';
 
-/** Kod — olti belgi (server `CODE_ALPHABET`: chalkashadigan `I`, `O`,
- *  `0`, `1` yo'q). Tekshiruv **shaklga** qarab: alifbo kengaysa sayt
- *  yangilanishi shart emas — ilovadagi `DeepLink._codePattern` ham
- *  shunday qaraydi. */
+/** Kod — harf-raqamli qisqa satr (server `CODE_ALPHABET`:
+ *  chalkashadigan `I`, `O`, `0`, `1` yo'q). Tekshiruv **shaklga**
+ *  qarab va uzunligi atay keng olingan: server kodni qisqartirsa ham
+ *  (masalan besh belgi) sayt havolani rad etmasligi kerak — kod
+ *  haqiqatdan bormi, buni `challengeOpen` ning o'zi aytadi. Avval bu
+ *  yerda qat'iy «olti belgi» turardi va ilovadan kelgan besh belgili
+ *  havola saytda «kod to'g'ri emas» bo'lib ochilardi. */
 export const isChallengeCode = (value: string): boolean =>
-  /^[A-Za-z0-9]{6}$/.test(value);
+  /^[A-Za-z0-9]{4,10}$/.test(value);
 
 /** `challengeOpen` javobi — yashirilgan so'z **yo'q**.
  *
@@ -88,6 +91,65 @@ export async function openChallenge(input: {
     attempts: rows.length,
     won: data.won === true,
     finished: data.finished === true,
+  };
+}
+
+/** Kirmasdan ochish — `/v1/public`, tokensiz.
+ *
+ *  Havolani bosgan odamda hisob bo'lmasligi mumkin va o'yin aynan
+ *  shunday odam uchun. Serverda bu yo'l hech narsa saqlamaydi:
+ *  qatnashchi yozilmaydi, egasining statistikasiga tushmaydi va
+ *  shu sabab davom etish ham yo'q — qatorlar faqat shu sahifada,
+ *  xotirada turadi. Saqlanishini istagan odam kiradi va o'shanda
+ *  `openChallenge` ishlaydi. */
+export async function peekChallenge(input: {
+  code: string;
+}): Promise<ChallengeState> {
+  const data = await api.get<{
+    code?: unknown;
+    length?: unknown;
+    title?: unknown;
+    host?: unknown;
+  }>(`/v1/public/challenges/${encodeURIComponent(input.code)}`, {
+    auth: false,
+  });
+
+  return {
+    code: String(data.code ?? input.code),
+    length: typeof data.length === 'number' ? data.length : 5,
+    title: typeof data.title === 'string' ? data.title : '',
+    hostNickname: typeof data.host === 'string' ? data.host : '',
+    rows: [],
+    words: [],
+    attempts: 0,
+    won: false,
+    finished: false,
+  };
+}
+
+/** Mehmonning taxmini. Server urinishlarni sanamaydi — `finished`
+ *  shu yerda, qatorlar sonidan chiqadi (`useChallenge`). */
+export async function guestGuess(input: {
+  code: string;
+  word: string;
+}): Promise<ChallengeGuess> {
+  const data = await api.post<{
+    accepted?: unknown;
+    statuses?: unknown;
+    won?: unknown;
+  }>(`/v1/public/challenges/${encodeURIComponent(input.code)}/guess`, {
+    auth: false,
+    body: { word: input.word },
+  });
+
+  if (data.accepted !== true) {
+    return { accepted: false, reason: 'Bunday so‘z lug‘atda yo‘q' };
+  }
+
+  return {
+    accepted: true,
+    row: strings(data.statuses).join(''),
+    won: data.won === true,
   };
 }
 

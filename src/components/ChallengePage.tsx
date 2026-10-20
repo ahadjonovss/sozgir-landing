@@ -24,7 +24,15 @@ import DownloadPromo from './DownloadPromo';
  *  (`lib/challenge.ts`), ya'ni biz ham bilmaymiz. Topolmagan odamga
  *  «so'z falon edi» deyishning yagona yo'li — so'rab olish, u esa
  *  yashirgan odamda. */
-function Result({ won, attempts }: { won: boolean; attempts: number }) {
+function Result({
+  won,
+  attempts,
+  guest,
+}: {
+  won: boolean;
+  attempts: number;
+  guest: boolean;
+}) {
   return (
     <div className={`result result--${won ? 'won' : 'lost'}`} role="status">
       <p className="result__title">
@@ -32,7 +40,9 @@ function Result({ won, attempts }: { won: boolean; attempts: number }) {
       </p>
       <p className="result__def">
         {won
-          ? 'Yashirgan odam buni darhol ko‘radi: uning statistikasida siz necha urinishda topganingiz yoziladi.'
+          ? guest
+            ? 'Mehmon o‘yini hech qayerga yozilmaydi — yashirgan odam buni ko‘rmaydi. Kirib o‘ynasangiz, uning statistikasida siz necha urinishda topganingiz turadi.'
+            : 'Yashirgan odam buni darhol ko‘radi: uning statistikasida siz necha urinishda topganingiz yoziladi.'
           : 'So‘z serverda qoladi va uni faqat yashirgan odam biladi — so‘rab ko‘ring.'}
       </p>
       <p className="result__next">
@@ -77,8 +87,9 @@ export default function ChallengePage() {
           <div className="panel panel--call">
             <h3>Havoladagi kod to‘g‘ri emas</h3>
             <p className="panel__note">
-              Kod olti belgidan iborat bo‘ladi. Do‘stingizdan havolani
-              qayta so‘rang — yoki shu yerda bugungi so‘zni o‘ynang.
+              Kod — harf va raqamlardan iborat qisqa satr.
+              Do‘stingizdan havolani qayta so‘rang — yoki shu yerda
+              bugungi so‘zni o‘ynang.
             </p>
             <a className="btn btn--sm" href={links.play}>
               Bugungi so‘zni o‘ynash
@@ -86,29 +97,22 @@ export default function ChallengePage() {
           </div>
         )}
 
-        {/* Hisob kerak: yozuv `entries/{uid}` da saqlanadi va yashirgan
-            odam jadvalda aynan shu taxallusni ko'radi. Server ham
-            kirmagan chaqiruvni qabul qilmaydi (`requireUid`). */}
-        {valid && game.phase === 'idle' && auth.ready && (
+        {/* Mehmon ham o'ynaydi — havolani bosgan odamda hisob odatda
+            yo'q va unga to'siq qo'yish havolaning o'zini bekor qilardi.
+            Lekin nimadan voz kechayotgani aytiladi: mehmonning o'yini
+            serverda saqlanmaydi (`peekChallenge`), ya'ni yashirgan odam
+            uni ko'rmaydi va sahifa yangilansa o'yin boshidan boshlanadi. */}
+        {valid && game.guest && !broken && game.phase !== 'loading' && (
           <div className="panel panel--call">
-            <h3>O‘ynash uchun kiring</h3>
             <p className="panel__note">
-              Natijangiz so‘zni yashirgan odamning statistikasiga tushadi —
-              u kim necha urinishda topganini ko‘rib turadi. Yarmida
-              to‘xtasangiz, o‘yin boshqa qurilmada ham o‘sha joyidan
-              davom etadi.
+              Mehmon sifatida o‘ynayapsiz: natijangiz so‘zni yashirgan
+              odamga ko‘rinmaydi va sahifa yangilansa o‘yin boshidan
+              boshlanadi.{' '}
+              <button className="link" onClick={() => auth.openPrompt('signIn')}>
+                Kiring
+              </button>{' '}
+              — natija o‘sha odamning statistikasiga tushadi.
             </p>
-            <div className="result__actions">
-              <button className="btn btn--sm" onClick={() => auth.openPrompt('signIn')}>
-                Kirish
-              </button>
-              <button
-                className="btn btn--sm btn--ghost"
-                onClick={() => auth.openPrompt('register')}
-              >
-                Hisob ochish
-              </button>
-            </div>
           </div>
         )}
 
@@ -171,7 +175,11 @@ export default function ChallengePage() {
               </div>
 
               {over ? (
-                <Result won={game.phase === 'won'} attempts={game.attempts} />
+                <Result
+                  won={game.phase === 'won'}
+                  attempts={game.attempts}
+                  guest={game.guest}
+                />
               ) : (
                 <>
                   <Keyboard

@@ -16,7 +16,9 @@ import { useAuth } from './auth';
 import { autoFill, verdictsOf } from './battle';
 import {
   guessChallenge,
+  guestGuess,
   openChallenge,
+  peekChallenge,
   type ChallengeState,
 } from './challenge';
 import { attemptsFor } from './modes';
@@ -26,7 +28,7 @@ import { keyAction, lengthOf, normalize, split, type Verdict } from './uz';
 import { gameKey } from './useScript';
 
 export type Phase =
-  /** Hisob kutilmoqda — kirmagan odamga taxta ochilmaydi. */
+  /** Seans hali o'qilmadi — kirganmi yoki mehmonmi, hali noma'lum. */
   | 'idle'
   | 'loading'
   | 'playing'
@@ -37,6 +39,8 @@ export type Phase =
 
 export interface Challenge {
   phase: Phase;
+  /** Hisobsiz o'ynalyaptimi — natija hech qayerga yozilmaydi. */
+  guest: boolean;
   /** Sarlavha va yashirgan odamning taxallusi — ikkalasi ham bo'lmasligi
    *  mumkin (`challengeOpen` bo'sh satr qaytaradi). */
   title: string;
@@ -100,13 +104,24 @@ export function useChallenge(code: string): Challenge {
 
   const nickname = account?.nickname ?? '';
 
-  // O'yinga kirish. Hisobsiz chaqirilmaydi: funksiya `requireUid` bilan
-  // boshlanadi va statistikadagi qator aynan shu hisobniki bo'ladi.
+  /** Mehmonmi — ya'ni hisobsiz o'ynayaptimi.
+   *
+   *  Seans o'qilgunicha (`ready`) bu savolga javob yo'q: kirgan odamga
+   *  ham bir lahza «mehmon» deyilsa, uning yarmida qolgan o'yini
+   *  bo'sh to'r bilan ochilardi. */
+  const guest = ready && !account;
+
+  /** O'yinga kirish.
+   *
+   *  Kirgan odamniki serverda saqlanadi (`openChallenge`: qatnashchi
+   *  yoziladi va yashirgan odam statistikada ko'radi). Mehmonniki
+   *  saqlanmaydi (`peekChallenge`) — server qatorlarni ham, urinishlarni
+   *  ham eslab qolmaydi, ya'ni o'yin shu sahifada, xotirada boradi. */
   useEffect(() => {
-    if (!account || !code) return;
+    if (!ready || !code) return;
     let alive = true;
 
-    void openChallenge({ code })
+    void (account ? openChallenge({ code }) : peekChallenge({ code }))
       .then((reply) => {
         if (alive) setLoaded({ key, state: reply, error: null });
       })
@@ -119,7 +134,7 @@ export function useChallenge(code: string): Challenge {
     return () => {
       alive = false;
     };
-  }, [account, code, key, nickname]);
+  }, [account, code, key, nickname, ready]);
 
   const retry = useCallback(() => setAttempt((value) => value + 1), []);
 
@@ -131,7 +146,7 @@ export function useChallenge(code: string): Challenge {
 
   const phase: Phase = error
     ? 'error'
-    : !ready || !account
+    : !ready
       ? 'idle'
       : !state
         ? 'loading'
@@ -232,11 +247,21 @@ export function useChallenge(code: string): Challenge {
 
     setBusy(true);
     try {
-      const reply = await guessChallenge({ code, word });
+      const reply = guest
+        ? await guestGuess({ code, word })
+        : await guessChallenge({ code, word });
       if (!reply.accepted) {
         bump(reply.reason ?? 'Bu so‘z qabul qilinmadi');
         return;
       }
+
+      /* Mehmonda yakunni **sayt** hisoblaydi.
+       *
+       * Server uning urinishlarini sanamaydi (sanash uchun uni eslab
+       * qolish kerak bo'lardi), shuning uchun «urinish tugadi» qarori
+       * shu yerda: qatorlar soni urinishlar chegarasiga yetdimi. */
+      const attempts = myRows.length + 1;
+      const over = reply.won === true || attempts >= maxAttempts;
 
       // Holat serverdan kelgan javobdan yig'iladi: kuzatiladigan hujjat
       // yo'q, ya'ni to'rni yangilaydigan boshqa manba ham yo'q.
@@ -249,9 +274,9 @@ export function useChallenge(code: string): Challenge {
                 ...previous.state,
                 rows: [...previous.state.rows, reply.row ?? ''],
                 words: [...previous.state.words, word],
-                attempts: reply.attempts ?? previous.state.attempts + 1,
+                attempts: reply.attempts ?? attempts,
                 won: reply.won === true,
-                finished: reply.finished === true,
+                finished: guest ? over : reply.finished === true,
               },
             },
       );
@@ -262,7 +287,18 @@ export function useChallenge(code: string): Challenge {
     } finally {
       setBusy(false);
     }
-  }, [busy, bump, code, current, key, length, myRows.length, state]);
+  }, [
+    busy,
+    bump,
+    code,
+    current,
+    guest,
+    key,
+    length,
+    maxAttempts,
+    myRows.length,
+    state,
+  ]);
 
   const press = useCallback(
     (key: string) => {
@@ -334,6 +370,7 @@ export function useChallenge(code: string): Challenge {
 
   return {
     phase,
+    guest,
     title: state?.title ?? '',
     host: state?.hostNickname ?? '',
     length,
