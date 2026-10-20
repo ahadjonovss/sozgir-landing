@@ -500,16 +500,22 @@ function TurnirStage({
  *  Ilgari jang birdan taxta bilan ochilardi — kim bilan o'ynayotganini
  *  bilish uchun yon ustunga qarash kerak edi. Afisha bir marta, faqat
  *  jang boshlanganda ko'rinadi. */
-function useIntro(phase: string): boolean {
+function useIntro(phase: string, battleId: string | null): boolean {
   /** Afisha yopiladigan payt — mutlaq vaqt. `null` bo'lsa afisha yo'q. */
   const [endsAt, setEndsAt] = useState<number | null>(null);
-  const seen = useRef(false);
+  /** Afisha qaysi jangda ko'rsatilgan.
+   *
+   *  Ilgari bu oddiy `boolean` edi: «bir marta ko'rsatildi». Sahifa esa
+   *  janglar orasida yopilmaydi — «Yangi raqib qidirish» bosilganda
+   *  o'sha komponent qoladi. Natijada afisha faqat varaqdagi
+   *  **birinchi** jangda chiqardi. */
+  const shown = useRef<string | null>(null);
 
   useEffect(() => {
-    if (phase !== 'playing' || seen.current) return;
-    seen.current = true;
+    if (phase !== 'playing' || !battleId || shown.current === battleId) return;
+    shown.current = battleId;
     setEndsAt(Date.now() + INTRO_MS);
-  }, [phase]);
+  }, [battleId, phase]);
 
   // Taymer alohida effektda va muddati mutlaq. Ilgari taymer «bir marta»
   // qo'riqchisi bilan bitta effektda edi: React effektni ikki marta
@@ -1207,7 +1213,7 @@ function Result({ game }: { game: Sozjang }) {
 
 export default function BattlePage() {
   const game = useSozjang();
-  const intro = useIntro(game.phase);
+  const intro = useIntro(game.phase, game.battleId);
   // Turnir guruhida o'ynagan odamni keyingi davra o'zi olib ketadi:
   // natija ekranida o'tirgan odam turnir hujjatini kuzatmaydi.
   useTurnirHop(game.battleId, game.battle);

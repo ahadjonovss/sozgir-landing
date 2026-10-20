@@ -373,11 +373,36 @@ export function useGunchaJang() {
     setActive('guncha', null);
   }, [done]);
 
+  /* Sanoq jang hujjatidan sinxronlanadi.
+   *
+   *  Ilgari `sync` butun faylda **bitta** joydan chaqirilardi — kod
+   *  bilan qo'shilganda (`join`). Tezkor jangda esa u umuman
+   *  chaqirilmasdi va `left` boshlang'ich qiymatida — «3:00» da —
+   *  qotib qolardi: vaqt o'tardi, raqibning balli o'sardi, sanoq esa
+   *  qimirlamasdi.
+   *
+   *  `resync` ham yordam bermasdi: uning izohida «`endsAt` va
+   *  `serverNow` ni qaytaradi» deyilgan, lekin `finishGunchaBattle`
+   *  aslida socketga turtki beradi va `{ finished: true }` dan boshqa
+   *  hech narsa qaytarmaydi.
+   *
+   *  Hujjatda esa `endsAt` bor va u har uch soniyada yangilanadi.
+   *  Server soati bilan solishtirish uchun `Date.now()` ishlatiladi —
+   *  `join` ham aynan shuni qiladi (serverda `serverNow` degan maydon
+   *  yo'q). `sync` o'zi qo'riqlaydi: vaqt faqat qisqaradi, ya'ni
+   *  hujjat kech kelgani sanoqni orqaga sakratmaydi. */
+  const endsAtSeconds = battle?.endsAt?.seconds ?? 0;
+  useEffect(() => {
+    if (!endsAtSeconds) return;
+    sync(endsAtSeconds * 1000, Date.now());
+  }, [endsAtSeconds, sync]);
+
   /** Serverdan qolgan vaqtni so'raydi.
    *
-   *  `gunchaFinish` ikki ishni bajaradi: muddat o'tgan bo'lsa jangni
-   *  yakunlaydi, o'tmagan bo'lsa `endsAt` va `serverNow` ni qaytaradi.
-   *  Ya'ni sinxronlash ham, yakunlash ham bitta chaqiruv.
+   *  Chaqiruv socketga «muddat o'tdi» degan turtki beradi: muddatni
+   *  server o'z soati bilan tekshiradi va jangni o'zi yopadi. Javobida
+   *  vaqt qaytmaydi — sanoq jang hujjatidagi `endsAt` dan
+   *  sinxronlanadi (yuqoriga qarang).
    *
    *  Chaqiruvlar orasida kamida bir soniya: sanoq nolga yetgach
    *  tik har chorak soniyada so'raydi, server esa imtiyoz oynasi

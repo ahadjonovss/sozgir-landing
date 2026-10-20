@@ -123,16 +123,24 @@ export default function GunchaBattlePage() {
  *    ko'pi ketgan bo'lsa — bu qaytib kirish. */
 function useIntro(game: GunchaJang): number {
   const [endsAt, setEndsAt] = useState<number | null>(null);
-  const seen = useRef(false);
+  /** Afisha qaysi jangda ko'rsatilgan.
+   *
+   *  Ilgari bu oddiy `boolean` edi: «bir marta ko'rsatildi». Sahifa esa
+   *  janglar orasida yopilmaydi — «Yana o'ynash» bosilganda o'sha
+   *  komponent qoladi. Natijada afisha faqat varaqdagi **birinchi**
+   *  jangda chiqardi, keyingilari esa to'g'ridan-to'g'ri taxtadan
+   *  boshlanardi. */
+  const shown = useRef<string | null>(null);
   const [left, setLeft] = useState(0);
 
   const fresh = game.phase === 'playing' && game.left > GUNCHA_SECONDS - 10;
+  const id = game.battleId;
   useEffect(() => {
-    if (!fresh || seen.current) return;
-    seen.current = true;
+    if (!fresh || !id || shown.current === id) return;
+    shown.current = id;
     setEndsAt(Date.now() + INTRO_MS);
     setLeft(Math.round(INTRO_MS / 1000));
-  }, [fresh]);
+  }, [fresh, id]);
 
   // Taymer alohida va muddati mutlaq: React effektni ikki marta
   // chaqirsa ham sanoq o'z paytida tugaydi.
@@ -522,17 +530,23 @@ function Playing({ game }: { game: GunchaJang }) {
       </div>
 
       {confirm && (
-        <Modal title="Jangdan chiqasizmi?" onClose={() => setConfirm(false)}>
-          <p className="modal__lead">
-            Jang davom etadi va raqib o‘z bali bilan qoladi — siz esa
-            mag‘lub bo‘lasiz.
-          </p>
-          <div className="modal__foot">
-            <button className="btn btn--sm btn--outline" onClick={game.leave}>
-              Chiqish
+        /* Tasdiq oynasi So'zjangdagining o'zi (`LeaveConfirm`): izoh
+           `Modal` ning `lead` i bo'lib keladi, tugmalar esa
+           `result__actions leave__actions` ichida to'liq o'lchamda
+           turadi. Ilgari bu yerda o'z razmetkasi bor edi —
+           `modal__lead` va `modal__foot` — va ikkita kichik tugma
+           bir-biriga tiqilib qolardi. */
+        <Modal
+          title="Jangdan chiqish"
+          lead="Jang davom etadi va raqib o‘z bali bilan qoladi — siz esa mag‘lub bo‘lasiz."
+          onClose={() => setConfirm(false)}
+        >
+          <div className="result__actions leave__actions">
+            <button className="btn btn--danger" onClick={game.leave}>
+              Mag‘lub bo‘lib chiqish
             </button>
-            <button className="btn btn--sm" onClick={() => setConfirm(false)}>
-              Davom etish
+            <button className="btn btn--outline" onClick={() => setConfirm(false)}>
+              Qolish
             </button>
           </div>
         </Modal>

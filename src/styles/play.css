@@ -1795,7 +1795,13 @@
   width: 100%;
 }
 
-.radar span {
+/* Halqalar — faqat bevosita bolalari va avatardan boshqasi.
+   Avatar ham `span` (`.avatar-mark`), ya'ni oddiy `.radar span` uni ham
+   ushlardi: rasm `position: absolute` bo'lib, ustiga `ping`
+   animatsiyasi tushardi va 3,2 barobargacha kattalashib, so'lg'un
+   bo'lib butun doirani to'ldirardi. Ichidagi `avatar-mark__face` ham
+   o'sha tanlovchiga tushardi. */
+.radar > span:not(.radar__me) {
   position: absolute;
   width: 26px;
   height: 26px;
@@ -1805,15 +1811,15 @@
   animation: ping 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite;
 }
 
-.radar--big span {
+.radar--big > span:not(.radar__me) {
   width: 60px;
   height: 60px;
 }
 
-.radar span:nth-child(2) {
+.radar > span:nth-child(2):not(.radar__me) {
   animation-delay: 0.8s;
 }
-.radar span:nth-child(3) {
+.radar > span:nth-child(3):not(.radar__me) {
   animation-delay: 1.6s;
 }
 
@@ -2008,6 +2014,14 @@
 
 .react {
   display: inline-flex;
+  /* Menyu shu tugmaga nisbatan joylashadi (`.react__menu` —
+     `position: absolute`, `bottom: 100% + 8px`). Tayanch nuqta
+     bo'lmasa u eng yaqin joylashtirilgan ajdodga yopishadi: So'zjangda
+     bu `.stage` edi va tasodifan o'rinli chiqardi, g'unchada esa
+     (`.guncha` da `position` yo'q) menyu butunlay boshqa joyga —
+     ko'pincha ekrandan tashqariga — chizilardi. Odam tugmani bosardi
+     va hech narsa ko'rinmasdi. */
+  position: relative;
 }
 
 .react__btn {
