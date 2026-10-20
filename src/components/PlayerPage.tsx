@@ -9,7 +9,7 @@
  *  Faqat ochiq ma'lumot: yig'ilgan aqcha, bugungi kunlik natija, o'lja
  *  va loyihaga hissasi. Ketma-ketlik va urinishlar taqsimoti
  *  yo'q — ular shaxsiy hujjatda turadi va begonaga ochiq emas. */
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { links } from '../data/site';
 import { useAuth } from '../lib/auth';
 import { recordProfileView } from '../lib/profileViews';
@@ -17,7 +17,8 @@ import { isEmptyProfile, loadPublicProfile, type PublicProfile } from '../lib/pu
 import { canGoBack, routeParam } from '../lib/useRoute';
 import { pretty } from '../lib/uz';
 import { formatSum } from '../lib/support';
-import { donorTier } from '../lib/donor';
+import { donorLabel, donorTier } from '../lib/donor';
+import { profileSkin } from '../lib/profileSkin';
 import DonorChip from './DonorChip';
 import AdBanner from './AdBanner';
 import Avatar from './Avatar';
@@ -81,6 +82,13 @@ export default function PlayerPage() {
    *  maydon, bitta shampan rangidagi chiziq va nishonning o'zi.
    *  Yaltiroq bezak qimmatbaho emas, bayramona ko'rinadi. */
   const premium = useVerified(uid);
+  /** Profilning ko'rinishi — ilovadagi `ProfileSkin`ning o'zi:
+   *  tasdiqlangan hisob yoki homiylik darajasi butun sarlavha
+   *  maydonini belgilaydi (`lib/profileSkin.ts`). Oddiy profilda
+   *  `null` va sahifa o'zgarishsiz qoladi. */
+  const skin = profile
+    ? profileSkin({ verified: premium, donated: profile.donated, label: donorLabel })
+    : null;
 
   /* Bir marta o'qiladi: sahifa ochilgandan keyin sanoq o'zgarsa ham
      tugmaning yorlig'i ko'z oldida almashib ketmasligi kerak. */
@@ -96,7 +104,32 @@ export default function PlayerPage() {
   };
 
   return (
-    <section className={`oyin player${premium ? ' player--premium' : ''}`}>
+    <section
+      className={`oyin player${premium ? ' player--premium' : ''}${
+        skin ? ' player--skin' : ''
+      }`}
+      /* Butun ekran shu to'rt-besh qiymat bilan chiziladi: maydon
+         gradienti, matn rangi, bezak va sahifaga tushadigan ohang.
+         Ilovada ham shunday — `ProfileSkin` bitta joyda turadi va
+         ekran undan o'qiydi. */
+      style={
+        skin
+          ? ({
+              '--hero-dark': skin.heroColors[0],
+              '--hero-light': skin.heroColors[1],
+              '--hero-ink': skin.ink,
+              '--hero-ornament': skin.ornament,
+              '--hero-accent': skin.accent,
+              '--hero-tone': skin.pageTone,
+              '--hero-wash': String(skin.washAlpha),
+              '--hero-glow': String(skin.glowAlpha),
+              '--hero-ray': String(skin.rayAlpha),
+              '--hero-halo': `${Math.round(skin.haloBlur)}px`,
+              '--hero-avatar': `${Math.round(skin.avatarSize)}px`,
+            } as CSSProperties)
+          : undefined
+      }
+    >
       <div className="wrap player__wrap">
         {/* Ortga — qayerdan kelingan bo'lsa o'sha yerga.
             Ilgari bu tugma har doim `/oyin` ga olib borardi va yorlig'i
@@ -140,14 +173,37 @@ export default function PlayerPage() {
 
         {profile && (
           <>
-            <header className="panel player__head">
-              {/* Tasdiqlangan hisobda maydon tepasida yorliq turadi:
-                  nishon nimaligini ism bilan birga o'qish kerak, aks
-                  holda u shunchaki bezakka o'xshaydi. */}
-              {premium && (
+            <header className={`panel player__head${skin ? ` player__head--${skin.pattern}` : ''}`}>
+              {/* Naqsh va bezak qatlami — matnning **ostida**: maydon
+                  bo'ylab yuradigan naqsh, shafaq dog'i, yelpig'ich nur
+                  va yulduzlar. Hammasi `::before`/`::after` bilan
+                  chizilgani uchun bu bo'sh o'ram kerak
+                  (`aria-hidden`: o'qiydigan dastur uchun ma'nosi
+                  yo'q). */}
+              {skin && (
+                <span
+                  className={`player__art${skin.stars ? ' player__art--stars' : ''}${
+                    skin.aurora ? ' player__art--aurora' : ''
+                  }`}
+                  style={
+                    skin.aurora
+                      ? ({ '--hero-aurora': skin.aurora } as CSSProperties)
+                      : undefined
+                  }
+                  aria-hidden="true"
+                />
+              )}
+              {/* Maydon tepasidagi yorliq: nishon nimaligini ism bilan
+                  birga o'qish kerak, aks holda u shunchaki bezakka
+                  o'xshaydi. */}
+              {skin && (
                 <p className="player__eyebrow">
-                  <img src="/verified.png" alt="" width={14} height={14} />
-                  {VERIFIED.title}
+                  {premium ? (
+                    <img src="/verified.png" alt="" width={14} height={14} />
+                  ) : (
+                    <Heart size={13} />
+                  )}
+                  {skin.eyebrow}
                 </p>
               )}
               {/* Belgi avatarning chetida — ilovadagi «medalon». U bir
@@ -155,7 +211,11 @@ export default function PlayerPage() {
                   aytiladi. Tasdiqlanmagan hisobda umuman chizilmaydi,
                   ya'ni bu o'ram oddiy profilda ham bir xil turadi. */}
               <div className="player__face">
-                <Avatar name={name} uid={profile.uid} size={premium ? 92 : 72} />
+                <Avatar
+                  name={name}
+                  uid={profile.uid}
+                  size={skin ? Math.round(skin.avatarSize) : 72}
+                />
                 <VerifiedBadge uid={profile.uid} size={28} />
               </div>
               {/* Nom sarlavhasi alohida: `player__name` uzun nomni kesadi
@@ -163,10 +223,10 @@ export default function PlayerPage() {
               <div className="player__title">
                 <h1 className="player__name">{name}</h1>
               </div>
-              {premium && (
+              {skin && (
                 <p className="player__honorific">
-                  <span className="player__ribbon">{VERIFIED.ribbon}</span>
-                  {VERIFIED.honorific}
+                  <span className="player__ribbon">{skin.ribbon}</span>
+                  {skin.honorific}
                 </p>
               )}
               {/* Daraja yorlig'i bu yerda takrorlanmaydi — u bellashuv
