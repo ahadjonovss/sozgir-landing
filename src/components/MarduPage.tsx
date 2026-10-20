@@ -20,6 +20,7 @@ import { marduLink, MARDU_CAPACITY, MARDU_MIN_PLAYERS } from '../lib/mardu';
 import type { BattleGame } from '../lib/battle';
 import { routeParam } from '../lib/useRoute';
 import AccountCall from './AccountCall';
+import AdBanner from './AdBanner';
 import ArenaHistory from './ArenaHistory';
 import Avatar from './Avatar';
 import CodeInput from './CodeInput';
@@ -174,6 +175,11 @@ function Hub({ mardu }: { mardu: Mardu }) {
       <aside className="lobby__side">
         <ArenaHistory />
         <TelegramBanner compact />
+        {/* Faqat kutish xonasiga kirishdan oldingi ro'yxatda: maydonning
+            o'zi — sanoq, raqiblar va jang — reklamasiz qoladi. Bu yerda
+            odam hali o'ynamayapti, kod kiritayotgan yoki tanlayotgan
+            payt. */}
+        <AdBanner placement="arena" />
       </aside>
     </div>
   );

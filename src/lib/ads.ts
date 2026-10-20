@@ -14,7 +14,10 @@
  *  **Qayerda yo'q.** O'yin taxtasi, klaviatura, jang ekrani va
  *  tanishtiruv sahifasi (`/`) reklamasiz qoladi. Banner faqat odam
  *  o'ynamayotgan joyda turadi: nimani o'ynashni tanlayotgan sahifa, yon
- *  ustun, boshqa o'yinchining profili, jang lobbisi.
+ *  ustun, boshqa o'yinchining profili, jang lobbisi. Mardu maydon va
+ *  turnir ham shu qoida bilan: ro'yxat va kod kiritish ekranida banner
+ *  bor, kutish xonasi va jangning o'zida yo'q — u yerda vaqt sanab
+ *  turadi.
  *
  *  **Kim ko'rmaydi.** Loyihani qo'llagan odam ([isAdFree]) — ilovadagi
  *  bilan aynan bir xil shart: oxirgi 7 kunlik qo'llovlar 5 555 so'mga
@@ -34,7 +37,14 @@ import { api } from '../api/client';
  *  bo'yicha ajraladi; bloki yo'q joylashuv [FALLBACK] blokidan
  *  foydalanadi, ya'ni yangi sahifaga banner qo'yish uchun konsolni
  *  kutish shart emas. */
-export type AdPlacement = 'hub' | 'game' | 'guncha' | 'battle' | 'profile';
+export type AdPlacement =
+  | 'hub'
+  | 'game'
+  | 'guncha'
+  | 'battle'
+  | 'arena'
+  | 'turnir'
+  | 'profile';
 
 /** O'z bloki bo'lmagan joylashuv shu blokdan foydalanadi. */
 const FALLBACK: AdPlacement = 'hub';
@@ -57,6 +67,8 @@ const UNITS: Record<AdPlacement, string> = {
   game: '',
   guncha: '',
   battle: '',
+  arena: '',
+  turnir: '',
   profile: '',
 };
 

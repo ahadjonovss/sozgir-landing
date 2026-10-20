@@ -31,6 +31,7 @@ import { shareCardImage } from '../lib/shareCard';
 import { pretty } from '../lib/uz';
 import type { BattleGame } from '../lib/battle';
 import AccountCall from './AccountCall';
+import AdBanner from './AdBanner';
 import { Aqcha, AqchaDelta } from './Units';
 import { playerLink } from '../data/site';
 import Avatar from './Avatar';
@@ -242,6 +243,10 @@ function Hub({ turnir }: { turnir: Turnir }) {
 
       <aside className="lobby__side">
         <TelegramBanner compact />
+        {/* Faqat turnirga kirishdan oldin. Turnirning o'zi — zinapoya,
+            jang va natija — reklamasiz: u yerda vaqt sanab turadi va
+            yonidagi banner bevosita xalaqit beradi. */}
+        <AdBanner placement="turnir" />
       </aside>
     </div>
   );
