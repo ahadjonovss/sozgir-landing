@@ -331,6 +331,16 @@ interface ApiPlayer {
   ratingAfter?: unknown;
 }
 
+/** Jang boshlangandan o'yinchi yopguncha o'tgan vaqt (ms).
+ *
+ *  Manfiy chiqmaydi: soatlar farqi yoki yozuvdagi nosozlik «−3
+ *  soniya» ko'rinishidagi vaqt yasamasligi kerak. */
+const duration = (startedAt: number, finishedAt: unknown): number | undefined => {
+  if (startedAt <= 0) return undefined;
+  const ended = millis(finishedAt);
+  return ended > 0 ? Math.max(0, ended - startedAt) : undefined;
+};
+
 const strings = (value: unknown): string[] =>
   Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : [];
 
@@ -339,9 +349,13 @@ const strings = (value: unknown): string[] =>
  *  Shakl ataylab o'zgarmadi: `BattleDoc` ni o'nlab joy o'qiydi va uni
  *  almashtirish butun So'zjangni qayta yozish degani bo'lardi.
  *
- *  Ikki maydon serverda yo'q va shu sabab to'ldirilmaydi:
- *  `durationMs` (yakuniy ball ichida hisoblangan) va `hintUsed`
- *  (saytda maslahat yo'q). */
+ *  `hintUsed` to'ldirilmaydi: saytda maslahat yo'q.
+ *
+ *  `durationMs` esa shu yerda hisoblanadi. Server uni alohida maydon
+ *  qilib bermaydi, lekin kerakli ikkala payt ham javobda bor: jang
+ *  qachon boshlangani (`battle.startedAt`) va o'yinchi qachon
+ *  yopgani (`player.finishedAt`). Ayirmasi — o'sha o'yinchi so'zga
+ *  sarflagan vaqt. */
 export async function readBattle(battleId: string): Promise<BattleDoc | null> {
   let data: {
     battle?: Record<string, unknown>;
@@ -358,6 +372,8 @@ export async function readBattle(battleId: string): Promise<BattleDoc | null> {
   const battle = data.battle;
   if (!battle) return null;
 
+  const startedAt = millis(battle.startedAt);
+
   const players: Record<string, BattlePlayer> = {};
   for (const row of Array.isArray(data.players) ? data.players : []) {
     const player = row as ApiPlayer;
@@ -373,6 +389,11 @@ export async function readBattle(battleId: string): Promise<BattleDoc | null> {
       // Oxirgi qator butunlay to'g'ri bo'lsa — topgan.
       won: rows.length > 0 && /^s+$/.test(rows[rows.length - 1]),
       finished: player.finishedAt !== null && player.finishedAt !== undefined,
+      /* Shu o'yinchi so'zga sarflagan vaqt. Ikkala payt ham
+         bo'lmasa — ko'rsatiladigan narsa yo'q: hali o'ynayotgan
+         odamda `finishedAt`, boshlanmagan jangda `startedAt`
+         yetishmaydi. */
+      durationMs: duration(startedAt, player.finishedAt),
       score: typeof player.score === 'number' ? player.score : 0,
       /* Jangdan oldingi va keyingi o'lja — «bu jang nima berdi»
          degan farq shu ikkisidan hisoblanadi (natija ekranidagi

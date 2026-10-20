@@ -100,7 +100,7 @@ function Head() {
       <span className="section__kicker">So‘zjang</span>
       <h1>Bir so‘z, ikki o‘yinchi</h1>
       <p className="section__lead">
-        Ikkalangizga bir xil yashirin so‘z. Kim kamroq urinishda topsa — yutadi.
+        Ikkalangizga bir xil yashirin so‘z. Kim birinchi topsa — yutadi.
       </p>
     </div>
   );
@@ -606,14 +606,18 @@ function Scoreboard({ game }: { game: Sozjang }) {
 
   /** Raqib tugatdi, men hali o'ynayapman — nima qilish kerakligi.
    *
-   *  Ball aniq aytiladi, «kamroq urinishda toping» emas: ballga
-   *  urinish ham, tezlik ham qo'shiladi va tezlik bitta urinishdan
-   *  oshib ketishi mumkin. Ya'ni «kamroq urinish» va'da bo'lardi,
-   *  ball esa — qoidaning o'zi. */
+   *  Ilgari bu yerda «raqib shuncha ball to'pladi, undan oshish uchun
+   *  kamroq urinish va tezlik kerak» turardi. Endi bunday deyish
+   *  mumkin emas: g'olib **birinchi topgan** odam va raqib allaqachon
+   *  tugatgan bo'lsa, undan o'zib bo'lmaydi.
+   *
+   *  Shuning uchun va'da berilmaydi — bor haqiqat aytiladi. Taxta esa
+   *  ochiq qolaveradi: so'zni topib ko'rish odamning o'z ishi va uni
+   *  to'xtatishning sababi yo'q. */
   const target =
     game.opponent?.finished && !game.me?.finished
       ? game.opponent.won
-        ? `Raqib ${game.opponent.score ?? 0} ball to‘pladi. Undan oshish uchun kamroq urinish va tezlik kerak.`
+        ? 'Raqib so‘zni birinchi topdi — bu jang uniki. So‘zni baribir topib ko‘ring.'
         : 'Raqib topa olmadi — topsangiz, g‘alaba sizniki.'
       : null;
 
@@ -784,6 +788,22 @@ function LeaveConfirm({ onLeave, onClose }: { onLeave: () => void; onClose: () =
 /* ── Natija ──────────────────────────────────────────────────────────── */
 
 const CONFETTI = Array.from({ length: 18 }, (_, index) => index);
+
+/** Jangga sarflangan vaqt — «1:24» yoki «42 soniya».
+ *
+ *  Daqiqasiz qisqa jangda «0:42» o'qishga noqulay va nolning o'zi
+ *  hech narsa aytmaydi, shuning uchun bir daqiqagacha so'z bilan
+ *  yoziladi.
+ *
+ *  Vaqt natijada aniq kerak: So'zjangda g'olib **birinchi topgan**
+ *  odam bo'ladi, ya'ni bu son nima uchun shunday tugaganini
+ *  tushuntiradigan yagona narsa. */
+function spentTime(ms: number): string {
+  const total = Math.round(ms / 1000);
+  if (total < 60) return `${total} soniya`;
+  const minutes = Math.floor(total / 60);
+  return `${minutes}:${String(total % 60).padStart(2, '0')}`;
+}
 
 /** O'yinchining shu jangdagi aqchasi — natija kartochkasidagi qator.
  *
@@ -964,6 +984,13 @@ function Result({ game }: { game: Sozjang }) {
           <>
             <p className="verdict__label">Yashirin so‘z</p>
             <p className="result__word" data-script="word">{display(game.battle.answer)}</p>
+            {/* So'zga qancha vaqt ketgani — so'zning o'zi ostida.
+                G'olibni endi vaqt hal qiladi, ya'ni bu son natijani
+                tushuntiradi: «raqib tezroq bo'ldi» degan sarlavha
+                yonida «siz 1:24 sarfladingiz» o'z o'rniga tushadi. */}
+            {typeof game.me?.durationMs === 'number' && (
+              <p className="result__time">{spentTime(game.me.durationMs)}</p>
+            )}
             {meaning && <p className="result__def">{pretty(meaning)}</p>}
           </>
         ) : (

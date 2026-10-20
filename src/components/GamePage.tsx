@@ -61,9 +61,9 @@ export default function GamePage() {
           <div className="panel panel--call">
             <h3>Do‘st bilan bellashing</h3>
             <p className="panel__note">
-              So‘zjangda bir so‘z ikki o‘yinchiga beriladi: kim kamroq
-              urinishda topsa — o‘sha yutadi. Do‘stingizni kod bilan
-              chaqiring yoki tasodifiy raqib toping.
+              So‘zjangda bir so‘z ikki o‘yinchiga beriladi: kim birinchi
+              topsa — o‘sha yutadi. Do‘stingizni kod bilan chaqiring yoki
+              tasodifiy raqib toping.
             </p>
             <a className="btn btn--sm" href="/sozjang">
               So‘zjangga o‘tish

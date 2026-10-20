@@ -103,11 +103,12 @@ const BASE_PAGES = [
     path: '/sozjang',
     title: 'So‘zjang — do‘st bilan so‘z jangi | So‘zgir',
     description:
-      'Ikki o‘yinchiga bitta yashirin so‘z: kim kamroq urinishda topsa — o‘sha yutadi. Do‘stni kod bilan chaqiring yoki tezkor jangda raqib toping.',
+      'Ikki o‘yinchiga bitta yashirin so‘z: kim birinchi topsa — o‘sha yutadi. Do‘stni kod bilan chaqiring yoki tezkor jangda raqib toping.',
     nav: 'So‘zjang',
     h1: 'Bir so‘z, ikki o‘yinchi',
-    lead: 'Ikkalangizga bir xil yashirin so‘z. Kim kamroq urinishda topsa — yutadi.',
+    lead: 'Ikkalangizga bir xil yashirin so‘z. Kim birinchi topsa — yutadi.',
     body: [
+      'Jang — poyga: urinishlar sanalmaydi, so‘zni birinchi topgan yutadi. Maydon va turnirda qoida boshqacha — u yerda bir vaqtda ko‘p odam o‘ynaydi va o‘rin urinishlar soniga qarab beriladi.',
       'Raqibning taxtasida harflar ko‘rinmaydi — faqat ranglar, ya’ni javobni undan o‘qib bo‘lmaydi.',
       'Jang aqcha beradi: 1000 dan boshlanadi, bir jangda eng ko‘pi ±10. Darajalar — Chopar, Cherik, Navkar, O‘nboshi, Yuzboshi, Mingboshi, Botir, Bahodir, Tarxon, Alp.',
       'Saytda yaratilgan chaqiruvga telefondagi ilovadan ham qo‘shilish mumkin.',

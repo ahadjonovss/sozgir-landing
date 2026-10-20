@@ -76,8 +76,8 @@ export default function PlayHub() {
             <h2>So‘zjang</h2>
             <p>
               Bir so‘z, ikki o‘yinchi. Do‘stingizni kod bilan chaqiring yoki
-              tezkor jangda tasodifiy raqib toping — kim kamroq urinishda
-              topsa, o‘sha yutadi.
+              tezkor jangda tasodifiy raqib toping — kim birinchi topsa,
+              o‘sha yutadi.
             </p>
             <div className="hub-card__status">
               {account ? (

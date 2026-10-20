@@ -117,10 +117,11 @@ export const modules: Module[] = [
     id: 'sozjang',
     emoji: '⚔️',
     name: 'So‘zjang',
-    tagline: 'Bir so‘z, ikki o‘yinchi. Kim kamroq urinishda topadi?',
+    tagline: 'Bir so‘z, ikki o‘yinchi. Kim birinchi topadi?',
     points: [
       'Saytda ham o‘ynaladi: do‘stga kod yuboring yoki tasodifiy raqib toping',
       'Tezkor jang: tasodifiy raqib, 90 soniya',
+      'G‘olib — so‘zni birinchi topgan: jang poyga, urinishlar sanalmaydi',
       'Raqibning kataklari harfsiz — faqat ranglar ko‘rinadi',
       'Aqcha bilan kuchingiz o‘lchanadi: bir jangda eng ko‘pi ±10',
     ],

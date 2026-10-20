@@ -6695,6 +6695,16 @@
   margin-top: 6px;
 }
 
+/* Jangga ketgan vaqt — so'z ostida, undan kichik va xira: u javob
+   emas, javobning izohi. */
+.result__time {
+  margin-top: 4px;
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
 .stage--result .result__word {
   font-size: clamp(22px, 3.4vw, 30px);
 }
