@@ -17,8 +17,6 @@ import { useTurnir, type Turnir } from '../lib/useTurnir';
 import {
   cleanCode,
   turnirRounds,
-  TURNIR_GROUP,
-  TURNIR_MIN_PLAYERS,
   TURNIR_SIZES,
   earnedBy,
   memberName,
@@ -30,6 +28,7 @@ import { punchline } from '../lib/shareLines';
 import { shareCardImage } from '../lib/shareCard';
 import { pretty } from '../lib/uz';
 import type { BattleGame } from '../lib/battle';
+import ArenaHistory from './ArenaHistory';
 import AccountCall from './AccountCall';
 import AdBanner from './AdBanner';
 import { Aqcha, AqchaDelta } from './Units';
@@ -224,36 +223,16 @@ function Hub({ turnir }: { turnir: Turnir }) {
         <OpenList turnir={turnir} />
         <HistoryList turnir={turnir} />
 
-        <div className="panel">
-          <h3>Qoidalar</h3>
-          <ol className="guncha__rules">
-            <li>
-              Chiqarib yuborish yo‘q: siz oxirgi davragacha hamma davrani
-              o‘ynaysiz.
-            </li>
-            <li>
-              Har davrada {TURNIR_GROUP} kishilik guruh — jadvaldagi
-              qo‘shnilaringiz bilan, ya‘ni o‘zingizga teng ochkodagilar
-              bilan.
-            </li>
-            <li>
-              Ochko — o‘sha o‘yinda to‘plagan balingizning o‘zi: davradan
-              davraga qo‘shilib boradi. Teng ochkoda ro‘yxatga oldin
-              kirgani yuqori turadi.
-            </li>
-            <li>
-              Oxirgi davrada jadvalning birinchi ikki o‘rni finalga chiqadi,
-              keyingi guruh esa uchinchi o‘rin uchun o‘ynaydi. Kubokni
-              final g‘olibi oladi, ikkinchi o‘rin finalda yutqazganniki,
-              uchinchi — bronza o‘yinining g‘olibiniki.
-            </li>
-            <li>
-              Boshlash uchun kamida {TURNIR_MIN_PLAYERS} kishi kerak.
-              Boshlashni tashkilotchi bosadi.
-            </li>
-            <li>Har guruh jangi — oddiy maydon: aqcha ham o‘sha yo‘ldan keladi.</li>
-          </ol>
-        </div>
+        {/* Janglar tarixi — qolgan uchta o'yinda ham shu yerda.
+            Yuqoridagi ikkala ro'yxat bo'sh bo'lsa umuman chizilmaydi
+            (ochiq turnir yo'q, o'zi ham hali o'ynamagan), ya'ni usiz
+            yon ustun butunlay bo'sh qolardi.
+
+            Qoidalar ro'yxati bu yerda bor edi va olib tashlandi: olti
+            bandlik matnni turnir ochmoqchi bo'lgan odam o'qimaydi,
+            o'ynagani esa allaqachon biladi — qoida o'yinning o'zida
+            ko'rinadi, davra jadvalida va natijada. */}
+        <ArenaHistory />
 
         {/* Telegram banneri vaqtincha olib turildi. */}
         {/* Faqat turnirga kirishdan oldin. Turnirning o'zi — zinapoya,
