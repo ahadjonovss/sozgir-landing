@@ -16,7 +16,6 @@ import { recordProfileView } from '../lib/profileViews';
 import { isEmptyProfile, loadPublicProfile, type PublicProfile } from '../lib/publicProfile';
 import { canGoBack, routeParam } from '../lib/useRoute';
 import { pretty } from '../lib/uz';
-import { formatSum } from '../lib/support';
 import { donorLabel, donorTier } from '../lib/donor';
 import { profileSkin } from '../lib/profileSkin';
 import DonorChip from './DonorChip';
@@ -87,7 +86,12 @@ export default function PlayerPage() {
    *  maydonini belgilaydi (`lib/profileSkin.ts`). Oddiy profilda
    *  `null` va sahifa o'zgarishsiz qoladi. */
   const skin = profile
-    ? profileSkin({ verified: premium, donated: profile.donated, label: donorLabel })
+    ? profileSkin({
+        verified: premium,
+        donated: profile.donated,
+        look: profile.look,
+        label: donorLabel,
+      })
     : null;
 
   /* Bir marta o'qiladi: sahifa ochilgandan keyin sanoq o'zgarsa ham
@@ -243,7 +247,10 @@ export default function PlayerPage() {
                     <Trophy size={13} /> Umumiy reytingda №{profile.scoreRank}
                   </span>
                 )}
-                {donorTier(profile.donated) && (
+                {/* Daraja chipi faqat oddiy profilda: premium
+                    ko'rinishda daraja nomi ism ostidagi tasmada
+                    turibdi va chip uni ikkinchi marta aytardi. */}
+                {!skin && donorTier(profile.donated) && (
                   <DonorChip tier={donorTier(profile.donated)!} className="versus__chip" />
                 )}
               </div>
@@ -317,8 +324,13 @@ export default function PlayerPage() {
                 </Block>
 
                 {/* Kartochka o'z sarlavhasi, g'alaba foizi va ketma-ketligi
-                    bilan keladi — ular takrorlanmaydi; yoniga faqat durang
-                    va jadvaldagi o'rin qo'shiladi. */}
+                    bilan keladi — ular takrorlanmaydi; yoniga faqat
+                    jadvaldagi o'rin qo'shiladi.
+
+                    Duranglar soni olib tashlandi: u na g'alaba, na
+                    mag'lubiyat — profilga kirgan odam uni o'qib hech
+                    qanday xulosa chiqarmaydi, qator esa shu bitta son
+                    uchun turardi. */}
                 {profile.battle === null ? (
                   <Block title="Jang aqchasi">
                     <Empty text="Hali bellashuvda o‘ynamagan" />
@@ -326,32 +338,21 @@ export default function PlayerPage() {
                 ) : (
                   <div className="player__block">
                     <BattleStats uid={profile.uid} />
-                    <ul className="metrics metrics--cells metrics--two">
-                      <li>
-                        <strong>{profile.battle.draws}</strong>
-                        <span>Durang</span>
-                      </li>
-                      {profile.battleRank !== null && (
+                    {profile.battleRank !== null && (
+                      <ul className="metrics metrics--cells metrics--two">
                         <li>
                           <strong>№{profile.battleRank}</strong>
                           <span>Bellashuv jadvalida</span>
                         </li>
-                      )}
-                    </ul>
+                      </ul>
+                    )}
                   </div>
                 )}
 
-                {profile.donated > 0 && (
-                  <Block title="Loyihaga hissasi">
-                    <div className="panel player__support">
-                      <Heart size={18} />
-                      <div>
-                        <strong>{formatSum(profile.donated)} so‘m</strong>
-                        <span>{profile.donations} marta</span>
-                      </div>
-                    </div>
-                  </Block>
-                )}
+                {/* «Loyihaga hissasi» ham olindi: qancha pul bergani
+                    begona odamning ishi emas. Qo'llagani baribir
+                    ko'rinib turadi — avatar atrofidagi daraja halqasi
+                    va ism yonidagi muhr bilan. */}
               </>
             )}
 
