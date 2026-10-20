@@ -386,6 +386,12 @@ export async function readBattle(battleId: string): Promise<BattleDoc | null> {
     createdBy: typeof battle.hostUid === 'string' ? battle.hostUid : undefined,
     players,
     winnerUid: typeof battle.winnerUid === 'string' ? battle.winnerUid : null,
+    /* Javob so'zi — server uni **faqat tugagan jangda** qo'shadi
+       (`web/battles.ts`), ketayotgan jangda `null` keladi. Shu
+       satr tushib qolgan edi: natija ekranida «Yashirin so'z»
+       bloki ham, so'z ustidan shikoyat havolasi ham umuman
+       chizilmasdi — ikkalasi ham shu maydonga qarab turadi. */
+    answer: typeof battle.answer === 'string' ? battle.answer : null,
     endsAt: { seconds: Math.floor(millis(battle.endsAt) / 1000) },
     expiresAt: { seconds: Math.floor(millis(battle.expiresAt) / 1000) },
   };
