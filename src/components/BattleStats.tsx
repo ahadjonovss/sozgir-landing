@@ -78,14 +78,14 @@ export default function BattleStats({
       <div className="rating__main">
         <span className="rating__label">Jang aqchasi</span>
         <strong className="rating__value">
-          {/* Farq — raqamning **oldida**.
-              Kartochkadagi son yig'indi: 1 003 ni ko'rgan odam shu
+          <BattleAqcha rating={shown} size="lg" />
+          {/* Farq — yig'indidan keyin.
+              Kartochkadagi son yig'indi: 1 001 ni ko'rgan odam shu
               jangda uchtasini yo'qotganini bilmasdi. Ilgari farq
               kartochkadan yuqorida, «−3 jang aqchasi» degan alohida
               qatorda turardi — lekin nimaning farqi ekani ostidagi
               kartochkada yozib qo'yilgan, ya'ni qator o'sha gapni
-              ikkinchi marta aytardi va ekranda bitta son ikki joyda
-              ko'rinardi.
+              ikkinchi marta aytardi.
 
               Nol bo'lsa chizilmaydi: «+0» hech narsa aytmaydi. */}
           {change && battleAqcha(change.after) !== battleAqcha(change.before) && (
@@ -98,7 +98,6 @@ export default function BattleStats({
               {Math.abs(battleAqcha(change.after) - battleAqcha(change.before))}
             </span>
           )}
-          <BattleAqcha rating={shown} size="lg" />
         </strong>
         <span className="rating__tiers">
           <span className="rating__tier">

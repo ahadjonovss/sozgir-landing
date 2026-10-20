@@ -3045,8 +3045,7 @@
    Yig'indi asosiy son bo'lib qolishi kerak: farq uni o'qishga
    xalal bermasin, lekin ko'zga tashlansin. */
 .rating__delta {
-  /* Raqamning oldida turadi, shuning uchun bo'shliq o'ng tomonda. */
-  margin-right: 8px;
+  margin-left: 8px;
   font-size: 15px;
   font-weight: 800;
   letter-spacing: 0;
@@ -6797,4 +6796,24 @@
    kartochkada va lobbida. */
 .stage--result .rating__stats {
   display: none;
+}
+
+/* Natijada kartochkadan faqat bitta javob qoladi: «aqcham qancha
+   bo'ldi va shu jang nima berdi». Daraja nishoni, keyingi darajagacha
+   qolgan yo'lakcha va uning ostidagi qator — bularning hammasi uzoq
+   muddat haqida. Ular jangdan keyingi birinchi soniyada o'qilmaydi,
+   lekin kartochkani ikki barobar uzaytirardi. Daraja o'z joyida:
+   `/oynash` dagi to'liq kartochkada va lobbida. */
+.stage--result .rating__tiers,
+.stage--result .rating__track,
+.stage--result .rating__next {
+  display: none;
+}
+
+/* Qolgan ikki qator — yorliq va son — markazda: kartochkada ulardan
+   boshqa hech narsa yo'q, chapga tiqilib turishining sababi ham
+   qolmadi. */
+.stage--result .rating__main {
+  justify-items: center;
+  text-align: center;
 }
