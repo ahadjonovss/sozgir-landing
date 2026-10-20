@@ -1,42 +1,40 @@
 /** O'ynash sahifasi — `/oynash`.
  *
- *  Sarlavhada bitta «O'ynash» tugmasi bor; nimani o'ynashni odam shu
- *  yerda tanlaydi: So'zjang, G'uncha, Mardu maydon yoki turnir.
+ *  Tepada to'rtta nom, ostida **o'yinning o'z sahifasi**: So'zjangda
+ *  raqib qidirish va kod bilan chaqirish, g'unchada harflarning o'zi,
+ *  maydonda va turnirda ularning ekranlari.
+ *
+ *  Ilgari bu yerda to'rtta tanishtiruv kartochkasi turardi: odam
+ *  «Mardu maydon — yangi o'yin emas, yangi shakl» degan jumlani
+ *  o'qib, keyin tugmani bosib, keyin yana bir sahifa ochilishini
+ *  kutardi. Holbuki u o'ynagani kelgan. Endi tanlangan o'yin
+ *  **shu yerda, shu zahoti** ochiladi — nom bosilishi o'yinni
+ *  almashtiradi, boshqa hech narsa qilmaydi.
  *
  *  **So'ztop bu yerda yo'q.** Uning taxtasi bosh sahifaning birinchi
- *  ekranida turibdi va kunlik so'z kartochkasi ham o'sha yerda —
- *  ya'ni bu yerdagi kartochka o'sha ikkisini uchinchi marta
- *  takrorlardi. Bu sahifa «yolg'iz o'ynashdan boshqa yana nima bor»
- *  degan savolga javob beradi.
+ *  ekranida turibdi va kunlik so'z kartochkasi ham o'sha yerda. Bu
+ *  sahifa «yolg'iz o'ynashdan boshqa yana nima bor» degan savolga
+ *  javob beradi.
  *
- *  Turnir va Mardu maydon kartochkalari qolganlaridan keyin turadi:
- *  ular yangi o'yin emas, **shakl** — ichida baribir So'zjang yoki
- *  G'uncha o'ynaladi, shuning uchun avval o'yinlarning o'zi
- *  ko'rinishi kerak.
+ *  Tartib: avval o'yinning o'zi (So'zjang, G'uncha), keyin shakl
+ *  (Mardu maydon, Turnir) — ikkinchisining ichida baribir birinchisi
+ *  o'ynaladi.
  *
- *  Kartochkalardan keyin o'yinchining o'zi: aqchasi va darajasi, umumiy
- *  reyting va janglar tarixi. Ilgari bular sahifalar bo'ylab sochilgan
- *  edi — reyting o'yin ichida, tarix esa maydon sahifasining yon
- *  ustunida, ya'ni «qanday o'ynayapman» degan savolga javob olish uchun
- *  o'yin ochish kerak edi. Tartib shu savolning tartibi: avval nima
- *  o'ynash, keyin boshqalarga nisbatan qanday va nima bo'lgani.
- *  Kirgan odamning o'z aqchasi esa kartochkalardan oldin: u bu yerga
- *  ko'pincha o'ynagani emas, «qanchaman» deb keladi. */
+ *  Kirgan odamning aqchasi tanlovdan oldin: u bu yerga ko'pincha
+ *  o'ynagani emas, «qanchaman» deb keladi. Umumiy reyting esa
+ *  o'yindan keyin — u «boshqalarga nisbatan qanday» degan boshqa
+ *  savol. */
 import { useState } from 'react';
-import { links } from '../data/site';
 import { useAuth } from '../lib/auth';
-import AdBanner from './AdBanner';
-import ArenaHistory from './ArenaHistory';
+import BattlePage from './BattlePage';
 import BattleStats from './BattleStats';
-import PlaysLeft from './PlaysLeft';
+import GunchaPage from './GunchaPage';
 import Leaderboard from './Leaderboard';
-import { Swords, Trophy, Users } from './Icons';
-import GunchaCard from './GunchaCard';
-import TelegramBanner from './TelegramBanner';
+import MarduPage from './MarduPage';
+import PlaysLeft from './PlaysLeft';
+import TurnirPage from './TurnirPage';
 
-/** Tanlov ro'yxati — tartib o'sha: avval o'yinning o'zi, keyin
- *  shakl (Mardu maydon va Turnir ichida baribir So'zjang yoki
- *  G'uncha o'ynaladi). */
+/** Tanlov ro'yxati — tartibi yuqorida aytilgan. */
 const TABS = [
   { id: 'sozjang', name: 'So‘zjang' },
   { id: 'guncha', name: 'G‘uncha' },
@@ -47,218 +45,71 @@ const TABS = [
 type TabId = (typeof TABS)[number]['id'];
 
 export default function PlayHub() {
-  const { account, openPrompt, ready } = useAuth();
+  const { account, ready } = useAuth();
   /** Ochiq turgani — birinchisi: So'zjang bu sahifadagi eng ko'p
    *  bosiladigan o'yin. */
   const [tab, setTab] = useState<TabId>('sozjang');
 
   return (
-    <section className="oyin">
-      <div className="wrap hub">
-        {/* Sarlavha ekranda ko'rinmaydi: sahifaga «O'ynash» tugmasi
-            orqali kelingan, ya'ni odam qayerdaligini biladi va unga
-            yana bir tanishtiruv emas, tanlovning o'zi kerak. `h1`
-            hujjatda qoladi — u sahifaning nomi: ekranni o'qib
-            beradigan dastur ham, qidiruv roboti ham shunga qaraydi
-            (statik HTML dagi matn bilan bir xil, `data/pages.ts`). */}
-        <h1 className="hub__h1">Nimani o‘ynaymiz?</h1>
-
-        {/* Aqcha va daraja o'yinlardan **oldin**: kirgan odam bu
-            sahifaga ko'pincha «qanchaman» deb keladi, kartochkalar esa
-            telefonda ikki ekran joy oladi.
-
-            Kirmaganga ko'rsatilmaydi: yangi odam avval o'yinni ko'rishi
-            kerak, kirish taklifi esa reyting jadvalining o'zida bor.
-            `ready` kutiladi — aks holda kirgan odam ham har tashrifda
-            bir lahza bo'sh joyni ko'rardi (`AccountCall` dagi sabab). */}
-        {ready && account && (
-          <section className="hub__block">
-            <h2 className="hub__block-title">Ballaringiz</h2>
-            <BattleStats uid={account.uid} />
-          </section>
-        )}
-
-        <PlaysLeft />
-
-        {/* Tanlov — tab bar, kartochkalar ro'yxati emas.
-            To'rtta kartochka birdan turganda sahifa uzun ro'yxatga
-            aylanardi va o'qiydigan narsa ko'payardi; bu yerda esa
-            bitta ish bor: nimani o'ynashni tanlash. Shuning uchun
-            yuqorida to'rtta nom, ostida faqat tanlangani. */}
-        <div className="hub__tabs" role="tablist" aria-label="O‘yinlar">
-          {TABS.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              role="tab"
-              id={`hub-tab-${item.id}`}
-              aria-selected={tab === item.id}
-              aria-controls={`hub-panel-${item.id}`}
-              className={`hub-tab hub-tab--${item.id}${tab === item.id ? ' hub-tab--on' : ''}`}
-              onClick={() => setTab(item.id)}
-            >
-              {item.name}
-            </button>
-          ))}
-        </div>
-
-        <div
-          className="hub__panel"
-          role="tabpanel"
-          id={`hub-panel-${tab}`}
-          aria-labelledby={`hub-tab-${tab}`}
-        >
-          {tab === 'sozjang' && (
-            <article className="hub-card hub-card--battle">
-              <div className="hub-card__top">
-                <span className="hub-card__icon">
-                  <Swords size={26} />
-                </span>
-                <span className="hub-card__badge">Jonli</span>
-              </div>
-              <h2>So‘zjang</h2>
-              <p>
-                Bir so‘z, ikki o‘yinchi. Do‘stingizni kod bilan chaqiring yoki
-                tezkor jangda tasodifiy raqib toping — kim birinchi topsa,
-                o‘sha yutadi.
-              </p>
-              <div className="hub-card__status">
-                {account ? (
-                  <span>
-                    <b>{account.nickname}</b> sifatida o‘ynaysiz
-                  </span>
-                ) : (
-                  <span>Jang uchun hisob kerak — raqib taxallusingizni ko‘radi</span>
-                )}
-              </div>
-              <div className="hub-card__actions">
-                {/* Asosiy tugma jangning o'ziga olib boradi, lobbiga
-                    emas: qidiruv havolaning o'zidan boshlanadi
-                    (`?tezkor=1`). Ilgari bu yerda «Jangga kirish»
-                    turardi va odam lobbida yana bir marta «Raqib
-                    qidirish» ni bosardi — o'sha ekranda boshqa
-                    qaror yo'q edi. Do'st bilan o'ynash esa qaror:
-                    kod yaratish yoki terish kerak, shuning uchun u
-                    alohida, ikkinchi darajali havola. */}
-                {account ? (
-                  <>
-                    <a className="btn" href={links.battleQuick}>
-                      Raqib qidirish
-                    </a>
-                    <a className="btn btn--ghost" href={links.battle}>
-                      Do‘st bilan
-                    </a>
-                  </>
-                ) : (
-                  <>
-                    <button className="btn" onClick={() => openPrompt('signIn')}>
-                      Kirish
-                    </button>
-                    <a className="btn btn--ghost" href={links.battle}>
-                      Jangni ko‘rish
-                    </a>
-                  </>
-                )}
-              </div>
-            </article>
+    <>
+      <section className="oyin">
+        <div className="wrap hub hub--pick">
+          {/* Aqcha va daraja tanlovdan **oldin**.
+              Kirmaganga ko'rsatilmaydi: yangi odam avval o'yinni
+              ko'rishi kerak, kirish taklifi esa o'yinning o'zida bor.
+              `ready` kutiladi — aks holda kirgan odam ham har
+              tashrifda bir lahza bo'sh joyni ko'rardi. */}
+          {ready && account && (
+            <section className="hub__block">
+              <h2 className="hub__block-title">Ballaringiz</h2>
+              <BattleStats uid={account.uid} />
+            </section>
           )}
 
-          {tab === 'guncha' && <GunchaCard />}
+          <PlaysLeft />
 
-          {tab === 'mardu' && (
-            <article className="hub-card hub-card--mardu">
-              <div className="hub-card__top">
-                <span className="hub-card__icon">
-                  <Users size={26} />
-                </span>
-                <span className="hub-card__badge">8 kishigacha</span>
-              </div>
-              <h2>Mardu maydon</h2>
-              <p>
-                Yangi o‘yin emas — yangi shakl. O‘sha So‘zjang yoki G‘uncha,
-                lekin ikki kishi emas: sakkiztagacha odam bir vaqtda o‘ynaydi
-                va oxirida jadval tuziladi.
-              </p>
-              <div className="hub-card__status">
-                <span>
-                  Tezkor maydonga kiring yoki bitta havola bilan butun davrani
-                  yig‘ing
-                </span>
-              </div>
-              <div className="hub-card__actions">
-                <a className="btn" href={links.mardu}>
-                  Maydonga kirish
-                </a>
-              </div>
-            </article>
-          )}
-
-          {/* Turnir maydondan **keyin**: ichida o'ynaladigani o'sha
-              maydon, ya'ni odam avval maydonni ko'rishi kerak. */}
-          {tab === 'turnir' && (
-            <article className="hub-card hub-card--turnir">
-              <div className="hub-card__top">
-                <span className="hub-card__icon">
-                  <Trophy size={26} />
-                </span>
-                <span className="hub-card__badge">8–32 kishi</span>
-              </div>
-              <h2>Turnir</h2>
-              <p>
-                Ketma-ket bir necha maydon: har davrada o‘zingizga teng
-                ochkodagilar bilan o‘ynaysiz, oxirida esa jadvalning birinchi
-                ikki o‘rni finalga chiqadi.
-              </p>
-              <div className="hub-card__status">
-                <span>
-                  Chiqarib yuborish yo‘q — hamma oxirgi davragacha o‘ynaydi
-                </span>
-              </div>
-              <div className="hub-card__actions">
-                <a className="btn" href={links.turnir}>
-                  Turnirga kirish
-                </a>
-              </div>
-            </article>
-          )}
+          <div className="hub__tabs" role="tablist" aria-label="O‘yinlar">
+            {TABS.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                role="tab"
+                id={`hub-tab-${item.id}`}
+                aria-selected={tab === item.id}
+                aria-controls={`hub-panel-${item.id}`}
+                className={`hub-tab hub-tab--${item.id}${tab === item.id ? ' hub-tab--on' : ''}`}
+                onClick={() => setTab(item.id)}
+              >
+                {item.name}
+              </button>
+            ))}
+          </div>
         </div>
+      </section>
 
-        {/* Sarlavha yo'q: `Leaderboard` va `ArenaHistory` o'z
-            sarlavhasi bilan keladi (ular boshqa sahifalarda yolg'iz
-            turadi), ikkinchisi takror bo'lardi.
+      {/* O'yinning o'z sahifasi — ko'chirma emas, o'sha komponentning
+          o'zi. Ikki nusxa ikki xil xulq degani bo'lardi: bu yerda
+          tugma boshqacha ishlasa, odam `/sozjang` ga o'tganda
+          boshqa narsa ko'rardi.
 
-            Ikkovi bitta o'ramda: keng ekranda yonma-yon turadi, aks
-            holda jadval butun enga cho'zilib, ism chap chetda, aqcha
-            o'ng chetda qolardi. Tarix hisobsiz umuman chizilmaydi —
-            `ArenaHistory` o'zi qaror qiladi, o'ram esa shunda yolg'iz
-            qolgan jadvalni o'qishga qulay enda ushlaydi. */}
-        <div className="hub__panels">
-          <Leaderboard />
-          <ArenaHistory />
-        </div>
-
-        <TelegramBanner />
-
-        {/* Reklama bo'lim oxirida: odam nimani o'ynashni tanlab bo'lgan,
-            kartochkalar bilan tugma orasiga hech narsa qo'yilmagan. */}
-        <AdBanner placement="hub" fit="edge" />
-
-        <p className="hub__more">
-          Ilovada yana:
-          <a className="chip" href="/#modullar">
-            Yangso‘z
-          </a>
-          <a className="chip" href="/#modullar">
-            Kategoriyalar
-          </a>
-          <a className="chip" href="/#modullar">
-            Reyting
-          </a>
-          <a className="chip" href="/#yuklab-olish">
-            Yuklab olish →
-          </a>
-        </p>
+          O'ram `.hub__panel` ichida emas: har sahifa o'zining
+          `section.oyin > .wrap` i bilan keladi va uni yana bir
+          o'ramga solish ikki qavat hoshiya degani bo'lardi. */}
+      <div className="hub__stage" id={`hub-panel-${tab}`} role="tabpanel" aria-labelledby={`hub-tab-${tab}`}>
+        {tab === 'sozjang' && <BattlePage />}
+        {tab === 'guncha' && <GunchaPage />}
+        {tab === 'mardu' && <MarduPage />}
+        {tab === 'turnir' && <TurnirPage />}
       </div>
-    </section>
+
+      {/* Umumiy reyting o'yindan keyin. Janglar tarixi bu yerda yo'q:
+          u tanlangan o'yinning o'z sahifasida chiqadi va bu yerda
+          ikkinchi marta turardi. */}
+      <section className="oyin">
+        <div className="wrap hub">
+          <Leaderboard />
+        </div>
+      </section>
+    </>
   );
 }
