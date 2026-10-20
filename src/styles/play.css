@@ -990,8 +990,8 @@
    ham kichik: ism birinchi o'qiladi, belgilar keyin. */
 .donor-mark {
   flex: none;
-  /* Muhr ismdan oldin turadi, shuning uchun bo'shliq o'ng tomonda. */
-  margin-inline-end: 4px;
+  /* Muhr ismdan keyin turadi, shuning uchun bo'shliq chap tomonda. */
+  margin-inline-start: 4px;
   object-fit: contain;
   vertical-align: -0.15em;
 }

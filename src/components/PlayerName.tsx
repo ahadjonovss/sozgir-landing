@@ -167,11 +167,12 @@ export default function PlayerName({
 }) {
   return (
     <>
-      {/* Muhr **ismdan oldin**: u maqom belgisi va ism bilan birga
-          o'qiladi. Ismdan keyin turganda uzun taxallusda chetga surilib,
-          qisqartirilgan matn ortida qolib ketardi. */}
-      <DonorMarkIcon uid={uid} size={size - 1} />
+      {/* Muhr **ismdan keyin** va hamma joyda shunday: ro'yxatda ham,
+          jangda ham, profilda ham. Ism birinchi o'qiladigan narsa,
+          muhr esa uning qo'shimchasi — joyi ro'yxatdan ro'yxatga
+          o'zgarsa ko'z uni har safar qaytadan qidirardi. */}
       {pretty(name)}
+      <DonorMarkIcon uid={uid} size={size - 1} />
     </>
   );
 }
