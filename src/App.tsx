@@ -26,7 +26,6 @@ import GunchaPage from './components/GunchaPage';
 import MarduPage from './components/MarduPage';
 import TurnirPage from './components/TurnirPage';
 import Header from './components/Header';
-import TestNotice from './components/TestNotice';
 import Hero from './components/Hero';
 import InviteOverlay from './components/InviteOverlay';
 import Modules from './components/Modules';
@@ -79,8 +78,6 @@ export default function App() {
 
   return (
     <>
-      {/* Vaqtinchalik — sinov tugagach shu qator va `TestNotice` o'chadi. */}
-      <TestNotice />
       <Header route={route} />
 
       <main>
