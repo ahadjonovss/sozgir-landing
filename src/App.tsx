@@ -31,6 +31,7 @@ import InviteOverlay from './components/InviteOverlay';
 import Modules from './components/Modules';
 import PlayHub from './components/PlayHub';
 import PlayerPage from './components/PlayerPage';
+import ReportPage from './components/ReportPage';
 import Privacy from './components/Privacy';
 import Rules from './components/Rules';
 import SupportPage from './components/SupportPage';
@@ -117,6 +118,9 @@ export default function App() {
         {route === '/hisob-ochirish' && <AccountDeletion />}
         {route === '/contact' && <Contact />}
         {route === '/oyinchi' && <PlayerPage />}
+        {/* `/shikoyat/soz/{SO'Z}` va `/shikoyat/oyinchi/{uid}` — jang
+            natijasidan ochiladi, oyna emas, o'z sahifasi. */}
+        {route === '/shikoyat' && <ReportPage />}
         {/* `/soztop/{KOD}` — do'sti yashirgan so'z, shu yerda o'ynaladi. */}
         {route === '/soztop' && <ChallengePage />}
       </main>

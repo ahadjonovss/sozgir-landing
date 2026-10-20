@@ -48,3 +48,43 @@ export async function submitWordReport(input: {
     },
   });
 }
+
+/* ── O'yinchi ustidan shikoyat ──────────────────────────────────────── */
+
+/** Shikoyat sabablari — ilovadagi `ReportReason` enum'ining aynan o'zi
+ *  (`soztop/lib/features/moderation/domain/entities/report_reason.dart`).
+ *  Kalitlar bir xil: moderator ikkala manbadan kelgan shikoyatni bitta
+ *  ro'yxatda ko'radi. */
+export type PlayerReason = 'nickname' | 'avatar' | 'cheating' | 'offensive' | 'other';
+
+export const PLAYER_REASONS: { key: PlayerReason; label: string }[] = [
+  { key: 'nickname', label: 'Nomaqbul taxallus' },
+  { key: 'avatar', label: 'Nomaqbul rasm' },
+  { key: 'cheating', label: 'Aldov' },
+  { key: 'offensive', label: 'Haqorat' },
+  { key: 'other', label: 'Boshqa sabab' },
+];
+
+/** Shikoyat yoziladi, chora ko'rilmaydi: qarorni moderator qabul qiladi
+ *  (serverdagi izohning o'zi). Shuning uchun sahifa ham «yuborildi»
+ *  deydi, «bloklandi» demaydi. */
+export async function submitPlayerReport(input: {
+  uid: string;
+  reason: PlayerReason;
+  note: string;
+  /** Qaysi jangdan — izohga qo'shiladi: jadvalda bunday maydon yo'q,
+   *  lekin moderatorga «qayerda bo'ldi» degan ma'lumot kerak. */
+  battleId?: string;
+}): Promise<void> {
+  const note = input.note.trim().slice(0, COMMENT_MAX);
+  await api.post('/v1/web/reports/player', {
+    body: {
+      uid: input.uid,
+      reason: input.reason,
+      note: [note, input.battleId ? `(jang: ${input.battleId})` : '']
+        .filter(Boolean)
+        .join(' ')
+        .slice(0, COMMENT_MAX),
+    },
+  });
+}

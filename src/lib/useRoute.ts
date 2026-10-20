@@ -18,6 +18,8 @@ const routes: readonly string[] = PAGES.map((page) => page.path);
  *  | Manzil | Sahifa |
  *  | --- | --- |
  *  | `/oyinchi/{uid}`, `/u/{uid}` | O'yinchining ochiq profili |
+ *  | `/shikoyat/soz/{so'z}` | So'z haqida xabar berish |
+ *  | `/shikoyat/oyinchi/{uid}` | O'yinchi ustidan shikoyat |
  *  | `/jang/{kod}` | So'zjang — kod bilan darhol qo'shiladi |
  *  | `/maydon/{kod}` | Mardu maydon — kod bilan darhol qo'shiladi |
  *  | `/turnir/{kod}` | Turnir sahifasi — yig'ilish, davralar, g'olib |
@@ -28,6 +30,12 @@ const routes: readonly string[] = PAGES.map((page) => page.path);
  *  ko'rsatardi. */
 const PARAM_ROUTES: { prefix: string; route: Route }[] = [
   { prefix: '/oyinchi/', route: '/oyinchi' },
+  /* Shikoyatning ikki turi bitta sahifada: `ReportPage` turini
+     yo'lning o'zidan o'qiydi (`/shikoyat/soz/...` yoki
+     `/shikoyat/oyinchi/...`). Uzunroq prefiks oldinroq turadi —
+     `/shikoyat/` ikkalasini ham yutib yuborardi. */
+  { prefix: '/shikoyat/soz/', route: '/shikoyat' },
+  { prefix: '/shikoyat/oyinchi/', route: '/shikoyat' },
   { prefix: '/u/', route: '/oyinchi' },
   { prefix: '/jang/', route: '/sozjang' },
   { prefix: '/maydon/', route: '/maydon' },
@@ -71,6 +79,20 @@ function known(path: string): Route | null {
   return aliases[path] ?? (routes.includes(path) ? (path as Route) : null);
 }
 
+/** Shu varaqda router nechta sahifa surgan.
+ *
+ *  Brauzerning `history.length` i bu savolga javob bermaydi: u saytga
+ *  kirishdan oldingi yozuvlarni ham sanaydi, ya'ni boshqa saytdan
+ *  to'g'ri kelgan odamda ham noldan katta bo'ladi va «ortga» tugmasi
+ *  uni saytdan chiqarib yuborardi. Bu yerdagi sanoq esa faqat shu
+ *  varaqdagi o'z o'tishlarimizni biladi. */
+let pushes = 0;
+
+/** Sayt ichida qaytadigan joy bormi — «ortga» tugmalari uchun. */
+export function canGoBack(): boolean {
+  return pushes > 0;
+}
+
 function read(): Route {
   const path = window.location.pathname.replace(/\/+$/, '') || '/';
   return known(path) ?? '/';
@@ -89,6 +111,9 @@ export function useRoute(): Route {
 
   useEffect(() => {
     const sync = () => {
+      // Orqaga qaytish ham sanoqdan ayiriladi, aks holda bir marta
+      // qaytgan odamda tugma qayta ko'rinib, uni saytdan chiqarardi.
+      if (pushes > 0) pushes -= 1;
       setRoute(read());
       setPath(window.location.pathname);
     };
@@ -109,6 +134,7 @@ export function useRoute(): Route {
 
       event.preventDefault();
       window.history.pushState(null, '', url.pathname);
+      pushes += 1;
       sync();
       // `instant` — silliq surilish yangi sahifa chizilganda uzilib qolardi.
       window.scrollTo({ top: 0, behavior: 'instant' });

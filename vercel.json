@@ -50,6 +50,14 @@
       "destination": "/oyinchi/index.html"
     },
     {
+      "source": "/shikoyat/soz/:word",
+      "destination": "/shikoyat/index.html"
+    },
+    {
+      "source": "/shikoyat/oyinchi/:uid",
+      "destination": "/shikoyat/index.html"
+    },
+    {
       "source": "/u/:uid",
       "destination": "/oyinchi/index.html"
     },

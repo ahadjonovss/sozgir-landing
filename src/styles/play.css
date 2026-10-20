@@ -6654,3 +6654,114 @@
   line-height: 1.45;
   color: var(--text-2);
 }
+
+/* ── Natija kartochkasi: ixcham ───────────────────────────────────────
+   Jang tugagach ekranda bitta uzun ustun qolardi: katta emoji, katta
+   sarlavha, ikki hisob kartochkasi, ikki taxta, o'lja kartochkasi va
+   tugmalar — kompyuterda ham oxirigacha surish kerak edi. Bu yerda
+   hammasi bir necha pog'ona kichraytiriladi: tartib o'sha, faqat havo
+   va o'lchamlar qisqargan, ya'ni natija bitta ekranga sig'adi. */
+.stage--result {
+  max-width: 520px;
+  gap: 12px;
+  padding: clamp(16px, 2vw, 22px);
+}
+
+.stage--result .verdict__emoji {
+  font-size: 32px;
+  margin-bottom: 4px;
+}
+
+.stage--result .verdict__title {
+  font-size: clamp(20px, 2.8vw, 26px);
+}
+
+.stage--result .verdict__label {
+  margin-top: 6px;
+}
+
+.stage--result .result__word {
+  font-size: clamp(22px, 3.4vw, 30px);
+}
+
+/* Ikki hisob kartochkasi — balandligi raqamdan emas, havodan edi. */
+.stage--result .score {
+  gap: 10px;
+}
+
+.stage--result .score__side {
+  padding: 10px 12px;
+}
+
+.stage--result .score__points {
+  font-size: 26px;
+}
+
+/* Taxtalar natijada «nima bo'lgani» uchun turibdi, o'ynash uchun
+   emas — kichik katak ham o'qiladi. */
+.stage--result .fight--done {
+  padding-top: 12px;
+}
+
+.stage--result .fight--done .mini__tile {
+  width: 24px;
+  height: 24px;
+  font-size: 11px;
+}
+
+/* Shu jang nima bergani — sarlavha emas, bitta qator. */
+.result__delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  font-weight: 800;
+}
+
+.result__delta span {
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.result__delta--up {
+  background: var(--green-soft);
+}
+
+.result__delta--down {
+  background: var(--surface-2);
+}
+
+/* ── Shikoyat sahifasi ────────────────────────────────────────────────
+   Oyna emas, o'z sahifasi (`/shikoyat/...`): shakl tor ustunda,
+   o'qishga qulay enda turadi. */
+.report-page {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
+  max-width: 560px;
+  padding-block: 16px 48px;
+}
+
+.report-page h1 {
+  font-size: clamp(24px, 3.2vw, 32px);
+}
+
+/* Nima ustidan shikoyat qilinayotgani — sahifaning o'rtasidagi
+   yagona katta narsa: odam havolani boshqa joydan ochgan bo'lishi
+   mumkin va avval shuni ko'rishi kerak. */
+.report-page__subject {
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.report-page .form,
+.report-page .panel {
+  width: 100%;
+}

@@ -305,6 +305,24 @@ const BASE_PAGES = [
     file: true,
   },
   {
+    path: '/shikoyat',
+    title: 'Shikoyat — So‘zgir',
+    description:
+      'So‘z haqida xabar berish va o‘yinchi ustidan shikoyat. Murojaatni moderator o‘qib chiqadi.',
+    nav: 'Shikoyat',
+    h1: 'Shikoyat',
+    lead:
+      'So‘z haqida xabar berish va o‘yinchi ustidan shikoyat — sabab tanlanadi, izoh ixtiyoriy.',
+    body: [
+      'Shikoyat moderatsiya navbatiga tushadi: chora darhol ko‘rilmaydi, qarorni odam qabul qiladi. Avtomatik chora noto‘g‘ri shikoyat bilan begunoh odamni jazolab qo‘yardi.',
+      'Murojaat hisobga bog‘lanadi: kim yuborganini moderator ko‘radi, aks holda bitta odam boshqasini cheksiz shikoyat qila olardi.',
+    ],
+    // Manzil parametrli (`/shikoyat/soz/{so'z}`) — oldindan yasab
+    // bo'lmaydi, lekin `vercel.json` aynan shu faylga yo'naltiradi.
+    listed: false,
+    file: true,
+  },
+  {
     path: '/soztop',
     title: 'Yashirilgan so‘z — So‘zgir',
     description:

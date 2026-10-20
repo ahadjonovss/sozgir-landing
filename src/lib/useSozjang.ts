@@ -564,9 +564,24 @@ export function useSozjang() {
         if (!account) return;
         setSeconds(0);
         waiting.current = true;
-        const reply = await quickMatch({ length });
-        if (reply.battleId) open(reply.battleId);
-        else setSearching(true);
+        /* Qidiruv ekrani so'rovdan **oldin** yoqiladi: javob kelgunicha
+           ekranda lobbi turardi va tugma bosilgani bilinmasdi — sekin
+           aloqada bu bir necha soniya edi. Raqib darrov topilsa
+           jangning o'zi ochiladi (`open`), ya'ni qidiruv ekrani ko'zga
+           ham tashlanmaydi. */
+        setSearching(true);
+        try {
+          const reply = await quickMatch({ length });
+          if (reply.battleId) {
+            // Navbat kuzatuvchisi (`searching` ga bog'langan effekt)
+            // endi keraksiz: jang topilgan.
+            setSearching(false);
+            open(reply.battleId);
+          }
+        } catch (error) {
+          setSearching(false);
+          throw error;
+        }
       }),
     [account, length, open, run],
   );
@@ -613,14 +628,19 @@ export function useSozjang() {
     }
   }, [battleId, close, finished, phase]);
 
-  /** Natijadagi «Yangi jang»: tezkor jang bo'lsa darrov raqib qidiriladi —
-   *  lobbiga qaytib yana tugma bosib o'tirmasin. Do'st bilan jang bo'lsa
-   *  lobbi (yangi kod kerak). */
+  /** Natijadagi «Yangi jang» — lobbiga qaytarmaydi.
+   *
+   *  Tezkor jangda darrov raqib qidiriladi, do'st bilan o'ynalgan
+   *  jangda esa yangi kod ochiladi va kutish ekrani chiqadi. Ilgari
+   *  ikkinchi holatda odam lobbiga tushardi va o'sha yerda yana
+   *  «Kod yaratish» ni bosardi — holbuki u nima qilmoqchi ekanini
+   *  allaqachon aytgan edi. */
   const again = useCallback(async () => {
     const type = battle?.type;
     await leave();
     if (type === 'quick') await quick();
-  }, [battle?.type, leave, quick]);
+    else await create();
+  }, [battle?.type, create, leave, quick]);
 
   /** Raqibga reaksiya yuboradi.
    *
