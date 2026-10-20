@@ -108,8 +108,7 @@ const COPY: Record<PromoReason, { title: string; text: string }> = {
   },
   soztop: {
     title: 'Endi o‘zingiz yashiring',
-    text:
-      'So‘z yashirish ilovada: so‘zni lug‘atdan tanlaysiz, havolani do‘stlaringizga tashlaysiz va kim necha urinishda topganini ko‘rib turasiz.',
+    text: 'So‘z yashirish ilovada — havolani do‘stlaringizga tashlang.',
   },
 };
 
@@ -222,6 +221,12 @@ export default function AppPopup() {
     ? { href: storeUrl, label: 'App Store', icon: <AppleIcon size={22} /> }
     : { href: storeUrl, label: 'Google Play', icon: <PlayIcon size={22} /> };
   const counting = reason === 'soztop';
+  /* So'zTop oynasi qisqa: afzalliklar ro'yxati va shior tushib qoladi.
+     Sabab — bu oyna o'yin tugagan zahoti, telefonda chiqadi va ustiga
+     sanoq ketadi: uzun ro'yxatni o'qishga vaqt ham, sabab ham yo'q.
+     Odam nima taklif qilinayotganini allaqachon biladi — u shu
+     ilovadan kelgan havolani o'ynab bo'ldi. */
+  const compact = reason === 'soztop';
 
   return createPortal(
     <div
@@ -231,7 +236,7 @@ export default function AppPopup() {
       aria-label="So‘zgir ilovasi"
     >
       <button className="app-promo__veil" onClick={close} aria-label="Yopish" />
-      <div className="app-promo__card">
+      <div className={`app-promo__card${compact ? ' app-promo__card--compact' : ''}`}>
         <button className="icon-btn app-promo__close" onClick={close} aria-label="Yopish">
           <Close size={18} />
         </button>
@@ -250,7 +255,7 @@ export default function AppPopup() {
           />
           <span className="app-promo__name">
             <strong>So‘zgir</strong>
-            <span>So‘zlar olamida sinovdan o‘t!</span>
+            {!compact && <span>So‘zlar olamida sinovdan o‘t!</span>}
           </span>
         </div>
 
@@ -258,27 +263,29 @@ export default function AppPopup() {
         <p className="app-promo__text">{copy.text}</p>
 
         {/* Uchta afzallik — afishadagi uchtasi. Har biri bitta jumla:
-            ro'yxat uzaygani sari o'qilmay qoladi. */}
-        <ul className="app-promo__perks">
-          <li>
-            <span className="app-promo__perk-icon app-promo__perk-icon--green">
-              <Bulb size={18} />
-            </span>
-            Bilimingizni sinang
-          </li>
-          <li>
-            <span className="app-promo__perk-icon app-promo__perk-icon--yellow">
-              <Chart size={18} />
-            </span>
-            Reytingda yuksalang
-          </li>
-          <li>
-            <span className="app-promo__perk-icon app-promo__perk-icon--blue">
-              <Trophy size={18} />
-            </span>
-            Maxsus nishonlarni qo‘lga kiriting
-          </li>
-        </ul>
+            ro'yxat uzaygani sari o'qilmay qoladi. Qisqa oynada yo'q. */}
+        {!compact && (
+          <ul className="app-promo__perks">
+            <li>
+              <span className="app-promo__perk-icon app-promo__perk-icon--green">
+                <Bulb size={18} />
+              </span>
+              Bilimingizni sinang
+            </li>
+            <li>
+              <span className="app-promo__perk-icon app-promo__perk-icon--yellow">
+                <Chart size={18} />
+              </span>
+              Reytingda yuksalang
+            </li>
+            <li>
+              <span className="app-promo__perk-icon app-promo__perk-icon--blue">
+                <Trophy size={18} />
+              </span>
+              Maxsus nishonlarni qo‘lga kiriting
+            </li>
+          </ul>
+        )}
 
         <a className="app-promo__store" href={store.href} onClick={close}>
           {store.icon}

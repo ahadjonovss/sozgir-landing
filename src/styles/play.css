@@ -5897,6 +5897,23 @@
 
 /* Sanoq — do'kon tugmasi ostida, bitta qator. So'zTop havolasidan
    kelgan odamga do'kon o'zi ochiladi va buni oldindan aytib turadi. */
+/* Qisqa oyna — So'zTop natijasidan keyingisi. Ro'yxat va shior
+   tushgach bo'shliqlar ham kichrayadi: aks holda karta baribir
+   ekranning yarmini egallab turardi. */
+.app-promo__card--compact {
+  gap: 10px;
+  padding: 18px 20px calc(14px + env(safe-area-inset-bottom));
+}
+
+.app-promo__card--compact .app-promo__icon {
+  width: 44px;
+  height: 44px;
+}
+
+.app-promo__card--compact .app-promo__title {
+  font-size: 19px;
+}
+
 .app-promo__count {
   justify-self: center;
   margin: 0;
