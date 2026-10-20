@@ -167,8 +167,11 @@ export default function PlayerName({
 }) {
   return (
     <>
-      {pretty(name)}
+      {/* Muhr **ismdan oldin**: u maqom belgisi va ism bilan birga
+          o'qiladi. Ismdan keyin turganda uzun taxallusda chetga surilib,
+          qisqartirilgan matn ortida qolib ketardi. */}
       <DonorMarkIcon uid={uid} size={size - 1} />
+      {pretty(name)}
     </>
   );
 }

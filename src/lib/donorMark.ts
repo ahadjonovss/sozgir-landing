@@ -320,12 +320,30 @@ function loadChosen(): Promise<Record<string, string>> {
       const uids = Object.keys(totals);
       const next: Record<string, string> = {};
 
+      /* Yiqilgan so'rov **eslab qolinmaydi**.
+       *
+       *  Marshrut token talab qiladi (`/v1/web/...`) va u sahifa
+       *  ochilishida hali tayyor bo'lmasligi mumkin — javob 401
+       *  bo'ladi. Ilgari bunday javob bo'sh ro'yxat bo'lib
+       *  qabul qilinardi: `chosen` bo'sh jadvalga aylanib, brauzer
+       *  xotirasiga ham yozilardi. Natijada muhrlar **umuman**
+       *  ko'rinmay qolardi — o'zinikisi ham, raqibnikisi ham — va
+       *  kesh muddati tugamaguncha shunday turardi.
+       *
+       *  Endi bitta bo'lak yiqilsa ham natija saqlanmaydi: keyingi
+       *  chaqiruv qaytadan so'raydi. Oradagi ro'yxat esa bo'lib
+       *  qaytariladi — bor ma'lumot yo'qolmasin. */
+      let failed = false;
+
       for (let from = 0; from < uids.length; from += LOOKUP_CHUNK) {
         const reply = await api
           .post<{ items?: unknown }>('/v1/web/donors/lookup', {
             body: { uids: uids.slice(from, from + LOOKUP_CHUNK) },
           })
-          .catch(() => ({ items: [] as unknown }));
+          .catch(() => {
+            failed = true;
+            return { items: [] as unknown };
+          });
 
         for (const row of Array.isArray(reply.items) ? reply.items : []) {
           const item = row as { uid?: unknown; mark?: unknown };
@@ -334,6 +352,9 @@ function loadChosen(): Promise<Record<string, string>> {
           if (uid && id) next[uid] = id;
         }
       }
+
+      if (failed) return next;
+
       chosen = next;
       try {
         localStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), v: next }));
