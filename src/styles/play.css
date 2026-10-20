@@ -597,6 +597,15 @@
   box-shadow: var(--shadow);
 }
 
+/* «Boshqa so'z» — uzunlik tugmalari ostida, o'ngda. Havola
+   ko'rinishida: u o'yinning asosiy amali emas, chiqish yo'li. */
+.play__skip {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -6px;
+  margin-bottom: 10px;
+}
+
 .play__lengths {
   display: flex;
   gap: 5px;

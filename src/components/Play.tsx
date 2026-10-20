@@ -248,6 +248,24 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
         </div>
       )}
 
+      {/* «Boshqa so'z» — o'yin ketayotganda.
+          Cheksiz rejim mashq uchun va u yerda tiqilib qolgan so'z
+          ustida o'tirishning ma'nosi yo'q: odam urinishlarini
+          tugatmasdan ham keyingisiga o'tishi kerak. Ilgari bunday yo'l
+          faqat **natijadan keyin** bor edi («Yana bir so'z»), ya'ni
+          so'zni topa olmagan odam avval olti urinishini bekorga
+          sarflashi kerak edi.
+
+          Kunlik so'zda bu tugma yo'q va bo'lishi ham mumkin emas: u
+          butun mamlakat uchun bitta va uni almashtirib bo'lmaydi. */}
+      {mode === 'endless' && game.phase === 'playing' && !needsAccount && (
+        <div className="play__skip">
+          <button className="link" onClick={game.playAgain}>
+            Boshqa so‘z
+          </button>
+        </div>
+      )}
+
       {!needsAccount && game.phase === 'loading' && (
         <div className="play__wait" role="status">
           <div className="play__skeleton" aria-hidden="true">
