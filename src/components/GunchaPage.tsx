@@ -15,6 +15,7 @@ import { useGuncha } from '../lib/useGuncha';
 import { display, pretty } from '../lib/uz';
 import { useLongPress } from '../lib/useLongPress';
 import AdBanner from './AdBanner';
+import ArenaHistory from './ArenaHistory';
 import GunchaFlower from './GunchaFlower';
 import TelegramBanner from './TelegramBanner';
 
@@ -203,6 +204,11 @@ export default function GunchaPage() {
               </ul>
             )}
           </div>
+
+          {/* Janglar tarixi — g'uncha jangi ham shu ro'yxatda:
+              «kim bilan o'ynadim» degan savol o'yinga qarab
+              bo'linmaydi. Hisobsiz odamga umuman chizilmaydi. */}
+          <ArenaHistory />
 
           <TelegramBanner compact />
 

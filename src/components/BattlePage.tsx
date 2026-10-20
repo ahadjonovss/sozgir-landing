@@ -22,6 +22,7 @@ import { display, pretty, split } from '../lib/uz';
 import { links, playerLink } from '../data/site';
 import Avatar from './Avatar';
 import AdBanner from './AdBanner';
+import ArenaHistory from './ArenaHistory';
 import BattleBoard from './BattleBoard';
 import BattleStats from './BattleStats';
 import { Board, Keyboard } from './Board';
@@ -239,7 +240,13 @@ function Lobby({ game }: { game: Sozjang }) {
       </div>
 
       <aside className="lobby__side">
-        <BattleBoard />
+        {/* Kirgan odamga jadval emas, o'z tarixi: So'zjang jadvalining
+            birinchi o'nligi oylab o'zgarmaydi va lobbida turib unga
+            qarashning ma'nosi yo'q. «Kim bilan o'ynadim, qanday
+            tugadi» esa aynan shu yerda kerak — yana bir jangga
+            kirishdan oldin. Jadvalning o'zi kirmaganlar uchun `Gate` da
+            qolgan: u yerda sahifa aks holda bo'sh ko'rinardi. */}
+        <ArenaHistory />
         <TelegramBanner compact />
         {/* Faqat lobbida: qidiruv, jang va natija ekranlari reklamasiz.
             Bu yerda odam hali o'ynamayapti — tanlab turibdi. */}
