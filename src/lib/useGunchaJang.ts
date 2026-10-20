@@ -45,6 +45,7 @@ import {
 import {
   createGunchaBattle,
   finishGunchaBattle,
+  gunchaLetters,
   GUNCHA_SECONDS,
   sendGunchaWord,
   WORD_REASON,
@@ -217,9 +218,53 @@ export function useGunchaJang() {
     };
   }, [battleId, uid]);
 
-  // G'uncha harflari hujjatda: so'zlar ro'yxatini brauzer o'zi yig'adi.
-  const center = battle?.guncha?.center;
-  const petals = battle?.guncha?.petals;
+  /** G'uncha harflari — alohida so'rov bilan.
+   *
+   *  Ilgari bu yerda `battle.guncha` o'qilardi: Firestore'da harflar
+   *  jang hujjatining ichida turardi. Serverda esa ular alohida
+   *  manzilda (`/battles/{id}/guncha`) va jang javobiga qo'shilmaydi —
+   *  javoblar ro'yxati bilan bir joyda yotgani uchun ataylab. Natijada
+   *  `center` hech qachon to'lmasdi va g'unchaning o'zi — harflar
+   *  doirasi — ekranda umuman chizilmasdi: odam sanoq, ikki hisob
+   *  kartochkasi va «Kiritish» tugmasini ko'rib, nima bosishini
+   *  bilmasdi.
+   *
+   *  So'rov jang **boshlangandan keyin** ketadi: undan oldin harflar
+   *  hali yasalmagan va manzil 404 qaytaradi. Bir marta kelgach
+   *  o'zgarmaydi, shuning uchun qayta so'ralmaydi. */
+  const [flower, setFlower] = useState<{
+    /** Qaysi jangning harflari — jang almashsa eskisi ishlatilmasin. */
+    id: string;
+    center: string;
+    petals: string[];
+  } | null>(null);
+
+  /* Jang raqami bilan solishtiriladi, alohida tozalash effekti
+     o'rnida: yangi jang ochilganda eski harflar bir lahza ko'rinib
+     ketmasligi kerak. */
+  const ours = flower?.id === battleId ? flower : null;
+
+  const started = battle?.status === 'running' || battle?.status === 'finished';
+  useEffect(() => {
+    if (!battleId || !account || !started || ours !== null) return;
+    let alive = true;
+
+    void gunchaLetters(battleId)
+      .then((next) => {
+        if (alive && next.center) setFlower({ id: battleId, ...next });
+      })
+      .catch(() => {
+        // Hali tayyor emas: keyingi holat yangilanishida qayta
+        // so'raladi — jang hujjati baribir surib turiladi.
+      });
+
+    return () => {
+      alive = false;
+    };
+  }, [account, battleId, ours, started]);
+
+  const center = ours?.center ?? battle?.guncha?.center;
+  const petals = ours?.petals ?? battle?.guncha?.petals;
   useEffect(() => {
     if (!center || !petals?.length) return;
     let alive = true;
