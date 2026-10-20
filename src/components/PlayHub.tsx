@@ -28,7 +28,7 @@ import { useState } from 'react';
 import { useAuth } from '../lib/auth';
 import BattlePage from './BattlePage';
 import BattleStats from './BattleStats';
-import GunchaPage from './GunchaPage';
+import GameHub from './GameHub';
 import Leaderboard from './Leaderboard';
 import MarduPage from './MarduPage';
 import PlaysLeft from './PlaysLeft';
@@ -97,7 +97,10 @@ export default function PlayHub() {
           o'ramga solish ikki qavat hoshiya degani bo'lardi. */}
       <div className="hub__stage" id={`hub-panel-${tab}`} role="tabpanel" aria-labelledby={`hub-tab-${tab}`}>
         {tab === 'sozjang' && <BattlePage />}
-        {tab === 'guncha' && <GunchaPage />}
+        {/* G'uncha sahifasi endi So'ztop bilan bitta komponentda
+            (`GameHub`): ikkala taxta bir joyda yashaydi va belgi bilan
+            almashadi. Bu yerda uning g'uncha ko'rinishi kerak. */}
+        {tab === 'guncha' && <GameHub game="guncha" />}
         {tab === 'mardu' && <MarduPage />}
         {tab === 'turnir' && <TurnirPage />}
       </div>

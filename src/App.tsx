@@ -20,9 +20,8 @@ import UpdatesPage from './components/UpdatesPage';
 import BadgesPage from './components/BadgesPage';
 import BattlePage from './components/BattlePage';
 import ChallengePage from './components/ChallengePage';
-import GamePage from './components/GamePage';
+import GameHub from './components/GameHub';
 import GunchaBattlePage from './components/GunchaBattlePage';
-import GunchaPage from './components/GunchaPage';
 import MarduPage from './components/MarduPage';
 import TurnirPage from './components/TurnirPage';
 import Header from './components/Header';
@@ -99,9 +98,15 @@ export default function App() {
           </>
         )}
         {route === '/oynash' && <PlayHub />}
-        {route === '/oyin' && <GamePage />}
+        {/* So'ztop va g'uncha — bitta komponent.
+            Marshrut almashganda u qayta o'rnashmaydi, ya'ni belgini
+            bosganda faqat markazdagi taxta o'zgaradi: yon ustun ham,
+            surilish ham, ikkala o'yinning holati ham joyida qoladi
+            (`GameHub`). */}
+        {(route === '/oyin' || route === '/guncha') && (
+          <GameHub game={route === '/guncha' ? 'guncha' : 'soztop'} />
+        )}
         {route === '/sozjang' && <BattlePage />}
-        {route === '/guncha' && <GunchaPage />}
         {route === '/gunchajang' && <GunchaBattlePage />}
         {route === '/maydon' && <MarduPage />}
         {route === '/turnir' && <TurnirPage />}

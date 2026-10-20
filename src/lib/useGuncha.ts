@@ -59,7 +59,11 @@ interface Loaded {
  *  `useMemo` va `useCallback` lar bekorga qayta ishlaydi). */
 const NONE: string[] = [];
 
-export function useGuncha() {
+export function useGuncha(
+  /** G'uncha hozir ekranda turibdimi — `useSozTop` dagi bilan bir
+   *  sabab: ko'rinmayotgan o'yin klaviaturani eshitmaydi. */
+  active = true,
+) {
   const { account } = useAuth();
   const [mode, setMode] = useState<GunchaMode>('daily');
   const [loaded, setLoaded] = useState<Loaded | null>(null);
@@ -307,9 +311,10 @@ export function useGuncha() {
       }
     };
 
+    if (!active) return;
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [press, puzzle, setTyped, typed]);
+  }, [active, press, puzzle, setTyped, typed]);
 
   return {
     account,

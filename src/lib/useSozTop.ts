@@ -177,7 +177,17 @@ async function endlessPuzzle(length: number, number: number): Promise<Puzzle> {
   };
 }
 
-export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
+export function useSozTop(
+  { mode, length }: { mode: Mode; length: number },
+  /** Taxta hozir ekranda turibdimi.
+   *
+   *  Ikki o'yin (So'ztop va g'uncha) bitta sahifada yonma-yon yashaydi
+   *  va ikkalasining holati ham saqlanib turadi — almashganda taxta
+   *  joyidan boshlanmasligi kerak. Klaviatura esa bitta: ko'rinmayotgan
+   *  taxta tugma bosilishini eshitmasligi kerak, aks holda bitta harf
+   *  ikkala o'yinga ham tushardi. */
+  active = true,
+) {
   const { account } = useAuth();
 
   const [puzzle, setPuzzle] = useState<Puzzle | null>(null);
@@ -597,9 +607,10 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
       }
     };
 
+    if (!active) return;
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [lastTyped, press]);
+  }, [active, lastTyped, press]);
 
   /** Klaviatura tugmalarining rangi — eng yaxshi natija saqlanadi. */
   const keyState = useMemo(() => {
