@@ -25,10 +25,8 @@
  *  o'yindan keyin — u «boshqalarga nisbatan qanday» degan boshqa
  *  savol. */
 import { useState } from 'react';
-import { useAuth } from '../lib/auth';
 import BattlePage from './BattlePage';
-import BattleStats from './BattleStats';
-import GameHub from './GameHub';
+import GunchaBattlePage from './GunchaBattlePage';
 import Leaderboard from './Leaderboard';
 import MarduPage from './MarduPage';
 import PlaysLeft from './PlaysLeft';
@@ -45,7 +43,6 @@ const TABS = [
 type TabId = (typeof TABS)[number]['id'];
 
 export default function PlayHub() {
-  const { account, ready } = useAuth();
   /** Ochiq turgani — birinchisi: So'zjang bu sahifadagi eng ko'p
    *  bosiladigan o'yin. */
   const [tab, setTab] = useState<TabId>('sozjang');
@@ -54,18 +51,11 @@ export default function PlayHub() {
     <>
       <section className="oyin">
         <div className="wrap hub hub--pick">
-          {/* Aqcha va daraja tanlovdan **oldin**.
-              Kirmaganga ko'rsatilmaydi: yangi odam avval o'yinni
-              ko'rishi kerak, kirish taklifi esa o'yinning o'zida bor.
-              `ready` kutiladi — aks holda kirgan odam ham har
-              tashrifda bir lahza bo'sh joyni ko'rardi. */}
-          {ready && account && (
-            <section className="hub__block">
-              <h2 className="hub__block-title">Ballaringiz</h2>
-              <BattleStats uid={account.uid} />
-            </section>
-          )}
-
+          {/* Aqcha kartochkasi bu yerda yo'q: tanlangan o'yinning
+              sahifasida «Jang aqchasi» allaqachon turibdi va
+              ikkalasi bir ekranda ikki marta bir xil sonni
+              ko'rsatardi. Tanlovdan oldin faqat qolgan o'yinlar
+              soni — u bir qatorlik. */}
           <PlaysLeft />
 
           <div className="hub__tabs" role="tablist" aria-label="O‘yinlar">
@@ -97,10 +87,12 @@ export default function PlayHub() {
           o'ramga solish ikki qavat hoshiya degani bo'lardi. */}
       <div className="hub__stage" id={`hub-panel-${tab}`} role="tabpanel" aria-labelledby={`hub-tab-${tab}`}>
         {tab === 'sozjang' && <BattlePage />}
-        {/* G'uncha sahifasi endi So'ztop bilan bitta komponentda
-            (`GameHub`): ikkala taxta bir joyda yashaydi va belgi bilan
-            almashadi. Bu yerda uning g'uncha ko'rinishi kerak. */}
-        {tab === 'guncha' && <GameHub game="guncha" />}
+        {/* G'unchaning **onlayn** ko'rinishi: bu sahifadagi to'rttala
+            tab ham birovlar bilan o'ynash haqida (So'zjang, maydon,
+            turnir). Kunlik g'uncha va mashq yolg'iz o'ynaladi —
+            ularning o'z joyi bor (`/guncha`), bu yerda esa odam
+            raqib qidirib turibdi. */}
+        {tab === 'guncha' && <GunchaBattlePage />}
         {tab === 'mardu' && <MarduPage />}
         {tab === 'turnir' && <TurnirPage />}
       </div>
@@ -108,7 +100,7 @@ export default function PlayHub() {
       {/* Umumiy reyting o'yindan keyin. Janglar tarixi bu yerda yo'q:
           u tanlangan o'yinning o'z sahifasida chiqadi va bu yerda
           ikkinchi marta turardi. */}
-      <section className="oyin">
+      <section className="oyin hub__after">
         <div className="wrap hub">
           <Leaderboard />
         </div>

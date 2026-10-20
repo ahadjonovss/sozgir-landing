@@ -3372,6 +3372,30 @@
   padding-bottom: 0;
 }
 
+/* ── Bitta ustun ───────────────────────────────────────────────
+   Sahifada uch xil chekka bor edi: tablar bir yerdan, o'yinning
+   o'zi o'ngroqdan, reyting yana boshqa joydan boshlanardi — har
+   blok o'z kengligini olib kelgani uchun. Uchalasi ham endi bitta
+   ustunda: tablar ham, o'yin ham, jadval ham bir xil chekkadan
+   boshlanadi.
+
+   O'lcham — `.hub` va `.jang__wrap` dagi 980px: eng ko'p
+   ishlatilgani shu va bunda jang sahifasining ikki ustuni
+   siqilmaydi. */
+.hub--pick,
+.hub__stage > section > .wrap,
+.hub__after > .wrap {
+  max-width: 980px;
+  margin-inline: auto;
+}
+
+/* Jang sahifasining o'z o'rami ham o'sha ustunda qoladi: u
+   `.wrap` ning ichida turadi va o'zining 980px i bilan kelgan,
+   ya'ni hoshiya qo'shilib chekka bir oz siljirdi. */
+.hub__stage .jang__wrap {
+  max-width: none;
+}
+
 .hub-card {
   --tone: var(--green);
   position: relative;
@@ -3508,16 +3532,22 @@
    qolgan ikkitasi uch ustundan. U beshta kartochka uchun yozilgan edi;
    to'rttasi qolgach oxirgisi yolg'iz qatorda osilib qolardi. */
 @media (min-width: 1080px) {
+  /* Keng ekranda ham bitta ustun: tanlov, o'yin va jadval bir xil
+     chekkadan boshlanishi kerak, ya'ni hub o'yin sahifalarining
+     o'lchamida qoladi (980px). Ilgari u 1240 edi — o'sha paytda
+     bu yerda to'rtta kartochka yoyilib turardi. */
   .hub {
-    max-width: 1240px;
+    max-width: 980px;
     gap: 26px;
   }
 
   /* Panel butun enni olmaydi: bir qatorda 80 belgidan oshgan matn
      o'qishga noqulay va kartochka ichidagi ikki tugma ekranning
      ikki chetida qolib ketardi. */
+  /* Tablar ustunning butun enini oladi: ular ostidagi o'yinning
+     sarlavhasi — tor qatorcha bo'lib osilib turmasin. */
   .hub__tabs {
-    max-width: 760px;
+    max-width: none;
   }
 
   /* Jadval va tarix yonma-yon. Jadval balandroq, shuning uchun
