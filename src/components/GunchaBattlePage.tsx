@@ -31,6 +31,7 @@ import Modal from './Modal';
 import MarduCountdown from './MarduCountdown';
 import { ReactionBurst, ReactionPicker } from './Reactions';
 import { VerifiedMark } from './PlayerName';
+import RotatingLine from './RotatingLine';
 import ScoreRules from './ScoreRules';
 import SendInvite, { type InviteTarget } from './SendInvite';
 import TelegramBanner from './TelegramBanner';
@@ -245,16 +246,57 @@ function Lobby({ game }: { game: GunchaJang }) {
   );
 }
 
+/** Qidiruv davomida almashadigan izohlar — So'zjangdagidek.
+ *
+ *  Qidiruv **to'xtamaydi**, shuning uchun «hech kim yo'q» degan xabar
+ *  yo'q: jumlalar navbat bilan almashadi va kutish tirik ko'rinadi. */
+const SEARCH_LINES = [
+  'Onlayn o‘yinchilar ko‘rib chiqilmoqda…',
+  'Kuchi sizga yaqin raqib tanlanmoqda',
+  'Hali ham qidiryapmiz…',
+  'Navbatdasiz — raqib chiqishi bilan boshlanadi',
+  'Do‘stingizni kod bilan chaqirsangiz tezroq bo‘ladi',
+];
+
+/** Raqib qidirish ekrani — So'zjangdagi bilan bir xil.
+ *
+ *  Ilgari bu yerda oddiy kartochka turardi: sarlavha, bitta qator va
+ *  butun enni egallagan «Bekor qilish» tugmasi. Qidiruv esa ikkala
+ *  o'yinda ham bitta ish va u bir xil ko'rinishi kerak — odam
+ *  So'zjangdan g'unchaga o'tganda boshqa saytga tushgandek
+ *  bo'lmasligi lozim. Shu sababli bu yerda ham radar, sanoq va
+ *  almashadigan jumlalar turadi.
+ *
+ *  Farqi bittasi: yorliqda so'z uzunligi emas, jang muddati turadi —
+ *  g'unchada harflar soni doim yettita va u haqda aytadigan gap
+ *  yo'q. */
 function Searching({ game }: { game: GunchaJang }) {
+  const name = pretty(game.account?.nickname ?? 'Siz');
+  const pad = (value: number) => String(value).padStart(2, '0');
   return (
-    <div className="panel lobby__card">
-      <h3>Raqib qidirilmoqda…</h3>
-      <p className="panel__note">
-        Navbatdasiz — {game.seconds} s. Raqib chiqishi bilan jang boshlanadi.
+    <div className="stage">
+      <div className="stage__head">
+        <h2>Raqib qidirilmoqda</h2>
+        <span className="stage__tag">{GUNCHA_SECONDS / 60} daqiqa</span>
+      </div>
+
+      <div className="radar radar--big" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+        <Avatar name={name} uid={game.account?.uid} size={60} className="radar__me" />
+      </div>
+
+      <p className="stage__timer" aria-live="off">
+        {pad(Math.floor(game.seconds / 60))}:{pad(game.seconds % 60)}
       </p>
-      <button className="btn btn--sm btn--ghost" onClick={game.cancelSearch}>
-        Bekor qilish
-      </button>
+      <RotatingLine lines={SEARCH_LINES} />
+
+      <div className="result__actions">
+        <button className="btn btn--sm btn--outline" onClick={game.cancelSearch}>
+          Bekor qilish
+        </button>
+      </div>
     </div>
   );
 }
