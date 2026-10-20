@@ -69,6 +69,7 @@ export default function GunchaPage() {
                 <a
                   className="play__ranks play__swap"
                   href={links.play}
+                  data-scroll="keep"
                   aria-label="So‘ztopga o‘tish"
                   title="So‘ztopga o‘tish"
                 >

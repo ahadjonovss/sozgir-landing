@@ -133,8 +133,19 @@ export function useRoute(): Route {
       window.history.pushState(null, '', url.pathname);
       pushes += 1;
       sync();
-      // `instant` — silliq surilish yangi sahifa chizilganda uzilib qolardi.
-      window.scrollTo({ top: 0, behavior: 'instant' });
+
+      /* Odatda yangi sahifa tepadan boshlanadi. Ba'zi havolalar esa
+         sahifani emas, uning **o'rtasidagi narsani** almashtiradi —
+         masalan So'ztop taxtasi ustidagi «g'unchaga o'tish» belgisi:
+         ikkala sahifa ham bir xil ramkada va taxta o'sha joyda qoladi.
+         Bunday havolada sakrash xalaqit beradi, shuning uchun u
+         `data-scroll="keep"` bilan belgilanadi.
+ 
+         `instant` — silliq surilish yangi sahifa chizilganda uzilib
+         qolardi. */
+      if (link.dataset.scroll !== 'keep') {
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      }
     };
 
     // Sahifa `/#qoida` bilan ochilganda brauzer langarni topolmaydi — o'sha

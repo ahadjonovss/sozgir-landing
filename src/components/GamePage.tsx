@@ -11,10 +11,12 @@
  *
  *  Ikkisi bir xil `Play` komponentini ishlatadi va holat brauzerda bir
  *  joyda saqlanadi — hero'da boshlangan o'yin shu yerda davom etadi. */
+import { useEffect } from 'react';
 import { links } from '../data/site';
 import { useAuth } from '../lib/auth';
 import { dailyNumber } from '../lib/daily';
 import { useGameChoice } from '../lib/useGameChoice';
+import { gunchaLexicon } from '../lib/gunchaLexicon';
 import { useSozTop } from '../lib/useSozTop';
 import AdBanner from './AdBanner';
 import BadgesCard from './BadgesCard';
@@ -26,6 +28,22 @@ export default function GamePage() {
   const { account, openPrompt } = useAuth();
   const choice = useGameChoice();
   const game = useSozTop(choice);
+
+  /* G'uncha lug'ati oldindan yig'iladi.
+   *
+   *  Taxta ustidagi belgi g'unchaga bir bosishda o'tkazadi va o'sha
+   *  yerda «Lug'at yuklanmoqda…» chiqib turardi: o'yin almashgandek
+   *  emas, boshqa sahifaga tushgandek bo'lardi. Lug'at bir marta
+   *  yig'iladi va keshda qoladi (`gunchaLexicon`), shuning uchun uni
+   *  oldindan tayyorlab qo'yish kifoya.
+   *
+   *  Kechikish bilan: sahifa avval chizilsin, taxta o'ynashga tayyor
+   *  bo'lsin — lug'at esa fonda, odam birinchi so'zini terayotganda
+   *  yig'ilaveradi. */
+  useEffect(() => {
+    const timer = window.setTimeout(() => void gunchaLexicon().catch(() => {}), 1500);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   return (
     <section className="oyin">

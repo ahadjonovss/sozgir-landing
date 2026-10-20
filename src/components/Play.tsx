@@ -260,6 +260,7 @@ function PlayBoard({
           <a
             className="play__ranks play__swap"
             href={links.guncha}
+            data-scroll="keep"
             aria-label="G‘unchaga o‘tish"
             title="G‘unchaga o‘tish"
           >
