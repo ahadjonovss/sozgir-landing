@@ -320,7 +320,17 @@ export function useSozjang() {
    *  o'n besh soniyada bir so'raladi: endigina yutgan odam
    *  «0 jang» va boshlang'ich o'ljani ko'rardi. */
   useEffect(() => {
-    if (phase === 'finished') refreshRating();
+    if (phase !== 'finished') return;
+    refreshRating();
+    /* Tugagan jang endi «ochiq jang» emas.
+     *
+     *  Brauzerdagi yozuv jangni ochiq deb turardi va odam boshqa
+     *  bo'limga o'tib qaytganda — masalan «O'ynash» dan yana
+     *  So'zjangga kirganda — lobbi o'rnida o'tgan jangning
+     *  natijasi ochilardi. Natijaning o'zi ekranda qoladi
+     *  (`battleId` holatda), lekin keyingi tashrif toza
+     *  boshlanadi. */
+    setActive(null);
   }, [phase]);
 
   // `me` hujjat bilan birga o'zgaradi — ro'yxat har renderda yangi

@@ -320,7 +320,12 @@ export function useGunchaJang() {
   /* Jang tugadi — reyting kartochkasi darhol qayta so'raladi
    *  (`useSozjang` dagi bilan bir sabab). */
   useEffect(() => {
-    if (done) refreshRating();
+    if (!done) return;
+    refreshRating();
+    /* Tugagan jang «ochiq jang» bo'lib qolmaydi — `useSozjang`
+     *  dagi bilan bir sabab: qaytib kelgan odam lobbini ko'rishi
+     *  kerak, o'tgan jangning natijasini emas. */
+    setActive('guncha', null);
   }, [done]);
 
   /** Serverdan qolgan vaqtni so'raydi.
