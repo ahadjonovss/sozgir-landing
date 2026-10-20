@@ -15,16 +15,20 @@
  *  marta, ustiga oyna yopilgandan keyin uch daqiqa jimlik — «yo'q»
  *  degan odamdan darrov qayta so'ralmaydi.
  *
- *  **Sanoq.** Qurilmaning do'koni aniq, shuning uchun tanlov emas,
- *  bitta tugma taklif qilinadi va besh soniyadan keyin do'kon o'zi
- *  ochiladi. Sanoq ko'rinib turadi va uni to'xtatsa bo'ladi
- *  («Saytda davom etish»): aks holda odam saytdan sababsiz olib
- *  ketilgandek his qilardi. Oynaning yopilishi ham sanoqni
- *  to'xtatadi — yopilgan oynadan keyin do'kon ochilishi eng yomon
- *  natija bo'lardi.
+ *  **Do'kon faqat bosilganda ochiladi.** Ilgari oyna ochilgach besh
+ *  soniyalik sanoq ketardi va u tugagach do'kon o'zi ochilardi. Buning
+ *  ikkita zarari bor edi. Birinchisi odamga: varaqlab turgan odam
+ *  saytdan sababsiz olib ketilardi — sanoqni to'xtatish mumkin
+ *  bo'lsa ham, buni payqab ulgurish kerak edi. Ikkinchisi saytga:
+ *  foydalanuvchi bosmasdan boshqa manzilga o'tkazish reklama
+ *  tarmoqlari qoidasida to'g'ridan-to'g'ri taqiqlangan va sayt
+ *  «do'konga haydaydigan oraliq sahifa» bo'lib ko'rinadi.
  *
- *  Yopish oson: ✕, fon, Escape va «Saytda davom etish». Orqaga tugmasi
- *  ham ishlaydi — oyna manzilni o'zgartirmaydi.
+ *  Endi oyna shunchaki turadi va kutadi. Qurilmaning do'koni aniq,
+ *  shuning uchun tanlov emas, bitta tugma taklif qilinadi.
+ *
+ *  Yopish oson: ✕, fon, Escape va «Yopish». Orqaga tugmasi ham
+ *  ishlaydi — oyna manzilni o'zgartirmaydi.
  *
  *  Do'kon qurilmaga qarab tanlanadi: iPhone'da App Store, qolganida
  *  Google Play birinchi turadi (`DownloadPromo` dagi bilan bir xil
@@ -42,9 +46,6 @@ import {
 } from '../lib/appPromo';
 import { AppleIcon, PlayIcon } from './StoreIcons';
 import { Bulb, Chart, Close, Trophy } from './Icons';
-
-/** Oyna ochilgach do'kon shuncha soniyadan keyin o'zi ochiladi. */
-const COUNTDOWN = 5;
 
 /** Ochilishdagi taklif shuncha kutadi — sahifa ochilib, birinchi ekran
  *  ko'ringandan keyin. */
@@ -91,17 +92,11 @@ function isPhone(): boolean {
 
 export default function AppPopup() {
   const [reason, setReason] = useState<PromoReason | null>(null);
-  /** Do'kon o'zi ochilishiga qolgan soniya. */
-  const [left, setLeft] = useState(COUNTDOWN);
-  /** Sanoq ketyaptimi. «Saytda davom etish» uni to'xtatadi, oynaning
-   *  o'zi esa ochiq qolishi mumkin — odam keyin o'zi bosadi. */
-  const [counting, setCounting] = useState(true);
   const ios = isIos();
 
   /** Yopildi — jim turish muddati shundan boshlanadi. */
   const close = useCallback(() => {
     markPromoClosed();
-    setCounting(false);
     setReason(null);
   }, []);
 
@@ -121,10 +116,6 @@ export default function AppPopup() {
       // allaqachon kutib kelgan.
       const delay = next === 'result' ? RESULT_DELAY_MS : 0;
       timer = window.setTimeout(() => {
-        // Sanoq har ochilishda boshidan: bir marta to'xtatilgan bo'lsa
-        // ham, keyingi safar u yana ishlaydi.
-        setLeft(COUNTDOWN);
-        setCounting(true);
         setReason((current) => current ?? next);
       }, delay);
     });
@@ -143,25 +134,6 @@ export default function AppPopup() {
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
   }, [close, reason]);
-
-  /** Sanoq: oyna ochilgach do'kon o'zi ochiladi.
-   *
-   *  Sanoq **ko'rinib turadi** va uni to'xtatsa bo'ladi — bu shart, aks
-   *  holda odam saytdan sababsiz olib ketilgandek his qilardi. Oyna
-   *  yopilishi (✕, fon, Escape, «Saytda davom etish») sanoqni ham
-   *  to'xtatadi: yopilgan oynadan keyin do'kon ochilishi eng yomon
-   *  natija bo'lardi. */
-  useEffect(() => {
-    if (!reason || !counting) return;
-    if (left <= 0) {
-      // O'sha oynaning o'zida: `window.open` brauzerda bloklanadi,
-      // manzilni almashtirish esa telefonda do'kon ilovasini ochadi.
-      window.location.href = ios ? links.appStore : links.playStore;
-      return;
-    }
-    const timer = window.setTimeout(() => setLeft((value) => value - 1), 1000);
-    return () => window.clearTimeout(timer);
-  }, [counting, ios, left, reason]);
 
   if (!reason) return null;
 
@@ -236,27 +208,10 @@ export default function AppPopup() {
             Yuklab olish
             <small>{store.label}</small>
           </span>
-          {counting && <span className="app-promo__count">{left}</span>}
         </a>
 
-        {counting ? (
-          <p className="app-promo__timer" role="status">
-            <span className="app-promo__bar" aria-hidden="true">
-              <i style={{ animationDuration: `${COUNTDOWN}s` }} />
-            </span>
-            {left} soniyadan keyin {store.label} o‘zi ochiladi
-          </p>
-        ) : (
-          <p className="app-promo__timer app-promo__timer--off">
-            Do‘kon o‘zi ochilmaydi — tayyor bo‘lsangiz tugmani bosing.
-          </p>
-        )}
-
-        <button
-          className="link app-promo__stay"
-          onClick={() => (counting ? setCounting(false) : close())}
-        >
-          {counting ? 'Saytda davom etish' : 'Yopish'}
+        <button className="link app-promo__stay" onClick={close}>
+          Yopish
         </button>
       </div>
     </div>,
