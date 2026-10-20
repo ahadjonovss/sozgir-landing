@@ -21,7 +21,6 @@ import {
   EMPTY_BALANCE,
   formatSum,
   loadBalance,
-  loadDonations,
   type Donation,
   type SupportBalance,
 } from '../lib/support';
@@ -276,25 +275,30 @@ function DonateModal({
 }
 
 /** Bosh sahifadagi bo'lim. To'liq sahifa — `SupportPage.tsx` (`/qollab`). */
+/** Bosh sahifadagi qo'llab-quvvatlash bo'limi — hisob va tugma.
+ *
+ *  Hissa qo'shganlarning oqimi bu yerdan olib tashlandi. U o'n-o'n
+ *  besh qator ism bo'lib turardi va bosh sahifada javob beradigan
+ *  savoli yo'q edi: odam bu yerda loyihaga ishonadimi-yo'qmi degan
+ *  qarorni ochiq hisob va summa bilan qabul qiladi, ismlar ro'yxati
+ *  bilan emas. Ro'yxatning o'z joyi bor — `/qollab`, u yerda
+ *  darajalar va top donatchilar bilan birga turadi. */
 export default function Support() {
   const { account, nickname, openPrompt } = useAuth();
   const [balance, setBalance] = useState<SupportBalance | null>(null);
-  const [donations, setDonations] = useState<Donation[] | null>(null);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
     let alive = true;
     (async () => {
-      const [next, list] = await Promise.all([loadBalance(), loadDonations()]);
+      const next = await loadBalance();
       if (!alive) return;
       setBalance(next);
-      setDonations(list);
     })();
     return () => {
       alive = false;
     };
-    // Kirgandan keyin ro'yxat qayta o'qiladi: o'z hissasi ajratib
-    // ko'rsatilishi uchun `uid` kerak.
+    // `uid` — kirgandan keyin hisob qayta o'qiladi.
   }, [account?.uid]);
 
   const state = balance ?? EMPTY_BALANCE;
@@ -322,8 +326,8 @@ export default function Support() {
               Hissa qo‘shish
             </button>
             <p className="panel__note">
-              To‘lov Payme, Click yoki karta orqali. Telefondagi ilovada ham
-              shu ro‘yxat ko‘rinadi. Homiylik darajalari va top donatchilar —{' '}
+              To‘lov Payme, Click yoki karta orqali. Hissa qo‘shganlar
+              ro‘yxati, homiylik darajalari va top donatchilar —{' '}
               <a className="link" href={links.donate}>
                 to‘liq sahifada
               </a>
@@ -331,12 +335,6 @@ export default function Support() {
             </p>
           </div>
 
-          <div className="panel support__donors">
-            <div className="panel__head">
-              <h3>Qo‘llab-quvvatlaganlar</h3>
-            </div>
-            <Donors donations={donations} uid={account?.uid} />
-          </div>
         </div>
       </div>
 

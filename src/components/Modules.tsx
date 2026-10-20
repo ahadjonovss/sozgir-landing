@@ -1,5 +1,18 @@
 import { links, modules } from '../data/site';
 
+/** Olti o'yinning kartochkasi — nomi, bir qatorlik tavsifi va
+ *  ikkita eng muhim qatori.
+ *
+ *  Ilgari har kartochkada ro'yxatning hammasi — to'rt-besh qator —
+ *  turardi va bo'lim bosh sahifaning eng uzun joyiga aylangandi.
+ *  Ichidagilar esa mexanikaning tafsiloti edi: qattiq rejim,
+ *  «20 aqchagacha», «bir jangda eng ko'pi ±10». Bular o'ynayotgan
+ *  odamga kerak, birinchi marta kelganga emas — u bu yerda nima
+ *  borligini bilmoqchi, xolos. Qolgan qatorlar `data/site.ts` da
+ *  turibdi va o'yinning o'z sahifasi yozilganda o'sha yerga
+ *  tushadi. */
+const SHOWN_POINTS = 2;
+
 /** Saytda ham ishlaydigan modullar — kartochkada havola chiqadi,
  *  qolganlarida «Ilovada» belgisi turadi. */
 const ON_SITE: Record<string, { href: string; label: string }> = {
@@ -48,7 +61,7 @@ export default function Modules() {
                 <p className="module__tagline">{m.tagline}</p>
 
                 <ul className="module__points">
-                  {m.points.map((p) => (
+                  {m.points.slice(0, SHOWN_POINTS).map((p) => (
                     <li key={p}>{p}</li>
                   ))}
                 </ul>

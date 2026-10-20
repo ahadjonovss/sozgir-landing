@@ -3,7 +3,7 @@ import { useGameChoice } from '../lib/useGameChoice';
 import { useSozTop } from '../lib/useSozTop';
 import { dailyNumber } from '../lib/daily';
 import { Today } from './Icons';
-import { links, stats } from '../data/site';
+import { links } from '../data/site';
 
 /** Orqa fondagi bezak kataklar — «so'z» harflari va ranglar. Faqat
  *  ko'rinish uchun, ekran o'quvchisiga chiqmaydi. */
@@ -27,6 +27,13 @@ const CONFETTI: { unit: string; verdict: 'correct' | 'present' | 'absent' }[] = 
  *  **ostida**: sahifa o'ynash uchun ochiladi, o'qish uchun emas. Matn
  *  yo'qolmaydi (u qidiruv uchun ham, birinchi marta kelgan odam uchun
  *  ham kerak) — faqat joyini o'yinga bo'shatib beradi.
+ *
+ *  Sanoqli plitkalar (necha so'z, necha mavzu) bu yerdan olib
+ *  tashlandi. Ular birinchi ekranning oxiridagi to'rtta raqam edi va
+ *  o'yinga hech narsa qo'shmasdi: odam bu yerga o'ynagani keladi,
+ *  lug'atning hajmini bilgani emas. Sonlar yo'qolmadi — ular endi
+ *  qoida bo'limining oxirida, bitta qatorda turadi (`Rules`): gap
+ *  lug'at haqida ketgan joyda ular javob beradi.
  *
  *  Taxta demo emas: kunlik so'z ilovadagi bilan bir xil va natija
  *  reytingga tushadi. Telefon ramkasi ham olib tashlandi — u o'yinni
@@ -111,15 +118,6 @@ export default function Hero() {
               Qanday o‘ynaladi?
             </a>
           </div>
-
-          <ul className="hero__stats">
-            {stats.map((item) => (
-              <li key={item.label} title={item.hint}>
-                <strong>{item.value}</strong>
-                <span>{item.label}</span>
-              </li>
-            ))}
-          </ul>
         </div>
       </div>
     </section>

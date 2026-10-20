@@ -1393,6 +1393,23 @@
   gap: 12px;
 }
 
+/* Lug'at sonlari — qoida ro'yxatining ostidagi bitta qator.
+   Plitka emas, oddiy gap: raqamlar quyuqroq, birlik nomi esa
+   ikkinchi darajali rangda — ko'z sonlarga tushadi, qator esa
+   bo'limni cho'zmaydi. */
+.rules__counts {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--divider);
+  color: var(--text-2);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.rules__counts strong {
+  color: var(--text);
+}
+
 .legend {
   display: flex;
   gap: 16px;
@@ -1808,6 +1825,13 @@
   display: grid;
   gap: 8px;
   max-width: 780px;
+}
+
+/* «Yana N ta savol» — ro'yxatning ostida, chapda.
+   Ro'yxat bilan bir chiziqda turadi: u ro'yxatning davomi, alohida
+   amal emas. */
+.faq__more {
+  margin-top: 14px;
 }
 
 .faq__item {

@@ -1,3 +1,4 @@
+import { stats } from '../data/site';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { display, evaluate, split, type Verdict } from '../lib/uz';
 
@@ -137,6 +138,20 @@ export default function Rules() {
               </div>
             </li>
           </ul>
+
+          {/* Lug'atning hajmi — bitta qatorda.
+              Ilgari bu to'rtta plitka bo'lib birinchi ekranning
+              oxirida turardi va o'yinni pastga surardi. Joyi shu
+              yer: gap qoida va lug'at haqida ketyapti, ya'ni son
+              javob bo'lib tushadi, bezak bo'lib emas. */}
+          <p className="rules__counts">
+            {stats.map((item, index) => (
+              <span key={item.label} title={item.hint}>
+                {index > 0 && ' · '}
+                <strong>{item.value}</strong> {item.label}
+              </span>
+            ))}
+          </p>
         </div>
       </div>
     </section>
