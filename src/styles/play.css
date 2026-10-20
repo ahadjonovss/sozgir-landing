@@ -2842,6 +2842,29 @@
 
 
 .score__who,
+/* Shu jangda olingan aqcha — har kim o'z kartochkasida.
+   Rang ishorasi aniq: qo'shilgan bo'lsa yashil, ayrilgan bo'lsa
+   qizil. Nol chizilmaydi — «+0» hech narsa aytmaydi. */
+.score__delta {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 2px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 800;
+}
+
+.score__delta--up {
+  background: var(--green-soft);
+  color: var(--green-deep);
+}
+
+.score__delta--down {
+  background: color-mix(in srgb, var(--danger) 14%, transparent);
+  color: var(--danger);
+}
+
 .score__meta {
   max-width: 100%;
   overflow: hidden;

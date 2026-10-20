@@ -570,10 +570,19 @@ function Result({ game }: { game: GunchaJang }) {
   // turadi (`lib/aqcha.ts`) va jadvaldagi qator ham shuni
   // ko'rsatadi. Ilgari bu yerda xom ayirma turardi va kartochkadagi
   // son ro'yxatdagisidan ikki barobar katta chiqardi.
-  const delta =
-    game.me?.ratingAfter !== undefined && game.me?.ratingBefore !== undefined
-      ? battleAqchaDelta(game.me.ratingBefore, game.me.ratingAfter)
+  /** O'yinchining shu jangdagi aqchasi.
+   *
+   *  Ilgari faqat o'ziniki hisoblanardi va u sarlavha ostida, alohida
+   *  qatorda turardi — raqib nima olgani esa hech qayerda
+   *  aytilmasdi. Endi ikkalasi ham o'z kartochkasida: jang ikki
+   *  tomonlama va «men nima oldim» degan savol yolg'iz emas. */
+  const aqchaOf = (player: typeof game.me): number | null =>
+    player?.ratingBefore !== undefined && player.ratingAfter !== undefined
+      ? battleAqchaDelta(player.ratingBefore, player.ratingAfter)
       : null;
+
+  const meAqcha = aqchaOf(game.me);
+  const foeAqcha = aqchaOf(game.opponent);
 
   // Maydonda «g'alaba/mag'lubiyat» degan ikkilik yo'q: o'rin bor.
   // Oxirgi o'rin ham mag'lubiyat emas — odam hali ikkinchi, uchinchi
@@ -716,11 +725,6 @@ function Result({ game }: { game: GunchaJang }) {
         </span>
         <h2 className="verdict__title">{title}</h2>
         <p className="verdict__label">{lead}</p>
-        {delta !== null && delta !== 0 && (
-          <p className="result__time">
-            <AqchaDelta value={delta} />
-          </p>
-        )}
       </div>
 
       {game.mardu ? (
@@ -740,6 +744,11 @@ function Result({ game }: { game: GunchaJang }) {
             </span>
             <strong className="score__points">{mineScore}</strong>
             <span className="score__meta">{game.revealed.mine.length} so‘z</span>
+            {meAqcha !== null && meAqcha !== 0 && (
+              <span className={`score__delta score__delta--${meAqcha > 0 ? 'up' : 'down'}`}>
+                <AqchaDelta value={meAqcha} />
+              </span>
+            )}
           </div>
           <div
             className={`score__side${winner && winner !== uid ? ' score__side--win' : ''}`}
@@ -756,6 +765,11 @@ function Result({ game }: { game: GunchaJang }) {
             </span>
             <strong className="score__points">{theirScore}</strong>
             <span className="score__meta">{game.revealed.theirs.length} so‘z</span>
+            {foeAqcha !== null && foeAqcha !== 0 && (
+              <span className={`score__delta score__delta--${foeAqcha > 0 ? 'up' : 'down'}`}>
+                <AqchaDelta value={foeAqcha} />
+              </span>
+            )}
           </div>
         </div>
       )}
@@ -816,9 +830,6 @@ function Result({ game }: { game: GunchaJang }) {
             Maydonga qaytish
           </a>
         )}
-        <a className="btn btn--sm btn--ghost" href={links.guncha}>
-          Yakka g‘uncha
-        </a>
       </div>
 
       {list === 'found' && (
