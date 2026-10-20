@@ -11,6 +11,7 @@
  *  tepada tanishtiruv (sarlavha + jonli namoyish) turadi, jang boshlangach
  *  esa faqat maydon qoladi — e'tibor taxtada bo'lsin. */
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { battleAqchaDelta } from '../lib/aqcha';
 import { useAuth } from '../lib/auth';
 import { countShare } from '../lib/badges';
 import { inviteLink, verdictsOf, type BattlePlayer } from '../lib/battle';
@@ -30,6 +31,7 @@ import CodeInput from './CodeInput';
 import { Check, Clock, Copy, Send, Swords, Trophy, Users } from './Icons';
 import { ReactionBurst, ReactionPicker } from './Reactions';
 import PlayerName from './PlayerName';
+import { AqchaDelta } from './Units';
 import RotatingLine from './RotatingLine';
 import ScoreRules from './ScoreRules';
 import SendInvite, { type InviteTarget } from './SendInvite';
@@ -783,6 +785,21 @@ function LeaveConfirm({ onLeave, onClose }: { onLeave: () => void; onClose: () =
 
 const CONFETTI = Array.from({ length: 18 }, (_, index) => index);
 
+/** O'yinchining shu jangdagi aqchasi — natija kartochkasidagi qator.
+ *
+ *  Ilgari u yerda «6 urinishda topdi» turardi. Urinishlar soni esa
+ *  ostidagi taxtada qator-baqator ko'rinib turibdi, ya'ni qator o'sha
+ *  gapni takrorlardi. Aqcha esa boshqa hech qayerda aytilmasdi va
+ *  uning uchun pastda alohida kartochka kerak bo'lardi.
+ *
+ *  Reyting kelmasa (robot, yoki eski jang) eski matn qoladi: bo'sh
+ *  qator qoldirgandan ko'ra urinishlar soni ma'qul. */
+function aqchaOf(player: BattlePlayer | undefined): number | null {
+  if (typeof player?.ratingBefore !== 'number') return null;
+  if (typeof player.ratingAfter !== 'number') return null;
+  return battleAqchaDelta(player.ratingBefore, player.ratingAfter);
+}
+
 function Result({ game }: { game: Sozjang }) {
   const { account } = game;
   const { copied, share } = useShare();
@@ -803,6 +820,8 @@ function Result({ game }: { game: Sozjang }) {
    *  Raqib tugatgach kuzatuvchi hujjatni yangilaydi va ekran to'ladi. */
   const pending =
     gaveUp && game.battle?.status !== 'finished' && game.battle?.status !== 'expired';
+  const meAqcha = aqchaOf(game.me);
+  const foeAqcha = aqchaOf(game.opponent);
   const mine = !gaveUp && !!winner && !!account && winner === account.uid;
   const draw = !gaveUp && !winner;
   const expired = game.battle?.status === 'expired';
@@ -985,7 +1004,13 @@ function Result({ game }: { game: Sozjang }) {
           </span>
           <strong className="score__points">{game.me?.score ?? 0}</strong>
           <span className="score__meta">
-            {game.me?.won ? `${game.me.attempts ?? 0} urinishda topdi` : 'topa olmadi'}
+            {meAqcha !== null ? (
+              <AqchaDelta value={meAqcha} />
+            ) : game.me?.won ? (
+              `${game.me.attempts ?? 0} urinishda topdi`
+            ) : (
+              'topa olmadi'
+            )}
           </span>
         </div>
         <span className="score__dash" aria-hidden="true">
@@ -1004,11 +1029,15 @@ function Result({ game }: { game: Sozjang }) {
           )}
           <strong className="score__points">{game.opponent?.score ?? 0}</strong>
           <span className="score__meta">
-            {game.opponent?.won
-              ? `${game.opponent.attempts ?? 0} urinishda topdi`
-              : pending
-                ? 'o‘ynayapti'
-                : 'topa olmadi'}
+            {pending ? (
+              'o‘ynayapti'
+            ) : foeAqcha !== null ? (
+              <AqchaDelta value={foeAqcha} />
+            ) : game.opponent?.won ? (
+              `${game.opponent.attempts ?? 0} urinishda topdi`
+            ) : (
+              'topa olmadi'
+            )}
           </span>
         </div>
       </div>}
@@ -1041,19 +1070,6 @@ function Result({ game }: { game: Sozjang }) {
           />
         </div>
       </div>}
-
-      {account && !expired && (
-        <BattleStats
-          uid={account.uid}
-          compact
-          change={
-            typeof game.me?.ratingBefore === 'number' &&
-            typeof game.me.ratingAfter === 'number'
-              ? { before: game.me.ratingBefore, after: game.me.ratingAfter }
-              : null
-          }
-        />
-      )}
 
       {/* Davra tugadi — endi nima bo'ladi. Tugmalardan **oldin**:
           odam avval keyingi davra o'zi boshlanishini bilsin, keyin

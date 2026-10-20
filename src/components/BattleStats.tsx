@@ -18,26 +18,25 @@ import {
   winRate,
   type BattleRating,
 } from '../lib/battleRating';
-import { useCountUp } from '../lib/useCountUp';
 import { useDonorTier } from '../lib/donor';
 import DonorChip from './DonorChip';
 import { BattleAqcha, TierBadge } from './Units';
 
+/** Jang aqchasi: yig'indi, daraja va uchta sanoq.
+ *
+ *  Ilgari bu yerda `change` ham bor edi — shu jang aqchani qancha
+ *  o'zgartirgani. U faqat natija ekrani uchun edi, u yerda esa farq
+ *  endi o'yinchilarning o'z kartochkasida, taxtasi ustida turadi
+ *  (`BattlePage` dagi `aqchaOf`) va bu kartochkaning o'zi ko'rsatilmaydi.
+ *  Shu sababli `change` bilan birga sanoq animatsiyasi ham ketdi:
+ *  kartochka ko'rinadigan joylarda (profil, lobbi, `/oynash`)
+ *  «o'zgarish» degan tushuncha yo'q. */
 export default function BattleStats({
   uid,
   compact = false,
-  change = null,
 }: {
   uid: string;
   compact?: boolean;
-  /** Shu jang aqchani qancha o'zgartirgani — xom reytingda.
-   *
-   *  Natija ekranida kerak: kartochkada yangi yig'indi turadi va
-   *  undan «bu jang nima berdi» bilinmasdi. Jadval jang tugagach
-   *  yangilanadi, ya'ni farqni undan hisoblab bo'lmaydi — server
-   *  jang yozuviga avvalgi va keyingi sonni qo'yadi va ikkisi shu
-   *  yerga keladi. */
-  change?: { before: number; after: number } | null;
 }) {
   const [value, setValue] = useState<BattleRating | null>(null);
 
@@ -54,16 +53,6 @@ export default function BattleStats({
   }, [uid]);
 
   const rating = value ?? EMPTY_RATING;
-  /* Jang tugagach son eski o'ljadan yangisiga sanab o'tadi: shu
-     jangda nima bo'lganini raqamning o'zi ko'rsatadi. Boshqa
-     joylarda (profil, lobbi) «o'zgarish» degan tushuncha yo'q —
-     `change` bo'lmasa son darhol o'z qiymatida turadi. */
-  const shown = useCountUp(
-    rating.rating,
-    // Jadval hali yuklanmagan bo'lsa sanoq boshlanmaydi: aks holda
-    // son avval bo'sh qiymatga sakrab, keyin sanalardi.
-    change && value ? change.before : null,
-  );
   const next = nextTierAt(rating.rating);
   const games = played(rating);
   /** Homiylik darajasi: kartochka daraja ohangida, daraja yonida chip. */
@@ -78,26 +67,7 @@ export default function BattleStats({
       <div className="rating__main">
         <span className="rating__label">Jang aqchasi</span>
         <strong className="rating__value">
-          <BattleAqcha rating={shown} size="lg" />
-          {/* Farq — yig'indidan keyin.
-              Kartochkadagi son yig'indi: 1 001 ni ko'rgan odam shu
-              jangda uchtasini yo'qotganini bilmasdi. Ilgari farq
-              kartochkadan yuqorida, «−3 jang aqchasi» degan alohida
-              qatorda turardi — lekin nimaning farqi ekani ostidagi
-              kartochkada yozib qo'yilgan, ya'ni qator o'sha gapni
-              ikkinchi marta aytardi.
-
-              Nol bo'lsa chizilmaydi: «+0» hech narsa aytmaydi. */}
-          {change && battleAqcha(change.after) !== battleAqcha(change.before) && (
-            <span
-              className={`rating__delta rating__delta--${
-                change.after > change.before ? 'up' : 'down'
-              }`}
-            >
-              {change.after > change.before ? '+' : '−'}
-              {Math.abs(battleAqcha(change.after) - battleAqcha(change.before))}
-            </span>
-          )}
+          <BattleAqcha rating={rating.rating} size="lg" />
         </strong>
         <span className="rating__tiers">
           <span className="rating__tier">

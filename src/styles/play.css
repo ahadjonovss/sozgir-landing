@@ -3041,29 +3041,6 @@
   font-size: 30px;
 }
 
-/* Shu jang qancha bergani — yig'indi yonida, undan kichik.
-   Yig'indi asosiy son bo'lib qolishi kerak: farq uni o'qishga
-   xalal bermasin, lekin ko'zga tashlansin. */
-.rating__delta {
-  margin-left: 8px;
-  font-size: 15px;
-  font-weight: 800;
-  letter-spacing: 0;
-  vertical-align: middle;
-  padding: 3px 8px;
-  border-radius: 999px;
-}
-
-.rating__delta--up {
-  color: var(--green-deep);
-  background: var(--green-soft);
-}
-
-.rating__delta--down {
-  color: var(--danger);
-  background: color-mix(in srgb, var(--danger) 14%, transparent);
-}
-
 .rating__tiers {
   display: flex;
   flex-wrap: wrap;
