@@ -15,12 +15,11 @@
  *  oziqlansin desak, bu jadval serverga chiqishi kerak — hozir u
  *  yerda yo'q.
  *
- *  **Bitta farq bor va u ataylab.** Ilovada homiy o'z ko'rinishini
- *  tanlaydi (`donors/{uid}.look`), saytda esa tanlov ko'rinmaydi: ochiq
- *  profil javobida bunday maydon yo'q. Shuning uchun ko'rinish
- *  yig'indidan hisoblanadi (`lookForAmount`) — ya'ni odam boshqasini
- *  tanlamagan bo'lsa, sayt ilovadagi bilan bir xil chiqadi. Server
- *  `look` ni ochiq profilga qo'shsa, shu yerda bitta satr o'zgaradi. */
+ *  **Tanlov ham hisobga olinadi.** Homiy o'z ko'rinishini ilovada
+ *  tanlaydi (`donors/{uid}.look`) va server uni ochiq profil javobida
+ *  beradi. Shuning uchun sayt avval o'sha tanlovga qaraydi; tanlov
+ *  yo'q bo'lsa (yoki noma'lum kalit kelsa) ko'rinish yig'indidan
+ *  olinadi — ilovadagi sukut bo'yicha xulqning o'zi. */
 import { donorTier, type DonorTier } from './donor';
 
 /** Ko'rinish turi — bezak kuchi shundan ham kelib chiqadi. */
@@ -243,6 +242,13 @@ const HONORIFIC: Record<DonorTier, string> = {
   oqsuyak: 'Loyihaning oliy homiysi',
 };
 
+/** Kaliti bo'yicha ko'rinish. Noma'lum kalit — `null`: jadval
+ *  ilovadagiga qarab o'sadi va eski sayt yangi kalitni bilmasligi
+ *  mumkin. Unda yig'indi bo'yicha tanlangani chiziladi, ya'ni ekran
+ *  bo'sh qolmaydi. */
+const lookById = (id: string | null) =>
+  id ? (LOOKS.find((look) => look.id === id) ?? null) : null;
+
 /** Shu yig'indi ochgan eng yuqori ko'rinish. */
 function lookForAmount(amount: number): DonorLook | null {
   let best: DonorLook | null = null;
@@ -294,12 +300,16 @@ export function profileSkin(input: {
   verified: boolean;
   /** Loyihaga berilgan umumiy summa (so'mda). */
   donated: number;
+  /** O'zi tanlagan ko'rinish kaliti — ochiq profil javobidan. */
+  look?: string | null;
   /** Daraja nomi — `donorLabel` dan (matn bitta joyda tursin). */
   label: (tier: DonorTier) => string;
 }): ProfileSkin | null {
   if (input.verified) return VERIFIED_SKIN;
   const tier = donorTier(input.donated);
   if (!tier) return null;
-  const look = lookForAmount(input.donated) ?? LOOKS[0]!;
+  /* Tanlagani ustun: ilovada ekran aynan shunday chiziladi. Tanlov
+     yo'q bo'lsa yig'indi ochgan eng yuqorisi olinadi. */
+  const look = lookById(input.look ?? null) ?? lookForAmount(input.donated) ?? LOOKS[0]!;
   return donorSkin(look, tier, input.label(tier));
 }

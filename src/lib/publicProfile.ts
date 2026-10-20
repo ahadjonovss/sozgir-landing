@@ -52,6 +52,13 @@ export interface PublicProfile {
   today: PublicDailyResult | null;
   donated: number;
   donations: number;
+  /** Homiy o'zi tanlagan profil ko'rinishining kaliti
+   *  (`donors/{uid}.look`) — masalan `koshin`, `oqsuyak`.
+   *
+   *  Tanlamagan bo'lsa `null` va ko'rinish yig'indidan olinadi
+   *  (`lib/profileSkin.ts`). Ilovada ham shunday: tanlov faqat
+   *  bezakka tegadi, daraja o'z holicha qoladi. */
+  look: string | null;
 }
 
 /** Hech qayerda izi yo'q: raqamlar o'rniga izoh chiqadi. */
@@ -78,6 +85,7 @@ const EMPTY: Omit<PublicProfile, 'uid'> = {
   today: null,
   donated: 0,
   donations: 0,
+  look: null,
 };
 
 interface ApiProfile {
@@ -87,6 +95,7 @@ interface ApiProfile {
   rank?: unknown;
   today?: { won?: unknown; attempts?: unknown; points?: unknown } | null;
   donated?: unknown;
+  look?: unknown;
 }
 
 export async function loadPublicProfile(uid: string): Promise<PublicProfile> {
@@ -148,6 +157,9 @@ export async function loadPublicProfile(uid: string): Promise<PublicProfile> {
         }
       : null,
     donated: int(profile.donated),
+    /* Tanlangan ko'rinish — serverdan shu nom bilan keladi
+       (`app/public_profile.ts`). Tanlanmagan bo'lsa `null`. */
+    look: typeof profile.look === 'string' && profile.look ? profile.look : null,
     // Donatlar **soni** serverda qaytmaydi, faqat yig'indisi. Nol
     // emas, bor-yo'qligi bo'yicha: yig'indisi bo'lsa kamida bitta.
     donations: int(profile.donated) > 0 ? 1 : 0,
