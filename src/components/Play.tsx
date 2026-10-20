@@ -9,7 +9,6 @@
  *  xohlagancha o'ynaladi — ilovadagi qoidaning aynan o'zi. */
 import { useEffect, useState, type CSSProperties } from 'react';
 import { untilNextWord } from '../lib/daily';
-import { GUEST_GAME_LIMIT } from '../lib/progress';
 import { useAuth } from '../lib/auth';
 import { askAppPromo } from '../lib/appPromo';
 import { countShare } from '../lib/badges';
@@ -84,10 +83,6 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
    *  turadigan «Statistika» kartochkasi); saytda esa panel yon ustunda
    *  qolib ketardi — telefonda uni umuman ko'rmaslik mumkin edi. */
   const [statsOpen, setStatsOpen] = useState(false);
-  /** Mehmon chegarasi oynasi — taxta yopilganda bir marta ochiladi,
-   *  yopilsa ostidagi panel qoladi. */
-  const [gateOpen, setGateOpen] = useState(true);
-
   /** Kunlik so'z uchun hisob kerak.
    *
    *  Kunlik o'yin — hamma uchun bitta so'z va u reytingga tushadi:
@@ -267,59 +262,10 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
         </div>
       )}
 
-      {hint.line && !game.locked && (
+      {hint.line && (
         <p className="play__hintline" role="status">
           {pretty(hint.line)}
         </p>
-      )}
-
-      {game.locked && (
-        <>
-          <div className="gate" role="status">
-            <span className="gate__icon" aria-hidden="true">🔒</span>
-            <h3>Iltimos, kiring</h3>
-            <p>
-              Hisobsiz {GUEST_GAME_LIMIT} ta o‘yin o‘ynadingiz. Davom etish
-              uchun kiring — natijalaringiz saqlanadi va reytingga tushadi.
-            </p>
-            <div className="result__actions">
-              <button className="btn btn--sm" onClick={() => auth.openPrompt('signIn')}>
-                Kirish
-              </button>
-              <button className="btn btn--sm btn--ghost" onClick={() => auth.openPrompt('register')}>
-                Hisob ochish
-              </button>
-            </div>
-          </div>
-          {gateOpen && (
-            <Modal
-              title="Iltimos, kiring"
-              lead={`Hisobsiz ${GUEST_GAME_LIMIT} ta o‘yin o‘ynadingiz. Keyingisi uchun kirish kerak — natijalaringiz saqlanadi va boshqa qurilmadan ham ko‘rinadi.`}
-              onClose={() => setGateOpen(false)}
-            >
-              <div className="form">
-                <button
-                  className="btn"
-                  onClick={() => {
-                    setGateOpen(false);
-                    auth.openPrompt('signIn');
-                  }}
-                >
-                  Kirish
-                </button>
-                <button
-                  className="btn btn--ghost"
-                  onClick={() => {
-                    setGateOpen(false);
-                    auth.openPrompt('register');
-                  }}
-                >
-                  Hisob ochish
-                </button>
-              </div>
-            </Modal>
-          )}
-        </>
       )}
 
       {needsAccount && (
@@ -352,7 +298,7 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
         </div>
       )}
 
-      {!needsAccount && game.puzzle && game.phase !== 'loading' && game.phase !== 'error' && !game.locked && (
+      {!needsAccount && game.puzzle && game.phase !== 'loading' && game.phase !== 'error' && (
         <>
           {!elsewhere && (
             <div className="play__area">

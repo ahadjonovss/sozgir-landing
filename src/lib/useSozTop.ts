@@ -26,8 +26,6 @@ import {
   recordOutcome,
   type FoundSummary,
   type GameStats,
-  GUEST_GAME_LIMIT,
-  guestGamesPlayed,
 } from './progress';
 import {
   display,
@@ -180,7 +178,7 @@ async function endlessPuzzle(length: number, number: number): Promise<Puzzle> {
 }
 
 export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
-  const { account, ready } = useAuth();
+  const { account } = useAuth();
 
   const [puzzle, setPuzzle] = useState<Puzzle | null>(null);
   const [phase, setPhase] = useState<Phase>('loading');
@@ -458,17 +456,6 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
     [later],
   );
 
-  /** Mehmon chegarasi: 10 o'yindan keyin taxta kirishgacha yopiladi.
-   *
-   *  `ready` kutiladi. Sahifa ochilganda `account` har doim `null`
-   *  bo'ladi — Firebase SDK yuklanib, sessiyani o'qib chiqishi kerak.
-   *  Shuni kutmaganda kirgan odam ham har tashrifda «Iltimos, kiring»
-   *  oynasini bir lahza ko'rardi va u hisob tanilishi bilan o'zi
-   *  yopilardi. Hech qachon kirmagan tashrifchida `ready` darhol rost
-   *  (`AuthProvider` ni qarang), ya'ni chegara o'z kuchida qoladi. */
-  const locked =
-    ready && !account && phase === 'playing' && guestGamesPlayed() >= GUEST_GAME_LIMIT;
-
   /** Avto to'ldirish — ilovadagi `_autoFilledInput`: joyi aniq bo'lgan
    *  harflar keyingi qatorga o'zi qo'yiladi va o'chirilmaydi. Sozlama
    *  o'chiq bo'lsa qator bo'sh qoladi, harflarni odam o'zi teradi. */
@@ -489,7 +476,7 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
 
   const press = useCallback(
     (key: string) => {
-      if (phase !== 'playing' || !puzzle || locked) return;
+      if (phase !== 'playing' || !puzzle) return;
       // Brauzer sahifaga tegilmaguncha ovozga ruxsat bermaydi: birinchi
       // tugma o'sha teginish bo'ladi.
       unlockSounds();
@@ -576,7 +563,7 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
         return next;
       });
     },
-    [bump, current, later, locked, locks, past, phase, puzzle, settings.hardMode],
+    [bump, current, later, locks, past, phase, puzzle, settings.hardMode],
   );
 
   /** Oxirgi qo'lda terilgan katak — `sh`, `oʻ` kabi birikmalar uchun.
@@ -675,7 +662,6 @@ export function useSozTop({ mode, length }: { mode: Mode; length: number }) {
 
   return {
     phase,
-    locked,
     puzzle,
     rows,
     activeRow: past.length,
