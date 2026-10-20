@@ -582,7 +582,21 @@ export function useSozjang() {
         setSearching(true);
         try {
           const reply = await quickMatch({ length });
-          if (reply.battleId) {
+          /* Endigina chiqilgan jang qaytib kelsa — ochilmaydi.
+             Navbatdagi yozuvimizda oldingi jangning `matchId` si
+             turishi mumkin: u jang tugaganda emas, keyingi moslash
+             paytida almashadi. Shu sababli «Yangi raqib qidirish»
+             bosilganda javobda o'sha eski jang qaytib, ekranda kutish
+             o'rnida o'zimiz endigina ko'rgan natija chiqardi.
+
+             Kuzatuvchida (`watchQueue`) bu himoya bor edi, so'rov
+             javobida esa yo'q — shuning uchun xato har safar emas,
+             qaysi yo'l oldin yetib kelishiga qarab chiqardi.
+
+             Bunday javob «hali topilmadi» deb qaraladi: `searching`
+             o'chirilmaydi va haqiqiy raqib kelganda kuzatuvchi uni
+             o'zi ochadi. */
+          if (reply.battleId && reply.battleId !== lastLeft.current) {
             // Navbat kuzatuvchisi (`searching` ga bog'langan effekt)
             // endi keraksiz: jang topilgan.
             setSearching(false);
