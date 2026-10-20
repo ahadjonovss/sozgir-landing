@@ -662,12 +662,31 @@ export function useGunchaJang() {
         if (!account) return;
         setSeconds(0);
         waiting.current = true;
-        const reply = await quickMatch({
-          length: DEFAULT_LENGTH,
-          game: 'guncha',
-        });
-        if (reply.battleId) open(reply.battleId);
-        else setSearching(true);
+        /* Qidiruv ekrani so'rovdan **oldin** yoqiladi — So'zjangdagidek.
+           Ilgari u faqat javob «raqib topilmadi» bo'lganda chiqardi va
+           o'shangacha ekranda lobbi turardi: natijadan «Keyingi jang»
+           bosgan odam bir zum eski ro'yxatni ko'rib, keyin qidiruvga
+           tushardi. Raqib darrov topilsa jangning o'zi ochiladi, ya'ni
+           qidiruv ekrani ko'zga ham tashlanmaydi. */
+        setSearching(true);
+        try {
+          const reply = await quickMatch({
+            length: DEFAULT_LENGTH,
+            game: 'guncha',
+          });
+          /* Endigina chiqilgan jang qaytib kelsa ochilmaydi: navbatdagi
+             yozuvda uning `matchId` i hali turgan bo'lishi mumkin.
+             Kuzatuvchida bu himoya bor edi, so'rov javobida esa yo'q —
+             natijada «Keyingi jang» bosilganda kutish o'rnida endigina
+             ko'rilgan jang qaytib ochilardi. */
+          if (reply.battleId && reply.battleId !== lastLeft.current) {
+            setSearching(false);
+            open(reply.battleId);
+          }
+        } catch (error) {
+          setSearching(false);
+          throw error;
+        }
       }),
     [account, open, run],
   );
@@ -691,11 +710,18 @@ export function useGunchaJang() {
     }
   }, [battleId, close, phase]);
 
+  /** Natijadagi «Keyingi jang» — darhol raqib qidiriladi.
+   *
+   *  Ilgari qidiruv faqat oldingi jang tezkor bo'lsa boshlanardi:
+   *  do'sti bilan kod orqali o'ynagan odam tugmani bossa lobbiga
+   *  tushardi va u yerda yana bitta tugma bosishi kerak edi. Jang
+   *  qanday boshlangani esa bu yerda ahamiyatsiz — tugmani bosgan
+   *  odam **hozir yana o'ynamoqchi**. So'zjangda ham shunday
+   *  (`useSozjang` dagi `again`). */
   const again = useCallback(async () => {
-    const type = battle?.type;
     await leave();
-    if (type === 'quick') await quick();
-  }, [battle?.type, leave, quick]);
+    await quick();
+  }, [leave, quick]);
 
   const react = useCallback(
     (key: ReactionKey) => {

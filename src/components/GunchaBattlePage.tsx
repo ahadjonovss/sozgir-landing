@@ -822,7 +822,8 @@ function Result({ game }: { game: GunchaJang }) {
           </a>
         ) : (
           <button className="btn btn--sm btn--outline" onClick={game.again}>
-            Yana o‘ynash
+            <Swords size={16} />
+            Keyingi jang
           </button>
         )}
         {game.mardu && !series && (
