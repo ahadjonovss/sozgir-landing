@@ -6612,3 +6612,101 @@
     padding-bottom: 4px;
   }
 }
+
+/* ── Taxta yonidagi taklif ustunlari ──────────────────────────────────
+   Keng ekranda o'yin maydoni o'rtada tor ustunda turadi va ikki yoni
+   butunlay bo'sh qoladi. O'sha bo'shliqqa o'zimizning boshqa
+   o'yinlarimiz qo'yiladi (`GameAside`).
+
+   Ustunlar oqimdan tashqarida: `.play` ga nisbatan `absolute`, ya'ni
+   taxta, klaviatura va natija kartochkasi joyidan qimirlamaydi —
+   ustun paydo bo'lgani bilan markaz ham siljimaydi.
+
+   Odatda ko'rinmaydi: telefon va planshetda yoningdagi bo'shliqning
+   o'zi yo'q, ya'ni qaror ekran eniga bog'liq va u pastdagi `@media`
+   da bir joyda aytilgan. */
+/* Chap chetiga tekislanadi: bosh sahifada hamma narsa markazga
+   tekislangan (`.hero__inner`), lekin bu yerda qisqa sarlavha va ikki
+   satrlik tavsif — markazdan ularni o'qish qiyin. */
+.aside-games {
+  display: none;
+  text-align: left;
+}
+
+/* Taxta — ustunlar uchun o'lchov nuqtasi. Boshqa hech narsaga ta'sir
+   qilmaydi: `.play` ichida avval `absolute` element yo'q edi. */
+.play {
+  position: relative;
+}
+
+/* 1200px — taxtaning ikki yonida 240px lik ustun va havo sig'adigan
+   eng tor ekran. Undan torroqda ustun taxtaning ustiga chiqib
+   ketardi. */
+@media (min-width: 1200px) {
+  .aside-games {
+    position: absolute;
+    top: 0;
+    width: 240px;
+    display: grid;
+    gap: 10px;
+    align-content: start;
+  }
+
+  .aside-games--left {
+    /* O'ngi taxtaning chap chetidan 28px narida tugaydi. */
+    right: calc(100% + 28px);
+  }
+
+  .aside-games--right {
+    left: calc(100% + 28px);
+  }
+
+  /* O'yin sahifasida (`/oyin`) o'z yon ustuni bor — statistika,
+     nishonlar, reyting. Yana bitta ustun qo'shilsa, sahifa ikki
+     tomondan ham siqilardi. */
+  .oyin__grid .aside-games {
+    display: none;
+  }
+}
+
+/* Saytning o'z kartochkalari tilida: yumshoq fon, hoshiyasiz,
+   ko'zni urmaydi — yonida turgan taklif, banner emas. */
+.aside-game {
+  display: flex;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: inherit;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.aside-game:hover {
+  background: var(--surface-2);
+}
+
+.aside-game__emoji {
+  font-size: 18px;
+  line-height: 1.25;
+}
+
+.aside-game__text {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.aside-game__text strong {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Tavsif bir qatorlik, lekin ikki satrga tushishi mumkin — kichik va
+   past kontrastli: kartochka o'yindan diqqatni tortib olmasligi
+   kerak. */
+.aside-game__text span {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--text-2);
+}

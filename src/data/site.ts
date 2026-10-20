@@ -251,3 +251,70 @@ export const faq = [
     a: 'Kunlik so‘z birinchi urinishda 20 aqcha beradi, keyingi urinishlarda kamayadi: 17, 13, 10, 7, 3. Cheksiz rejimda qancha urinish qolsa — shuncha aqcha, eng ko‘pi 8. Avval topilgan so‘z 60 % beradi, yordam olinsa shift 6 yoki 4 aqchaga tushadi. Jang ham aqcha beradi: bir jangda eng ko‘pi ±10.',
   },
 ];
+
+/** Yon ustundagi taklif kartochkalari — o'yin maydonining chap va o'ng
+ *  tomonidagi bo'sh joyda turadigan «yana nima bor» ro'yxati.
+ *
+ *  Ro'yxat bitta joyda: uni ishlatadigan `GameAside` joriy o'yinni
+ *  `id` bo'yicha chiqarib tashlaydi, ya'ni odamga o'zi o'ynab turgan
+ *  o'yin taklif qilinmaydi.
+ *
+ *  Matn o'ylab topilmagan: So'ztop, So'zjang va G'unchaning bir
+ *  qatorlik tavsifi `modules` dagi o'sha tavsifning aynan o'zi —
+ *  bosh sahifadagi yozuv bilan bu yerdagisi hech qachon ayri
+ *  tushmaydi. Mardu va Cheksiz `modules` da yo'q (biri shakl, ikkinchisi
+ *  So'ztopning rejimi), shuning uchun ular `links` dagi izohlarda
+ *  aytilgan narsani qisqa qilib takrorlaydi.
+ *
+ *  So'zjang havolasi `battleQuick` emas, oddiy `/sozjang`: bu yerdagi
+ *  kartochka taklif, qidiruvni o'zi boshlab yuboradigan tugma emas. */
+export type GameLink = {
+  id: string;
+  emoji: string;
+  name: string;
+  tagline: string;
+  href: string;
+};
+
+/** `modules` dagi tavsifni nomi bo'yicha olish — matn ikki joyda
+ *  yozilib qolmasligi uchun. */
+const moduleTagline = (id: string) =>
+  modules.find((item) => item.id === id)?.tagline ?? '';
+
+export const gameLinks: GameLink[] = [
+  {
+    id: 'soztop',
+    emoji: '🟩',
+    name: 'So‘ztop',
+    tagline: moduleTagline('soztop'),
+    href: links.play,
+  },
+  {
+    id: 'sozjang',
+    emoji: '⚔️',
+    name: 'So‘zjang',
+    tagline: moduleTagline('sozjang'),
+    href: links.battle,
+  },
+  {
+    id: 'guncha',
+    emoji: '🌸',
+    name: 'G‘uncha',
+    tagline: moduleTagline('guncha'),
+    href: links.guncha,
+  },
+  {
+    id: 'mardu',
+    emoji: '🏟️',
+    name: 'Mardu maydon',
+    tagline: 'O‘sha So‘zjang yoki G‘uncha, lekin sakkiztagacha odam bilan.',
+    href: links.mardu,
+  },
+  {
+    id: 'cheksiz',
+    emoji: '♾️',
+    name: 'Cheksiz',
+    tagline: '4 dan 7 harfgacha, xohlagancha mashq — hisobsiz ham.',
+    href: '/cheksiz/5-harf',
+  },
+];

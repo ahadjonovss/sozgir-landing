@@ -18,6 +18,7 @@ import type { Game } from '../lib/useSozTop';
 import { puzzleKey, useHint } from '../lib/useHint';
 import { pretty } from '../lib/uz';
 import { Board, Keyboard } from './Board';
+import GameAside from './GameAside';
 import { Chart } from './Icons';
 import StatsPanel from './StatsPanel';
 import { Aqcha } from './Units';
@@ -153,6 +154,17 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
         } as CSSProperties
       }
     >
+      {/* Yon ustunlar taxtaning **ichida** e'lon qilinadi, lekin
+          oqimdan tashqarida chiziladi (`position: absolute`): shunda
+          ular taxtaning o'z chetlaridan hisoblanadi va markaz
+          qimirlamaydi. Keng ekrandan boshqa joyda CSS ularni umuman
+          ko'rsatmaydi.
+
+          Joriy o'yin rejimga qarab aytiladi: cheksiz rejimda odam
+          aynan «Cheksiz» ni o'ynab turibdi, ya'ni unga So'ztopning
+          kunlik so'zi taklif qilinadi va teskarisi. */}
+      <GameAside current={mode === 'endless' ? 'cheksiz' : 'soztop'} />
+
       <div className="play__top">
         <div className="play__modes" role="tablist" aria-label="O‘yin rejimi">
           {(['daily', 'endless'] as Mode[]).map((item) => (
