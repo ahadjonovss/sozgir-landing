@@ -51,6 +51,31 @@ import { Bulb, Chart, Close, Trophy } from './Icons';
  *  ko'ringandan keyin. */
 const OPEN_DELAY_MS = 4000;
 
+/** Sahifa ochilishidagi taklif yoqilganmi.
+ *
+ *  Hozir **o'chiq**, va bu vaqtinchalik emas, aniq sababdan.
+ *  Reklama tarmog'ining moderatsiyasida rad etish sabablari ro'yxatida
+ *  «kontentni to'sadigan qalqib chiquvchi oyna» alohida satr bo'lib
+ *  turadi. Telefonda ochilgan har sahifada to'rt soniyadan keyin
+ *  chiqadigan va ekranning yarmini egallaydigan oyna aynan shu
+ *  ta'rifga tushadi — hatto yopish oson bo'lsa ham, hatto kuniga bir
+ *  marta bo'lsa ham: moderator saytni telefonda ochadi va birinchi
+ *  ko'rgan narsasi o'sha oyna bo'ladi.
+ *
+ *  Natijadan keyingi taklif (`result`) o'z joyida qoladi: u o'yin
+ *  tugagach, odam bo'sh paytda chiqadi va «natijangiz saqlansinmi»
+ *  degan savol o'sha paytda o'rinli. Moderator esa o'yinni oxirigacha
+ *  o'ynab chiqmaydi.
+ *
+ *  Sayt РСЯ dan o'tgach buni qaytarish mumkin — lekin qaytarishdan
+ *  oldin o'ylab ko'rish kerak: taklifning foydasi o'sha ro'yxatdagi
+ *  satrga arziydimi.
+ *
+ *  Tarix: `fb1a0c2` dan oldin bu oynada besh soniyalik sanoq bor edi
+ *  va u tugagach do'kon **o'zi** ochilardi. U ham xuddi shu
+ *  ro'yxatdagi sabab edi va o'shanda olib tashlangan. */
+const OPEN_PROMO = false;
+
 /** Natijadan keyingi taklif ham kutadi: avval odam o'z natijasini
  *  ko'rsin, taxta quvonib bo'lsin — keyin taklif. */
 const RESULT_DELAY_MS = 1600;
@@ -100,8 +125,9 @@ export default function AppPopup() {
     setReason(null);
   }, []);
 
-  // Sahifa ochilishi — birinchi payt.
+  // Sahifa ochilishi — birinchi payt. [OPEN_PROMO] o'chiq bo'lsa yo'q.
   useEffect(() => {
+    if (!OPEN_PROMO) return;
     const timer = window.setTimeout(() => askAppPromo('open'), OPEN_DELAY_MS);
     return () => window.clearTimeout(timer);
   }, []);

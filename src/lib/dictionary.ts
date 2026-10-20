@@ -12,15 +12,19 @@
  *  o'ynaladi, yangisi bo'lsa keshga yoziladi va **keyingi** o'yindan
  *  qo'llanadi — so'z o'yin o'rtasida almashmasligi kerak.
  *
- *  So'z **ma'nolari serverda yo'q**: Postgres'dagi `dictionary_words`
- *  da faqat so'zning o'zi, uzunligi va javob bo'la olishi saqlanadi
- *  (`backend/src/tools/migrate.ts` ma'nolarni ataylab ko'chirmagan).
- *  Shu sabab `wordMeaning` `null` qaytaradi — chaqiruvchilar buni
- *  allaqachon odatiy hol deb qaraydi.
+ *  **So'z ma'nolari serverda bor.** Bir vaqtlar yo'q edi: yangi
+ *  serverga ko'chishda `dictionary_words` ga faqat so'z, uzunligi va
+ *  javob bo'la olishi ko'chgan edi, shuning uchun bu fayl javobdagi
+ *  `words` ni umuman o'qimay, jadvalni mavzular ro'yxatidan qayta
+ *  yasardi. Marshrut o'shandan beri to'ldirilgan va endi har so'z
+ *  ma'nosi (`d`) bilan keladi, eski kod esa uni **tashlab yuborardi**:
+ *  saytda o'yin tugagach ma'no chiqmay qo'ygani va `wordMeaning` doim
+ *  `null` qaytargani shundan.
  *
- *  Mavzu (`c`) esa tiklanadi: u alohida marshrutda turadi va
- *  `categories.ts` undan «so'z → mavzu» jadvalini yasaydi. Ya'ni
- *  yordamning birinchi bosqichi ishlashda davom etadi. */
+ *  Endi javobdagi `words` asos qilib olinadi. Mavzu (`c`) esa
+ *  avvalgidek alohida marshrutdan to'ldiriladi: u lug'at jadvalida
+ *  yo'q va `categories.ts` dagi «so'z → mavzu» jadvali o'z o'rnida
+ *  qoladi. */
 import { api } from '../api/client';
 import { loadCategories } from './categories';
 import { normalize } from './uz';
@@ -51,7 +55,15 @@ interface StoredDictionary {
   words: Record<string, WordInfo>;
 }
 
-const cacheKey = (length: number) => `sozgir.dict.${length}`;
+/** Keshning kaliti. Oxiridagi raqam — **saqlanadigan shaklning**
+ *  versiyasi, lug'atniki emas.
+ *
+ *  U `2` ga ko'tarildi, chunki eski kesh ma'nosiz yozilgan edi va uni
+ *  fon tekshiruvi tuzatmasdi: u faqat server versiyasi o'sganda
+ *  ishlaydi, lug'at esa o'zgarmagan bo'lishi mumkin. Yangi kalit bilan
+ *  eski yozuv shunchaki e'tiborsiz qoladi va lug'at bir marta qaytadan
+ *  olinadi. */
+const cacheKey = (length: number) => `sozgir.dict2.${length}`;
 
 const memory = new Map<number, Dictionary>();
 const inflight = new Map<number, Promise<Dictionary>>();
@@ -94,6 +106,7 @@ interface ApiDictionary {
   version?: number;
   answers?: unknown;
   valid?: unknown;
+  words?: unknown;
 }
 
 const strings = (value: unknown): string[] =>
@@ -113,11 +126,26 @@ async function fetchDictionary(length: number): Promise<StoredDictionary | null>
 
   // Mavzular alohida keladi va faqat javob bo'la oladigan so'zlar uchun
   // kerak: yordam **javobning** mavzusini ochadi, taxminnikini emas.
+  // Lug'at jadvalida mavzu yo'q, shuning uchun u serverdagi ma'noning
+  // ustiga emas, yoniga qo'yiladi.
   const { wordCategory } = await loadCategories();
+  const from = data.words;
+  const given: Record<string, unknown> =
+    from !== null && typeof from === 'object' ? (from as Record<string, unknown>) : {};
+
   const words: Record<string, WordInfo> = {};
   for (const answer of answers) {
+    const row = given[answer];
+    const meaning =
+      row !== null && typeof row === 'object' ? (row as { d?: unknown }).d : undefined;
     const category = wordCategory[answer];
-    if (category) words[answer] = { c: category };
+    // Na mavzu, na ma'no bo'lsa yozuvning ma'nosi yo'q — jadval
+    // bo'sh obyektlar bilan to'lib ketmasin.
+    if (!category && typeof meaning !== 'string') continue;
+    words[answer] = { c: category ?? '' };
+    if (typeof meaning === 'string' && meaning.trim() !== '') {
+      words[answer]!.d = meaning.trim();
+    }
   }
 
   return {

@@ -26,7 +26,7 @@ export type Policy = {
 const uz: Policy = {
   label: 'O‘zbekcha',
   title: 'Maxfiylik siyosati',
-  updated: 'Oxirgi yangilanish: 2026-yil 8-sentabr',
+  updated: 'Oxirgi yangilanish: 2026-yil 20-oktabr',
   intro:
     'So‘zgir («ilova») — o‘zbek tilidagi so‘z o‘yinlari to‘plami. Uning ichida So‘ztop moduli (so‘z topish) va Yangso‘z moduli (yangi so‘z o‘ylab topish bo‘yicha haftalik tanlov) bor. Bu hujjatda ilova qanday ma’lumot yig‘ishi, nima uchun yig‘ishi va uni qanday o‘chirish mumkinligi tushuntirilgan.',
   meta: ['Ishlab chiquvchi: Samandar Ahadjonov', `Aloqa: ${email}`],
@@ -128,7 +128,17 @@ const uz: Policy = {
       ],
     },
     {
-      title: '10. Siyosatdagi o‘zgarishlar',
+      title: '10. Saytdagi reklama va statistika',
+      blocks: [
+        'Yuqoridagi 9-bo‘lim ilovaga tegishli. sozgir.uz saytida boshqa xizmatlar ishlaydi va ular shu yerda alohida yozilgan.',
+        'Saytdagi reklama Yandex Advertising Network orqali ko‘rsatiladi: sahifaning o‘z oqimida turadigan bitta banner. O‘yin taxtasi, klaviatura va jang ekrani reklamasiz qoladi; oraliq oyna, video va qalqib chiqadigan reklama yo‘q. Reklamani tanlash uchun Yandex brauzer va qurilma haqidagi umumiy ma’lumotni hamda o‘z cookie fayllarini ishlatadi va buni bizning nomimizdan emas, mustaqil ravishda, o‘z siyosati bo‘yicha qiladi: https://yandex.ru/legal/confidential/',
+        'Sayt tashriflari Yandex Metrika orqali sanaladi: qaysi sahifa ochilgani, qancha vaqt turilgani va havola qaysi saytdan kelgani. Bu ma’lumot jamlangan holda, sizni shaxsan aniqlamasdan ishlatiladi. Ekranni yozib oluvchi Vebvizor ataylab o‘chirilgan — biz sizning ekraningizdagi harakatni yozib olmaymiz. Metrika siyosati: https://yandex.ru/legal/confidential/',
+        'Ikkala xizmat ham cookie fayllardan foydalanadi. Ularni brauzer sozlamalaridan o‘chirish yoki bloklash mumkin — sayt shundan keyin ham to‘liq ishlaydi, faqat reklama sizga moslanmaydi.',
+        'Hisobingiz, topilgan so‘zlaringiz va statistikangiz na reklama tarmog‘iga, na Metrikaga berilmaydi.',
+      ],
+    },
+    {
+      title: '11. Siyosatdagi o‘zgarishlar',
       blocks: [
         'Bu siyosat o‘zgarsa, hujjat boshidagi yangilanish sanasi ham o‘zgaradi. Muhim o‘zgarishlar ilova ichida ham e’lon qilinadi.',
       ],
@@ -139,7 +149,7 @@ const uz: Policy = {
 const en: Policy = {
   label: 'English',
   title: 'Privacy policy',
-  updated: 'Last updated: September 8, 2026',
+  updated: 'Last updated: October 20, 2026',
   intro:
     'So‘zgir ("the app") is a collection of Uzbek-language word games. It contains the So‘ztop module (word guessing) and the Yangso‘z module (a weekly contest for coining new words). This document explains what data the app collects, why it is collected, and how you can remove it.',
   meta: ['Developer: Samandar Ahadjonov', `Contact: ${email}`],
@@ -241,7 +251,17 @@ const en: Policy = {
       ],
     },
     {
-      title: '10. Changes to this policy',
+      title: '10. Ads and analytics on the website',
+      blocks: [
+        'Section 9 above applies to the app. The sozgir.uz website uses different services, described separately here.',
+        'Ads on the website are served through the Yandex Advertising Network: a single banner that sits in the page flow. The game board, the keyboard and the battle screen stay free of ads; there are no interstitial, video or pop-up ads. To select ads, Yandex uses general browser and device information together with its own cookies, and does so independently, under its own policies, not on our behalf: https://yandex.com/legal/confidential/',
+        'Website visits are counted with Yandex Metrica: which page was opened, how long it was open and which site the link came from. This data is used in aggregate and does not identify you personally. Session recording (Webvisor) is deliberately turned off — we do not record what happens on your screen. Metrica policy: https://yandex.com/legal/confidential/',
+        'Both services use cookies. You can clear or block them in your browser settings — the site keeps working fully afterwards, the ads simply are not tailored to you.',
+        'Your account, the words you have found and your statistics are shared with neither the ad network nor Metrica.',
+      ],
+    },
+    {
+      title: '11. Changes to this policy',
       blocks: [
         'If this policy changes, the updated date at the top of the document will change. Significant changes will also be announced inside the app.',
       ],

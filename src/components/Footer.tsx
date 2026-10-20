@@ -9,6 +9,8 @@ const COLUMNS = [
       { href: links.battle, label: 'So‘zjang' },
       { href: links.guncha, label: 'G‘uncha' },
       { href: links.badges, label: 'Nishonlar' },
+      { href: links.lugat, label: 'Lug‘at' },
+      { href: links.guides, label: 'Qo‘llanma' },
       { href: '/#qoida', label: 'Qoida' },
       { href: '/#alifbo', label: 'Alifbo' },
     ],

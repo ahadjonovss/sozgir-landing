@@ -233,34 +233,31 @@ export function requestAd({ blockId, renderTo, onRender, onFailed }: AdRequest):
 
 /* ── Yorliq ─────────────────────────────────────────────────────────── */
 
-/** Banner ustidagi jumlalar — ilovadagi `AppStrings.adsLabelLines` bilan
- *  bir ohangda.
+/** Banner ustidagi yorliq.
  *
  *  Yorliq bezak emas, talab: Yandex reklamani sayt kontentidan aniq
  *  ajratishni so'raydi. Ajratilmasa tasodifiy bosish ko'payadi va tarmoq
  *  buni qalbaki bosish deb hisoblaydi.
  *
- *  Shu sababli qaysi jumla bo'lmasin, ichida **«reklama» so'zi** turishi
- *  shart. Va hech biri **bosishga chaqirmaydi** — «e'tibor bermasangiz
- *  ham bo'ladi» ko'rish haqida, bosish haqida emas. */
-export const AD_LABELS = [
-  'Reklama — loyiha yashab qolishi uchun',
-  'Reklama — bizga choy puli uchun ☕',
-  'Reklama — dasturchi ham ovqat yeydi 🍜',
-  'Hech narsa yo‘qotmadingiz, reklama esa yordam berdi',
-  'Reklama bor, shuning uchun so‘zlar bepul',
-  'Reklama turibdi — e’tibor bermasangiz ham bo‘ladi',
-  'Kichkina reklama — katta lug‘at uchun',
-];
-
-/** Keyingi banner qaysi jumlani olishi.
+ *  Ilgari bu yerda loyiha ohangidagi bir nechta jumla turardi —
+ *  «choy puli uchun», «dasturchi ham ovqat yeydi» kabi. Hech biri
+ *  bosishga chaqirmasdi, lekin ularning hammasi bitta narsani aytardi:
+ *  **reklama saytga daromad keltiradi**. Yandex qoidasi esa
+ *  chaqiruvdan kengroq — reklama yonidagi, unga e'tibor qaratishdan
+ *  saytga foyda borligini bildiradigan har qanday matn yashirin
+ *  rag'batlantirish deb o'qilishi mumkin. Moderatsiyada bu bahsli joy,
+ *  bahsli joy esa «иные причины» degan javobga qo'shiladi.
  *
- *  Tasodifiy joydan boshlanadi: aks holda saytni har ochganda bir xil
- *  ketma-ketlik chiqardi. Har banner navbatdagisini oladi va uni
- *  **o'zgartirmaydi** — ko'z oldida almashib turgan matn reklamaning
- *  o'zidan ko'ra ko'proq e'tibor tortadi. */
-let cursor = Math.floor(Math.random() * AD_LABELS.length);
+ *  Shuning uchun yorliq bitta va quruq. Loyiha ohangi uchun sayt
+ *  bo'ylab boshqa joy yetarli; reklamaning ustidagi uch so'z unga
+ *  yaramaydi. */
+export const AD_LABEL = 'Reklama';
 
+/** Keyingi banner yorlig'i.
+ *
+ *  Funksiya ataylab qoldirildi: chaqiruvchi tomonda hech narsa
+ *  o'zgarmaydi va yorliq keyinchalik yana xilma-xil bo'lsa (masalan
+ *  moderatsiyadan keyin) o'zgarish yana shu yerda bo'ladi. */
 export function nextAdLabel(): string {
-  return AD_LABELS[cursor++ % AD_LABELS.length];
+  return AD_LABEL;
 }

@@ -5,6 +5,7 @@
 import { useEffect, useLayoutEffect } from 'react';
 import { pageOf } from './data/pages';
 import { guideOf } from './data/guides';
+import { lugatPageOf } from './data/lugat';
 import { lengthPageOf } from './data/lengths';
 import Alphabet from './components/Alphabet';
 import Categories from './components/Categories';
@@ -16,6 +17,7 @@ import AnswersPage from './components/AnswersPage';
 import AppPopup from './components/AppPopup';
 import EndlessPage from './components/EndlessPage';
 import GuidePage, { GuidesPage } from './components/GuidePage';
+import LugatPage, { LugatIndex } from './components/LugatPage';
 import UpdatesPage from './components/UpdatesPage';
 import BadgesPage from './components/BadgesPage';
 import BattlePage from './components/BattlePage';
@@ -39,6 +41,7 @@ import { startScriptDom } from './lib/scriptDom';
 import { prose, useScript } from './lib/useScript';
 import { useReveal } from './lib/useReveal';
 import AccountDeletion from './components/AccountDeletion';
+import { startMetrika, trackPage } from './lib/metrika';
 import { useRoute } from './lib/useRoute';
 
 /** O'yin ekranlari — pastdagi footer shu yerda bir qatorga tushadi.
@@ -64,6 +67,7 @@ export default function App() {
   const script = useScript();
   const endless = lengthPageOf(route);
   const guide = guideOf(route);
+  const lugat = lugatPageOf(route);
 
   /* Alifbo ko'chiruvchisi birinchi chizishdan oldin yoqiladi — matn bir
      lahza lotinda "yonib" ketmasin. Sahifa sarlavhasi `<head>` da, ya'ni
@@ -75,6 +79,16 @@ export default function App() {
     // HTML fayllar ham o'sha ro'yxatdan oziqlanadi.
     document.title = prose(pageOf(route)?.title ?? '');
   }, [route, script]);
+
+  /* Tashrif hisoblagichi. Effekt sarlavhadan **keyin** turadi: Metrika
+     sahifa nomini ham yuboradi va u shu yuqoridagi effektda qo'yiladi.
+     `script` bog'liqliklarda yo'q — alifbo almashuvi yangi sahifa
+     emas, uni sanash ko'rish chuqurligini o'ylab topilgan raqamga
+     aylantirardi. */
+  useEffect(() => {
+    startMetrika();
+    trackPage();
+  }, [route]);
 
   return (
     <>
@@ -115,6 +129,10 @@ export default function App() {
             komponent, matni `data/lengths.ts` dan keladi. */}
         {endless && <EndlessPage page={endless} />}
         {route === '/qollanma' && <GuidesPage />}
+        {/* Lug'at — `/lugat` ro'yxati va `/lugat/{harf}` sahifalari.
+            Matni `data/lugat.ts` da, so'zlari lug'atning o'zidan. */}
+        {route === '/lugat' && <LugatIndex />}
+        {lugat && <LugatPage page={lugat} />}
         {route === '/yangiliklar' && <UpdatesPage />}
         {guide && <GuidePage guide={guide} />}
         {route === '/nishonlar' && <BadgesPage />}

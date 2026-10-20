@@ -33,11 +33,18 @@ import type { Plugin } from 'vite';
 
 import { deletionPages } from '../src/data/accountDeletion.ts';
 import { GUIDES } from '../src/data/guides.ts';
+import { LUGAT_INDEX, LUGAT_PAGES } from '../src/data/lugat.ts';
 import { PAGES, isListed, type Page } from '../src/data/pages.ts';
+import { groupByLetter, LUGAT_LENGTHS, type LugatLetter } from '../src/lib/lugat.ts';
 import { policies, type Policy } from '../src/data/privacy.ts';
 import { categories, email, faq, gameLinks, links, modules, site, stats } from '../src/data/site.ts';
 import { UPDATES } from '../src/data/updates.ts';
 import { BADGES } from '../src/lib/badges.ts';
+
+/** Lug'at olinadigan server — saytning `src/api/config.ts` dagisi.
+ *  Bu yerda qayta yozilgan, chunki u fayl `import.meta.env` ga
+ *  tayanadi va uni Node ichida o'qib bo'lmaydi. */
+const API = 'https://api.sozgir.uz';
 
 const escape = (text: string): string =>
   text
@@ -84,7 +91,77 @@ const EXTRA: Record<string, () => string> = {
   '/qollanma': guides,
   '/contact': contact,
   '/hisob-ochirish': deletion,
+  [LUGAT_INDEX.path]: lugatIndex,
+  /* Harf sahifalari: ro'yxat serverdan keladi, shuning uchun bu yerda
+     tayyor matn emas, [lugatBlocks] ga qaraydigan funksiya turadi.
+     Jadval build boshida to'ldiriladi ([loadLugat]); to'lmasa sahifa
+     kirish matni bilan chiqadi va build yiqilmaydi. */
+  ...Object.fromEntries(
+    LUGAT_PAGES.map((page) => [page.path, () => lugatBlocks.get(page.path) ?? '']),
+  ),
 };
+
+/** Harf → o'sha sahifaning so'zlar ro'yxati (HTML). */
+const lugatBlocks = new Map<string, string>();
+
+/** Lug'at bo'limining bosh sahifasi: harflar ro'yxati.
+ *
+ *  Robot bo'limni bitta sahifadan aylanib chiqa olishi kerak, harf
+ *  sahifalari esa umumiy navigatsiyada yo'q ([nav]) — demak ularga
+ *  yagona yo'l shu ro'yxat. */
+function lugatIndex(): string {
+  const items = LUGAT_PAGES.map(
+    (page) =>
+      `<li><a href="${page.path}">${escape(page.letter.toUpperCase())}</a></li>`,
+  ).join('');
+  return `<h2>Harf bo\u2018yicha</h2>\n<ul>${items}</ul>`;
+}
+
+/** So'zlar ro'yxati — uzunlik bo'yicha guruhlangan ta'riflar jadvali.
+ *
+ *  `<dl>` ataylab: bu aynan «atama — ta'rifi» juftligi va uni `<ul>`
+ *  bilan yozish ma'nosini yashirardi. */
+function lugatWords(letter: LugatLetter): string {
+  return letter.groups
+    .map((group) => {
+      const rows = group.words
+        .map((item) => `<dt>${escape(item.word)}</dt><dd>${escape(item.meaning)}</dd>`)
+        .join('');
+      return `<h2>${group.length} harfli so\u2018zlar</h2>\n<dl>${rows}</dl>`;
+    })
+    .join('\n');
+}
+
+/** Lug'atni serverdan oladi — build paytida, bir marta.
+ *
+ *  **Build bu yerda yiqilmaydi.** Server javob bermasa harf sahifalari
+ *  kirish matni bilan chiqadi va keyingi yig'ishda to'ladi. Buning
+ *  aksi — API uzilganda saytni umuman chiqara olmaslik — ancha
+ *  qimmatroq xato bo'lardi. */
+async function loadLugat(): Promise<void> {
+  const sources: { length: number; words: Record<string, { d?: string }> }[] = [];
+
+  for (const length of LUGAT_LENGTHS) {
+    try {
+      const response = await fetch(`${API}/v1/public/dictionary/${length}`);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = (await response.json()) as { words?: Record<string, { d?: string }> };
+      if (data.words) sources.push({ length, words: data.words });
+    } catch (error) {
+      console.warn(`prerender: ${length} harfli lug'at olinmadi — ${String(error)}`);
+    }
+  }
+
+  if (sources.length === 0) {
+    console.warn('prerender: lug\u2018at bo\u2018limi so\u2018zlarsiz yoziladi');
+    return;
+  }
+
+  for (const letter of groupByLetter(sources)) {
+    const page = LUGAT_PAGES.find((item) => item.letter === letter.letter);
+    if (page) lugatBlocks.set(page.path, lugatWords(letter));
+  }
+}
 
 /** Aloqa: manzillar sahifada ko'rinadigan joyidan olinadi, ya'ni
  *  pochta yoki kanal o'zgarsa statik HTML ham o'zi yangilanadi. */
@@ -210,7 +287,18 @@ function deletion(): string {
 /** Sahifalar o'rtasidagi havolalar: robot butun saytni bitta fayldan
  *  aylanib chiqa olishi kerak. */
 function nav(current: string): string {
-  const links = PAGES.filter((page) => isListed(page) && page.path !== current)
+  const links = PAGES.filter(
+    (page) =>
+      isListed(page) &&
+      page.path !== current &&
+      /* Harf sahifalari bu ro'yxatda yo'q. Ular yigirma sakkizta va
+         har sahifaning oxiriga yigirma sakkizta bir harfli havola
+         qo'shish navigatsiyaga emas, havola to'dasiga o'xshardi —
+         moderator ham, qidiruv ham buni shunday o'qiydi. Bo'limga
+         yagona havola (`/lugat`) ro'yxatda qoladi, ichkarisiga esa
+         o'sha sahifaning o'zidan kiriladi ([lugatIndex]). */
+      !page.path.startsWith(`${LUGAT_INDEX.path}/`),
+  )
     .map((page) => `<li><a href="${page.path}">${escape(page.nav)}</a></li>`)
     .join('');
   return `<nav aria-label="Sahifalar"><ul>${links}</ul></nav>`;
@@ -315,8 +403,18 @@ function sitemap(): string {
  *  manzil jimgina bosh sahifaning matni bilan ochilaverardi. */
 async function checkRewrites(): Promise<void> {
   const config = await readFile('vercel.json', 'utf8');
+  /* Qoida ikki xil bo'lishi mumkin: manzilning o'zi yozilgan
+     (`"/oynash"`) yoki butun bo'lim bitta parametrli qoida bilan
+     qoplangan (`"/lugat/:letter"`). Ikkinchisi lug'at uchun kerak —
+     yigirma sakkizta harfni `vercel.json` ga qo'lda ko'chirish har
+     yangi harfda unutiladigan ish bo'lardi. */
+  const covered = (path: string): boolean => {
+    if (config.includes(path.slice(1))) return true;
+    const section = path.slice(1).split('/')[0];
+    return path.includes('/', 1) && config.includes(`${section}/:`);
+  };
   const missing = PAGES.filter(
-    (page) => isListed(page) && page.path !== '/' && !config.includes(page.path.slice(1)),
+    (page) => isListed(page) && page.path !== '/' && !covered(page.path),
   );
   if (missing.length > 0) {
     throw new Error(
@@ -332,6 +430,9 @@ export function prerender(): Plugin {
     async closeBundle() {
       const out = 'dist';
       const shell = await readFile(join(out, 'index.html'), 'utf8');
+
+      // So'zlar ro'yxati sahifalar yozilishidan oldin kelishi kerak.
+      await loadLugat();
 
       for (const page of PAGES) {
         // `listed: false` sahifa ro'yxatda yo'q, lekin `file: true`

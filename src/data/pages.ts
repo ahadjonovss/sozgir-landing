@@ -21,6 +21,7 @@
 
 import { GUIDES, type GuidePath } from './guides';
 import { LENGTH_PAGES, type LengthPath } from './lengths';
+import { LUGAT_INDEX, LUGAT_PAGES, LUGAT_PATH, type LugatLetterPath } from './lugat';
 
 export interface Page {
   /** Manzil — router uchun ham shu. */
@@ -370,14 +371,48 @@ const GUIDE_ENTRIES: Page[] = GUIDES.map((guide) => ({
   body: guide.sections.flatMap((section) => [section.h2, ...section.body]),
 }));
 
+/** Lug'at bo'limi: bosh sahifa va har harf uchun bittadan sahifa.
+ *
+ *  Matni `data/lugat.ts` da. Harf sahifalarining **so'zlar ro'yxati**
+ *  bu yerga tushmaydi: u serverdagi lug'atdan keladi va build paytida
+ *  `vite/prerender.ts` qo'shadi. Shu sabab `body` da faqat kirish
+ *  matni turadi — ro'yxatsiz ham o'qiladigan, lekin sahifaning
+ *  mazmunini ro'yxat beradi. */
+const LUGAT_ENTRIES: Page[] = [
+  {
+    path: LUGAT_INDEX.path,
+    title: LUGAT_INDEX.title,
+    description: LUGAT_INDEX.description,
+    nav: 'Lug‘at',
+    h1: LUGAT_INDEX.h1,
+    lead: LUGAT_INDEX.lead,
+    body: [...LUGAT_INDEX.body],
+  },
+  ...LUGAT_PAGES.map((page) => ({
+    path: page.path,
+    title: page.title,
+    description: page.description,
+    nav: page.h1,
+    h1: page.h1,
+    lead: page.lead,
+    body: [...page.body],
+  })),
+];
+
 export const PAGES: readonly Page[] = [
   ...BASE_PAGES,
   ...LENGTH_ENTRIES,
   ...GUIDE_ENTRIES,
+  ...LUGAT_ENTRIES,
 ];
 
 /** Manzillar — router va `sitemap.xml` uchun. */
-export type Route = (typeof BASE_PAGES)[number]['path'] | LengthPath | GuidePath;
+export type Route =
+  | (typeof BASE_PAGES)[number]['path']
+  | LengthPath
+  | GuidePath
+  | typeof LUGAT_PATH
+  | LugatLetterPath;
 
 export const pageOf = (path: string): Page | undefined =>
   PAGES.find((page) => page.path === path);

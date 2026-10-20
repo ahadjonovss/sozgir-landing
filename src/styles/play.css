@@ -5544,6 +5544,91 @@
   font-size: 20px;
 }
 
+/* ── Lug'at ───────────────────────────────────────────────────────────
+   Harf bo'yicha so'zlar va ma'nolari. Ramka qo'llanmaniki
+   (`.qollanma__*`) — bo'lim o'sha turkumdan: o'qiladigan sahifa.
+   Bu yerda faqat unda yo'q ikkita narsa: alifbo qatori va
+   «so'z — ma'nosi» jadvali. */
+
+.lugat__abc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.lugat__abc a {
+  display: grid;
+  place-items: center;
+  min-width: 46px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: inherit;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.lugat__abc a:hover {
+  background: var(--surface-2);
+}
+
+/* Turgan harf — bosiladigan emas, turgan joyni ko'rsatadigan belgi. */
+.lugat__abc a.is-on {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* Jadval ikki ustun: so'z va ma'nosi. Ustun kengligi `max-content`
+   emas, aniq o'lcham — eng uzun so'z butun ro'yxatni surib yuborardi
+   va ma'nolar sahifaning o'ng chekkasiga tiqilib qolardi. */
+.lugat__list {
+  display: grid;
+  gap: 2px;
+}
+
+.lugat__list > div {
+  display: grid;
+  grid-template-columns: minmax(7.5em, max-content) 1fr;
+  gap: 4px 16px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+}
+
+/* Qatorlar oralab bo'yaladi: ro'yxat uzun va ko'z qayerda turganini
+   yo'qotmasligi kerak. */
+.lugat__list > div:nth-child(odd) {
+  background: var(--surface);
+}
+
+.lugat__list dt {
+  color: var(--text);
+  font-weight: 800;
+  font-size: 15.5px;
+}
+
+.lugat__list dd {
+  color: var(--text-2);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.lugat__group {
+  display: grid;
+  gap: 10px;
+}
+
+.lugat__wait {
+  color: var(--text-2);
+  font-size: 15px;
+}
+
+/* Tor ekranda ikki ustun siqilib ketadi — ma'no so'z ostiga tushadi. */
+@media (max-width: 560px) {
+  .lugat__list > div {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ── Yangiliklar ──────────────────────────────────────────────────────
    Oddiy vaqt chizig'i: sana, joy va bir-ikki jumla. */
 

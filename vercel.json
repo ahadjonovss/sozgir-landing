@@ -18,6 +18,14 @@
       "destination": "/:page/index.html"
     },
     {
+      "source": "/lugat",
+      "destination": "/lugat/index.html"
+    },
+    {
+      "source": "/lugat/:letter",
+      "destination": "/lugat/:letter/index.html"
+    },
+    {
       "source": "/cheksiz/4-harf",
       "destination": "/cheksiz/4-harf/index.html"
     },

@@ -61,6 +61,8 @@ export const links = {
   answers: '/javoblar',
   /** Qo'llanmalar — qanday o'ynash va qanday yutish. */
   guides: '/qollanma',
+  /** Lug'at — o'yindagi so'zlar bosh harfi bo'yicha, ma'nosi bilan. */
+  lugat: '/lugat',
   /** Yangiliklar — saytda va ilovada nima o'zgardi. */
   updates: '/yangiliklar',
   privacy: '/privacy',

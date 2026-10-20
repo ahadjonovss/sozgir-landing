@@ -15,6 +15,22 @@
     <link rel="apple-touch-icon" href="/icon.png" />
     <link rel="canonical" href="https://sozgir.uz/" />
 
+    <!-- Yandex Webmaster tasdig'i.
+         Saytni https://webmaster.yandex.com ga qo'shganda u shu
+         ko'rinishdagi teg beradi; `content` ichiga o'sha kalit
+         qo'yiladi va teg izohdan chiqariladi:
+
+           <meta name="yandex-verification" content="KALIT" />
+
+         Nega kerak: Yandex saytni indekslaydi va moderatsiyada uning
+         holati (indeksdagi sahifalar, xatolar, `sitemap.xml`)
+         ko'riladi. O'zbekcha sayt Yandex qidiruviga o'zi tushmaydi,
+         shuning uchun uni qo'lda qo'shish kerak.
+
+         Teg faqat bosh sahifada kerak, lekin u shu yerda turgani
+         uchun hamma statik sahifaga tushadi — `vite/prerender.ts`
+         shu faylni qolip qilib oladi. Bu zarar qilmaydi. -->
+
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="So‘zgir" />
     <meta property="og:locale" content="uz_UZ" />
