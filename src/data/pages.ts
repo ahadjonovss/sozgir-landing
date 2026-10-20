@@ -95,6 +95,8 @@ const BASE_PAGES = [
     body: [
       'Har taxmindan keyin kataklar rang oladi: yashil — harf o‘z joyida, sariq — so‘zda bor lekin boshqa joyda, kulrang — yo‘q.',
       'Sahifada o‘z statistikangiz, kunlik va umumiy reyting ham ko‘rinadi. Hisobga kirsangiz aqcha reytingga tushadi va boshqa qurilmadan ham ko‘rinadi.',
+      'O‘zbek alifbosiga moslangan: SH, CH, O‘ va G‘ bitta tovush, ya’ni taxtada bitta katak va klaviaturada bitta tugma. Yozuvni lotin, yangi lotin yoki kirillga almashtirish mumkin — so‘z o‘zgarmaydi, faqat ko‘rinishi.',
+      'Kunlik so‘zni o‘ynash uchun hisob kerak — natija reytingga tushadi va boshqa qurilmadan ham ko‘rinadi. Cheksiz rejim esa hisobsiz ochiq: u yerda natija faqat shu qurilmada qoladi.',
     ],
   },
   {
@@ -109,6 +111,8 @@ const BASE_PAGES = [
       'Raqibning taxtasida harflar ko‘rinmaydi — faqat ranglar, ya’ni javobni undan o‘qib bo‘lmaydi.',
       'Jang aqcha beradi: 1000 dan boshlanadi, bir jangda eng ko‘pi ±10. Darajalar — Chopar, Cherik, Navkar, O‘nboshi, Yuzboshi, Mingboshi, Botir, Bahodir, Tarxon, Alp.',
       'Saytda yaratilgan chaqiruvga telefondagi ilovadan ham qo‘shilish mumkin.',
+      'O‘zbek alifbosiga moslangan: SH, CH, O‘ va G‘ bitta tovush, ya’ni taxtada bitta katak va klaviaturada bitta tugma. Yozuvni lotin, yangi lotin yoki kirillga almashtirish mumkin — so‘z o‘zgarmaydi, faqat ko‘rinishi.',
+      'Jang uchun hisob kerak — raqib taxallusingizni ko‘radi va natija reytingga yoziladi. Saytdagi jang telefondagi ilovadagi bilan bitta: raqibingiz qaysi tarafda ekani farq qilmaydi.',
     ],
   },
   {
@@ -123,6 +127,8 @@ const BASE_PAGES = [
     body: [
       'Yettala harf ishlatilgan so‘z — pangramma, u qo‘shimcha hisob beradi. To‘liq yechilgan kunlik g‘uncha 20 aqcha beradi.',
       'Kunlik g‘uncha hamma uchun bir xil; undan tashqari cheksiz mashq rejimi ham bor.',
+      'Topilgan so‘zning ma’nosi darhol yonida chiqadi — lug‘at o‘yinning ichida, uni alohida qidirish shart emas.',
+      'O‘zbek alifbosiga moslangan: SH, CH, O‘ va G‘ bitta tovush, ya’ni taxtada bitta katak va klaviaturada bitta tugma. Yozuvni lotin, yangi lotin yoki kirillga almashtirish mumkin — so‘z o‘zgarmaydi, faqat ko‘rinishi.',
     ],
   },
   {
@@ -136,6 +142,8 @@ const BASE_PAGES = [
       'Ikkalangizga bir xil g‘uncha beriladi va uch daqiqa vaqt bo‘ladi. Kim ko‘p to‘plasa — o‘sha yutadi.',
     body: [
       'Do‘stingizni olti raqamli kod bilan chaqirishingiz yoki tezkor jangda tasodifiy raqib topishingiz mumkin.',
+      'G‘unchaning o‘zi o‘zgarmaydi: o‘sha yettita harf, o‘sha yurak harf va o‘sha pangramma hisobi — jang faqat vaqt va raqib qo‘shadi.',
+      'Jang uchun hisob kerak: raqib taxallusingizni ko‘radi va natija hisobingizga yoziladi. Saytda ochilgan jangga telefondagi ilovadan ham qo‘shilish mumkin.',
     ],
   },
   {
@@ -150,6 +158,7 @@ const BASE_PAGES = [
     body: [
       'Ikki yo‘l bor: tezkor maydonga kirib notanish odamlar bilan o‘ynaysiz (ikkinchi odam kirgach 60 soniyalik sanoq boshlanadi) yoki bitta havola bilan butun davrani bir joyga yig‘asiz.',
       'O‘yin o‘zgarmaydi — o‘sha so‘z yoki o‘sha g‘uncha, faqat raqib ko‘p. Vaqtni server hisoblaydi, oxirida jadval tuziladi va aqcha o‘rin bo‘yicha taqsimlanadi.',
+      'Maydon uchun hisob kerak: jadvalda taxallusingiz turadi va aqcha hisobingizga yoziladi. Saytda ochilgan maydonga telefondagi ilovadan ham qo‘shilish mumkin — o‘yin ikkala tomonda bitta.',
     ],
   },
   {
@@ -165,6 +174,7 @@ const BASE_PAGES = [
       'Hajmi uchta: 8 kishi — uch davra, 16 kishi — to‘rt davra, 32 kishi — besh davra. Har guruhdan yuqori yarmi o‘tadi, teng natijada ro‘yxatga oldinroq kirgani.',
       'Turnir ochgan odam kod oladi: qatnashchilar kod, havola yoki QR orqali qo‘shiladi. Yig‘ilish ikki soat davom etadi, boshlashni tashkilotchi bosadi.',
       'Har guruh jangi — oddiy mardu maydonining o‘zi: o‘sha so‘z yoki o‘sha g‘uncha, o‘sha jadval, o‘sha aqcha. Turnir faqat tartib beradi — kim kim bilan va kim keyingi davraga o‘tadi.',
+      'Turnir uchun hisob kerak: o‘rin, aqcha va jadval hisobga yoziladi. Saytda ochilgan turnirga telefondagi ilovadan ham qo‘shilish mumkin.',
     ],
   },
   {
@@ -178,6 +188,9 @@ const BASE_PAGES = [
       'Ilova ichi xaridlari yo‘q, obuna yo‘q. Yig‘ilgan pul loyihani rivojlantirishga ketadi, hisob ochiq turadi. Qo‘llaganlar o‘yinda ajralib turadi — homiylik darajasi bilan.',
     body: [
       'Sahifada loyiha hisobi, qo‘llab-quvvatlaganlar ro‘yxati va homiylik darajalari ko‘rinadi.',
+      'Homiylik darajalari yig‘indi bo‘yicha beriladi: Saxovatpesha — 5 000 so‘m, Boyvachcha — 20 000, Eski boylardan — 50 000, Zodagon — 150 000, Oqsuyak — 500 000. Daraja avatar atrofidagi halqa bilan ko‘rinadi.',
+      'Qo‘llagan odamga reklama ko‘rsatilmaydi: oxirgi yetti kunlik qo‘llovlar 5 555 so‘mga yetsa, banner umuman so‘ralmaydi.',
+      'Hisob ochiq turadi — qancha yig‘ilgani va kim qo‘llagani shu sahifada ko‘rinib turadi.',
     ],
   },
   {
@@ -218,6 +231,8 @@ const BASE_PAGES = [
     body: [
       'Kunlik so‘z butun O‘zbekiston uchun bir xil va yarim tunda almashadi. Shu sahifada bugungi javobni ochish, o‘tgan kunlarning so‘zlarini esa raqami, sanasi va ma’nosi bilan ko‘rish mumkin.',
       'Kelajakdagi so‘zlar ro‘yxatda yo‘q: arxivga faqat o‘ynab bo‘lingan kunlar tushadi.',
+      'Arxiv lug‘at vazifasini ham o‘taydi: har so‘zning ma’nosi yonida turadi, shuning uchun o‘tgan kunlarni varaqlab turib yangi so‘z o‘rganish mumkin.',
+      'Javob ataylab yopiq turadi — sahifani o‘ynashdan oldin ochgan odam o‘sha kunini o‘ziga buzib qo‘ymasin.',
     ],
   },
   {
@@ -267,6 +282,10 @@ const BASE_PAGES = [
     h1: 'Bizga yozing',
     lead:
       'Taklif, xatolik yoki hamkorlik — hammasini o‘qiymiz. Odatda bir-ikki kun ichida javob beramiz.',
+    body: [
+      'Yozishning uch yo‘li bor: shu sahifadagi shakl, elektron pochta va Telegram kanali. Shakl orqali kelgan xat o‘sha pochtaga tushadi, ya’ni qaysi birini tanlasangiz ham javob bitta joydan keladi.',
+      'Ma’lumotlaringiz bo‘yicha so‘rov — hisobdagi ma’lumotni olish yoki o‘chirish — ham shu yerdan yuboriladi. Nima saqlanishi va qancha turishi maxfiylik siyosatida yozilgan.',
+    ],
   },
   {
     path: '/oyinchi',
@@ -277,6 +296,10 @@ const BASE_PAGES = [
     h1: 'O‘yinchi profili',
     lead:
       'Yig‘ilgan aqcha, bugungi kunlik natija, jang aqchasi va loyihaga qo‘shgan hissasi. Shaxsiy statistika faqat egasiga ko‘rinadi.',
+    body: [
+      'Profil reytingdan, jang natijasidan va qo‘llab-quvvatlaganlar ro‘yxatidan ochiladi — har o‘yinchining o‘z manzili bor.',
+      'Ochiq profilda faqat o‘yinchining o‘zi ko‘rsatishga rozi bo‘lgan narsa turadi: taxallus, yig‘ilgan aqcha, nishonlar va homiylik darajasi. Elektron pochta va shunga o‘xshash ma’lumot hech qachon ko‘rinmaydi.',
+    ],
     // Manzil parametrli (`/oyinchi/{uid}`) — oldindan yasab bo'lmaydi.
     listed: false,
     file: true,

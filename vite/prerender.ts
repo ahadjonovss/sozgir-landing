@@ -31,9 +31,13 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import type { Plugin } from 'vite';
 
+import { deletionPages } from '../src/data/accountDeletion.ts';
+import { GUIDES } from '../src/data/guides.ts';
 import { PAGES, isListed, type Page } from '../src/data/pages.ts';
-import { policies } from '../src/data/privacy.ts';
-import { categories, faq, modules, site, stats } from '../src/data/site.ts';
+import { policies, type Policy } from '../src/data/privacy.ts';
+import { categories, email, faq, gameLinks, links, modules, site, stats } from '../src/data/site.ts';
+import { UPDATES } from '../src/data/updates.ts';
+import { BADGES } from '../src/lib/badges.ts';
 
 const escape = (text: string): string =>
   text
@@ -48,9 +52,103 @@ const p = (text: string) => `<p>${escape(text)}</p>`;
 function content(page: Page): string {
   const parts = [`<h1>${escape(page.h1)}</h1>`, `<p class="section__lead">${escape(page.lead)}</p>`];
   for (const line of page.body ?? []) parts.push(p(line));
-  if (page.path === '/') parts.push(home());
-  if (page.path === '/privacy') parts.push(privacy());
+  const extra = EXTRA[page.path];
+  if (extra) parts.push(extra());
   return parts.join('\n');
+}
+
+/** Sahifaning o'z ro'yxati — odam ko'radigan ma'lumotning aynan o'zi.
+ *
+ *  Ilgari bunday blok faqat bosh sahifa va maxfiylik siyosatida bor
+ *  edi, qolgan manzillarda esa statik HTML `h1` + izoh + ikki-uch
+ *  xatboshidan iborat bo'lardi — o'lchab ko'rilganda navigatsiyani
+ *  hisobga olmaganda 400–500 belgi. JavaScript ishlatmaydigan
+ *  o'quvchi uchun sayt shu qadar yupqa ko'rinardi, holbuki nishonlar,
+ *  yangiliklar va qo'llanma ro'yxatlari saytning o'zida to'la turibdi.
+ *
+ *  Shuning uchun ro'yxat **o'sha manbadan** olinadi: nishonlar
+ *  `lib/badges.ts` dan, yangiliklar `data/updates.ts` dan, qo'llanma
+ *  `data/guides.ts` dan, o'yinlar `data/site.ts` dan. Ya'ni robot
+ *  ko'radigan matn odam ko'radiganining nusxasi, alohida yozilgan
+ *  «robot uchun matn» emas — aks holda bu klouking bo'lardi va sayt
+ *  qidiruvdan ham, reklama tarmog'idan ham chiqib ketardi.
+ *
+ *  Ro'yxatlar shu sababli qo'lda yangilanmaydi ham: yangi nishon yoki
+ *  yangilik qo'shilsa statik HTML o'zi o'sadi. */
+const EXTRA: Record<string, () => string> = {
+  '/': home,
+  '/privacy': privacy,
+  '/oynash': games,
+  '/nishonlar': badges,
+  '/yangiliklar': updates,
+  '/qollanma': guides,
+  '/contact': contact,
+  '/hisob-ochirish': deletion,
+};
+
+/** Aloqa: manzillar sahifada ko'rinadigan joyidan olinadi, ya'ni
+ *  pochta yoki kanal o'zgarsa statik HTML ham o'zi yangilanadi. */
+function contact(): string {
+  return [
+    '<h2>Aloqa</h2>',
+    `<ul><li>Elektron pochta: <a href="${links.support}">${escape(email)}</a></li>` +
+      `<li>Telegram kanal: <a href="${links.telegram}">@sozgir_uz</a></li></ul>`,
+  ].join('\n');
+}
+
+/** O'ynash bo'limi: qaysi o'yin bor va har biri nima. */
+function games(): string {
+  return [
+    '<h2>O\u2018yinlar</h2>',
+    ...gameLinks.map((game) =>
+      `<h3><a href="${game.href}">${escape(game.name)}</a></h3>\n${p(game.tagline)}`,
+    ),
+  ].join('\n');
+}
+
+/** Nishonlar: nomi, sharti va nom ortidagi izoh.
+ *
+ *  Izoh (`story`) ham olinadi: nishonlar turkiy nom bilan atalgan va
+ *  «Yasovul» yoki «Kuntug'mish» nimaligi aytilmasa, ro'yxat bir-biriga
+ *  o'xshagan nomlar yig'indisi bo'lib qolardi. */
+function badges(): string {
+  return [
+    '<h2>Nishonlar</h2>',
+    ...BADGES.map((badge) =>
+      `<h3>${escape(badge.label)}</h3>\n${p(badge.hint)}\n${p(badge.story)}`,
+    ),
+  ].join('\n');
+}
+
+/** Yangiliklar: sana, sarlavha, izoh va o'zgarishlar ro'yxati. */
+function updates(): string {
+  return [
+    '<h2>Yangilanishlar</h2>',
+    ...UPDATES.map((update) =>
+      [
+        `<h3>${escape(update.title)}</h3>`,
+        p(`${update.date} — ${update.where}`),
+        p(update.body),
+        ...(update.items
+          ? [`<ul>${update.items.map((item) => `<li>${escape(item)}</li>`).join('')}</ul>`]
+          : []),
+      ].join('\n'),
+    ),
+  ].join('\n');
+}
+
+/** Qo'llanma bo'limi: maqolalar ro'yxati va har birining izohi.
+ *
+ *  Maqolaning o'zi alohida manzilda va o'z faylida to'la chiqadi
+ *  (`GUIDE_ENTRIES`), bu yerda esa ro'yxat — sahifada ko'rinadigani
+ *  bilan bir xil. */
+function guides(): string {
+  return [
+    '<h2>Maqolalar</h2>',
+    ...GUIDES.map((guide) =>
+      `<h3><a href="${guide.path}">${escape(guide.h1)}</a></h3>\n${p(guide.lead)}`,
+    ),
+  ].join('\n');
 }
 
 /** Bosh sahifa: ko'rsatkichlar, modullar, kategoriyalar va savollar —
@@ -77,11 +175,13 @@ function home(): string {
   ].join('\n');
 }
 
-/** Maxfiylik siyosati — o'zbekcha matnning to'lig'i. Ingliz va rus
- *  variantlari sahifada tugma bilan almashadi, ya'ni ular ham bir xil
- *  hujjatning tarjimasi. */
-function privacy(): string {
-  const policy = policies.uz;
+/** Hujjat — maxfiylik siyosati va hisobni o'chirish sahifasi bitta
+ *  turda (`Policy`), shuning uchun ikkalasi shu yerdan chiziladi.
+ *
+ *  O'zbekcha matn olinadi: boshqa tillar sahifada tugma bilan
+ *  almashadi, ya'ni ular bir hujjatning tarjimasi va ularni ham
+ *  qo'shish bir xil gapni uch marta takrorlash bo'lardi. */
+function policyText(policy: Policy): string {
   return [
     p(policy.updated),
     p(policy.intro),
@@ -97,6 +197,14 @@ function privacy(): string {
       ].join('\n'),
     ),
   ].join('\n');
+}
+
+function privacy(): string {
+  return policyText(policies.uz);
+}
+
+function deletion(): string {
+  return policyText(deletionPages.uz);
 }
 
 /** Sahifalar o'rtasidagi havolalar: robot butun saytni bitta fayldan
