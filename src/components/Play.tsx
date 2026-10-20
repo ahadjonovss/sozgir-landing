@@ -233,32 +233,15 @@ function PlayBoard({
           </div>
         </div>
         <div className="play__top-right">
-          {/* O'ng chekkada faqat o'yinning o'ziga tegishli ikki narsa:
-              boshqa so'zga o'tish va yordam.
+          {/* O'ng chekkadagi tartib: o'yin turi, boshqa so'z, yordam.
+              Almashtirgich birinchi — u o'yinning o'zini tanlaydi,
+              qolgan ikkitasi esa tanlangan o'yin ichidagi amal.
 
               Reyting ham, statistika ham bu qatordan olindi: ikkalasi
               ham taxtaning ostida, o'z kartochkasida turibdi
               (`StatsPanel`, `/oynash`). Taxta ustidagi qator esa
               o'ynayotgan odamga kerak bo'ladigan narsalar uchun —
               o'yin tugagach qaraladigan sonlar uchun emas. */}
-          {/* Boshqa so'zga o'tish — oddiy yangilash belgisi.
-              Faqat cheksiz rejimda: kunlik so'z butun mamlakat uchun
-              bitta va uni almashtirib bo'lmaydi. Bosilganda tashlab
-              ketilgan so'z taxta ostida aytiladi. */}
-          {mode === 'endless' && game.phase === 'playing' && (
-            <button
-              type="button"
-              className="play__ranks"
-              onClick={() => {
-                onSkip(game.answerWord || null);
-                game.playAgain();
-              }}
-              aria-label="Boshqa so‘z"
-              title="Boshqa so‘z"
-            >
-              <Refresh size={18} />
-            </button>
-          )}
           {/* O'yin turini almashtirish. Hech qayerga o'tilmaydi:
               manzil ham, sahifa ham o'sha-o'sha qoladi, faqat shu
               belgining ostidagi taxta g'unchaga almashadi. Ilgari bu
@@ -276,6 +259,24 @@ function PlayBoard({
               title="G‘unchaga almashtirish"
             >
               <span aria-hidden="true">🌸</span>
+            </button>
+          )}
+          {/* Boshqa so'zga o'tish — oddiy yangilash belgisi.
+              Faqat cheksiz rejimda: kunlik so'z butun mamlakat uchun
+              bitta va uni almashtirib bo'lmaydi. Bosilganda tashlab
+              ketilgan so'z taxta ostida aytiladi. */}
+          {mode === 'endless' && game.phase === 'playing' && (
+            <button
+              type="button"
+              className="play__ranks"
+              onClick={() => {
+                onSkip(game.answerWord || null);
+                game.playAgain();
+              }}
+              aria-label="Boshqa so‘z"
+              title="Boshqa so‘z"
+            >
+              <Refresh size={18} />
             </button>
           )}
           {/* Yordam: o'ylash cho'zilganda o'zi paydo bo'ladi, undan oldin
