@@ -14,7 +14,6 @@
 import { useEffect, type CSSProperties } from 'react';
 import { links } from '../data/site';
 import { askAppPromo } from '../lib/appPromo';
-import { useAuth } from '../lib/auth';
 import { isChallengeCode } from '../lib/challenge';
 import { useChallenge } from '../lib/useChallenge';
 import { routeParam } from '../lib/useRoute';
@@ -61,7 +60,6 @@ export default function ChallengePage() {
   // o'qish yetarli — alohida holat kerak emas.
   const code = routeParam().toUpperCase();
   const valid = isChallengeCode(code);
-  const auth = useAuth();
   const game = useChallenge(valid ? code : '');
   const over = game.phase === 'won' || game.phase === 'lost';
 
@@ -104,25 +102,6 @@ export default function ChallengePage() {
             <a className="btn btn--sm" href={links.play}>
               Bugungi so‘zni o‘ynash
             </a>
-          </div>
-        )}
-
-        {/* Mehmon ham o'ynaydi — havolani bosgan odamda hisob odatda
-            yo'q va unga to'siq qo'yish havolaning o'zini bekor qilardi.
-            Lekin nimadan voz kechayotgani aytiladi: mehmonning o'yini
-            serverda saqlanmaydi (`peekChallenge`), ya'ni yashirgan odam
-            uni ko'rmaydi va sahifa yangilansa o'yin boshidan boshlanadi. */}
-        {valid && game.guest && !broken && game.phase !== 'loading' && (
-          <div className="panel panel--call">
-            <p className="panel__note">
-              Mehmon sifatida o‘ynayapsiz: natijangiz so‘zni yashirgan
-              odamga ko‘rinmaydi va sahifa yangilansa o‘yin boshidan
-              boshlanadi.{' '}
-              <button className="link" onClick={() => auth.openPrompt('signIn')}>
-                Kiring
-              </button>{' '}
-              — natija o‘sha odamning statistikasiga tushadi.
-            </p>
           </div>
         )}
 
