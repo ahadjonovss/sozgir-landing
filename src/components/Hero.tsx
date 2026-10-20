@@ -1,5 +1,7 @@
+import { GunchaBoard } from './GunchaBoard';
 import Play from './Play';
 import { useGameChoice } from '../lib/useGameChoice';
+import { useGameSwap } from '../lib/useGameSwap';
 import { useSozTop } from '../lib/useSozTop';
 import { dailyNumber } from '../lib/daily';
 import { Today } from './Icons';
@@ -46,7 +48,8 @@ export default function Hero() {
   // kunlik so'zning o'z sahifasi bor va tepadagi banner aynan o'sha
   // yerga olib boradi.
   const choice = useGameChoice({ mode: 'endless' });
-  const game = useSozTop(choice);
+  const swap = useGameSwap();
+  const game = useSozTop(choice, !swap.flower);
 
   return (
     <section className="hero" id="top">
@@ -77,7 +80,13 @@ export default function Hero() {
           </a>
 
           <div className="hero__board">
-            <Play choice={choice} game={game} />
+            {/* Belgi bilan almashadigan taxta: g'uncha ham shu
+                yerda ochiladi, sahifa esa o'zgarmaydi. */}
+            {swap.flower ? (
+              <GunchaBoard guncha={swap.guncha} onSwap={swap.toggle} />
+            ) : (
+              <Play choice={choice} game={game} onSwap={swap.toggle} />
+            )}
           </div>
 
           {/* Jonli sanoq endi sarlavhaning o'rtasida — u butun saytga

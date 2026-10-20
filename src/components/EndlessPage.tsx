@@ -12,8 +12,10 @@ import { links } from '../data/site';
 import { LENGTH_PAGES, type LengthPage } from '../data/lengths';
 import { attemptsFor } from '../lib/modes';
 import { useGameChoice } from '../lib/useGameChoice';
+import { useGameSwap } from '../lib/useGameSwap';
 import { useSozTop } from '../lib/useSozTop';
 import AdBanner from './AdBanner';
+import { GunchaBoard } from './GunchaBoard';
 import Play from './Play';
 import { ChevronLeft } from './Icons';
 
@@ -23,7 +25,8 @@ export default function EndlessPage({ page }: { page: LengthPage }) {
   // ortda qoladi — bu yerda zarari yo'q: sahifa o'yinni cheklamaydi,
   // faqat qaysi biridan boshlanishini aytadi.
   const choice = useGameChoice({ mode: 'endless', length: page.length });
-  const game = useSozTop(choice);
+  const swap = useGameSwap();
+  const game = useSozTop(choice, !swap.flower);
   const others = LENGTH_PAGES.filter((item) => item.length !== page.length);
 
   return (
@@ -36,7 +39,13 @@ export default function EndlessPage({ page }: { page: LengthPage }) {
 
         <div className="hero__play cheksiz__play">
           <div className="hero__board">
-            <Play choice={choice} game={game} />
+            {/* Belgi bilan almashadigan taxta: g'uncha ham shu
+                yerda ochiladi, sahifa esa o'zgarmaydi. */}
+            {swap.flower ? (
+              <GunchaBoard guncha={swap.guncha} onSwap={swap.toggle} />
+            ) : (
+              <Play choice={choice} game={game} onSwap={swap.toggle} />
+            )}
           </div>
         </div>
 

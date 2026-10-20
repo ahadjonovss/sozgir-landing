@@ -15,12 +15,12 @@
  *  **Klaviatura** faqat ko'rinib turgan o'yinga bog'lanadi
  *  (`useSozTop(..., active)`, `useGuncha(active)`): ikkalasi ham
  *  eshitsa, bitta bosilgan harf ikkala taxtaga ham tushardi. */
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { links } from '../data/site';
 import { useAuth } from '../lib/auth';
 import { dailyNumber } from '../lib/daily';
 import { useGameChoice } from '../lib/useGameChoice';
-import { useGuncha } from '../lib/useGuncha';
+import { useGameSwap } from '../lib/useGameSwap';
 import { useSozTop } from '../lib/useSozTop';
 import AdBanner from './AdBanner';
 import ArenaHistory from './ArenaHistory';
@@ -36,27 +36,15 @@ export default function GameHub({ game }: { game: HubGame }) {
   const { account, openPrompt } = useAuth();
   const choice = useGameChoice();
 
-  /** Almashtirgich: belgi bosilganda **hech qayerga o'tilmaydi**.
-   *
-   *  Manzil ham, sahifa ham o'sha-o'sha qoladi — faqat markazdagi
-   *  taxta almashadi. Ilgari belgi havola edi va `/oyin` dan
-   *  `/guncha` ga o'tardi: texnik jihatdan sahifa qayta chizilmasa
-   *  ham, manzil va yorliq sarlavhasi o'zgarib, boshqa sahifa
-   *  ochilgandek bo'lardi.
-   *
-   *  Tanlov marshrutning **ustiga** yoziladi va marshrut o'zgarishi
-   *  bilan o'zi bekor bo'ladi (`from` boshqa bo'lib qoladi): odam
-   *  menyudan `/guncha` ni ochsa, o'sha paytdagi almashtirish
-   *  qoldig'i unga ta'sir qilmaydi. Shu sabab alohida tozalash
-   *  effekti ham kerak emas. */
-  const [swap, setSwap] = useState<{ from: HubGame; to: HubGame } | null>(null);
-  const shown: HubGame = swap?.from === game ? swap.to : game;
-  const toggle = () =>
-    setSwap({ from: game, to: shown === 'guncha' ? 'soztop' : 'guncha' });
+  /* Almashtirgich va g'uncha holati — `lib/useGameSwap.ts` da:
+     o'sha mexanizm uzunlik sahifalarida va bosh sahifadagi taxtada
+     ham ishlatiladi. */
+  const swap = useGameSwap(game === 'guncha');
+  const shown: HubGame = swap.flower ? 'guncha' : 'soztop';
 
   const soztop = useSozTop(choice, shown === 'soztop');
-  const guncha = useGuncha(shown === 'guncha');
-  const flower = shown === 'guncha';
+  const guncha = swap.guncha;
+  const flower = swap.flower;
 
   /* Ikkinchi o'yinning lug'ati fonda tayyorlanadi — almashganda
      «Lug'at yuklanmoqda…» chiqmasligi uchun. Ikkalasi ham bir marta
@@ -76,9 +64,9 @@ export default function GameHub({ game }: { game: HubGame }) {
             bunday chegara yo'q: u o'zi ixcham. */}
         <div className={`oyin__board${flower ? '' : ' oyin__board--fit'}`}>
           {flower ? (
-            <GunchaBoard guncha={guncha} onSwap={toggle} />
+            <GunchaBoard guncha={guncha} onSwap={swap.toggle} />
           ) : (
-            <Play choice={choice} game={soztop} onSwap={toggle} />
+            <Play choice={choice} game={soztop} onSwap={swap.toggle} />
           )}
         </div>
 
