@@ -505,6 +505,15 @@
   transition: background 0.16s ease, color 0.16s ease;
 }
 
+/* O'yin turini almashtiradigan belgi — emoji, shuning uchun `svg`
+   o'lchami emas, shrift o'lchami beriladi. Havola bo'lgani uchun
+   matn bezagi ham olinadi. */
+.play__swap {
+  font-size: 16px;
+  line-height: 1;
+  text-decoration: none;
+}
+
 .play__ranks svg {
   width: 18px;
   height: 18px;

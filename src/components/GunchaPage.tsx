@@ -63,9 +63,21 @@ export default function GunchaPage() {
                   Mashq
                 </button>
               </div>
-              <button className="link" onClick={() => setRules((open) => !open)}>
-                Qoidalar
-              </button>
+              <span className="guncha__head-right">
+                {/* O'yin turini almashtirish — So'ztopga o'tish. Taxta
+                    ustidagi belgi ikkala o'yinda ham bir xil ishlaydi. */}
+                <a
+                  className="play__ranks play__swap"
+                  href={links.play}
+                  aria-label="So‘ztopga o‘tish"
+                  title="So‘ztopga o‘tish"
+                >
+                  <span aria-hidden="true">🟩</span>
+                </a>
+                <button className="link" onClick={() => setRules((open) => !open)}>
+                  Qoidalar
+                </button>
+              </span>
             </div>
 
             {rules && (

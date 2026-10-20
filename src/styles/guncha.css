@@ -167,6 +167,13 @@
   gap: 12px;
 }
 
+/* Sarlavhaning o'ng cheti: o'yin turini almashtirish va qoidalar. */
+.guncha__head-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .guncha__modes {
   display: flex;
   gap: 8px;

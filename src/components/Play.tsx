@@ -19,11 +19,10 @@ import { puzzleKey, useHint } from '../lib/useHint';
 import { pretty } from '../lib/uz';
 import { Board, Keyboard } from './Board';
 import GameAside from './GameAside';
-import { Chart, Refresh } from './Icons';
-import StatsPanel from './StatsPanel';
+import { links } from '../data/site';
+import { Refresh } from './Icons';
 import { Aqcha } from './Units';
 import DownloadPromo from './DownloadPromo';
-import Modal from './Modal';
 import ProposeWord from './ProposeWord';
 import ReportWord from './ReportWord';
 import { warmSounds } from '../lib/sounds';
@@ -115,7 +114,6 @@ function PlayBoard({
   /** Statistika oynasi. Ilovada bu alohida sahifa (Reyting bilan yonma-yon
    *  turadigan «Statistika» kartochkasi); saytda esa panel yon ustunda
    *  qolib ketardi — telefonda uni umuman ko'rmaslik mumkin edi. */
-  const [statsOpen, setStatsOpen] = useState(false);
   /** Kunlik so'z uchun hisob kerak.
    *
    *  Kunlik o'yin — hamma uchun bitta so'z va u reytingga tushadi:
@@ -228,12 +226,14 @@ function PlayBoard({
           </div>
         </div>
         <div className="play__top-right">
-          {/* O'ng chekkada faqat ikkita amal: statistika va yordam.
-              Yordam eng o'ngda — qatordagi yagona o'zgarib turadigan
-              narsa shu, ya'ni ko'z uni chekkadan tezroq topadi.
+          {/* O'ng chekkada faqat o'yinning o'ziga tegishli ikki narsa:
+              boshqa so'zga o'tish va yordam.
 
-              Reyting tugmasi shu qatordan olindi: jadval `/oynash` da
-              va taxtaning ostida baribir bor edi. */}
+              Reyting ham, statistika ham bu qatordan olindi: ikkalasi
+              ham taxtaning ostida, o'z kartochkasida turibdi
+              (`StatsPanel`, `/oynash`). Taxta ustidagi qator esa
+              o'ynayotgan odamga kerak bo'ladigan narsalar uchun —
+              o'yin tugagach qaraladigan sonlar uchun emas. */}
           {/* Boshqa so'zga o'tish — oddiy yangilash belgisi.
               Faqat cheksiz rejimda: kunlik so'z butun mamlakat uchun
               bitta va uni almashtirib bo'lmaydi. Bosilganda tashlab
@@ -252,15 +252,19 @@ function PlayBoard({
               <Refresh size={18} />
             </button>
           )}
-          <button
-            type="button"
-            className="play__ranks"
-            onClick={() => setStatsOpen(true)}
-            aria-label="Statistika"
-            title="Statistika"
+          {/* O'yin turini almashtirish — g'unchaga o'tish.
+              Belgi emoji: `gameLinks` dagi kartochkalarda ham o'sha
+              turadi, ya'ni odam uni allaqachon ko'rgan. Havola, tugma
+              emas: u boshqa sahifaga olib boradi va o'rta bosish bilan
+              yangi varaqda ochish ham ishlashi kerak. */}
+          <a
+            className="play__ranks play__swap"
+            href={links.guncha}
+            aria-label="G‘unchaga o‘tish"
+            title="G‘unchaga o‘tish"
           >
-            <Chart size={20} />
-          </button>
+            <span aria-hidden="true">🌸</span>
+          </a>
           {/* Yordam: o'ylash cho'zilganda o'zi paydo bo'ladi, undan oldin
               qancha qolgani sanab turiladi — ilovadagi `_HintIndicator`. */}
           {hint.ready ? (
@@ -279,12 +283,6 @@ function PlayBoard({
           ) : null}
         </div>
       </div>
-
-      {statsOpen && (
-        <Modal title="Statistika" onClose={() => setStatsOpen(false)}>
-          <StatsPanel choice={choice} stats={stats} total={game.total} bare />
-        </Modal>
-      )}
 
       {mode === 'endless' && (
         <div className="play__lengths" aria-label="So‘z uzunligi">
