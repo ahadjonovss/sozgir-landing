@@ -38,8 +38,13 @@
  *
  *  Bo'sh qoldirilsa hisoblagich butunlay o'chiq — sayt xuddi u yo'qday
  *  ishlayveradi. Shu sababli kod hisoblagich ochilgunicha ham joyida
- *  turaveradi va hech narsani buzmaydi. */
-const COUNTER = '';
+ *  turaveradi va hech narsani buzmaydi.
+ *
+ *  Turi aniq yozilgan (`: string`): usiz TypeScript qiymatni
+ *  o'zgarmas deb oladi va quyidagi «bo'shmi» tekshiruvini «hech qachon
+ *  rost emas» deb belgilaydi. Tekshiruv esa kerak — hisoblagich
+ *  o'chiriladigan paytda bu satr yana bo'shatiladi. */
+const COUNTER: string = '113700305';
 
 /** Hisoblagich shu yig'ishda bormi. */
 const supported = !import.meta.env.DEV && COUNTER !== '';
@@ -54,8 +59,14 @@ declare global {
   }
 }
 
-/** Metrika kutadigan manzil. Interfeysdagi kod o'zgarsa bu yer ham. */
-const SCRIPT = 'https://mc.yandex.ru/metrika/tag.js';
+/** Metrika kutadigan manzil.
+ *
+ *  Hisoblagich raqami manzilning o'zida ham beriladi (`?id=`): Metrika
+ *  interfeysi bergan kodda aynan shunday va u skriptga qaysi
+ *  hisoblagich uchun yuklanayotganini darhol aytadi. Raqamsiz ham
+ *  ishlaydi, lekin interfeysdan chetga chiqishning sababi yo'q —
+ *  kod u yerda o'zgarsa, bu yer ham o'zgaradi. */
+const SCRIPT = `https://mc.yandex.ru/metrika/tag.js?id=${COUNTER}`;
 
 let started = false;
 
@@ -104,8 +115,18 @@ export function startMetrika(): void {
     accurateTrackBounce: true,
     // SPA: manzil almashuvini o'zimiz xabar qilamiz ([trackPage]).
     defer: true,
-    // Yozib olish yo'q — yuqoridagi izohga qarang.
+    // Yozib olish yo'q — yuqoridagi izohga qarang. Interfeys bergan
+    // kodda `webvisor: true` turibdi va u ataylab o'zgartirilgan.
     webvisor: false,
+    /* Interfeys kodidagi yana ikkita kalit bu yerda yo'q va ikkalasi
+       ham bilib tashlangan:
+
+       * `ecommerce: "dataLayer"` — elektron savdo hodisalari. Saytda
+         savat ham, buyurtma ham yo'q, ya'ni u hech qachon
+         to'lmaydigan navbat yasardi.
+       * `ssr: true` — serverda chizilgan sahifa haqidagi belgi.
+         Sayt SPA: statik HTML faqat robot uchun yoziladi, odamda esa
+         sahifani React chizadi. */
   });
 
   whenIdle(() => {
