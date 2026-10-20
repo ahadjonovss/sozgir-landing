@@ -78,17 +78,14 @@ export default function BattleStats({
       <div className="rating__main">
         <span className="rating__label">Jang aqchasi</span>
         <strong className="rating__value">
+          {/* Farq bu yerda ko'rsatilmaydi. Jang natijasida u yuqorida,
+              kartochkadan oldin, o'z qatorida turibdi
+              (`result__delta`) — ikkalasi birga chiqqanda bitta son
+              ekranda ikki marta, ikki xil ko'rinishda turardi va
+              o'qigan odam ularni boshqa-boshqa narsa deb o'ylardi.
+              `change` esa qoladi: sanoq eski qiymatdan yangisiga
+              surilib borishi uchun kerak. */}
           <BattleAqcha rating={shown} size="lg" />
-          {change && battleAqcha(change.after) !== battleAqcha(change.before) && (
-            <span
-              className={`rating__delta rating__delta--${
-                change.after > change.before ? 'up' : 'down'
-              }`}
-            >
-              {change.after > change.before ? '+' : '−'}
-              {Math.abs(battleAqcha(change.after) - battleAqcha(change.before))}
-            </span>
-          )}
         </strong>
         <span className="rating__tiers">
           <span className="rating__tier">

@@ -6655,6 +6655,40 @@
   color: var(--text-2);
 }
 
+/* Ulashish belgisi — kartochkaning o'ng yuqori burchagida.
+   `.stage` da `position: relative` bor, ya'ni belgi uning ichida
+   qoladi. Yuqori qavatda turadi: ustidan konfetti yog'ilganda ham
+   bosiladigan bo'lib qolsin. */
+.result__share {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 11px;
+  background: var(--surface-2);
+  color: var(--text-2);
+  cursor: pointer;
+  transition: background 0.16s ease, color 0.16s ease;
+}
+
+.result__share:hover {
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+/* Nusxa olingani — yagona javob: tugmada matn yo'q, shuning uchun
+   rang aytadi. */
+.result__share--done {
+  background: var(--green-soft);
+  color: var(--green);
+}
+
 /* ── Natija kartochkasi: ixcham ───────────────────────────────────────
    Jang tugagach ekranda bitta uzun ustun qolardi: katta emoji, katta
    sarlavha, ikki hisob kartochkasi, ikki taxta, o'lja kartochkasi va
@@ -6662,7 +6696,11 @@
    hammasi bir necha pog'ona kichraytiriladi: tartib o'sha, faqat havo
    va o'lchamlar qisqargan, ya'ni natija bitta ekranga sig'adi. */
 .stage--result {
-  max-width: 520px;
+  /* 520px edi: natija ustuni ekranning yarmini egallab, ichidagi
+     kartochkalar esa bo'sh joydan cho'zilib turardi. Natijada o'qish
+     uchun ko'z chapdan o'ngga uzoq yurardi, holbuki bu yerda o'qiydigan
+     narsa — bir so'z, ikki son va ikki taxta. */
+  max-width: 440px;
   gap: 12px;
   padding: clamp(16px, 2vw, 22px);
 }

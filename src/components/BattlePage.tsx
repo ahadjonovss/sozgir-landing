@@ -929,6 +929,22 @@ function Result({ game }: { game: Sozjang }) {
         </div>
       )}
 
+      {/* Ulashish — burchakdagi belgi.
+          Ilgari u pastdagi tugmalar qatorida turardi va «Yangi raqib
+          qidirish» bilan bir xil og'irlikda ko'rinardi. Aslida odam
+          jangdan keyin birinchi navbatda keyingi jangni tanlaydi,
+          ulashish esa ikkinchi darajali va matnsiz ham tushunarli. */}
+      {!expired && (
+        <button
+          className={`result__share${copied ? ' result__share--done' : ''}`}
+          onClick={() => void shareResult()}
+          aria-label={copied ? 'Nusxa olindi' : 'Natijani ulashish'}
+          title={copied ? 'Nusxa olindi' : 'Natijani ulashish'}
+        >
+          <Send size={16} />
+        </button>
+      )}
+
       <div className="verdict">
         <span className="verdict__emoji" aria-hidden="true">
           {emoji}
@@ -1107,15 +1123,6 @@ function Result({ game }: { game: Sozjang }) {
           >
             <Swords size={16} />
             Revansh
-          </button>
-        )}
-        {!expired && (
-          <button
-            className="btn btn--ghost"
-            onClick={() => void shareResult()}
-          >
-            <Send size={16} />
-            {copied ? 'Nusxa olindi' : 'Natijani ulashish'}
           </button>
         )}
       </div>
