@@ -11,8 +11,9 @@
  *  taklif qilinadi: «endi o'zingiz yashiring» — bu sahifaning tabiiy
  *  davomi va ilovaning eng o'rinli taklif qilinadigan payti: odam
  *  o'yinni endigina o'ynab ko'rdi. */
-import type { CSSProperties } from 'react';
+import { useEffect, type CSSProperties } from 'react';
 import { links } from '../data/site';
+import { askAppPromo } from '../lib/appPromo';
 import { useAuth } from '../lib/auth';
 import { isChallengeCode } from '../lib/challenge';
 import { useChallenge } from '../lib/useChallenge';
@@ -63,6 +64,15 @@ export default function ChallengePage() {
   const auth = useAuth();
   const game = useChallenge(valid ? code : '');
   const over = game.phase === 'won' || game.phase === 'lost';
+
+  /* O'yin tugadi — telefonda ilova taklifi chiqadi va u yerda do'kon
+     besh soniyadan keyin o'zi ochiladi (`AppPopup`, `soztop` sababi).
+     Sahifaning davomi baribir ilovada: so'z yashirish faqat u yerda va
+     bu odam hozir aynan shuni qilmoqchi — do'stining so'zini topdi.
+     Kompyuterda oyna umuman chiqmaydi. */
+  useEffect(() => {
+    if (over) askAppPromo('soztop');
+  }, [over]);
   /** Kod ishlamasa sahifa boshidagi va'da o'rinsiz bo'lib qoladi: ostida
    *  «bunday kod topilmadi» turganda «so'zni toping» deyishning ma'nosi
    *  yo'q. Sarlavha esa qoladi — odam qayerga tushganini bilsin. */

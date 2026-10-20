@@ -80,6 +80,18 @@ const OPEN_PROMO = false;
  *  ko'rsin, taxta quvonib bo'lsin — keyin taklif. */
 const RESULT_DELAY_MS = 1600;
 
+/** So'zTop havolasidan kelgan odam uchun sanoq — shuncha soniya.
+ *
+ *  Faqat shu bitta yo'lda (`soztop`): odam havola bilan kelgan,
+ *  o'ynab bo'ldi va saytda qiladigan boshqa ishi yo'q — davomi
+ *  ilovada (so'zni o'zi yashirishi ham faqat u yerda). Qolgan
+ *  o'yinlarda oyna avvalgidek kutib turadi va do'kon faqat
+ *  bosilganda ochiladi — yuqoridagi sabab o'sha joyda kuchida.
+ *
+ *  Sanoq to'xtatsa bo'ladi: ✕, fon, Escape va «Yopish» — to'rttasi
+ *  ham oynani yopadi, yopilishi bilan vaqtlagich ham o'chadi. */
+const STORE_COUNTDOWN = 5;
+
 /** Har sabab uchun o'z matni. Ochilishda odam hali hech narsa
  *  ko'rmagan, natijadan keyin esa o'ynab bo'lgan — ikkalasiga bir xil
  *  gap aytish ikkinchisini bekorga sarflash bo'lardi. */
@@ -93,6 +105,11 @@ const COPY: Record<PromoReason, { title: string; text: string }> = {
     title: 'O‘yin yoqdimi?',
     text:
       'Ilovada natijangiz saqlanadi, kunlik so‘z uchun eslatma keladi va o‘yin internetsiz ham ishlaydi.',
+  },
+  soztop: {
+    title: 'Endi o‘zingiz yashiring',
+    text:
+      'So‘z yashirish ilovada: so‘zni lug‘atdan tanlaysiz, havolani do‘stlaringizga tashlaysiz va kim necha urinishda topganini ko‘rib turasiz.',
   },
 };
 
@@ -151,6 +168,40 @@ export default function AppPopup() {
     };
   }, []);
 
+  /** Sanoqda qolgan soniyalar. `null` — sanoq hali boshlanmagan yoki
+   *  tugagan; ko'rsatiladigani `STORE_COUNTDOWN` dan boshlanadi. */
+  const [left, setLeft] = useState<number | null>(null);
+  const storeUrl = ios ? links.appStore : links.playStore;
+
+  /** Sanoq va do'kon — faqat So'zTop havolasidan kelgan odamga.
+   *
+   *  Qolgan vaqt soatdan hisoblanadi, sanab emas: fon varag'ida
+   *  brauzer vaqtlagichni sekinlashtiradi va sanoq haqiqiy besh
+   *  soniyadan uzoqroq cho'zilardi. */
+  useEffect(() => {
+    if (reason !== 'soztop') return;
+
+    const end = Date.now() + STORE_COUNTDOWN * 1000;
+    const timer = window.setInterval(() => {
+      const rest = Math.ceil((end - Date.now()) / 1000);
+      if (rest > 0) {
+        setLeft(rest);
+        return;
+      }
+      window.clearInterval(timer);
+      setLeft(0);
+      /* Do'kon shu oynada ochiladi, yangi varaqda emas: odam ilovaga
+         ketyapti va orqada bo'sh varaq qolishi kerak emas. Orqaga
+         tugmasi uni saytga qaytaradi. */
+      window.location.href = storeUrl;
+    }, 250);
+
+    return () => {
+      window.clearInterval(timer);
+      setLeft(null);
+    };
+  }, [reason, storeUrl]);
+
   useEffect(() => {
     if (!reason) return;
     markPromoShown(reason);
@@ -168,8 +219,9 @@ export default function AppPopup() {
      App Store, qolganida Google Play. Ikkita tugma odamdan keraksiz
      qaror talab qilardi. */
   const store = ios
-    ? { href: links.appStore, label: 'App Store', icon: <AppleIcon size={22} /> }
-    : { href: links.playStore, label: 'Google Play', icon: <PlayIcon size={22} /> };
+    ? { href: storeUrl, label: 'App Store', icon: <AppleIcon size={22} /> }
+    : { href: storeUrl, label: 'Google Play', icon: <PlayIcon size={22} /> };
+  const counting = reason === 'soztop';
 
   return createPortal(
     <div
@@ -236,8 +288,17 @@ export default function AppPopup() {
           </span>
         </a>
 
+        {/* Sanoq ochiq aytiladi: do'kon o'zi ochilishi odam uchun
+            kutilmagan bo'lmasin va to'xtatish yo'li ko'rinib tursin. */}
+        {counting && (
+          <p className="app-promo__count" role="status">
+            {store.label} <strong>{left ?? STORE_COUNTDOWN}</strong> soniyadan
+            so‘ng ochiladi
+          </p>
+        )}
+
         <button className="link app-promo__stay" onClick={close}>
-          Yopish
+          {counting ? 'Bekor qilish' : 'Yopish'}
         </button>
       </div>
     </div>,

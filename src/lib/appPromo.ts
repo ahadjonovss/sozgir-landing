@@ -25,7 +25,11 @@
  *    nima qilayotganini biladi — o'yinni o'zi tugatdi, oyna esa uning
  *    ustiga chiqadi, ishini bo'lmaydi. */
 
-export type PromoReason = 'open' | 'result';
+/** `soztop` — do'sti yashirgan so'z o'ynab bo'lingani (`ChallengePage`).
+ *  `result` dan farqi oynaning o'zida: u yerda besh soniyalik sanoq
+ *  ketadi va do'kon o'zi ochiladi. Sabab alohida aynan shuning uchun —
+ *  sanoq faqat shu bitta yo'lda bo'lsin. */
+export type PromoReason = 'open' | 'result' | 'soztop';
 
 /** Kunlik hisobi bor sabablar. `result` bu yerda yo'q: u har o'yindan
  *  keyin chiqadi, ya'ni sanab turishning ma'nosi yo'q. */
@@ -76,7 +80,9 @@ function justClosed(): boolean {
  *  ochilishi esa kuniga bir marta va oyna endigina yopilgan bo'lsa
  *  umuman chiqmaydi. */
 export const canShowPromo = (reason: PromoReason): boolean =>
-  reason === 'result' || (!promoShown(reason) && !justClosed());
+  reason === 'result' ||
+  reason === 'soztop' ||
+  (!promoShown(reason) && !justClosed());
 
 /** Sabab ishlatilgani yozib qo'yiladi — oyna ochilganda. Kunlik hisobi
  *  yo'q sababda yozadigan narsa ham yo'q. */

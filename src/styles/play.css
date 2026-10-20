@@ -5895,6 +5895,20 @@
   font-size: 13.5px;
 }
 
+/* Sanoq — do'kon tugmasi ostida, bitta qator. So'zTop havolasidan
+   kelgan odamga do'kon o'zi ochiladi va buni oldindan aytib turadi. */
+.app-promo__count {
+  justify-self: center;
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+.app-promo__count strong {
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
 /* Past ekranda (masalan 667 px) matn qisqaradi: afzalliklar va shior
    ketadi, do'kon tugmalari esa qoladi — oynaning butun maqsadi
    o'shalar. */
