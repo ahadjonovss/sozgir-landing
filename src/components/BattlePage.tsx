@@ -31,6 +31,8 @@ import CodeInput from './CodeInput';
 import { Check, Clock, Copy, Send, Swords, Trophy, Users } from './Icons';
 import { ReactionBurst, ReactionPicker } from './Reactions';
 import PlayerName from './PlayerName';
+import ReportDialog from './ReportDialog';
+import type { ReportKind } from '../lib/report';
 import { AqchaDelta } from './Units';
 import RotatingLine from './RotatingLine';
 import ScoreRules from './ScoreRules';
@@ -840,6 +842,8 @@ function Result({ game }: { game: Sozjang }) {
    *  Raqib tugatgach kuzatuvchi hujjatni yangilaydi va ekran to'ladi. */
   const pending =
     gaveUp && game.battle?.status !== 'finished' && game.battle?.status !== 'expired';
+  /** Qaysi shikoyat oynasi ochiq. */
+  const [report, setReport] = useState<ReportKind | null>(null);
   const meAqcha = aqchaOf(game.me);
   const foeAqcha = aqchaOf(game.opponent);
   const mine = !gaveUp && !!winner && !!account && winner === account.uid;
@@ -1154,33 +1158,48 @@ function Result({ game }: { game: Sozjang }) {
 
       {rematch && <SendInvite target={rematch} onClose={() => setRematch(null)} />}
 
-      {/* Shikoyat — ikkalasi ham o'z sahifasida (`/shikoyat/...`),
-          oynada emas: natija ekrani allaqachon to'la va uning ustiga
-          yana bir qavat qo'yish o'qishni qiyinlashtirardi. Manzilda
-          `orqaga` bor — yuborilgandan keyin odam jangiga qaytadi.
+      {/* Shikoyat — oynada.
+          Ilgari ikkalasi ham `/shikoyat/...` sahifasiga olib borardi
+          va natija ekrani tashlab chiqilardi. Shikoyat esa bir
+          qarashlik ish: sabab tanlanadi, izoh ixtiyoriy va shu bilan
+          tamom — uning uchun natijadan chiqib, keyin qaytib kelish
+          ortiqcha yo'l edi.
+
+          Sahifa o'z o'rnida qoldi: ilova ulashadigan havolalar o'sha
+          yerga tushadi. Shakl esa ikkovida bitta (`ReportForm`).
           Ilovadagi natija ekranida ham shu ikki amal turadi
           (`battle_result_page.dart`). */}
       {(game.battle?.answer || (!game.mardu && game.opponentUid)) && (
         <div className="result__links">
           {game.battle?.answer && (
-            <a
-              className="report-link"
-              href={`/shikoyat/soz/${encodeURIComponent(game.battle.answer)}?qayerda=jang&orqaga=${encodeURIComponent(links.battle)}`}
-            >
+            <button className="report-link" onClick={() => setReport('word')}>
               Bu so‘z ustidan shikoyat
-            </a>
+            </button>
           )}
           {!game.mardu && game.opponentUid && (
-            <a
-              className="report-link"
-              href={`/shikoyat/oyinchi/${encodeURIComponent(game.opponentUid)}?ism=${encodeURIComponent(foeName)}${
-                game.battleId ? `&jang=${encodeURIComponent(game.battleId)}` : ''
-              }&orqaga=${encodeURIComponent(links.battle)}`}
-            >
+            <button className="report-link" onClick={() => setReport('player')}>
               Raqib ustidan shikoyat
-            </a>
+            </button>
           )}
         </div>
+      )}
+
+      {report === 'word' && game.battle?.answer && (
+        <ReportDialog
+          kind="word"
+          value={game.battle.answer}
+          mode="jang"
+          onClose={() => setReport(null)}
+        />
+      )}
+      {report === 'player' && game.opponentUid && (
+        <ReportDialog
+          kind="player"
+          value={game.opponentUid}
+          name={foeName}
+          battleId={game.battleId ?? undefined}
+          onClose={() => setReport(null)}
+        />
       )}
     </div>
   );

@@ -88,3 +88,18 @@ export async function submitPlayerReport(input: {
     },
   });
 }
+
+/* ── Shikoyat qayerda chizilsa ham ─────────────────────────────────── */
+
+/** Nima ustidan shikoyat qilinayapti. */
+export type ReportKind = 'word' | 'player';
+
+/** Sarlavha va izoh shu yerda: ular sahifada ham (`ReportPage`),
+ *  jangdagi oynada ham (`ReportDialog`) bir xil gapni aytishi kerak. */
+export const reportTitle = (kind: ReportKind): string =>
+  kind === 'player' ? 'O‘yinchi ustidan shikoyat' : 'So‘z haqida xabar berish';
+
+export const reportLead = (kind: ReportKind): string =>
+  kind === 'player'
+    ? 'Shikoyatni moderator o‘qib chiqadi. Chora darhol ko‘rilmaydi: qarorni odam qabul qiladi.'
+    : 'Sababni tanlang — moderator o‘qib chiqadi va so‘zni lug‘atdan chiqarishi mumkin.';
