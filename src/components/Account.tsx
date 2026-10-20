@@ -39,14 +39,24 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
   const [name, setName] = useState(() => auth.nickname);
   const [birthDate, setBirthDate] = useState('');
   const [gender, setGender] = useState<'male' | 'female' | ''>('');
+  /** Telegram kodi so'ralayotgan bosqich.
+   *
+   *  Alohida oyna emas, shu oynaning ikkinchi ko'rinishi: robot
+   *  brauzerning boshqa varag'ida ochiladi va odam shu yerga
+   *  qaytib kodni teradi. Ilovada ham xuddi shunday — robot
+   *  ilovadan tashqarida ishlaydi, oyna esa ochiq qoladi. */
+  const [codeStep, setCodeStep] = useState(false);
+  const [code, setCode] = useState('');
   const [note, setNote] = useState<string | null>(null);
   const [invalid, setInvalid] = useState<string | null>(null);
   const first = useRef<HTMLInputElement | null>(null);
   const range = birthRange();
 
+  /* Kod bosqichiga o'tilganda ham fokus ko'chadi: odam robotdan
+     qaytganda kursor allaqachon kod maydonida tursin. */
   useEffect(() => {
     first.current?.focus();
-  }, []);
+  }, [codeStep]);
 
   /* Profil oynasi: serverdagi ma'lumot o'qiladi — bir marta to'ldirgan
      odamdan qayta so'ralmasin. */
@@ -72,6 +82,17 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
     event.preventDefault();
     setInvalid(null);
     setNote(null);
+
+    if (codeStep) {
+      // Kod aynan olti raqam: shaklni shu yerda tekshirish kerak,
+      // aks holda yarim terilgan kod serverga ketib, uning uch
+      // urinishidan birini yeb qo'yardi.
+      if (!/^\d{6}$/.test(code.trim())) {
+        return setInvalid('Kod olti raqamdan iborat');
+      }
+      if (await auth.signInWithCode(code)) close();
+      return;
+    }
 
     const nameProblem = nicknameError(name);
     const loginProblem = byEmail
@@ -268,6 +289,60 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
     );
   }
 
+  /* Kod bosqichi — robot ochilgandan keyingi ko'rinish.
+     Oyna o'sha-o'sha, ichidagi shakl almashadi: odam robotdan
+     qaytganda ayni shu yerni ko'radi. */
+  if (codeStep) {
+    return (
+      <Modal
+        title="Telegram orqali kirish"
+        lead="Robot bergan olti xonali kodni kiriting. Kod uch daqiqa yashaydi."
+        onClose={close}
+      >
+        <form className="form" onSubmit={submit}>
+          <label className="field">
+            <span>Kod</span>
+            <input
+              ref={first}
+              /* `text` + `inputMode`: `number` turi telefonda ham
+                 o'q tugmachalarini chizadi va boshida nol turgan
+                 kodni kesib yuborishi mumkin. */
+              type="text"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              value={code}
+              onChange={(event) =>
+                setCode(event.target.value.replace(/\D/g, '').slice(0, 6))
+              }
+              placeholder="000000"
+              maxLength={6}
+            />
+          </label>
+          {status}
+          <button className="btn" disabled={auth.busy}>
+            {auth.busy ? 'Kirilmoqda…' : 'Kirish'}
+          </button>
+        </form>
+
+        <div className="modal__tabs">
+          <a className="link" href={links.loginBot} target="_blank" rel="noreferrer">
+            Robotni qayta ochish
+          </a>
+          <button
+            className="link"
+            onClick={() => {
+              setInvalid(null);
+              setCode('');
+              setCodeStep(false);
+            }}
+          >
+            Parol bilan kirish
+          </button>
+        </div>
+      </Modal>
+    );
+  }
+
   return (
     <Modal
       title="Hisobga kirish"
@@ -322,13 +397,39 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
         </button>
       </form>
 
+      {/* Telegram — ikkinchi yo'l, tanlov emas.
+          Bo'lim qilib qo'yilmadi: ko'pchilik raqam va parol bilan
+          kiradi, Telegram esa parolini unutganlar va yangi
+          kelganlar uchun qulayroq. Shuning uchun u asosiy tugma
+          ostida turadi — ko'rinadi, lekin yo'lni to'smaydi.
+          Ilovadagi joylashuvning o'zi. */}
+      <div className="form__or">
+        <span>yoki</span>
+      </div>
+      <a
+        className="btn btn--outline btn--wide"
+        href={links.loginBot}
+        target="_blank"
+        rel="noreferrer"
+        onClick={() => {
+          /* Robot boshqa varaqda ochiladi, shuning uchun bu oyna
+             yopilmaydi: odam qaytganda kod maydoni tayyor turadi.
+             Havolaning o'zi to'silmaydi — `target="_blank"` ni
+             brauzer bajaradi, biz faqat ko'rinishni almashtiramiz. */
+          setInvalid(null);
+          setCodeStep(true);
+        }}
+      >
+        Telegram orqali kirish
+      </a>
+
       <div className="modal__tabs">
-        {/* Parolni tiklash — hozircha jonli odam orqali.
-            Kirish o'z serverimizga ko'chgach avtomatik xat yuborish
-            kanali qolmadi (ilovada ham shunday). Raqamli hisobda u
+        {/* Parolni tiklash — robot orqali.
+            Avtomatik xat yuborish kanali yo'q va raqamli hisobda u
             baribir ishlamasdi: manzil `<raqam>@gmail.com` bo'lib
-            chiqadi va xat begona qutiga ketardi. */}
-        <a className="link" href={links.telegram} target="_blank" rel="noreferrer">
+            chiqadi va xat begona qutiga ketardi. Robot esa raqamni
+            Telegram orqali tasdiqlaydi — ilovada ham shu havola. */}
+        <a className="link" href={links.parolBot} target="_blank" rel="noreferrer">
           Parolni unutdingizmi?
         </a>
         <button className="link" onClick={() => open('register')}>

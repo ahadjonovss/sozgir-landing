@@ -4040,6 +4040,35 @@
   font-size: 13.5px;
 }
 
+/* «yoki» — shaklning ostidagi ajratgich.
+   Ikki yonidagi chiziq matnni o'rtada ushlab turadi: ostidagi
+   Telegram tugmasi shaklning davomi emas, ikkinchi yo'l ekani
+   bir qarashda ko'rinsin. Ilovadagi ajratgichning o'zi. */
+.form__or {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  color: var(--text-2);
+  font-size: 13px;
+}
+
+.form__or::before,
+.form__or::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--divider);
+}
+
+/* Shakldan tashqaridagi tugma — `.form` ning grid'i uni kengaytirib
+   bermaydi, shuning uchun kenglik shu yerda aytiladi. */
+.btn--wide {
+  display: flex;
+  width: 100%;
+  margin-top: 10px;
+}
+
 /* ── Reklama ──────────────────────────────────────────────────────────
    Ramka sahifaning o'z kartochkalari bilan bir tilda: `surface` foni,
    yumshoq burchak, ingichka chegara — reklama begona bo'lak bo'lib

@@ -93,6 +93,12 @@ export interface AuthValue {
     input: Credentials & { nickname: string; details?: ProfileDetails },
   ) => Promise<boolean>;
   signIn: (input: Credentials) => Promise<boolean>;
+  /** Telegram roboti bergan olti xonali kod bilan kirish.
+   *
+   *  Parol so'ralmaydi va hisob topilmasa robot uni o'zi ochadi
+   *  (`backend/src/app/auth.ts`, `issueTelegramCode`) — ya'ni bu yerda
+   *  «hisob yo'q» degan holat umuman bo'lmaydi. */
+  signInWithCode: (code: string) => Promise<boolean>;
   /** Parolni yangilash — kirgan holatda. Joriy parol ham so'raladi. */
   updatePassword: (input: { current: string; next: string }) => Promise<boolean>;
   saveNickname: (nickname: string) => Promise<boolean>;
@@ -125,6 +131,11 @@ function authMessage(error: unknown): string {
       return 'Parol juda oddiy — kamida 6 belgi bo‘lsin';
     case 'bad_credentials':
       return 'Raqam yoki parol xato';
+    case 'bad_code':
+      // Kodning muddati uch daqiqa va u bir martalik. Uchala sabab —
+      // noto'g'ri terilgan, eskirgan, ishlatilgan — serverda bitta
+      // kodga tushadi, shuning uchun matn ham bitta.
+      return 'Kod xato yoki eskirgan — robotdan yangisini oling';
     case 'no_session':
       return 'Kirish muddati tugadi — qaytadan kiring';
     default:
@@ -286,6 +297,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [open, run],
   );
 
+  /** Telegram kodi bilan kirish.
+   *
+   *  Shakli ilovanikining o'zi (`AuthApiDataSource.signInWithCode`):
+   *  marshrutga faqat kodning o'zi boradi, chunki hisob kodning
+   *  ichida turadi. Pochta token'da yo'q — u profil so'rovidan
+   *  keladi, ya'ni bu yerda hech narsa qo'shilmaydi. */
+  const signInWithCode = useCallback(
+    (code: string) =>
+      run(async () => {
+        await open('/v1/auth/tg/confirm', { code: code.trim() });
+      }),
+    [open, run],
+  );
+
   /** Parolni yangilaydi.
    *
    *  Joriy parol ham kerak: o'g'irlangan qurilmadan parol almashtirib
@@ -378,6 +403,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       nickname,
       register,
       signIn,
+      signInWithCode,
       updatePassword,
       saveNickname,
       saveDetails,
@@ -405,6 +431,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       saveDetails,
       saveNickname,
       signIn,
+      signInWithCode,
       signOut,
     ],
   );

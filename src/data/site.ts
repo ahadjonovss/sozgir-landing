@@ -15,6 +15,20 @@ export const links = {
   /** Hamjamiyat guruhi — o'yinchilar bir-birini topadi, takliflar,
    *  yangiliklar. Banner `/oynash`, `/oyin` va `/sozjang` da. */
   telegramGroup: 'https://t.me/+_dbBWMhlXqFiMjYy',
+  /** Parol roboti — parolni tiklaydigan yagona yo'l.
+   *
+   *  Xat yuborish kanali yo'q va raqam bilan kirganlarda pochtaning
+   *  o'zi yo'q. Robot raqamni Telegram orqali tasdiqlaydi
+   *  (`backend/src/parolbot`). Ilovadagi `AppLinks.parolBot` ning
+   *  o'zi. */
+  parolBot: 'https://t.me/sozgirbot',
+  /** Telegram orqali kirish — o'sha robot, boshqa niyat.
+   *
+   *  `?start=kirish` robotga niyatni aytadi: u kontakt so'raydi va
+   *  olti xonali kod beradi. Kod saytdagi oynaga teriladi
+   *  (`/v1/auth/tg/confirm`). Ilovadagi `AppLinks.loginBot` ning
+   *  o'zi — ikkalasi bitta robotga boradi. */
+  loginBot: 'https://t.me/sozgirbot?start=kirish',
   support: `mailto:${email}`,
   /** «O'ynash» tugmasi — nimani o'ynashni tanlash sahifasi. */
   hub: '/oynash',
