@@ -324,11 +324,21 @@ export const gameLinks: GameLink[] = [
     href: links.turnir,
   },
   {
+    /* G'uncha bu yerda **jang** bo'lib turadi, yakka o'yin emas.
+     *
+     *  Yakka g'unchaga taxtaning ustidagi belgi olib boradi (bir
+     *  bosishda, `Play` dagi almashtirgich), ya'ni u yaqin joyda.
+     *  Yonidagi kartochka esa «yana nima bor» degan savolga javob
+     *  beradi va o'sha savolga jonli jang qiziqroq javob: odam
+     *  allaqachon yolg'iz o'ynab o'tiribdi.
+     *
+     *  Nomi ham shu sababdan «G'uncha jangi» — kartochka qayerga olib
+     *  borsa, o'sha yozilishi kerak. */
     id: 'guncha',
     emoji: '🌸',
-    name: 'G‘uncha',
-    tagline: moduleTagline('guncha'),
-    href: links.guncha,
+    name: 'G‘uncha jangi',
+    tagline: 'Ikkalangizga bir xil g‘uncha va uch daqiqa: kim ko‘p to‘plasa.',
+    href: links.gunchaBattle,
   },
   {
     id: 'mardu',
