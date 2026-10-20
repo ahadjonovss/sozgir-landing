@@ -34,6 +34,14 @@ export const links = {
   hub: '/oynash',
   play: '/oyin',
   battle: '/sozjang',
+  /** So'zjang — raqib qidirishni **o'zi boshlaydigan** havola.
+   *
+   *  `/oynash` dagi kartochka shu yerga olib boradi: lobbi ochilib,
+   *  qidiruv darhol ketadi. Ilgari odam bosh sahifadan jangga
+   *  yetguncha uch marta bosardi — «O'ynash», «Jangga kirish»,
+   *  «Raqib qidirish» — va oxirgisi lobbida uni kutib turardi.
+   *  Do'st bilan o'ynash yo'li o'z joyida: oddiy `/sozjang`. */
+  battleQuick: '/sozjang?tezkor=1',
   /** G'uncha — yettita harfdan so'z yig'ish. */
   guncha: '/guncha',
   /** G'uncha jangi: bir xil g'uncha, uch daqiqa, kim ko'p to'plasa. */

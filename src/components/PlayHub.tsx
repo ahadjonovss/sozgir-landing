@@ -1,82 +1,40 @@
 /** O'ynash sahifasi — `/oynash`.
  *
  *  Sarlavhada bitta «O'ynash» tugmasi bor; nimani o'ynashni odam shu
- *  yerda tanlaydi: So'ztop (bugungi so'z yoki cheksiz mashq) yoki
- *  So'zjang (do'st bilan yoki tezkor jang). Ilgari sarlavhada So'zjang
- *  alohida turardi, So'ztopga esa yo'l ko'rinmasdi.
+ *  yerda tanlaydi: So'zjang, G'uncha, Mardu maydon yoki turnir.
+ *
+ *  **So'ztop bu yerda yo'q.** Uning taxtasi bosh sahifaning birinchi
+ *  ekranida turibdi va kunlik so'z kartochkasi ham o'sha yerda —
+ *  ya'ni bu yerdagi kartochka o'sha ikkisini uchinchi marta
+ *  takrorlardi. Bu sahifa «yolg'iz o'ynashdan boshqa yana nima bor»
+ *  degan savolga javob beradi.
  *
  *  Turnir va Mardu maydon kartochkalari qolganlaridan keyin turadi:
- *  ular yangi o'yin
- *  emas, **shakl** — ichida baribir So'zjang yoki G'uncha o'ynaladi,
- *  shuning uchun avval o'yinlarning o'zi ko'rinishi kerak.
+ *  ular yangi o'yin emas, **shakl** — ichida baribir So'zjang yoki
+ *  G'uncha o'ynaladi, shuning uchun avval o'yinlarning o'zi
+ *  ko'rinishi kerak.
  *
  *  Kartochkalardan keyin o'yinchining o'zi: aqchasi va darajasi, umumiy
  *  reyting va janglar tarixi. Ilgari bular sahifalar bo'ylab sochilgan
- *  edi — reyting So'ztop ichida, tarix esa maydon sahifasining yon
+ *  edi — reyting o'yin ichida, tarix esa maydon sahifasining yon
  *  ustunida, ya'ni «qanday o'ynayapman» degan savolga javob olish uchun
  *  o'yin ochish kerak edi. Tartib shu savolning tartibi: avval nima
  *  o'ynash, keyin boshqalarga nisbatan qanday va nima bo'lgani.
  *  Kirgan odamning o'z aqchasi esa kartochkalardan oldin: u bu yerga
  *  ko'pincha o'ynagani emas, «qanchaman» deb keladi. */
-import { useEffect, useState } from 'react';
 import { links } from '../data/site';
 import { useAuth } from '../lib/auth';
-import { dailyKey, dailyNumber, untilNextWord } from '../lib/daily';
-import { DAILY_LENGTH, attemptsFor } from '../lib/modes';
 import AdBanner from './AdBanner';
-import AppMark from './AppMark';
 import ArenaHistory from './ArenaHistory';
 import BattleStats from './BattleStats';
 import PlaysLeft from './PlaysLeft';
 import Leaderboard from './Leaderboard';
-import { Clock, Swords, Trophy, Users } from './Icons';
+import { Swords, Trophy, Users } from './Icons';
 import GunchaCard from './GunchaCard';
 import TelegramBanner from './TelegramBanner';
-import { Aqcha } from './Units';
-
-/** Bugungi o'yin holati — saqlangan sessiyadan.
- *
- *  Kalit `useSozTop` bilan bir xil: sahifa holatni o'qiydi, lekin unga
- *  tegmaydi. Boshqa kunning sessiyasi hisobga olinmaydi. */
-function readDaily() {
-  try {
-    const raw = localStorage.getItem(`sozgir.game.daily.${DAILY_LENGTH}`);
-    const session = raw ? JSON.parse(raw) : null;
-    if (!session || session.dateKey !== dailyKey()) return null;
-    return {
-      guesses: (session.guesses as string[] | undefined)?.length ?? 0,
-      done: session.done === true,
-      won: session.done === true && (session.points ?? 0) > 0,
-      points: (session.points as number | undefined) ?? 0,
-    };
-  } catch {
-    return null;
-  }
-}
-
-function Countdown() {
-  const [left, setLeft] = useState(() => untilNextWord());
-
-  useEffect(() => {
-    const timer = window.setInterval(() => setLeft(untilNextWord()), 30_000);
-    return () => window.clearInterval(timer);
-  }, []);
-
-  const hours = Math.floor(left / 3_600_000);
-  const minutes = Math.floor((left % 3_600_000) / 60_000);
-  return (
-    <span>
-      <Clock size={14} /> Keyingi so‘zgacha {hours > 0 ? `${hours} soat ` : ''}
-      {minutes} daqiqa
-    </span>
-  );
-}
 
 export default function PlayHub() {
   const { account, openPrompt, ready } = useAuth();
-  const [daily] = useState(readDaily);
-  const number = dailyNumber();
-  const max = attemptsFor(DAILY_LENGTH);
 
   return (
     <section className="oyin">
@@ -85,8 +43,8 @@ export default function PlayHub() {
           <span className="section__kicker">O‘ynash</span>
           <h1>Nimani o‘ynaymiz?</h1>
           <p className="section__lead">
-            Bugungi so‘zni yolg‘iz toping, harflardan so‘z yig‘ing yoki
-            do‘stingiz bilan bellashing. Hammasi shu yerda, brauzerda.
+            Do‘stingiz bilan bellashing, harflardan so‘z yig‘ing yoki
+            butun davrani maydonga yig‘ing. Hammasi shu yerda, brauzerda.
           </p>
         </div>
 
@@ -108,55 +66,6 @@ export default function PlayHub() {
         <PlaysLeft />
 
         <div className="hub__grid">
-          <article className="hub-card hub-card--soztop">
-            <div className="hub-card__top">
-              <span className="hub-card__icon">
-                <AppMark size={28} ink="currentColor" accent="var(--green)" />
-              </span>
-              <span className={`hub-card__badge${daily?.done ? ' hub-card__badge--done' : ''}`}>
-                {daily?.done ? (daily.won ? 'Bugun topildi' : 'Bugun o‘ynaldi') : `№${number}`}
-              </span>
-            </div>
-            <h2>So‘ztop</h2>
-            <p>
-              Kuniga bitta 5 harfli so‘z — butun O‘zbekiston uchun bir xil.
-              Topgach cheksiz rejimda 4 dan 7 harfgacha mashq qiling.
-            </p>
-            <div className="hub-card__status">
-              {daily?.done ? (
-                <>
-                  <span>
-                    {daily.won ? (
-                      <>
-                        <b>{daily.guesses}/{max}</b> urinishda ·{' '}
-                        <b><Aqcha value={daily.points} size="sm" sign /></b>
-                      </>
-                    ) : (
-                      'Bugun topa olmadingiz'
-                    )}
-                  </span>
-                  <Countdown />
-                </>
-              ) : daily && daily.guesses > 0 ? (
-                <span>
-                  O‘yin davom etmoqda · <b>{daily.guesses}/{max}</b>
-                </span>
-              ) : (
-                <span>Bugungi so‘z hali o‘ynalmagan</span>
-              )}
-            </div>
-            <div className="hub-card__actions">
-              <a className="btn" href={links.play}>
-                {daily?.done ? 'Cheksiz rejimda o‘ynash' : 'Bugungi so‘zni o‘ynash'}
-              </a>
-              {!daily?.done && (
-                <a className="btn btn--ghost" href={links.play}>
-                  Cheksiz rejim
-                </a>
-              )}
-            </div>
-          </article>
-
           <article className="hub-card hub-card--battle">
             <div className="hub-card__top">
               <span className="hub-card__icon">
@@ -180,13 +89,32 @@ export default function PlayHub() {
               )}
             </div>
             <div className="hub-card__actions">
-              <a className="btn" href={links.battle}>
-                Jangga kirish
-              </a>
-              {!account && (
-                <button className="btn btn--ghost" onClick={() => openPrompt('signIn')}>
-                  Kirish
-                </button>
+              {/* Asosiy tugma jangning o'ziga olib boradi, lobbiga
+                  emas: qidiruv havolaning o'zidan boshlanadi
+                  (`?tezkor=1`). Ilgari bu yerda «Jangga kirish»
+                  turardi va odam lobbida yana bir marta «Raqib
+                  qidirish» ni bosardi — o'sha ekranda boshqa
+                  qaror yo'q edi. Do'st bilan o'ynash esa qaror:
+                  kod yaratish yoki terish kerak, shuning uchun u
+                  alohida, ikkinchi darajali havola. */}
+              {account ? (
+                <>
+                  <a className="btn" href={links.battleQuick}>
+                    Raqib qidirish
+                  </a>
+                  <a className="btn btn--ghost" href={links.battle}>
+                    Do‘st bilan
+                  </a>
+                </>
+              ) : (
+                <>
+                  <button className="btn" onClick={() => openPrompt('signIn')}>
+                    Kirish
+                  </button>
+                  <a className="btn btn--ghost" href={links.battle}>
+                    Jangni ko‘rish
+                  </a>
+                </>
               )}
             </div>
           </article>

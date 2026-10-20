@@ -57,6 +57,14 @@ function codeFromUrl(): string {
   return value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
 }
 
+/** Havola «darhol raqib qidir» deb aytganmi.
+ *
+ *  `/oynash` dagi kartochka shu bayroq bilan keladi: odam u yerda
+ *  «Raqib qidirish» ni bosgan, ya'ni lobbida uni ikkinchi marta
+ *  bostirishning ma'nosi yo'q. */
+const quickFromUrl = () =>
+  new URLSearchParams(window.location.search).get('tezkor') === '1';
+
 /** Matnni ulashish: iloji bo'lsa tizim oynasi, bo'lmasa nusxa. */
 function useShare() {
   const [copied, setCopied] = useState(false);
@@ -157,6 +165,7 @@ function Gate() {
 function Lobby({ game }: { game: Sozjang }) {
   const [code, setCode] = useState(codeFromUrl);
   const joined = useRef(false);
+  const quickStarted = useRef(false);
 
   // Havoladagi kod bilan o'zi qo'shiladi — odam kodni terib o'tirmasin.
   // Keyin manzil tozalanadi: sahifa yangilanganda qayta urinilmaydi.
@@ -166,6 +175,24 @@ function Lobby({ game }: { game: Sozjang }) {
     void game.join(code);
     window.history.replaceState(null, '', '/sozjang');
   }, [code, game]);
+
+  /* `?tezkor=1` bilan kelgan bo'lsa qidiruv o'zi boshlanadi.
+     Kirmagan odamda boshlanmaydi: jang hisobni talab qiladi va
+     qidiruv baribir xato bilan qaytardi — u yerda `Gate` o'z
+     ishini qiladi. Bayroq manzildan olib tashlanadi: sahifa
+     yangilanganda qidiruv ikkinchi marta ketmasin. Kod bilan
+     kelgan havola ustun — ikkalasi bo'lsa do'stga qo'shiladi. */
+  useEffect(() => {
+    if (quickStarted.current || !quickFromUrl()) return;
+    if (joined.current || !game.account || game.busy) return;
+    // Bayroq **qidiruv ketganda** o'chiriladi, oldin emas: hisob
+    // hali tanilmagan bo'lsa, keyingi renderda qayta urinib
+    // ko'riladi. Ilgari bu yerda tartib teskari edi va kirish
+    // oynasidan qaytgan odam uchun bayroq allaqachon yo'q edi.
+    quickStarted.current = true;
+    window.history.replaceState(null, '', '/sozjang');
+    void game.quick();
+  }, [game]);
 
   const join = () => {
     if (code.length === 6 && !game.busy) void game.join(code);
