@@ -1,7 +1,7 @@
 /** Hisob — ro'yxatdan o'tish, kirish va seans.
  *
  *  Endi **o'z serverimizda**: parol ham, seans ham `api.sozgir.uz` da
- *  (`/v1/auth/*`). Firebase Auth olib tashlandi va saytda Firebase'dan
+ *  (`/v1/web/auth/*`). Firebase Auth olib tashlandi va saytda Firebase'dan
  *  hech narsa qolmadi.
  *
  *  Ilovadagi mantiq saqlanadi:
@@ -272,7 +272,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }) =>
       run(async () => {
         const clean = sanitizeNickname(name);
-        await open('/v1/auth/register', {
+        await open('/v1/web/auth/register', {
           email: toLoginEmail(login),
           password,
           ...(clean ? { nickname: clean } : {}),
@@ -292,7 +292,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signIn = useCallback(
     ({ email: login, password }: Credentials) =>
       run(async () => {
-        await open('/v1/auth/login', { email: toLoginEmail(login), password });
+        await open('/v1/web/auth/login', { email: toLoginEmail(login), password });
       }),
     [open, run],
   );
@@ -306,7 +306,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithCode = useCallback(
     (code: string) =>
       run(async () => {
-        await open('/v1/auth/tg/confirm', { code: code.trim() });
+        await open('/v1/web/auth/tg/confirm', { code: code.trim() });
       }),
     [open, run],
   );
@@ -321,7 +321,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const updatePassword = useCallback(
     ({ current, next }: { current: string; next: string }) =>
       run(async () => {
-        const data = await api.post<Record<string, unknown>>('/v1/auth/password', {
+        const data = await api.post<Record<string, unknown>>('/v1/web/auth/password', {
           body: { current, next, platform: 'web' },
         });
         const renewed = sessionFrom(data);
@@ -366,7 +366,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // token'i boshqa ishlamasin. Tarmoq yo'q bo'lsa ham qurilmadagi
       // seans baribir tozalanadi.
       await quietly(() =>
-        api.post('/v1/auth/logout', { auth: false, body: { refreshToken: token } }),
+        api.post('/v1/web/auth/logout', { auth: false, body: { refreshToken: token } }),
       );
     }
     clearSession();

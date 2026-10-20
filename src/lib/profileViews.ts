@@ -42,7 +42,7 @@ export async function recordProfileView({
   try {
     // Kim ko'rganini server token'dan biladi — `viewer` faqat shu
     // yerdagi tekshiruv uchun.
-    await api.post(`/v1/profiles/${encodeURIComponent(owner)}/view`);
+    await api.post(`/v1/web/profiles/${encodeURIComponent(owner)}/view`);
   } catch {
     // Qayd yozilmasa ham profil ochilaveradi — keyingi tashrifda qayta
     // urinib ko'riladi.

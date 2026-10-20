@@ -26,7 +26,7 @@ export const links = {
    *
    *  `?start=kirish` robotga niyatni aytadi: u kontakt so'raydi va
    *  olti xonali kod beradi. Kod saytdagi oynaga teriladi
-   *  (`/v1/auth/tg/confirm`). Ilovadagi `AppLinks.loginBot` ning
+   *  (`/v1/web/auth/tg/confirm`). Ilovadagi `AppLinks.loginBot` ning
    *  o'zi — ikkalasi bitta robotga boradi. */
   loginBot: 'https://t.me/sozgirbot?start=kirish',
   support: `mailto:${email}`,

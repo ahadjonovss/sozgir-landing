@@ -7,7 +7,13 @@
  *
  *  Token seansdan olinadi (`api/session.ts`) — u ham shu serverniki.
  *  Ochiq marshrutlarda (lug'at, reyting, kunlik so'z) token umuman
- *  so'ralmaydi: `auth: false` bo'lsa seansga ham qaralmaydi. */
+ *  so'ralmaydi: `auth: false` bo'lsa seansga ham qaralmaydi.
+ *
+ *  Manzillar **saytniki**: `/v1/public/*` tokensiz o'qiladigani,
+ *  `/v1/web/*` tokenlisi. Ilovaning `/v1/*` marshrutlariga sayt
+ *  urmaydi — ular ilova bilan birga o'zgaradi va o'shanda saytni
+ *  sindirardi. Sabab serverda, `backend/src/web/index.ts` da
+ *  to'liq yozilgan. */
 import { API_BASE } from './config';
 import { accessToken } from './session';
 
@@ -75,8 +81,10 @@ async function send<T>(
 ): Promise<T> {
   const headers: Record<string, string> = {
     Accept: 'application/json',
-    // Sayt o'zini tanishtiradi: kunlik chegara shu bo'yicha
-    // qo'llanadi va ilovaga tegmaydi (`backend/src/app/site_limit.ts`).
+    // Sayt o'zini tanishtiradi — jurnal uchun. Kunlik chegara
+    // endi bunga qaramaydi: u `/v1/web/*` ning o'zidan kelib
+    // chiqadi va sarlavhani almashtirib aylanib o'tib bo'lmaydi
+    // (`backend/src/app/site_limit.ts`).
     'X-Soztop-Client': 'web',
   };
   if (body !== undefined) headers['Content-Type'] = 'application/json';

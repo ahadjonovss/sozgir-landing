@@ -77,7 +77,7 @@ export async function submitWordProposal(input: {
   word: string;
   description: string;
 }): Promise<void> {
-  await api.post('/v1/words/propose', {
+  await api.post('/v1/web/words/propose', {
     body: {
       word: normalize(input.word),
       description: input.description.trim().slice(0, DESCRIPTION_MAX),

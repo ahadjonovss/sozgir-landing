@@ -2,7 +2,7 @@
  *
  *  Har bir avatar o'zi so'rov yubormaydi — shu yerdan **so'raydi**.
  *  Do'kon qisqa oyna (60 ms) ichida yig'ilgan uid'larni bitta so'rovga
- *  to'playdi (`/v1/avatars?uids=`): reytingdagi o'nlab qator bir
+ *  to'playdi (`/v1/web/avatars?uids=`): reytingdagi o'nlab qator bir
  *  so'rovga tushadi. Tartib: xotira → brauzer keshi (3 kun, «rasmi
  *  yo'q» ham keshlanadi) → server.
  *
@@ -165,13 +165,13 @@ export async function readFullAvatar(uid: string): Promise<string> {
 /** Ikki o'lchamni birga yozadi — ilovadagi `save` bilan bir xil
  *  maydonlar. Kimning rasmi ekanini server token'dan biladi. */
 export async function saveAvatar(uid: string, images: AvatarImages): Promise<void> {
-  await api.put('/v1/me/avatar', {
+  await api.put('/v1/web/me/avatar', {
     body: { thumb: images.thumb, full: images.full },
   });
   put(uid, images.thumb);
 }
 
 export async function removeAvatar(uid: string): Promise<void> {
-  await api.delete('/v1/me/avatar');
+  await api.delete('/v1/web/me/avatar');
   put(uid, '');
 }

@@ -101,7 +101,7 @@ export async function myBattles({
   limit?: number;
 }): Promise<ArenaBattle[]> {
   try {
-    const { items } = await api.get<{ items?: unknown }>('/v1/me/battles', {
+    const { items } = await api.get<{ items?: unknown }>('/v1/web/me/battles', {
       query: { limit: max },
     });
     return (Array.isArray(items) ? items : []).map((row) =>

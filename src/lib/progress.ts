@@ -8,9 +8,9 @@
  *  ko'rinadi va internet uzilsa ham o'yin davom etadi.
  *
  *  Chaqiriladigan marshrutlar ilova bilan bir xil:
- *   * `PUT  /v1/me/stats`      — statistika nusxasi;
- *   * `POST /v1/me/words`      — topilgan so'z;
- *   * `POST /v1/daily/submit`  — kunlik o'yin natijasi.
+ *   * `PUT  /v1/web/me/stats`      — statistika nusxasi;
+ *   * `POST /v1/web/me/words`      — topilgan so'z;
+ *   * `POST /v1/web/daily/submit`  — kunlik o'yin natijasi.
  *
  *  **Ball bu yerda yozilmaydi.** Ilgari sayt umumiy hisobni o'zi
  *  yig'ib `scores/{uid}` ga yozardi va shu sabab u hech qachon
@@ -18,7 +18,7 @@
  *  past son yaxshisini bosib ketardi. Endi ball serverda hisoblanadi
  *  — sayt yozilgan so'zlarni yuboradi, xolos. Shu bilan «pasaytirma»
  *  qoidasi ham, kun hisobining brauzerdagi sanog'i ham keraksiz
- *  bo'ldi: kunlik reyting `/v1/daily/submit` ning o'zidan chiqadi. */
+ *  bo'ldi: kunlik reyting `/v1/web/daily/submit` ning o'zidan chiqadi. */
 import { api } from '../api/client';
 import type { Account } from './auth';
 import { markPlayedAt } from './badges';
@@ -265,7 +265,7 @@ async function pushToCloud({
     // Statistika — qurilmadagi sonlar nusxasi. Server ularni
     // qo'shmaydi, o'rnatadi: bir o'yin ikki qurilmada ochilsa sonlar
     // ikkilanmasligi kerak.
-    await api.put('/v1/me/stats', {
+    await api.put('/v1/web/me/stats', {
       body: {
         mode,
         length,
@@ -281,7 +281,7 @@ async function pushToCloud({
     // Topilgan so'z — bir so'z bir marta. Takrori `added: false`
     // qaytaradi va bu xato emas, qoida.
     if (entry) {
-      await api.post('/v1/me/words', {
+      await api.post('/v1/web/me/words', {
         body: {
           word: entry.word,
           mode: entry.mode,
@@ -303,7 +303,7 @@ async function pushToCloud({
      * oldindan tekshirish bilan to'sardik, endi qoida serverda.
      */
     if (mode === 'daily' && words.length > 0) {
-      await api.post('/v1/daily/submit', {
+      await api.post('/v1/web/daily/submit', {
         body: { day: dateKey, length, words },
       });
     }
@@ -338,7 +338,7 @@ export async function fetchDailyEntry({
 }): Promise<DailyEntry | null> {
   try {
     const data = await api.get<{ played: boolean; result: DailyEntry | null }>(
-      '/v1/daily/played',
+      '/v1/web/daily/played',
       { query: { day: dateKey, length } },
     );
     return data.result ?? null;
@@ -444,7 +444,7 @@ async function restoreFromCloud(_account: Account): Promise<void> {
         category_id: string | null;
         found_at: string;
       }[];
-    }>('/v1/me/words', { query: { limit: 500 } });
+    }>('/v1/web/me/words', { query: { limit: 500 } });
 
     if (words.items.length > 0) {
       const found = readFound();
@@ -477,7 +477,7 @@ async function restoreFromCloud(_account: Account): Promise<void> {
         distribution: Record<string, number>;
         last_daily_number: number | null;
       }[];
-    }>('/v1/me/stats');
+    }>('/v1/web/me/stats');
 
     const wanted = new Set<string>([
       `daily_${DAILY_LENGTH}`,

@@ -4,7 +4,7 @@
  *  yaratilgan chaqiruvga telefondan qo'shilish mumkin va aksincha.
  *
  *  Yozishning hammasi serverda: javob so'zi mijozga hech qachon
- *  yuborilmaydi va har taxmin `/v1/battles/:id/guess` da tekshiriladi.
+ *  yuborilmaydi va har taxmin `/v1/web/battles/:id/guess` da tekshiriladi.
  *
  *  O'qish endi `onSnapshot` emas, davriy so'rov (`api/poll.ts`) —
  *  ilovada ham shunday (`battle_api_repository.dart`, uch soniya).
@@ -167,11 +167,11 @@ export function autoFill(
 export async function createChallenge(input: {
   length: number;
 }): Promise<{ battleId: string; code: string }> {
-  const { battle } = await api.post<{ battle: { id: string } }>('/v1/battles', {
+  const { battle } = await api.post<{ battle: { id: string } }>('/v1/web/battles', {
     body: { game: 'soztop', length: input.length },
   });
   const { code } = await api.post<{ code: string }>(
-    `/v1/battles/${encodeURIComponent(battle.id)}/code`,
+    `/v1/web/battles/${encodeURIComponent(battle.id)}/code`,
   );
   // Kunlik sanoq o'zgardi — ekrandagi qolgani yangilansin.
   refreshPlays();
@@ -190,7 +190,7 @@ export async function joinByCode(input: {
   code: string;
 }): Promise<{ battleId: string; endsAt?: number; serverNow?: number }> {
   const { battle } = await api.post<{ battle: { id: string; endsAt?: string | null } }>(
-    '/v1/battles/join-by-code',
+    '/v1/web/battles/join-by-code',
     { body: { code: input.code } },
   );
   refreshPlays();
@@ -204,7 +204,7 @@ export async function quickMatch(input: {
   length: number;
   game?: BattleGame;
 }): Promise<{ battleId?: string; queued?: boolean }> {
-  const reply = await api.post<{ battleId?: string | null }>('/v1/battles/quick', {
+  const reply = await api.post<{ battleId?: string | null }>('/v1/web/battles/quick', {
     body: { game: input.game ?? 'soztop', length: input.length },
   });
   const battleId = reply.battleId ?? undefined;
@@ -213,7 +213,7 @@ export async function quickMatch(input: {
   return battleId ? { battleId } : { queued: true };
 }
 
-export const leaveQueue = () => api.delete<unknown>('/v1/battles/quick');
+export const leaveQueue = () => api.delete<unknown>('/v1/web/battles/quick');
 
 /** Taxmin. `attempt` — nechanchi urinish ekani: server uni yozib
  *  boradi va yakunda ballni mijozdan so'ramaydi. */
@@ -227,7 +227,7 @@ export async function sendGuess(input: {
     statuses?: unknown;
     won?: boolean;
     answer?: string | null;
-  }>(`/v1/battles/${encodeURIComponent(input.battleId)}/guess`, {
+  }>(`/v1/web/battles/${encodeURIComponent(input.battleId)}/guess`, {
     body: { guess: input.word, attempt: input.attempt },
   });
 
@@ -249,7 +249,7 @@ export async function sendGuess(input: {
 }
 
 export const forfeit = (battleId: string) =>
-  api.post<unknown>(`/v1/battles/${encodeURIComponent(battleId)}/forfeit`);
+  api.post<unknown>(`/v1/web/battles/${encodeURIComponent(battleId)}/forfeit`);
 
 /** Aniq raqibga chaqiruv. Yozuvni server yaratadi, raqibga push boradi
  *  va ilova yoki sayt ochiq bo'lsa chaqiruv oynasi chiqadi. Javobsiz
@@ -265,7 +265,7 @@ export async function sendInvite(input: {
   kind: InviteKind;
   game?: BattleGame;
 }): Promise<{ inviteId: string }> {
-  const reply = await api.post<{ id?: string }>('/v1/invites', {
+  const reply = await api.post<{ id?: string }>('/v1/web/invites', {
     body: {
       toUid: input.toUid,
       game: input.game ?? 'soztop',
@@ -279,7 +279,7 @@ export async function sendInvite(input: {
 /** Chaqiruvni bekor qilish — chaqirganning o'zi ham shu marshrut bilan
  *  yopadi. */
 export const cancelInvite = (inviteId: string) =>
-  api.post<unknown>(`/v1/invites/${encodeURIComponent(inviteId)}/decline`);
+  api.post<unknown>(`/v1/web/invites/${encodeURIComponent(inviteId)}/decline`);
 
 const millis = (value: unknown): number =>
   typeof value === 'string' ? Date.parse(value) || 0 : 0;
@@ -292,7 +292,7 @@ export const watchInvite = (
   poll<InviteDoc | null>(
     async () => {
       const { invite } = await api.get<{ invite?: Record<string, unknown> }>(
-        `/v1/invites/${encodeURIComponent(inviteId)}`,
+        `/v1/web/invites/${encodeURIComponent(inviteId)}`,
       );
       if (!invite) return null;
       return {
@@ -346,7 +346,7 @@ export async function readBattle(battleId: string): Promise<BattleDoc | null> {
     players?: unknown;
   };
   try {
-    data = await api.get(`/v1/battles/${encodeURIComponent(battleId)}`);
+    data = await api.get(`/v1/web/battles/${encodeURIComponent(battleId)}`);
   } catch {
     // Topilmadi yoki tarmoq uzildi — chaqiruvchi oxirgi holat bilan
     // qoladi, `live.ts` dagi xulq ham shunday edi.
@@ -401,7 +401,7 @@ export const watchQueue = (
 ): Unsubscribe =>
   poll<{ status?: string; matchId?: string } | null>(
     async () => {
-      const data = await api.get<{ battleId?: string | null }>('/v1/battles/quick');
+      const data = await api.get<{ battleId?: string | null }>('/v1/web/battles/quick');
       const battleId = data.battleId;
       return typeof battleId === 'string' && battleId
         ? { status: 'matched', matchId: battleId }

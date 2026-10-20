@@ -7,8 +7,8 @@
  *  qisqa bo'lishi mumkin edi).
  *
  *  Endi ball **serverda** hisoblanadi: sayt topilgan so'zni
- *  (`POST /v1/me/words`) va kunlik o'yinda yozilgan taxminlarni
- *  (`POST /v1/daily/submit`) yuboradi, qolganini server qiladi —
+ *  (`POST /v1/web/me/words`) va kunlik o'yinda yozilgan taxminlarni
+ *  (`POST /v1/web/daily/submit`) yuboradi, qolganini server qiladi —
  *  reyting ham, haftalik liga ham bir manbadan oziqlanadi. Shu bilan
  *  «pasaytirma» qoidasi ham, kun hisobining brauzerdagi sanog'i ham
  *  keraksiz bo'ldi.

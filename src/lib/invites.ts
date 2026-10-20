@@ -67,7 +67,7 @@ export function watchInvites(
   return sharedPoll<LiveInvite[]>(
     `invites:${uid}`,
     async () => {
-      const data = await api.get<{ items?: unknown }>('/v1/invites');
+      const data = await api.get<{ items?: unknown }>('/v1/web/invites');
       return Array.isArray(data.items)
         ? data.items.map((row) => inviteOf(row as Record<string, unknown>))
         : [];
@@ -83,12 +83,12 @@ export function watchInvites(
  *  bitta jang bo'lishi kerak. */
 export async function acceptInvite(inviteId: string): Promise<string> {
   const reply = await api.post<{ battleId?: string; id?: string }>(
-    `/v1/invites/${encodeURIComponent(inviteId)}/accept`,
+    `/v1/web/invites/${encodeURIComponent(inviteId)}/accept`,
   );
   refreshPlays();
   return String(reply.battleId ?? reply.id ?? '');
 }
 
 export async function declineInvite(inviteId: string): Promise<void> {
-  await api.post(`/v1/invites/${encodeURIComponent(inviteId)}/decline`);
+  await api.post(`/v1/web/invites/${encodeURIComponent(inviteId)}/decline`);
 }

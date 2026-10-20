@@ -145,7 +145,9 @@ export async function loadDonations(limit = 10): Promise<Donation[]> {
  *
  *  `callbackUrl` — serverning o'z manzili: to'lovni inPAY shu yerga
  *  xabar qiladi va server holatni provayderdan qayta so'rab
- *  tasdiqlaydi. `returnUrl` esa odam to'lovdan keyin qaytadigan
+ *  tasdiqlaydi. U **`/v1/web` ga ko'chmadi**: bu manzilga sayt emas,
+ *  inPAY uradi va u provayder tomonida sozlangan. Uni almashtirish
+ *  saytga emas, to'lov tizimiga tegadigan ish. `returnUrl` esa odam to'lovdan keyin qaytadigan
  *  sahifa (`public/donat`).
  *
  *  Ilgari ikkala manzilni Cloud Function o'zi qo'yardi; yangi marshrut
@@ -155,7 +157,7 @@ export async function createDonation({
 }: {
   amount: number;
 }): Promise<string> {
-  const data = await api.post<{ payUrl?: string }>('/v1/donations', {
+  const data = await api.post<{ payUrl?: string }>('/v1/web/donations', {
     body: {
       amount,
       callbackUrl: `${API_BASE}/v1/donations/callback`,

@@ -1,7 +1,7 @@
 /** Boshqa o'yinchining ochiq profili — ilovadagi `PublicProfile` va
  *  `PublicProfileDataSource` ning porti.
  *
- *  Hammasi bitta so'rovda (`/v1/profiles/:uid`): ball, o'rin, bugungi
+ *  Hammasi bitta so'rovda (`/v1/public/profiles/:uid`): ball, o'rin, bugungi
  *  natija, donat va nishonlar. Firestore'da bu beshta hujjatdan beshta
  *  o'qish edi.
  *
@@ -12,7 +12,7 @@
  *  chiqishi kerak emas. Mobil `/v1/profiles/:uid` dan farqi bitta
  *  maydonda — oxirgi faollik vaqti bu yerda berilmaydi.
  *
- *  Jang reytingi esa hamon tokenli (`/v1/me/battle-rating`): u ochiq
+ *  Jang reytingi esa hamon tokenli (`/v1/web/me/battle-rating`): u ochiq
  *  ro'yxatga kirmagan. Kirmagan tashrifchida o'lja ko'rinmaydi,
  *  qolgan profil to'liq chiqadi — manbalarning biri xato bersa ham
  *  ikkinchisi qaytadi. */
@@ -100,7 +100,7 @@ export async function loadPublicProfile(uid: string): Promise<PublicProfile> {
       })
       .catch(() => null),
     api
-      .get<{ rating?: Record<string, unknown> | null }>('/v1/me/battle-rating', {
+      .get<{ rating?: Record<string, unknown> | null }>('/v1/web/me/battle-rating', {
         query: { uid },
       })
       .then((reply) => reply.rating ?? null)

@@ -193,7 +193,7 @@ export async function fetchDailyAnswer({
   length: number;
 }): Promise<string | null> {
   try {
-    const data = await api.get<{ answer?: unknown }>('/v1/daily/answer', {
+    const data = await api.get<{ answer?: unknown }>('/v1/web/daily/answer', {
       query: { day: dateKey, length },
     });
     const answer = data.answer;

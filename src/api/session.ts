@@ -125,7 +125,7 @@ let refreshing: Promise<Session | null> | null = null;
 
 async function renew(token: string): Promise<Session | null> {
   try {
-    const response = await fetch(`${API_BASE}/v1/auth/refresh`, {
+    const response = await fetch(`${API_BASE}/v1/web/auth/refresh`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Soztop-Client': 'web' },
       body: JSON.stringify({ refreshToken: token, platform: 'web' }),

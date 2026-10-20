@@ -116,7 +116,7 @@ export function watchRating(
   const stop = poll<BattleRating>(
     async () => {
       const reply = await api.get<{ rating?: Record<string, unknown> | null }>(
-        '/v1/me/battle-rating',
+        '/v1/web/me/battle-rating',
         { query: { uid } },
       );
       return ratingOf(reply.rating);
@@ -129,7 +129,7 @@ export function watchRating(
 
   const again = () => {
     void api
-      .get<{ rating?: Record<string, unknown> | null }>('/v1/me/battle-rating', {
+      .get<{ rating?: Record<string, unknown> | null }>('/v1/web/me/battle-rating', {
         query: { uid },
       })
       .then((reply) => onData(ratingOf(reply.rating)))

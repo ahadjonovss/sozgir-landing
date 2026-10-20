@@ -1,7 +1,7 @@
 /** Hisob profili — taxallus, email va demografik ma'lumot.
  *
  *  Ilgari bu `users/{uid}` hujjati edi va har kirishda qayta
- *  yozilardi. Endi `/v1/sign-in`: yozuvni **server** qiladi va faqat
+ *  yozilardi. Endi `/v1/web/sign-in`: yozuvni **server** qiladi va faqat
  *  o'zgarish bo'lganda — har kirishda yozish minglab ortiqcha amal
  *  degani edi.
  *
@@ -38,7 +38,7 @@ export async function saveProfile({
   nickname?: string | null;
   details?: ProfileDetails;
 }): Promise<void> {
-  await api.post('/v1/sign-in', {
+  await api.post('/v1/web/sign-in', {
     body: {
       ...(email ? { email } : {}),
       ...(nickname ? { nickname } : {}),
@@ -64,7 +64,7 @@ export async function loadProfile(): Promise<{
 }> {
   try {
     const data = await api.get<{ nickname?: unknown; email?: unknown }>(
-      '/v1/me/profile',
+      '/v1/web/me/profile',
     );
     return {
       nickname: typeof data.nickname === 'string' ? data.nickname : null,
@@ -82,7 +82,7 @@ export async function loadProfile(): Promise<{
 export async function loadDetails(): Promise<ProfileDetails> {
   try {
     const data = await api.get<{ birth_date?: unknown; gender?: unknown }>(
-      '/v1/me/profile',
+      '/v1/web/me/profile',
     );
     const birthDate = data.birth_date;
     const gender = data.gender;

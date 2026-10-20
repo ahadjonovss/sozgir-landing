@@ -10,7 +10,7 @@
  *  qolardi, ya'ni qator haqiqatni emas, chegarani ko'rsatardi.
  *
  *  Bu yerda tanlov ongli: **yo'q raqam noto'g'ri raqamdan yaxshi.**
- *  Serverda sanoq marshruti ochilganda (`/v1/daily/players` kabi) shu
+ *  Serverda sanoq marshruti ochilganda (`/v1/web/daily/players` kabi) shu
  *  funksiyaning ichi bir qatorda tiklanadi — qolgan hamma narsa,
  *  formatlash ham, hook ham, joyida turibdi. */
 import { useEffect, useState } from 'react';

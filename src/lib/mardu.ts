@@ -18,7 +18,7 @@
  *  sababdan.
  *
  *  Jadval (`standings`) endi mijozda yig'ilmaydi: uni
- *  `/v1/battles/:id/live` beradi va tartib **serverda** qo'yiladi —
+ *  `/v1/web/battles/:id/live` beradi va tartib **serverda** qo'yiladi —
  *  ikki ekran ikki xil tartib ko'rsatmasligi uchun. */
 import { api } from '../api/client';
 import { refreshPlays } from './plays';
@@ -209,11 +209,11 @@ export async function createMardu(input: {
   game: BattleGame;
   length?: number;
 }): Promise<{ battleId: string; code: string }> {
-  const { battle } = await api.post<{ battle: { id: string } }>('/v1/battles', {
+  const { battle } = await api.post<{ battle: { id: string } }>('/v1/web/battles', {
     body: { game: input.game, type: 'mardu', length: input.length },
   });
   const { code } = await api.post<{ code: string }>(
-    `/v1/battles/${encodeURIComponent(battle.id)}/code`,
+    `/v1/web/battles/${encodeURIComponent(battle.id)}/code`,
   );
   refreshPlays();
   return { battleId: battle.id, code };
@@ -229,7 +229,7 @@ const endsOf = (value: unknown): number | undefined => {
 export async function joinMardu(input: { code: string }): Promise<MarduReply> {
   const { battle } = await api.post<{
     battle: { id: string; endsAt?: string | null };
-  }>('/v1/battles/join-by-code', { body: { code: input.code } });
+  }>('/v1/web/battles/join-by-code', { body: { code: input.code } });
   refreshPlays();
   return {
     battleId: battle.id,
@@ -241,7 +241,7 @@ export async function joinMardu(input: { code: string }): Promise<MarduReply> {
 /** Tezkor maydon — ochiq xonani topadi yoki yangisini ochadi. Navbat
  *  yozuvi kerak emas: maydonning o'zi navbat vazifasini bajaradi. */
 export async function quickMardu(input: { game: BattleGame }): Promise<MarduReply> {
-  const reply = await api.post<{ battleId?: string | null }>('/v1/battles/quick', {
+  const reply = await api.post<{ battleId?: string | null }>('/v1/web/battles/quick', {
     body: { game: input.game, type: 'mardu' },
   });
   if (reply.battleId) refreshPlays();
@@ -256,14 +256,14 @@ export async function startMardu(
   battleId: string,
 ): Promise<{ endsAt?: number; serverNow?: number }> {
   const { battle } = await api.post<{ battle: { endsAt?: string | null } }>(
-    `/v1/battles/${encodeURIComponent(battleId)}/start`,
+    `/v1/web/battles/${encodeURIComponent(battleId)}/start`,
   );
   return { endsAt: endsOf(battle.endsAt), serverNow: Date.now() };
 }
 
 /** Xonani yopish — boshlangunicha.
  *
- *  Serverda «chiqish» degan amal yo'q: `DELETE /v1/battles/:id` xonani
+ *  Serverda «chiqish» degan amal yo'q: `DELETE /v1/web/battles/:id` xonani
  *  **yopadi** va uni faqat egasi chaqira oladi. Shu sabab:
  *
  *   * egasi bosganda xona yopiladi (`closed: true`) — avvalgi xulq;
@@ -278,7 +278,7 @@ export async function leaveMardu(
   { host = false }: { host?: boolean } = {},
 ): Promise<{ left: boolean; closed?: boolean }> {
   if (!host) return { left: true };
-  await api.delete(`/v1/battles/${encodeURIComponent(battleId)}`);
+  await api.delete(`/v1/web/battles/${encodeURIComponent(battleId)}`);
   return { left: true, closed: true };
 }
 
@@ -310,7 +310,7 @@ export const watchMardu = (
 
       try {
         const live = await api.get<{ startsAt?: string | null; seats?: unknown }>(
-          `/v1/battles/${encodeURIComponent(battleId)}/live`,
+          `/v1/web/battles/${encodeURIComponent(battleId)}/live`,
         );
         const seats = Array.isArray(live.seats) ? (live.seats as Seat[]) : [];
         return {

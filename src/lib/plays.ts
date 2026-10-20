@@ -7,7 +7,7 @@
  *
  *  Turnir **bitta** o'yin: ichidagi bosqichlar alohida sanalmaydi.
  *
- *  Sanoq **serverda** (`/v1/me/plays`): brauzer keshini tozalash
+ *  Sanoq **serverda** (`/v1/web/me/plays`): brauzer keshini tozalash
  *  yordam bermaydi. Shu sababdan u hisob talab qiladi — kirmagan
  *  odamning o'yinini serverda sanab bo'lmaydi va unga avvalgi
  *  mehmon chegarasi qo'llanadi (`progress.ts`).
@@ -46,7 +46,7 @@ export async function loadPlays(): Promise<Plays> {
       limit?: unknown;
       left?: unknown;
       premium?: unknown;
-    }>('/v1/me/plays');
+    }>('/v1/web/me/plays');
 
     return {
       used: typeof data.used === 'number' ? data.used : 0,

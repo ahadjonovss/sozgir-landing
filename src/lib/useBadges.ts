@@ -85,12 +85,12 @@ function localSnapshot(): BadgeSnapshot {
 async function remoteSnapshot(uid: string): Promise<Partial<BadgeSnapshot>> {
   const [rating, hero] = await Promise.all([
     api
-      .get<{ rating?: Record<string, unknown> | null }>('/v1/me/battle-rating', {
+      .get<{ rating?: Record<string, unknown> | null }>('/v1/web/me/battle-rating', {
         query: { uid },
       })
       .catch(() => ({ rating: null })),
     api
-      .get<{ count?: unknown }>('/v1/me/man-of-the-day')
+      .get<{ count?: unknown }>('/v1/web/me/man-of-the-day')
       .catch(() => ({ count: 0 })),
   ]);
 

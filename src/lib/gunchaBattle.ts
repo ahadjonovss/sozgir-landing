@@ -46,11 +46,11 @@ export async function createGunchaBattle(): Promise<{
   battleId: string;
   code: string;
 }> {
-  const { battle } = await api.post<{ battle: { id: string } }>('/v1/battles', {
+  const { battle } = await api.post<{ battle: { id: string } }>('/v1/web/battles', {
     body: { game: 'guncha' },
   });
   const { code } = await api.post<{ code: string }>(
-    `/v1/battles/${encodeURIComponent(battle.id)}/code`,
+    `/v1/web/battles/${encodeURIComponent(battle.id)}/code`,
   );
   return { battleId: battle.id, code };
 }
@@ -61,7 +61,7 @@ export async function gunchaLetters(
   battleId: string,
 ): Promise<{ center: string; petals: string[] }> {
   const data = await api.get<{ center?: unknown; petals?: unknown }>(
-    `/v1/battles/${encodeURIComponent(battleId)}/guncha`,
+    `/v1/web/battles/${encodeURIComponent(battleId)}/guncha`,
   );
   return {
     center: String(data.center ?? ''),

@@ -245,7 +245,7 @@ export function useSozjang() {
   /* Qidiruv davom etayotganini ko'rsatadigan sanoq.
    *
    *  Bu yerda **takroriy so'rov yo'q** va bu muhim. Navbatga kirish
-   *  (`POST /v1/battles/quick`) serverdagi yozuvning vaqtini har
+   *  (`POST /v1/web/battles/quick`) serverdagi yozuvning vaqtini har
    *  safar noldan boshlaydi (`created_at = now()`), robot esa faqat
    *  sakkiz soniyadan uzoq kutganlarga qo'shiladi. Ya'ni o'n
    *  soniyada bir qayta so'rash robotning taymerini doim qayta

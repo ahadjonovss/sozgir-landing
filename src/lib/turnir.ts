@@ -16,7 +16,7 @@
  *  Yozishning hammasi serverda — turnir jadvallariga mijoz yoza
  *  olmaydi. Saytga o'qish va chaqirish qoladi.
  *
- *  Ko'rinish bitta so'rovdan keladi (`/v1/turnirs/by-code/:code`):
+ *  Ko'rinish bitta so'rovdan keladi (`/v1/web/turnirs/by-code/:code`):
  *  jadval, joriy bosqich guruhlari va o'tgan bosqichlar birga. Uch
  *  marshrutga bo'linsa har biri o'z vaqtida kelib, jadval sakrab
  *  turardi.
@@ -179,7 +179,7 @@ export async function createTurnir(input: {
   length?: number;
   title?: string;
 }): Promise<{ code: string }> {
-  const { turnir } = await api.post<{ turnir: { code?: string } }>('/v1/turnirs', {
+  const { turnir } = await api.post<{ turnir: { code?: string } }>('/v1/web/turnirs', {
     body: {
       game: input.game,
       capacity: input.capacity,
@@ -195,7 +195,7 @@ export async function createTurnir(input: {
  *  yangilagan odam o'sha turnirga qaytadi. */
 export async function joinTurnir(input: { code: string }): Promise<{ code: string }> {
   const { turnir } = await api.post<{ turnir: { code?: string } }>(
-    '/v1/turnirs/join-by-code',
+    '/v1/web/turnirs/join-by-code',
     { body: { code: input.code } },
   );
   refreshPlays();
@@ -211,7 +211,7 @@ export async function quickTurnir(input: {
   game: BattleGame;
 }): Promise<{ code: string; startsAt?: number | null; serverNow?: number }> {
   const { turnir } = await api.post<{ turnir: { code?: string } }>(
-    '/v1/turnirs/quick',
+    '/v1/web/turnirs/quick',
     { body: { game: input.game } },
   );
   refreshPlays();
@@ -229,7 +229,7 @@ export async function inviteToTurnir(input: {
   toUid: string;
 }): Promise<{ sent?: boolean }> {
   const id = await turnirIdOf(input.code);
-  await api.post(`/v1/turnirs/${encodeURIComponent(id)}/invite`, {
+  await api.post(`/v1/web/turnirs/${encodeURIComponent(id)}/invite`, {
     body: { toUid: input.toUid },
   });
   return { sent: true };
@@ -237,7 +237,7 @@ export async function inviteToTurnir(input: {
 
 export async function leaveTurnir(code: string): Promise<{ left: boolean }> {
   const id = await turnirIdOf(code);
-  await api.delete(`/v1/turnirs/${encodeURIComponent(id)}/leave`);
+  await api.delete(`/v1/web/turnirs/${encodeURIComponent(id)}/leave`);
   return { left: true };
 }
 
@@ -246,7 +246,7 @@ export async function leaveTurnir(code: string): Promise<{ left: boolean }> {
 export async function startTurnir(code: string): Promise<{ round: number }> {
   const id = await turnirIdOf(code);
   const reply = await api.post<{ round?: number }>(
-    `/v1/turnirs/${encodeURIComponent(id)}/start`,
+    `/v1/web/turnirs/${encodeURIComponent(id)}/start`,
   );
   return { round: reply.round ?? 1 };
 }
@@ -256,7 +256,7 @@ export async function kickFromTurnir(
   uid: string,
 ): Promise<{ removed: boolean }> {
   const id = await turnirIdOf(code);
-  await api.post(`/v1/turnirs/${encodeURIComponent(id)}/kick`, { body: { uid } });
+  await api.post(`/v1/web/turnirs/${encodeURIComponent(id)}/kick`, { body: { uid } });
   return { removed: true };
 }
 
@@ -274,7 +274,7 @@ async function turnirIdOf(code: string): Promise<string> {
   if (known !== undefined) return known;
 
   const full = await api.get<{ turnir?: { id?: string } }>(
-    `/v1/turnirs/by-code/${encodeURIComponent(code)}`,
+    `/v1/web/turnirs/by-code/${encodeURIComponent(code)}`,
   );
   const id = String(full.turnir?.id ?? '');
   if (id) ids.set(code, id);
@@ -440,7 +440,7 @@ export const watchMyTurnirHistory = (
   sharedPoll<TurnirRow[]>(
     `turnirs/history:${uid}`,
     async () => {
-      const data = await api.get<{ items?: unknown }>('/v1/turnirs/history');
+      const data = await api.get<{ items?: unknown }>('/v1/web/turnirs/history');
       return list(data.items).map((row) => rowOf(docOf(row as ApiFull)));
     },
     onData,
@@ -475,7 +475,7 @@ export const watchMyTurnir = (
   sharedPoll<{ code: string; doc: TurnirDoc } | null>(
     `turnirs/mine:${uid}`,
     async () => {
-      const full = await api.get<ApiFull>('/v1/turnirs/mine');
+      const full = await api.get<ApiFull>('/v1/web/turnirs/mine');
       if (!full.turnir) return null;
       const doc = docOf(full);
       return { code: doc.code ?? '', doc };
@@ -493,7 +493,7 @@ export const watchTurnir = (
     async () => {
       try {
         const full = await api.get<ApiFull>(
-          `/v1/turnirs/by-code/${encodeURIComponent(code)}`,
+          `/v1/web/turnirs/by-code/${encodeURIComponent(code)}`,
         );
         return full.turnir ? docOf(full) : null;
       } catch {

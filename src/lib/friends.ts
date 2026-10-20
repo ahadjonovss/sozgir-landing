@@ -116,7 +116,7 @@ export function watchFriends(
   return sharedPoll<Friend[]>(
     `friends:${uid}`,
     async () => {
-      const data = await api.get<{ items?: unknown }>('/v1/friends');
+      const data = await api.get<{ items?: unknown }>('/v1/web/friends');
       return items(data.items).map((row): Friend => {
         const friend = row as ApiFriend;
         return {
@@ -139,7 +139,7 @@ export function watchIncomingRequests(
   return sharedPoll<FriendRequest[]>(
     `friend-requests:${uid}`,
     async () => {
-      const data = await api.get<{ items?: unknown }>('/v1/friends/requests');
+      const data = await api.get<{ items?: unknown }>('/v1/web/friends/requests');
       return items(data.items).map((row) => requestOf(row as ApiRequest));
     },
     onData,
@@ -154,7 +154,7 @@ export function watchIncomingRequests(
  *  qilindi» xabari ko'rinmaydi. Do'stlikning o'zi esa buzilmaydi —
  *  qabul qilingan odam oddiygina do'stlar ro'yxatida paydo bo'ladi.
  *
- *  Marshrut (`/v1/friends/sent` kabi) ochilganda bu funksiyaning ichi
+ *  Marshrut (`/v1/web/friends/sent` kabi) ochilganda bu funksiyaning ichi
  *  [watchIncomingRequests] bilan bir xil shaklda yoziladi. */
 export function watchAcceptedRequests(
   _uid: string,
@@ -183,8 +183,8 @@ export function watchFriendship(
   return poll<{ friend: boolean; request: FriendRequest | null }>(
     async () => {
       const [friends, requests] = await Promise.all([
-        api.get<{ items?: unknown }>('/v1/friends'),
-        api.get<{ items?: unknown }>('/v1/friends/requests'),
+        api.get<{ items?: unknown }>('/v1/web/friends'),
+        api.get<{ items?: unknown }>('/v1/web/friends/requests'),
       ]);
 
       const friend = items(friends.items).some(
@@ -218,16 +218,16 @@ async function write(run: () => Promise<unknown>): Promise<void> {
  *  qo'shiladi (`users` jadvalidan), ya'ni uni mijozdan olishning
  *  hojati yo'q. */
 export const sendFriendRequest = (toUid: string) =>
-  write(() => api.post('/v1/friends/request', { body: { toUid } }));
+  write(() => api.post('/v1/web/friends/request', { body: { toUid } }));
 
 /** So'rovga javob. Serverda so'rov juftlik bilan tanilgani uchun
  *  hujjat nomi emas, **yuboruvchining `uid` si** beriladi. */
 export const respondFriendRequest = (fromUid: string, accept: boolean) =>
-  write(() => api.post('/v1/friends/respond', { body: { fromUid, accept } }));
+  write(() => api.post('/v1/web/friends/respond', { body: { fromUid, accept } }));
 
 /** Do'stlikni ikki tomondan bekor qiladi. */
 export const removeFriend = (friendUid: string) =>
-  write(() => api.delete(`/v1/friends/${encodeURIComponent(friendUid)}`));
+  write(() => api.delete(`/v1/web/friends/${encodeURIComponent(friendUid)}`));
 
 /* ── Cheklov bayrog'i ─────────────────────────────────────────────── */
 

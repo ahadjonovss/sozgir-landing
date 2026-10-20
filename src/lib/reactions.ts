@@ -44,7 +44,7 @@ export async function sendReaction(
 ): Promise<void> {
   const emoji = emojiOf(key);
   if (emoji === null) return;
-  await api.post(`/v1/battles/${encodeURIComponent(battleId)}/reaction`, {
+  await api.post(`/v1/web/battles/${encodeURIComponent(battleId)}/reaction`, {
     body: { emoji },
   });
 }
@@ -75,7 +75,7 @@ export function watchReactions(
   return poll<{ uid: string; emoji: string; at: number }[]>(
     async () => {
       const data = await api.get<{ items?: unknown }>(
-        `/v1/battles/${encodeURIComponent(battleId)}/reactions`,
+        `/v1/web/battles/${encodeURIComponent(battleId)}/reactions`,
       );
       return (Array.isArray(data.items) ? data.items : []).map((row) => {
         const item = row as { uid?: unknown; emoji?: unknown; at?: unknown };

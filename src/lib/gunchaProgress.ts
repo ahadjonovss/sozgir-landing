@@ -155,7 +155,7 @@ export function saveRound({
    Ilovadagi tartib bilan bir xil (`GunchaRepositoryImpl`): qurilmadagi
    son asosiy manba, bulut esa nusxa. */
 
-/** Nusxani yangilaydi (`PUT /v1/me/guncha-totals`). Xato yutiladi:
+/** Nusxani yangilaydi (`PUT /v1/web/me/guncha-totals`). Xato yutiladi:
  *  nusxa yozilmasa ham ball brauzerda joyida qoladi va keyingi
  *  o'zgarishda yana yoziladi.
  *
@@ -171,9 +171,9 @@ async function pushTotals(totals: GunchaTotals): Promise<void> {
       words: number;
       online: number;
       online_words: number;
-    }>('/v1/me/guncha-totals');
+    }>('/v1/web/me/guncha-totals');
 
-    await api.put('/v1/me/guncha-totals', {
+    await api.put('/v1/web/me/guncha-totals', {
       body: {
         score: totals.score,
         words: totals.words,
@@ -190,7 +190,7 @@ async function pushTotals(totals: GunchaTotals): Promise<void> {
 async function fetchTotals(): Promise<GunchaTotals> {
   try {
     const data = await api.get<{ score: number; words: number }>(
-      '/v1/me/guncha-totals',
+      '/v1/web/me/guncha-totals',
     );
     return { score: Number(data.score) || 0, words: Number(data.words) || 0 };
   } catch {

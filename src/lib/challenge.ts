@@ -6,7 +6,7 @@
  *  topganini telefonida ko'rib turadi.
  *
  *  **So'z saytga hech qachon yuborilmaydi.** U serverda qoladi va
- *  taxminni `/v1/challenges/:kod/guess` tekshiradi — javobda faqat
+ *  taxminni `/v1/web/challenges/:kod/guess` tekshiradi — javobda faqat
  *  ranglar qatori. Shundan ikkita natija kelib chiqadi
  *  va ikkalasi ham ataylab: saytda lug'at yuklanmaydi (so'z to'g'rimi —
  *  serverning ishi) va yutqazgan odamga javob ko'rsatilmaydi, chunki biz
@@ -73,7 +73,7 @@ export async function openChallenge(input: {
     words?: unknown;
     won?: unknown;
     finished?: unknown;
-  }>(`/v1/challenges/${encodeURIComponent(input.code)}/open`);
+  }>(`/v1/web/challenges/${encodeURIComponent(input.code)}/open`);
 
   const rows = strings(data.rows);
   return {
@@ -105,7 +105,7 @@ export async function guessChallenge(input: {
     statuses?: unknown;
     won?: unknown;
     finished?: unknown;
-  }>(`/v1/challenges/${encodeURIComponent(input.code)}/guess`, {
+  }>(`/v1/web/challenges/${encodeURIComponent(input.code)}/guess`, {
     body: { word: input.word },
   });
 

@@ -37,7 +37,7 @@ export async function submitWordReport(input: {
   mode: string;
 }): Promise<void> {
   const comment = input.comment.trim().slice(0, COMMENT_MAX);
-  await api.post('/v1/words/report', {
+  await api.post('/v1/web/words/report', {
     body: {
       word: input.word,
       reason: input.reason,

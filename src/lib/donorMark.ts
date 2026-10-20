@@ -311,7 +311,7 @@ function loadChosen(): Promise<Record<string, string>> {
    *
    * Firestore'da `donors` to'plamini butunligicha o'qish mumkin edi va
    * tanlov o'sha hujjatning maydoni edi. Serverda esa tanlovni faqat
-   * `uid` lar bilan so'rash mumkin (`/v1/donors/lookup`, bir so'rovda
+   * `uid` lar bilan so'rash mumkin (`/v1/web/donors/lookup`, bir so'rovda
    * yuztagacha). Zarari yo'q: muhrni faqat donat qilgan odam tanlay
    * oladi, ya'ni izlanadigan ro'yxat aynan o'sha.
    */
@@ -322,7 +322,7 @@ function loadChosen(): Promise<Record<string, string>> {
 
       for (let from = 0; from < uids.length; from += LOOKUP_CHUNK) {
         const reply = await api
-          .post<{ items?: unknown }>('/v1/donors/lookup', {
+          .post<{ items?: unknown }>('/v1/web/donors/lookup', {
             body: { uids: uids.slice(from, from + LOOKUP_CHUNK) },
           })
           .catch(() => ({ items: [] as unknown }));
@@ -383,7 +383,7 @@ export function useDonorMark(uid: string | null | undefined): Mark | null {
 export async function chooseMark(uid: string, id: string): Promise<void> {
   // Kimning tanlovi ekanini server token'dan biladi; `uid` faqat
   // xotiradagi jadvalni yangilash uchun.
-  await api.put('/v1/me/donor-look', { body: { mark: id || null } });
+  await api.put('/v1/web/me/donor-look', { body: { mark: id || null } });
 
   chosen = { ...(chosen ?? {}), [uid]: id };
   if (!id) delete chosen[uid];
