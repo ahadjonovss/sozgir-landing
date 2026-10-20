@@ -296,20 +296,32 @@ export type GameLink = {
 const moduleTagline = (id: string) =>
   modules.find((item) => item.id === id)?.tagline ?? '';
 
+/** O'yin sahifalarining yon ustunidagi taklif kartochkalari
+ *  (`GameAside`) va `/oynash` dagi ro'yxat.
+ *
+ *  So'ztop bu yerda **yo'q**: uning taxtasi bosh sahifada ham,
+ *  `/oyin` da ham ochiq turadi va mashq qilmoqchi odam «Cheksiz»
+ *  orqali o'sha yerga boradi. Kartochka esa o'ynab turgan odamga
+ *  «yana nima bor» degan savolga javob berishi kerak — So'ztop esa
+ *  javob emas, u allaqachon ko'rilgan. O'rnida turnir turadi: u
+ *  eng kam ko'rinadigan va eng ko'p tushuntirish talab qiladigan
+ *  shakl.
+ *
+ *  Tartib ham shu mantiqda: avval jonli jang, keyin turnir. */
 export const gameLinks: GameLink[] = [
-  {
-    id: 'soztop',
-    emoji: '🟩',
-    name: 'So‘ztop',
-    tagline: moduleTagline('soztop'),
-    href: links.play,
-  },
   {
     id: 'sozjang',
     emoji: '⚔️',
     name: 'So‘zjang',
     tagline: moduleTagline('sozjang'),
     href: links.battle,
+  },
+  {
+    id: 'turnir',
+    emoji: '🥇',
+    name: 'Turnir',
+    tagline: moduleTagline('turnir'),
+    href: links.turnir,
   },
   {
     id: 'guncha',
