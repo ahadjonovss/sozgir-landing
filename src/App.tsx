@@ -34,7 +34,6 @@ import PlayHub from './components/PlayHub';
 import PlayerPage from './components/PlayerPage';
 import Privacy from './components/Privacy';
 import Rules from './components/Rules';
-import Support from './components/Support';
 import SupportPage from './components/SupportPage';
 import { AccountDialog } from './components/Account';
 import { startScriptDom } from './lib/scriptDom';
@@ -97,7 +96,6 @@ export default function App() {
             <Rules />
             <Alphabet />
             <Categories />
-            <Support />
             <Faq />
             <Download />
           </>

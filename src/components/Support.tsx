@@ -1,16 +1,19 @@
-/** Qo'llab-quvvatlash — ilovadagi donat bo'limining sayt ko'rinishi.
+/** Qo'llab-quvvatlash — donat bo'lagi, `/qollab` sahifasi uchun.
  *
- *  Ilovada bu bosh ekrandagi karta va undan ochiladigan oyna; saytda esa
- *  tanishtiruv sahifasidagi bo'lim va `/qollab` manzili. Ma'lumot bir xil
- *  joydan keladi (`app/support`, `donations`), to'lovni ham o'sha
- *  `donationCreate` funksiyasi ochadi — ya'ni telefonda va saytda
- *  qo'shilgan hissa bitta ro'yxatda ko'rinadi.
+ *  Bu yerda bo'lakchalar turadi: hisob, hissa qo'shganlar ro'yxati va
+ *  to'lov shakli. Ularni `SupportPage` yig'adi. Bosh sahifada donat
+ *  bo'limi yo'q — u yerda u javob beradigan savol yo'q edi va
+ *  sahifani uzaytirardi; qolgani hammasi `/qollab` da.
+ *
+ *  Ma'lumot ilova bilan bir xil joydan keladi (`app/support`,
+ *  `donations`), to'lovni ham o'sha `donationCreate` funksiyasi
+ *  ochadi — ya'ni telefonda va saytda qo'shilgan hissa bitta
+ *  ro'yxatda ko'rinadi.
  *
  *  Hisob nega kerak: donat ismingiz bilan ro'yxatga tushadi va funksiya
  *  uni hisobga bog'laydi. Shuning uchun kirmagan odamga avval kirish
  *  taklif qilinadi — o'yinning o'zi esa hisobsiz ham o'ynaladi. */
-import { useEffect, useState } from 'react';
-import { useAuth } from '../lib/auth';
+import { useState } from 'react';
 import { apiError } from '../api/errors';
 import {
   balanceHint,
@@ -18,17 +21,14 @@ import {
   DONATION_MAX,
   DONATION_MIN,
   donationPhrase,
-  EMPTY_BALANCE,
   formatSum,
-  loadBalance,
   type Donation,
   type SupportBalance,
 } from '../lib/support';
 import { pretty } from '../lib/uz';
-import { links, playerLink } from '../data/site';
+import { playerLink } from '../data/site';
 import { DONOR_TIERS, donorLabel, donorTier, forgetDonorTotals, nextDonorTier } from '../lib/donor';
 import { DonorBadge } from './Units';
-import Modal from './Modal';
 import YouTag from './YouTag';
 
 export function Balance({ balance }: { balance: SupportBalance }) {
@@ -241,118 +241,5 @@ export function DonateForm({
         </>
       )}
     </div>
-  );
-}
-
-/** Donat oynasi — bosh sahifadagi bo'limdan. */
-function DonateModal({
-  nickname,
-  signedIn,
-  onClose,
-  onSignIn,
-  onRegister,
-}: {
-  nickname: string;
-  signedIn: boolean;
-  onClose: () => void;
-  onSignIn: () => void;
-  onRegister: () => void;
-}) {
-  return (
-    <Modal
-      title="Hissa qo‘shish"
-      lead="Ilova bepul — qo‘llab-quvvatlasangiz, rivojlanishda davom etamiz."
-      onClose={onClose}
-    >
-      <DonateForm
-        nickname={nickname}
-        signedIn={signedIn}
-        onSignIn={onSignIn}
-        onRegister={onRegister}
-      />
-    </Modal>
-  );
-}
-
-/** Bosh sahifadagi bo'lim. To'liq sahifa — `SupportPage.tsx` (`/qollab`). */
-/** Bosh sahifadagi qo'llab-quvvatlash bo'limi — hisob va tugma.
- *
- *  Hissa qo'shganlarning oqimi bu yerdan olib tashlandi. U o'n-o'n
- *  besh qator ism bo'lib turardi va bosh sahifada javob beradigan
- *  savoli yo'q edi: odam bu yerda loyihaga ishonadimi-yo'qmi degan
- *  qarorni ochiq hisob va summa bilan qabul qiladi, ismlar ro'yxati
- *  bilan emas. Ro'yxatning o'z joyi bor — `/qollab`, u yerda
- *  darajalar va top donatchilar bilan birga turadi. */
-export default function Support() {
-  const { account, nickname, openPrompt } = useAuth();
-  const [balance, setBalance] = useState<SupportBalance | null>(null);
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      const next = await loadBalance();
-      if (!alive) return;
-      setBalance(next);
-    })();
-    return () => {
-      alive = false;
-    };
-    // `uid` — kirgandan keyin hisob qayta o'qiladi.
-  }, [account?.uid]);
-
-  const state = balance ?? EMPTY_BALANCE;
-
-  // Adminka bo'limni yopib qo'yishi mumkin — u holda saytda ham chiqmaydi.
-  if (balance && !state.visible) return null;
-
-  return (
-    <section className="section support" id="qollab">
-      <div className="wrap">
-        <div className="section__head reveal">
-          <span className="section__kicker">Qo‘llab-quvvatlash</span>
-          <h2>Loyihani hamjamiyat ko‘taradi</h2>
-          <p className="section__lead">
-            Ilova ichi xaridlari yo‘q, obuna yo‘q. Yig‘ilgan pul loyihani
-            rivojlantirishga ketadi, qolgani — muallifga bir piyola choy puli.
-            Hisob esa ochiq turadi.
-          </p>
-        </div>
-
-        <div className="support__grid reveal">
-          <div className="panel support__card">
-            <Balance balance={state} />
-            <button className="btn btn--lg" onClick={() => setOpen(true)}>
-              Hissa qo‘shish
-            </button>
-            <p className="panel__note">
-              To‘lov Payme, Click yoki karta orqali. Hissa qo‘shganlar
-              ro‘yxati, homiylik darajalari va top donatchilar —{' '}
-              <a className="link" href={links.donate}>
-                to‘liq sahifada
-              </a>
-              .
-            </p>
-          </div>
-
-        </div>
-      </div>
-
-      {open && (
-        <DonateModal
-          nickname={nickname}
-          signedIn={!!account}
-          onClose={() => setOpen(false)}
-          onSignIn={() => {
-            setOpen(false);
-            openPrompt('signIn');
-          }}
-          onRegister={() => {
-            setOpen(false);
-            openPrompt('register');
-          }}
-        />
-      )}
-    </section>
   );
 }
