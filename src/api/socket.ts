@@ -60,12 +60,54 @@ export class BattleSocket {
     return () => this.errorListeners.delete(listener);
   }
 
-  /** Jangga ulanadi. Avvalgi ulanish bo'lsa yopiladi. */
+  /** Jangga ulanadi va kanal **ochilgunicha kutadi**.
+   *
+   *  Ilgari bu yerda kutish yo'q edi: `connect` soketni yaratib,
+   *  darhol qaytardi. Chaqiruvchi esa ulanish tayyor deb o'ylab so'z
+   *  yuborardi, `send` esa `readyState !== OPEN` ni ko'rib uni jimgina
+   *  tashlab yuborardi. Natijada jangdagi **birinchi** so'z javobsiz
+   *  qolib, sakkiz soniyadan keyin «yuborilmadi» bo'lardi — odam esa
+   *  shu orada o'sha so'zni qayta kiritsa, ikkinchisi ishlardi.
+   *
+   *  Kutish cheksiz emas: ulanmasa chaqiruvchi xatoni oladi va qayta
+   *  ulanish fonda o'z navbati bilan davom etadi. */
   async join(battleId: string): Promise<void> {
     this.battleId = battleId;
     this.closed = false;
     await this.connect();
+    await this.ready();
   }
+
+  /** Kanal ochilishini kutadi. Ochiq bo'lsa darhol qaytadi. */
+  private ready(timeout = 5000): Promise<void> {
+    if (this.socket?.readyState === WebSocket.OPEN) return Promise.resolve();
+
+    return new Promise<void>((resolve, reject) => {
+      const timer = setTimeout(() => {
+        this.opening.delete(waiter);
+        reject(new Error('Kanal ochilmadi'));
+      }, timeout);
+
+      const waiter = {
+        open: () => {
+          clearTimeout(timer);
+          this.opening.delete(waiter);
+          resolve();
+        },
+        fail: () => {
+          clearTimeout(timer);
+          this.opening.delete(waiter);
+          reject(new Error('Kanal yopildi'));
+        },
+      };
+      this.opening.add(waiter);
+    });
+  }
+
+  /** `ready()` da kutayotganlar — kanal ochilganda yoki yopilganda
+   *  xabardor qilinadi. Yopilganda ularni shunchaki unutib bo'lmaydi:
+   *  va'dasi hech qachon tugamay, chaqiruvchi osilib qolardi. */
+  private opening = new Set<{ open: () => void; fail: () => void }>();
 
   private async connect(): Promise<void> {
     if (this.closed) return;
@@ -92,6 +134,7 @@ export class BattleSocket {
       if (id !== null) this.send({ type: 'join', battleId: id });
       // Ulanish tiklandi — kechikish boshiga qaytadi.
       this.backoff = 1000;
+      for (const waiter of [...this.opening]) waiter.open();
     });
 
     socket.addEventListener('message', (event) => this.onMessage(event.data));
@@ -213,6 +256,10 @@ export class BattleSocket {
       waiter.reject(new Error('Kanal yopildi'));
     }
     this.waiting.clear();
+    // Ochilishni kutayotganlar ham: ular muddati tugaguncha osilib
+    // turardi, holbuki kanal ataylab yopilgan.
+    for (const waiter of [...this.opening]) waiter.fail();
+    this.opening.clear();
 
     this.socket?.close();
     this.socket = null;

@@ -28,7 +28,7 @@ export const GUNCHA_SECONDS = 180;
 /** Serverning so'zga bergan javobi. */
 export interface GunchaWordReply {
   accepted: boolean;
-  reason?: 'accepted' | 'expired' | 'finished' | 'unknown' | 'repeated';
+  reason?: 'accepted' | 'expired' | 'finished' | 'unknown' | 'repeated' | 'offline';
   score?: number;
   total?: number;
 }
@@ -38,6 +38,10 @@ export const WORD_REASON: Record<string, string> = {
   expired: 'Vaqt tugadi — so‘z hisoblanmadi',
   finished: 'Jang yakunlandi',
   unknown: 'Bunday so‘z lug‘atda yo‘q',
+  /* Kanal javob bermadi. Ilgari bu ham «lug'atda yo'q» deb
+     ko'rsatilardi va odam o'zining to'g'ri so'zidan shubhalanardi —
+     aslida so'z serverga yetib bormagan edi. */
+  offline: 'Aloqa uzildi — so‘z yuborilmadi, qayta urinib ko‘ring',
   repeated: 'Bu so‘zni topgansiz',
 };
 
@@ -128,8 +132,9 @@ export async function sendGunchaWord(input: {
       total: Number(event.total ?? 0),
     };
   } catch {
-    // Javob kelmadi — so'z yo'qolganini odam bilishi kerak.
-    return { accepted: false, reason: 'unknown' };
+    // Javob kelmadi — so'z yo'qolganini odam bilishi kerak, lekin
+    // sababi lug'at emas: xabar kanalda qolib ketgan.
+    return { accepted: false, reason: 'offline' };
   }
 }
 
