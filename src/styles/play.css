@@ -467,6 +467,14 @@
   padding: 0 2px;
 }
 
+/* Chap guruh: o'yin raqami va rejim tugmalari. */
+.play__top-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
 .play__top-right {
   display: inline-flex;
   align-items: center;

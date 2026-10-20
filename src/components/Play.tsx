@@ -164,30 +164,13 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
       <GameAside current={mode === 'endless' ? 'cheksiz' : 'soztop'} />
 
       <div className="play__top">
-        <div className="play__modes" role="tablist" aria-label="O‘yin rejimi">
-          {(['daily', 'endless'] as Mode[]).map((item) => (
-            <button
-              key={item}
-              role="tab"
-              aria-selected={mode === item}
-              className={`play__mode${mode === item ? ' play__mode--on' : ''}`}
-              onClick={() => setMode(item)}
-            >
-              {item === 'daily' ? 'Kunlik' : 'Cheksiz'}
-            </button>
-          ))}
-        </div>
-        <div className="play__top-right">
-          {/* Tartib chapdan o'ngga: o'yin raqami, statistika, yordam.
-              Yordam eng o'ngda turadi — qatordagi yagona «bosiladigan
-              va o'zgaradigan» narsa shu, ya'ni ko'z uni chekkadan
-              tezroq topadi. Raqam esa eng chapda: u o'zgarmaydi va
-              o'qiladigan narsa.
-
-              Reyting tugmasi shu qatordan olindi: jadval `/oynash` da
-              va taxtaning ostida baribir bor edi, bu yerda esa to'rtta
-              element tor ekranga sig'may, o'yin raqamini siqib
-              chiqarardi. */}
+        {/* O'yin raqami qatorning eng chapida — taxtaning chap cheti
+            ustida. Ilgari u o'ng guruhda, statistika va yordam bilan
+            yonma-yon turardi: o'zgarmaydigan, faqat o'qiladigan son
+            bosiladigan tugmalar orasida qolib ketardi. Endi u rejim
+            tugmalari bilan bitta guruhda — ikkalasi ham «bu qaysi
+            o'yin» degan savolga javob beradi. */}
+        <div className="play__top-left">
           <span className="phone__live">
             <i />
             {game.puzzle
@@ -196,6 +179,27 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
                 : `${game.puzzle.number}-o‘yin`
               : 'jonli'}
           </span>
+          <div className="play__modes" role="tablist" aria-label="O‘yin rejimi">
+            {(['daily', 'endless'] as Mode[]).map((item) => (
+              <button
+                key={item}
+                role="tab"
+                aria-selected={mode === item}
+                className={`play__mode${mode === item ? ' play__mode--on' : ''}`}
+                onClick={() => setMode(item)}
+              >
+                {item === 'daily' ? 'Kunlik' : 'Cheksiz'}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="play__top-right">
+          {/* O'ng chekkada faqat ikkita amal: statistika va yordam.
+              Yordam eng o'ngda — qatordagi yagona o'zgarib turadigan
+              narsa shu, ya'ni ko'z uni chekkadan tezroq topadi.
+
+              Reyting tugmasi shu qatordan olindi: jadval `/oynash` da
+              va taxtaning ostida baribir bor edi. */}
           <button
             type="button"
             className="play__ranks"
