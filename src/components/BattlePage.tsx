@@ -1021,15 +1021,23 @@ function Result({ game }: { game: Sozjang }) {
       {/* Maydonda jadval: ikki ustun sakkiz kishiga yaramaydi. */}
       {!expired && game.mardu && <ArenaStandings rows={game.arena} game="soztop" />}
 
-      {/* Bitta uzun qator o'rniga ikki ustun: kim nechada topgani va
-          nechada topgani bir qarashda solishtiriladi. */}
+      {/* Ikki ustun: kim nima olgani bir qarashda solishtiriladi.
+          Ilgari bu yerda jang **balli** ham turardi — eng katta son
+          bo'lib. U endi hech narsani aytmaydi: g'olibni vaqt hal
+          qiladi, aqcha esa g'alaba-mag'lubiyatdan hisoblanadi va
+          shu yerning o'zida yozilgan, urinishlar soni ham ostidagi
+          taxtada ko'rinib turibdi. Topmagan odamga ball 0 beriladi,
+          ya'ni ikkovi ham topmagan jangda «0 : 0» chiqib, faqat
+          «bu nima?» degan savol tug'dirardi.
+
+          Ball bilan birga oradagi ikki nuqta ham ketdi — u o'sha ikki
+          sonni ajratish uchun turardi. */}
       {!expired && !game.mardu && <div className="score">
         <div className={`score__side${mine ? ' score__side--win' : ''}`}>
           <Avatar name={meName} uid={account?.uid} size={36} className="score__avatar" />
           <span className="score__who">
             <PlayerName uid={account?.uid} name={meName} size={14} />
           </span>
-          <strong className="score__points">{game.me?.score ?? 0}</strong>
           <span className="score__meta">
             {meAqcha !== null ? (
               <AqchaDelta value={meAqcha} />
@@ -1040,9 +1048,6 @@ function Result({ game }: { game: Sozjang }) {
             )}
           </span>
         </div>
-        <span className="score__dash" aria-hidden="true">
-          :
-        </span>
         <div className={`score__side${!mine && !draw && !expired ? ' score__side--win' : ''}`}>
           <Avatar name={foeName} uid={game.opponentUid ?? undefined} size={36} className="score__avatar" />
           {/* Raqib ismi — uning ochiq profiliga: kim bilan o'ynaganini
@@ -1054,7 +1059,6 @@ function Result({ game }: { game: Sozjang }) {
           ) : (
             <span className="score__who">{foeName}</span>
           )}
-          <strong className="score__points">{game.opponent?.score ?? 0}</strong>
           <span className="score__meta">
             {pending ? (
               'o‘ynayapti'
@@ -1267,6 +1271,16 @@ export default function BattlePage() {
                       {game.me.won ? 'Topdingiz!' : 'Urinishlar tugadi.'} Raqib o‘ynab
                       bo‘lishini kutamiz…
                     </p>
+                    {/* Kutishni to'xtatib, darhol yangi jangga o'tish.
+                        Bu yerda odamning qiladigan ishi qolmagan:
+                        urinishlari tugagan yoki so'zni topgan, natija
+                        esa raqibga bog'liq. Kutishni xohlamasa — ketsin;
+                        jangning natijasi baribir yoziladi va janglar
+                        tarixida chiqadi. */}
+                    <button className="btn btn--sm" onClick={() => void game.again()}>
+                      <Swords size={16} />
+                      Keyingi jang
+                    </button>
                   </div>
                 ) : (
                   <div className="jang__keys">
@@ -1279,12 +1293,20 @@ export default function BattlePage() {
                 )}
                 {/* Reaksiya jang ketayotganda ham, o'z navbatim tugab
                     raqibni kutayotganda ham yuboriladi — aynan o'sha
-                    kutish paytida u eng o'rinli. */}
+                    kutish paytida u eng o'rinli.
+
+                    «Jangdan chiqish» esa faqat o'ynayotgan odamga:
+                    u taslim bo'lish degani va uni tasdiq oynasi
+                    so'raydi. Urinishlari tugagan odamda taslim
+                    bo'ladigan narsa qolmagan — u yerda kutish
+                    kartochkasidagi «Keyingi jang» turadi. */}
                 <div className="jang__foot">
                   <ReactionPicker sent={game.sentReaction} onReact={game.react} />
-                  <button className="link" onClick={askLeave}>
-                    Jangdan chiqish
-                  </button>
+                  {!game.me?.finished && (
+                    <button className="link" onClick={askLeave}>
+                      Jangdan chiqish
+                    </button>
+                  )}
                 </div>
                 {leaving && (
                   <LeaveConfirm

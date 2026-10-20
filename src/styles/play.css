@@ -1657,6 +1657,12 @@
   text-align: start;
 }
 
+
+/* Kutish kartochkasidagi tugma — matndan keyin, o'z nafasi bilan. */
+.stage--wait .btn {
+  margin-top: 4px;
+}
+
 .stage--wait {
   max-width: 560px;
   gap: 4px;
@@ -1831,7 +1837,7 @@
 
 .board-head {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: center;
   gap: 10px;
   padding: 12px 14px;
@@ -2836,19 +2842,6 @@
 .score__who {
   color: var(--text);
   font-weight: 800;
-}
-
-.score__points {
-  font-size: 34px;
-  font-weight: 900;
-  line-height: 1.1;
-  font-variant-numeric: tabular-nums;
-}
-
-.score__dash {
-  color: var(--text-2);
-  font-size: 28px;
-  font-weight: 900;
 }
 
 /* Konfetti — faqat g'alabada. Har bo'lak o'z rangida yuqoridan tushadi. */
@@ -6696,10 +6689,6 @@
 
 .stage--result .score__side {
   padding: 10px 12px;
-}
-
-.stage--result .score__points {
-  font-size: 26px;
 }
 
 /* Taxtalar natijada «nima bo'lgani» uchun turibdi, o'ynash uchun
