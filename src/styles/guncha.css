@@ -627,9 +627,25 @@
   font-weight: 800;
 }
 
+/* Aqcha qatorda natija so'zining **o'rnida** turadi (`ArenaHistory`):
+   «Durang» degan so'z jangdan nima qolganini aytmaydi, «+3» esa
+   aytadi. Shu sababli rangni ham o'sha so'zdan meros oladi — g'alabada
+   yashil, mag'lubiyatda qizil.
+
+   Durang ataylab chetda: u yerda yutuq ham, yo'qotish ham yo'q, ya'ni
+   ikkala rang ham yolg'on bo'lardi. Qator baribir o'z rangini
+   `history__row--draw` dan oladi. */
 .history__delta {
   font-size: 12px;
   font-weight: 800;
+}
+
+.history__row--win .history__delta {
+  color: var(--green);
+}
+
+.history__row--loss .history__delta {
+  color: var(--danger);
 }
 
 /* Telefonda qator torayadi — o'yin nomi va izoh tushib qoladi. */
