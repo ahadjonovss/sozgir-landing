@@ -19,7 +19,7 @@ import { useEffect, useState } from 'react';
 import { EMPTY_RATING, watchRating, type BattleRating } from '../lib/battleRating';
 import { pretty } from '../lib/uz';
 import Avatar from './Avatar';
-import { BattleAqcha, TierBadge } from './Units';
+import { BattleAqcha } from './Units';
 
 /** Gulning o'lchovlari — `GunchaFlower` bilan bir xil maydonda
  *  (100×100), shuning uchun sanoqdagi gul o'yindagisi bilan bir
@@ -86,7 +86,6 @@ function Face({
       </strong>
       {rating && (
         <span className="gcount__rating">
-          <TierBadge rating={shown.rating} size={16} />
           <BattleAqcha rating={shown.rating} size="sm" />
         </span>
       )}

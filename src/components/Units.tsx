@@ -9,7 +9,6 @@
  *  `alt` bo'sh emas: ekran o'quvchisi «598 aqcha» deb o'qishi kerak,
  *  shuning uchun belgi matnning bir qismi. */
 import { formatAqcha, formatBattleAqcha, signed } from '../lib/aqcha';
-import { tierName, tierSlug } from '../lib/battleRating';
 import { donorLabel, donorSlug, type DonorTier } from '../lib/donor';
 
 type Size = 'sm' | 'md' | 'lg';
@@ -72,26 +71,6 @@ export function AqchaDelta({ value, size = 'sm' }: { value: number; size?: Size 
     <Unit src="/aqcha.png" alt="Aqcha" size={size}>
       {signed(value)}
     </Unit>
-  );
-}
-
-/** Jangdagi daraja nishoni — o'nta pog'onaning har biriga o'z belgisi.
- *
- *  Nom yonida kichik, profil kartochkasida kattaroq turadi. Chegara
- *  **xom reytingda** tekshiriladi (`tierSlug`), ya'ni nishon bilan
- *  ko'rsatilgan o'lja hech qachon zid bo'lmaydi. */
-export function TierBadge({ rating, size = 22 }: { rating: number; size?: number }) {
-  return (
-    <img
-      className="badge"
-      src={`/daraja/${tierSlug(rating)}.png`}
-      alt={tierName(rating)}
-      title={tierName(rating)}
-      width={size}
-      height={size}
-      loading="lazy"
-      decoding="async"
-    />
   );
 }
 

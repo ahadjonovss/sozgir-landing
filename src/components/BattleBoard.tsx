@@ -9,7 +9,6 @@ import { useEffect, useState } from 'react';
 import { playerLink } from '../data/site';
 import { useAuth } from '../lib/auth';
 import { useCanInvite } from '../lib/useFriends';
-import { tierName } from '../lib/battleRating';
 import { battleTop, type BattleEntry } from '../lib/leaderboard';
 import { pretty } from '../lib/uz';
 import Avatar from './Avatar';
@@ -17,7 +16,7 @@ import PlayerName from './PlayerName';
 import YouTag from './YouTag';
 import { Swords } from './Icons';
 import SendInvite, { type InviteTarget } from './SendInvite';
-import { BattleAqcha, TierBadge } from './Units';
+import { BattleAqcha } from './Units';
 
 export default function BattleBoard() {
   const { account, openPrompt } = useAuth();
@@ -87,14 +86,6 @@ export default function BattleBoard() {
                 </span>
               </a>
               {row.uid === account?.uid && <YouTag />}
-              {/* Faqat daraja: g'alaba soni bilan ism kesilib qolardi. */}
-              <span className="rank__meta rank__meta--tier">
-                <TierBadge rating={row.rating} size={18} />
-                {/* Telefonda faqat belgi qoladi (daraja nomi uning
-                    `title` ida) — matni bilan birga ism uch harfga
-                    kesilib ketardi. */}
-                <span className="rank__tier-name">{tierName(row.rating)}</span>
-              </span>
               <span className="rank__points">
                 <BattleAqcha rating={row.rating} size="sm" />
               </span>

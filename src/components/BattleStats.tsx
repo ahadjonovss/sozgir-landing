@@ -1,26 +1,23 @@
-/** O'lja kartochkasi — ilovadagi `RatingCard`.
+/** Jang aqchasi kartochkasi — ilovadagi `RatingCard`.
  *
- *  Raqam asosiy, qolgani unga izoh: daraja, keyingi darajaga qolgan yo'l
- *  va jang / g'alaba / mag'lubiyat soni. Ma'lumot jonli: jang tugagach
- *  server yozadi, kartochka o'zi yangilanadi.
+ *  Raqam asosiy, qolgani unga izoh: jang / g'alaba / mag'lubiyat
+ *  soni. Ma'lumot jonli: jang tugagach server yozadi, kartochka
+ *  o'zi yangilanadi.
  *
- *  Hujjatda xom reyting turadi, ekranda esa o'lja: chegaralar xom sonda
- *  tekshiriladi, ko'rsatiladigan farq esa o'ljada (`lib/aqcha.ts`). */
+ *  Daraja yo'q. Reytingga bog'langan o'nta unvon haftalik ligaga
+ *  ko'chdi (`soztop/docs/aqcha.md`, 4-bo'lim) — reytingning o'zi
+ *  esa ekranda aqcha bo'lib ko'rinaveradi. */
 import { useEffect, useState } from 'react';
-import { battleAqcha } from '../lib/aqcha';
 import {
   EMPTY_RATING,
-  nextTierAt,
   played,
-  tierName,
-  tierProgress,
   watchRating,
   winRate,
   type BattleRating,
 } from '../lib/battleRating';
 import { useDonorTier } from '../lib/donor';
 import DonorChip from './DonorChip';
-import { BattleAqcha, TierBadge } from './Units';
+import { BattleAqcha } from './Units';
 
 /** Jang aqchasi: yig'indi, daraja va uchta sanoq.
  *
@@ -53,7 +50,6 @@ export default function BattleStats({
   }, [uid]);
 
   const rating = value ?? EMPTY_RATING;
-  const next = nextTierAt(rating.rating);
   const games = played(rating);
   /** Homiylik darajasi: kartochka daraja ohangida, daraja yonida chip. */
   const donor = useDonorTier(uid);
@@ -69,21 +65,22 @@ export default function BattleStats({
         <strong className="rating__value">
           <BattleAqcha rating={rating.rating} size="lg" />
         </strong>
-        <span className="rating__tiers">
-          <span className="rating__tier">
-            <TierBadge rating={rating.rating} size={20} />
-            {tierName(rating.rating)}
+        {/* Daraja nishoni, zinapoya va «keyingi darajaga N aqcha»
+            bu yerdan olib tashlandi. Reytingga bog'langan o'nta
+            unvon (Chopar…Alp) endi yo'q: ular haftalik ligaga
+            ko'chdi va u yerda pog'onaga ball bilan emas, guruh
+            tepasida hafta yakunlab chiqiladi (`soztop/docs/aqcha.md`,
+            4-bo'lim; `docs/liga.md`). Elo reytingining o'zi qoldi —
+            u juftlash uchun kerak va ekranda aqcha bo'lib ko'rinadi,
+            faqat uning nomi yo'q.
+
+            Homiylik chipi qoladi: u reytingdan emas, hissadan
+            keladi. */}
+        {donor && (
+          <span className="rating__tiers">
+            <DonorChip tier={donor} className="rating__tier rating__donor" />
           </span>
-          {donor && <DonorChip tier={donor} className="rating__tier rating__donor" />}
-        </span>
-        <span className="rating__track" aria-hidden="true">
-          <i style={{ width: `${Math.round(tierProgress(rating.rating) * 100)}%` }} />
-        </span>
-        <span className="rating__next">
-          {next === null
-            ? 'Eng yuqori daraja'
-            : `Keyingi darajaga ${battleAqcha(next) - battleAqcha(rating.rating)} aqcha`}
-        </span>
+        )}
       </div>
 
       <ul className="rating__stats">
