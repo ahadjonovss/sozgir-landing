@@ -471,6 +471,12 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  /* Doim o'ng chetda. `space-between` buni faqat chap tomonda
+     biror narsa turganda qilardi: bosh sahifada va uzunlik
+     sahifalarida rejim tanlovi yashirilgan (`.hero__board
+     .play__modes`), ya'ni qatorda bitta bola qolib, u chap chetga
+     yopishardi. */
+  margin-left: auto;
 }
 
 /* Taxtaning o'zidagi yumaloq tugma — hozir faqat statistika.
@@ -1442,6 +1448,18 @@
 }
 
 .lobby__friend {
+  display: grid;
+  gap: 10px;
+}
+
+/* Tezkor qidiruv — kartochkaning **ostida**, kod bilan kirishdan keyin.
+   Ilgari u tepada turardi va katta yashil tugma bo'lib butun
+   kartochkani egallab olardi: do'stini chaqirmoqchi odam avval undan
+   o'tib ketishi kerak edi.
+
+   Ajratuvchi chiziq shu blokda, chunki u ikkinchi turadi. Ilgari u
+   `lobby__friend` da edi — o'sha paytda ikkinchi bo'lgan o'shanisi. */
+.lobby__fast {
   display: grid;
   gap: 10px;
   margin-top: 6px;

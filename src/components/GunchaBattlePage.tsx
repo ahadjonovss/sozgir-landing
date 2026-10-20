@@ -183,19 +183,6 @@ function Lobby({ game }: { game: GunchaJang }) {
     <div className="lobby">
       <div className="lobby__main">
         <div className="panel lobby__card">
-          <button
-            className="btn btn--lg lobby__quick"
-            onClick={game.quick}
-            disabled={game.busy}
-          >
-            <Swords size={20} />
-            {game.busy ? 'Qidirilmoqda…' : 'Raqib qidirish'}
-          </button>
-          <p className="panel__note lobby__hint">
-            Ikkalangizga bir xil g‘uncha beriladi va uch daqiqa vaqt bo‘ladi.
-            Kim ko‘p to‘plasa — o‘sha yutadi.
-          </p>
-
           <div className="lobby__friend">
             <span className="panel__label">
               <Users size={14} /> Do‘st bilan
@@ -223,6 +210,21 @@ function Lobby({ game }: { game: GunchaJang }) {
                 Qo‘shilish
               </button>
             </div>
+          </div>
+
+          <div className="lobby__fast">
+            <button
+              className="btn btn--lg lobby__quick"
+              onClick={game.quick}
+              disabled={game.busy}
+            >
+              <Swords size={20} />
+              {game.busy ? 'Qidirilmoqda…' : 'Raqib qidirish'}
+            </button>
+            <p className="panel__note lobby__hint">
+              Ikkalangizga bir xil g‘uncha beriladi va uch daqiqa vaqt bo‘ladi.
+              Kim ko‘p to‘plasa — o‘sha yutadi.
+            </p>
           </div>
         </div>
 

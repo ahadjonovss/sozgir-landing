@@ -207,15 +207,6 @@ function Lobby({ game }: { game: Sozjang }) {
         <Head />
 
         <div className="panel lobby__card">
-          <button className="btn btn--lg lobby__quick" onClick={game.quick} disabled={game.busy}>
-            <Swords size={20} />
-            {game.busy ? 'Qidirilmoqda…' : 'Raqib qidirish'}
-          </button>
-          <p className="panel__note lobby__hint">
-            Kuchi sizga yaqin onlayn raqib. Hozir hech kim bo‘lmasa, navbatda
-            kutasiz.
-          </p>
-
           <div className="lobby__friend">
             <span className="panel__label">
               <Users size={14} /> Do‘st bilan
@@ -234,6 +225,17 @@ function Lobby({ game }: { game: Sozjang }) {
                 Qo‘shilish
               </button>
             </div>
+          </div>
+
+          <div className="lobby__fast">
+            <button className="btn btn--lg lobby__quick" onClick={game.quick} disabled={game.busy}>
+              <Swords size={20} />
+              {game.busy ? 'Qidirilmoqda…' : 'Raqib qidirish'}
+            </button>
+            <p className="panel__note lobby__hint">
+              Kuchi sizga yaqin onlayn raqib. Hozir hech kim bo‘lmasa, navbatda
+              kutasiz.
+            </p>
           </div>
         </div>
 
