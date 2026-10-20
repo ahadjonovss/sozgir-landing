@@ -229,9 +229,17 @@ export function useGunchaJang() {
    *  kartochkasi va «Kiritish» tugmasini ko'rib, nima bosishini
    *  bilmasdi.
    *
-   *  So'rov jang **boshlangandan keyin** ketadi: undan oldin harflar
-   *  hali yasalmagan va manzil 404 qaytaradi. Bir marta kelgach
-   *  o'zgarmaydi, shuning uchun qayta so'ralmaydi. */
+   *  So'rov jang hujjati har yangilanganda qaytariladi — toki harflar
+   *  kelmaguncha. Ilgari u bir marta ketardi va javob yetib kelmasa
+   *  (404, tarmoq uzilishi, yoki holat o'zgarib effekt qayta ishga
+   *  tushib, oldingi so'rovni bekor qilgani) g'uncha butun jang
+   *  davomida bo'sh qolardi: odam sanoq va tugmalarni ko'rib, nima
+   *  bosishini bilmasdi.
+   *
+   *  So'rov bekor qilinmaydi ham: javob kelganda jang raqami bilan
+   *  solishtiriladi, ya'ni kech kelgan javob boshqa jangga
+   *  tushmaydi. Bekor qilish bu yerda zarar qilardi — qayta urinish
+   *  oldingisini o'ldirib, hech biri oxiriga yetmasdi. */
   const [flower, setFlower] = useState<{
     /** Qaysi jangning harflari — jang almashsa eskisi ishlatilmasin. */
     id: string;
@@ -247,21 +255,20 @@ export function useGunchaJang() {
   const started = battle?.status === 'running' || battle?.status === 'finished';
   useEffect(() => {
     if (!battleId || !account || !started || ours !== null) return;
-    let alive = true;
+    const id = battleId;
 
-    void gunchaLetters(battleId)
+    void gunchaLetters(id)
       .then((next) => {
-        if (alive && next.center) setFlower({ id: battleId, ...next });
+        if (!next.center) return;
+        setFlower((old) => (old?.id === id ? old : { id, ...next }));
       })
       .catch(() => {
-        // Hali tayyor emas: keyingi holat yangilanishida qayta
-        // so'raladi — jang hujjati baribir surib turiladi.
+        // Hali tayyor emas yoki so'rov yetib bormadi: hujjatning
+        // keyingi yangilanishida (har uch soniyada) qayta so'raladi.
       });
-
-    return () => {
-      alive = false;
-    };
-  }, [account, battleId, ours, started]);
+    // `battle` ataylab bog'liqlikda: hujjat har safar yangi obyekt
+    // bo'lib keladi, ya'ni harflar kelmaguncha urinish takrorlanadi.
+  }, [account, battle, battleId, ours, started]);
 
   const center = ours?.center ?? battle?.guncha?.center;
   const petals = ours?.petals ?? battle?.guncha?.petals;
@@ -401,8 +408,14 @@ export function useGunchaJang() {
   const endsAtSeconds = battle?.endsAt?.seconds ?? 0;
   const serverNow = battle?.serverNow ?? 0;
   useEffect(() => {
-    if (!endsAtSeconds || !serverNow) return;
-    sync(endsAtSeconds * 1000, serverNow);
+    if (!endsAtSeconds) return;
+    /* Server soati bo'lmasa (eski server yoki javobda maydon yo'q)
+       qurilma soatiga tushiladi. Ilgari bunday paytda sanoq umuman
+       boshlanmasdi va ekranda «3:00» qotib qolardi — bu esa eng yomon
+       ko'rinish: odam vaqt to'xtab qolgan deb o'ylaydi. Erta tugash
+       xavfi endi yo'q, chunki muddatni serverning o'zi tekshiradi
+       (`api/ws/gateway.ts`). */
+    sync(endsAtSeconds * 1000, serverNow || Date.now());
   }, [endsAtSeconds, serverNow, sync]);
 
   /** Serverdan qolgan vaqtni so'raydi.
