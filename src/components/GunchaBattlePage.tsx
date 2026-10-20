@@ -14,6 +14,7 @@ import { countShare } from '../lib/badges';
 import { shareCardImage } from '../lib/shareCard';
 import { punchline } from '../lib/shareLines';
 import { inviteLink } from '../lib/battle';
+import { wordOf } from '../lib/guncha';
 import { useGunchaJang, type GunchaJang } from '../lib/useGunchaJang';
 import { GUNCHA_SECONDS } from '../lib/gunchaBattle';
 import { display, pretty } from '../lib/uz';
@@ -663,9 +664,18 @@ function Result({ game }: { game: GunchaJang }) {
      xohlasa ochadi. Ochiq tursa ekran cho'zilib, tugmalar pastga
      tushib ketardi — ilovada ham aynan shu sabab bilan oynaga
      ko'chirilgan. */
+  /* Topilganlar **topilgan so'zlardan** yig'iladi, g'unchaning
+     ro'yxatidan emas. Ilgari ro'yxat `puzzle.words` dan filtr bilan
+     olinardi va serverning lug'atida bor, brauzernikida yo'q so'zlar
+     tushib qolardi: raqib uchta so'z topgan bo'lsa-yu, ro'yxatda
+     bittasi ko'rinardi. Ball esa bor joyidan olinadi — bo'lmasa nol
+     yoziladi, bu raqamni brauzer bilmaydi. */
   const found = useMemo(() => {
-    const all = new Set([...game.revealed.mine, ...game.revealed.theirs]);
-    return (game.puzzle?.words ?? []).filter((word) => all.has(word.word));
+    const all = [...new Set([...game.revealed.mine, ...game.revealed.theirs])];
+    return all.map((word) => {
+      const entry = game.puzzle ? wordOf(game.puzzle, word) : null;
+      return { word, score: entry?.score ?? 0, pangram: entry?.pangram ?? false };
+    });
   }, [game.puzzle, game.revealed]);
 
   const missed = useMemo(() => {

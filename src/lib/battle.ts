@@ -87,6 +87,13 @@ export interface BattleDoc {
   /** Do'st bilan jangda raqib kirishi kerak bo'lgan muddat (2 daqiqa) —
    *  kutish ekranidagi «pilik» shundan hisoblanadi. */
   expiresAt?: { seconds?: number } | null;
+  /** Hujjat o'qilgan paytdagi **server** soati (ms).
+   *
+   *  Qolgan vaqt `endsAt - serverNow` dan chiqadi. Qurilma soatiga
+   *  qaralmaydi: u oldinda ketsa sanoq erta nolga tushib, mijoz
+   *  serverga «tugadim» deb yuborardi va vaqti bor jang yopilib
+   *  qolardi. `0` — server bu maydonni yubormagan. */
+  serverNow?: number;
 }
 
 /** Manzilli chaqiruv qayerdan yuborilgani — ilovadagi `BattleInviteKind`.
@@ -360,6 +367,8 @@ export async function readBattle(battleId: string): Promise<BattleDoc | null> {
   let data: {
     battle?: Record<string, unknown>;
     players?: unknown;
+    /** Serverning soati — sanoq shu bilan solishtiriladi. */
+    serverNow?: unknown;
   };
   try {
     data = await api.get(`/v1/web/battles/${encodeURIComponent(battleId)}`);
@@ -425,6 +434,12 @@ export async function readBattle(battleId: string): Promise<BattleDoc | null> {
     answer: typeof battle.answer === 'string' ? battle.answer : null,
     endsAt: { seconds: Math.floor(millis(battle.endsAt) / 1000) },
     expiresAt: { seconds: Math.floor(millis(battle.expiresAt) / 1000) },
+    /* Serverning soati — `endsAt` bilan **bitta** javobdan keladi.
+       Sanoq shu ikkisining farqidan chiqadi, ya'ni qurilma soati
+       oldinda yoki orqada bo'lsa ham qolgan vaqt to'g'ri bo'ladi.
+       Eski server bu maydonni yubormaydi: o'shanda `0` keladi va
+       chaqiruvchi eski yo'lga tushadi. */
+    serverNow: typeof data.serverNow === 'number' ? data.serverNow : 0,
   };
 }
 

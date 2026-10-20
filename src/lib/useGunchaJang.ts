@@ -387,15 +387,23 @@ export function useGunchaJang() {
    *  hech narsa qaytarmaydi.
    *
    *  Hujjatda esa `endsAt` bor va u har uch soniyada yangilanadi.
-   *  Server soati bilan solishtirish uchun `Date.now()` ishlatiladi —
-   *  `join` ham aynan shuni qiladi (serverda `serverNow` degan maydon
-   *  yo'q). `sync` o'zi qo'riqlaydi: vaqt faqat qisqaradi, ya'ni
-   *  hujjat kech kelgani sanoqni orqaga sakratmaydi. */
+   *  Yonida `serverNow` ham keladi — **o'sha javobdagi** server soati.
+   *  Farqi shu ikkisidan olinadi, ya'ni qurilma soatiga umuman
+   *  qaralmaydi: u oldinda ketgan brauzerda sanoq erta nolga tushib,
+   *  mijoz serverga «tugadim» deb yuborardi va vaqti bor jang yopilib
+   *  qolardi.
+   *
+   *  Eski server `serverNow` ni yubormaydi (`0` keladi) — o'shanda
+   *  sanoq boshlanmaydi va jang muddatini serverning o'zi yopadi.
+   *
+   *  `sync` o'zi ham qo'riqlaydi: vaqt faqat qisqaradi, ya'ni hujjat
+   *  kech kelgani sanoqni orqaga sakratmaydi. */
   const endsAtSeconds = battle?.endsAt?.seconds ?? 0;
+  const serverNow = battle?.serverNow ?? 0;
   useEffect(() => {
-    if (!endsAtSeconds) return;
-    sync(endsAtSeconds * 1000, Date.now());
-  }, [endsAtSeconds, sync]);
+    if (!endsAtSeconds || !serverNow) return;
+    sync(endsAtSeconds * 1000, serverNow);
+  }, [endsAtSeconds, serverNow, sync]);
 
   /** Serverdan qolgan vaqtni so'raydi.
    *
@@ -499,35 +507,49 @@ export function useGunchaJang() {
     if (!word) return;
     setTyped([]);
 
-    // Brauzerdagi lug'at bilan darhol baholanadi — kutish yo'q.
+    /* Brauzerda faqat **tuzilish** tekshiriladi: uzunligi, begona harf,
+       yurak harf va takror. Bular lug'atsiz ham hal bo'ladi va javobi
+       darhol kerak.
+ 
+       Lug'at esa serverda va u brauzerdagisidan boshqa: server
+       g'unchaning javoblarini o'z ro'yxatidan yasaydi
+       (`dictionary.gunchaWords`), brauzer esa 4–7 harfli hujjatlardan.
+       Ikkalasi hech qachon aynan bir xil bo'lmaydi.
+ 
+       Ilgari brauzer so'zni **o'zi qabul qilib**, ballni ham qo'shib
+       qo'yardi: ekranda «+5» chiqib, bir necha yuz millisoniyadan keyin
+       server rad etsa ball qaytib olinib, «Bunday so'z lug'atda yo'q»
+       yozilardi. Teskarisi ham bor edi — server biladigan so'zni
+       brauzer «lug'atda yo'q» deb serverga umuman yubormasdi.
+ 
+       Endi lug'at haqidagi qarorni faqat server aytadi. Kanal ochiq
+       turadi, ya'ni javob o'n-yigirma millisoniyada keladi — qaytarib
+       olinadigan ball ko'rsatgandan ko'ra shuni kutgan ma'qul. */
     if (puzzle) {
       const verdict = judge({ puzzle, word, found: new Set(mine) });
-      if (verdict !== 'accepted') {
+      if (verdict !== 'accepted' && verdict !== 'unknown') {
         bump(VERDICT_TEXT[verdict]);
         return;
       }
-      const entry = wordOf(puzzle, word)!;
-      remember((words) => [...words, word]);
-      setPraise(entry.pangram ? `Pangramma! +${entry.score}` : `+${entry.score}`);
-      later(() => setPraise(null), 1400);
     }
 
     void sendGunchaWord({ battleId, word })
       .then((reply) => {
-        if (reply.accepted) {
-          // Lug'atsiz o'ynayotgan bo'lsak so'z shu yerda qo'shiladi.
-          if (!puzzle) {
-            remember((words) => (words.includes(word) ? words : [...words, word]));
-          }
+        if (!reply.accepted) {
+          bump(WORD_REASON[reply.reason ?? ''] ?? 'So‘z qabul qilinmadi');
+          if (reply.reason === 'expired') setFinishing(true);
           return;
         }
-        // Server rad etdi — so'z ekrandan olinadi va ball tushadi.
-        remember((words) => words.filter((item) => item !== word));
-        bump(WORD_REASON[reply.reason ?? ''] ?? 'So‘z qabul qilinmadi');
-        if (reply.reason === 'expired') setFinishing(true);
+        remember((words) => (words.includes(word) ? words : [...words, word]));
+        /* Ball serverdan: brauzerdagi lug'atda bu so'z umuman
+           bo'lmasligi mumkin. Pangramma esa harflardan bilinadi —
+           yettala harf ishlatilgan bo'lsa o'sha. */
+        const entry = puzzle ? wordOf(puzzle, word) : null;
+        const points = reply.score ?? entry?.score ?? 0;
+        setPraise(entry?.pangram ? `Pangramma! +${points}` : `+${points}`);
+        later(() => setPraise(null), 1400);
       })
       .catch((raw) => {
-        remember((words) => words.filter((item) => item !== word));
         bump(apiError(raw));
       });
   }, [battleId, bump, later, mine, phase, puzzle, remember, typed]);
