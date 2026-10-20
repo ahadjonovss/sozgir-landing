@@ -22,6 +22,7 @@
  *  o'ynash, keyin boshqalarga nisbatan qanday va nima bo'lgani.
  *  Kirgan odamning o'z aqchasi esa kartochkalardan oldin: u bu yerga
  *  ko'pincha o'ynagani emas, «qanchaman» deb keladi. */
+import { useState } from 'react';
 import { links } from '../data/site';
 import { useAuth } from '../lib/auth';
 import AdBanner from './AdBanner';
@@ -33,20 +34,34 @@ import { Swords, Trophy, Users } from './Icons';
 import GunchaCard from './GunchaCard';
 import TelegramBanner from './TelegramBanner';
 
+/** Tanlov ro'yxati — tartib o'sha: avval o'yinning o'zi, keyin
+ *  shakl (Mardu maydon va Turnir ichida baribir So'zjang yoki
+ *  G'uncha o'ynaladi). */
+const TABS = [
+  { id: 'sozjang', name: 'So‘zjang' },
+  { id: 'guncha', name: 'G‘uncha' },
+  { id: 'mardu', name: 'Mardu maydon' },
+  { id: 'turnir', name: 'Turnir' },
+] as const;
+
+type TabId = (typeof TABS)[number]['id'];
+
 export default function PlayHub() {
   const { account, openPrompt, ready } = useAuth();
+  /** Ochiq turgani — birinchisi: So'zjang bu sahifadagi eng ko'p
+   *  bosiladigan o'yin. */
+  const [tab, setTab] = useState<TabId>('sozjang');
 
   return (
     <section className="oyin">
       <div className="wrap hub">
-        <div className="hub__head">
-          <span className="section__kicker">O‘ynash</span>
-          <h1>Nimani o‘ynaymiz?</h1>
-          <p className="section__lead">
-            Do‘stingiz bilan bellashing, harflardan so‘z yig‘ing yoki
-            butun davrani maydonga yig‘ing. Hammasi shu yerda, brauzerda.
-          </p>
-        </div>
+        {/* Sarlavha ekranda ko'rinmaydi: sahifaga «O'ynash» tugmasi
+            orqali kelingan, ya'ni odam qayerdaligini biladi va unga
+            yana bir tanishtiruv emas, tanlovning o'zi kerak. `h1`
+            hujjatda qoladi — u sahifaning nomi: ekranni o'qib
+            beradigan dastur ham, qidiruv roboti ham shunga qaraydi
+            (statik HTML dagi matn bilan bir xil, `data/pages.ts`). */}
+        <h1 className="hub__h1">Nimani o‘ynaymiz?</h1>
 
         {/* Aqcha va daraja o'yinlardan **oldin**: kirgan odam bu
             sahifaga ko'pincha «qanchaman» deb keladi, kartochkalar esa
@@ -65,114 +80,147 @@ export default function PlayHub() {
 
         <PlaysLeft />
 
-        <div className="hub__grid">
-          <article className="hub-card hub-card--battle">
-            <div className="hub-card__top">
-              <span className="hub-card__icon">
-                <Swords size={26} />
-              </span>
-              <span className="hub-card__badge">Jonli</span>
-            </div>
-            <h2>So‘zjang</h2>
-            <p>
-              Bir so‘z, ikki o‘yinchi. Do‘stingizni kod bilan chaqiring yoki
-              tezkor jangda tasodifiy raqib toping — kim birinchi topsa,
-              o‘sha yutadi.
-            </p>
-            <div className="hub-card__status">
-              {account ? (
-                <span>
-                  <b>{account.nickname}</b> sifatida o‘ynaysiz
+        {/* Tanlov — tab bar, kartochkalar ro'yxati emas.
+            To'rtta kartochka birdan turganda sahifa uzun ro'yxatga
+            aylanardi va o'qiydigan narsa ko'payardi; bu yerda esa
+            bitta ish bor: nimani o'ynashni tanlash. Shuning uchun
+            yuqorida to'rtta nom, ostida faqat tanlangani. */}
+        <div className="hub__tabs" role="tablist" aria-label="O‘yinlar">
+          {TABS.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              role="tab"
+              id={`hub-tab-${item.id}`}
+              aria-selected={tab === item.id}
+              aria-controls={`hub-panel-${item.id}`}
+              className={`hub-tab hub-tab--${item.id}${tab === item.id ? ' hub-tab--on' : ''}`}
+              onClick={() => setTab(item.id)}
+            >
+              {item.name}
+            </button>
+          ))}
+        </div>
+
+        <div
+          className="hub__panel"
+          role="tabpanel"
+          id={`hub-panel-${tab}`}
+          aria-labelledby={`hub-tab-${tab}`}
+        >
+          {tab === 'sozjang' && (
+            <article className="hub-card hub-card--battle">
+              <div className="hub-card__top">
+                <span className="hub-card__icon">
+                  <Swords size={26} />
                 </span>
-              ) : (
-                <span>Jang uchun hisob kerak — raqib taxallusingizni ko‘radi</span>
-              )}
-            </div>
-            <div className="hub-card__actions">
-              {/* Asosiy tugma jangning o'ziga olib boradi, lobbiga
-                  emas: qidiruv havolaning o'zidan boshlanadi
-                  (`?tezkor=1`). Ilgari bu yerda «Jangga kirish»
-                  turardi va odam lobbida yana bir marta «Raqib
-                  qidirish» ni bosardi — o'sha ekranda boshqa
-                  qaror yo'q edi. Do'st bilan o'ynash esa qaror:
-                  kod yaratish yoki terish kerak, shuning uchun u
-                  alohida, ikkinchi darajali havola. */}
-              {account ? (
-                <>
-                  <a className="btn" href={links.battleQuick}>
-                    Raqib qidirish
-                  </a>
-                  <a className="btn btn--ghost" href={links.battle}>
-                    Do‘st bilan
-                  </a>
-                </>
-              ) : (
-                <>
-                  <button className="btn" onClick={() => openPrompt('signIn')}>
-                    Kirish
-                  </button>
-                  <a className="btn btn--ghost" href={links.battle}>
-                    Jangni ko‘rish
-                  </a>
-                </>
-              )}
-            </div>
-          </article>
+                <span className="hub-card__badge">Jonli</span>
+              </div>
+              <h2>So‘zjang</h2>
+              <p>
+                Bir so‘z, ikki o‘yinchi. Do‘stingizni kod bilan chaqiring yoki
+                tezkor jangda tasodifiy raqib toping — kim birinchi topsa,
+                o‘sha yutadi.
+              </p>
+              <div className="hub-card__status">
+                {account ? (
+                  <span>
+                    <b>{account.nickname}</b> sifatida o‘ynaysiz
+                  </span>
+                ) : (
+                  <span>Jang uchun hisob kerak — raqib taxallusingizni ko‘radi</span>
+                )}
+              </div>
+              <div className="hub-card__actions">
+                {/* Asosiy tugma jangning o'ziga olib boradi, lobbiga
+                    emas: qidiruv havolaning o'zidan boshlanadi
+                    (`?tezkor=1`). Ilgari bu yerda «Jangga kirish»
+                    turardi va odam lobbida yana bir marta «Raqib
+                    qidirish» ni bosardi — o'sha ekranda boshqa
+                    qaror yo'q edi. Do'st bilan o'ynash esa qaror:
+                    kod yaratish yoki terish kerak, shuning uchun u
+                    alohida, ikkinchi darajali havola. */}
+                {account ? (
+                  <>
+                    <a className="btn" href={links.battleQuick}>
+                      Raqib qidirish
+                    </a>
+                    <a className="btn btn--ghost" href={links.battle}>
+                      Do‘st bilan
+                    </a>
+                  </>
+                ) : (
+                  <>
+                    <button className="btn" onClick={() => openPrompt('signIn')}>
+                      Kirish
+                    </button>
+                    <a className="btn btn--ghost" href={links.battle}>
+                      Jangni ko‘rish
+                    </a>
+                  </>
+                )}
+              </div>
+            </article>
+          )}
 
-          <GunchaCard />
+          {tab === 'guncha' && <GunchaCard />}
 
-          <article className="hub-card hub-card--mardu">
-            <div className="hub-card__top">
-              <span className="hub-card__icon">
-                <Users size={26} />
-              </span>
-              <span className="hub-card__badge">8 kishigacha</span>
-            </div>
-            <h2>Mardu maydon</h2>
-            <p>
-              Yangi o‘yin emas — yangi shakl. O‘sha So‘zjang yoki G‘uncha,
-              lekin ikki kishi emas: sakkiztagacha odam bir vaqtda o‘ynaydi
-              va oxirida jadval tuziladi.
-            </p>
-            <div className="hub-card__status">
-              <span>
-                Tezkor maydonga kiring yoki bitta havola bilan butun davrani
-                yig‘ing
-              </span>
-            </div>
-            <div className="hub-card__actions">
-              <a className="btn" href={links.mardu}>
-                Maydonga kirish
-              </a>
-            </div>
-          </article>
+          {tab === 'mardu' && (
+            <article className="hub-card hub-card--mardu">
+              <div className="hub-card__top">
+                <span className="hub-card__icon">
+                  <Users size={26} />
+                </span>
+                <span className="hub-card__badge">8 kishigacha</span>
+              </div>
+              <h2>Mardu maydon</h2>
+              <p>
+                Yangi o‘yin emas — yangi shakl. O‘sha So‘zjang yoki G‘uncha,
+                lekin ikki kishi emas: sakkiztagacha odam bir vaqtda o‘ynaydi
+                va oxirida jadval tuziladi.
+              </p>
+              <div className="hub-card__status">
+                <span>
+                  Tezkor maydonga kiring yoki bitta havola bilan butun davrani
+                  yig‘ing
+                </span>
+              </div>
+              <div className="hub-card__actions">
+                <a className="btn" href={links.mardu}>
+                  Maydonga kirish
+                </a>
+              </div>
+            </article>
+          )}
 
           {/* Turnir maydondan **keyin**: ichida o'ynaladigani o'sha
               maydon, ya'ni odam avval maydonni ko'rishi kerak. */}
-          <article className="hub-card hub-card--turnir">
-            <div className="hub-card__top">
-              <span className="hub-card__icon">
-                <Trophy size={26} />
-              </span>
-              <span className="hub-card__badge">8–32 kishi</span>
-            </div>
-            <h2>Turnir</h2>
-            <p>
-              Ketma-ket bir necha maydon: har davrada o‘zingizga teng
-              ochkodagilar bilan o‘ynaysiz, oxirida esa jadvalning birinchi
-              ikki o‘rni finalga chiqadi.
-            </p>
-            <div className="hub-card__status">
-              <span>
-                Chiqarib yuborish yo‘q — hamma oxirgi davragacha o‘ynaydi
-              </span>
-            </div>
-            <div className="hub-card__actions">
-              <a className="btn" href={links.turnir}>
-                Turnirga kirish
-              </a>
-            </div>
-          </article>
+          {tab === 'turnir' && (
+            <article className="hub-card hub-card--turnir">
+              <div className="hub-card__top">
+                <span className="hub-card__icon">
+                  <Trophy size={26} />
+                </span>
+                <span className="hub-card__badge">8–32 kishi</span>
+              </div>
+              <h2>Turnir</h2>
+              <p>
+                Ketma-ket bir necha maydon: har davrada o‘zingizga teng
+                ochkodagilar bilan o‘ynaysiz, oxirida esa jadvalning birinchi
+                ikki o‘rni finalga chiqadi.
+              </p>
+              <div className="hub-card__status">
+                <span>
+                  Chiqarib yuborish yo‘q — hamma oxirgi davragacha o‘ynaydi
+                </span>
+              </div>
+              <div className="hub-card__actions">
+                <a className="btn" href={links.turnir}>
+                  Turnirga kirish
+                </a>
+              </div>
+            </article>
+          )}
         </div>
 
         {/* Sarlavha yo'q: `Leaderboard` va `ArenaHistory` o'z

@@ -3290,19 +3290,77 @@
   margin: 0 auto;
 }
 
-.hub__head {
-  text-align: center;
-  padding-top: clamp(8px, 2vw, 24px);
+/* Sahifa nomi hujjatda bor, ekranda yo'q: odam bu yerga «O'ynash»
+   tugmasi orqali keladi va unga tanishtiruv emas, tanlov kerak.
+   O'chirib tashlab bo'lmaydi — ekranni o'qib beradigan dastur
+   sahifani shundan taniydi, qidiruv roboti ham shunga qaraydi. */
+.hub__h1 {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
-.hub__head h1 {
-  font-size: clamp(32px, 4.6vw, 50px);
+/* O'yin nomlari — bitta qator tugma. Tanlangani o'z rangida
+   yonadi, qolgani jim turadi: qatorda to'rtta nom bor va ularning
+   hammasi birdan «qichqirsa» tanlangani ko'rinmay qolardi. */
+.hub__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
-.hub__grid {
+.hub-tab {
+  --tone: var(--green);
+  flex: 1 1 auto;
+  padding: 11px 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-2);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.hub-tab:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.hub-tab--on,
+.hub-tab--on:hover {
+  background: color-mix(in srgb, var(--tone) 18%, var(--surface));
+  color: var(--text);
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--tone) 55%, transparent);
+}
+
+/* Har o'yin o'z rangida — ostidagi kartochkadagi rangning o'zi. */
+.hub-tab--sozjang {
+  --tone: var(--orange);
+}
+
+.hub-tab--guncha {
+  --tone: var(--teal);
+}
+
+.hub-tab--mardu {
+  --tone: var(--violet);
+}
+
+.hub-tab--turnir {
+  --tone: var(--yellow);
+}
+
+/* Panelda bitta kartochka turadi — tanlangani. */
+.hub__panel {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
 }
 
 .hub-card {
@@ -3446,60 +3504,12 @@
     gap: 26px;
   }
 
-  /* Sarlavha ham siqiladi: 50 pikselli «Nimani o'ynaymiz?» va uning
-     ostidagi matn ekranning uchdan birini yeb, kartochkalarni pastga
-     itarardi. Endi beshalasi birdan ko'rinadi. */
-  .hub__head {
-    padding-top: 2px;
-  }
-
-  .hub__head h1 {
-    font-size: 40px;
-  }
-
-  .hub__grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 14px;
-  }
-
-  /* Kartochka o'zi ham ixchamlashadi: ustun endi ikki barobar tor,
-     ya'ni avvalgi o'lchamlar bilan yozuv to'rt-besh qatorga
-     cho'zilib, kartochka ustunga aylanib qolardi. */
-  .hub-card {
-    gap: 8px;
-    padding: 18px;
-    border-radius: var(--radius);
-  }
-
-  .hub-card__icon {
-    width: 38px;
-    height: 38px;
-    border-radius: 13px;
-  }
-
-  .hub-card__icon svg {
-    width: 20px;
-    height: 20px;
-  }
-
-  .hub-card h2 {
-    font-size: 19px;
-  }
-
-  .hub-card > p {
-    font-size: 13.5px;
-    line-height: 1.45;
-  }
-
-  .hub-card__status {
-    font-size: 12.5px;
-  }
-
-  /* Tugmalar tor ustunda yonma-yon sig'masa ostma-ost tushadi —
-     yarmi kesilgan tugmadan ko'ra shu yaxshi. */
-  .hub-card__actions .btn {
-    flex: 1 1 auto;
-    justify-content: center;
+  /* Panel butun enni olmaydi: bir qatorda 80 belgidan oshgan matn
+     o'qishga noqulay va kartochka ichidagi ikki tugma ekranning
+     ikki chetida qolib ketardi. */
+  .hub__tabs,
+  .hub__panel {
+    max-width: 760px;
   }
 
   /* Jadval va tarix yonma-yon. Jadval balandroq, shuning uchun
@@ -3554,9 +3564,6 @@
 }
 
 @media (max-width: 760px) {
-  .hub__grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
   .hub-card {
     padding: 22px;
   }
