@@ -7,6 +7,13 @@
  *  turgani yaxshi. Kunlik o'yinda yordam yo'q: so'z hamma uchun bir xil,
  *  reyting adolatli bo'lishi kerak.
  *
+ *  Sanoq **birinchi urinishdan keyin** boshlanadi. Ilgari u taxta
+ *  ochilgan zahoti ketardi: odam hali bitta harf ham termasdan
+ *  ekranning tepasida soat sanab turardi va yordam ko'pincha u
+ *  o'ylay boshlaganda emas, sahifani ochib qo'yib ketganda kelardi.
+ *  Yordam o'ylaganga beriladi, ochganga emas — shuning uchun sanoq
+ *  birinchi so'z yozilgandan keyin boshlanadi.
+ *
  *  Mavzu nomi `/v1/public/categories` dan olinadi va brauzerda eslab qolinadi
  *  (`categories.ts`). */
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -43,21 +50,38 @@ export interface Hint {
 export const puzzleKey = (puzzle: Puzzle | null) =>
   puzzle ? `${puzzle.mode}.${puzzle.length}.${puzzle.number}` : '';
 
-export function useHint(puzzle: Puzzle | null, phase: Phase): Hint {
+export function useHint(
+  puzzle: Puzzle | null,
+  phase: Phase,
+  /** Yozib bo'lingan urinishlar soni — sanoq shundan boshlanadi. */
+  attempts: number,
+): Hint {
   const allowed = !!puzzle && puzzle.mode !== 'daily';
   const hasCategory = !!puzzle?.categoryId;
   const hasDescription = !!puzzle?.description;
 
-  // Sanoq komponent yaratilgan paytdan — ilovadagi kabi (saqlangan o'yin
-  // qaytarilganda ham).
-  const [startedAt] = useState(() => Date.now());
+  /** Sanoq boshlangan payt — birinchi urinish yozilganda qo'yiladi.
+   *
+   *  `null` — hali hech narsa yozilmagan: yordam ham, sanoq ham yo'q.
+   *  Saqlangan o'yin qaytarilganda urinishlar allaqachon bor, ya'ni
+   *  sanoq o'sha zahoti boshlanadi — odam o'ylashda davom etyapti. */
+  const [startedAt, setStartedAt] = useState<number | null>(null);
   const [level, setLevel] = useState(0);
   const [categoryShown, setCategoryShown] = useState(false);
   const [descriptionShown, setDescriptionShown] = useState(false);
   const [category, setCategory] = useState<CategoryLabel | null>(null);
 
+  /* Soat birinchi urinish yozilganda yurgiziladi.
+     Effektda: vaqtni o'qish chizish paytida qilinadigan ish emas,
+     u har renderda boshqa javob beradi. Bitta ortiqcha render
+     bo'ladi va u ko'rinmaydi — sanoq baribir soniyada bir marta
+     yangilanadi (`useHintCountdown`). */
   useEffect(() => {
-    if (!allowed || !puzzle || phase !== 'playing') return;
+    if (attempts > 0) setStartedAt((at) => at ?? Date.now());
+  }, [attempts]);
+
+  useEffect(() => {
+    if (!allowed || !puzzle || phase !== 'playing' || startedAt === null) return;
     const length = puzzle.length;
     const timers = [
       window.setTimeout(() => setLevel((v) => Math.max(v, 1)), Math.max(0, startedAt + hintDelayMs(length) - Date.now())),
@@ -83,7 +107,7 @@ export function useHint(puzzle: Puzzle | null, phase: Phase): Hint {
   const playing = allowed && phase === 'playing';
 
   const nextAt = useMemo(() => {
-    if (!playing || !puzzle) return null;
+    if (!playing || !puzzle || startedAt === null) return null;
     if (level < 1 && hasCategory && !categoryShown) return startedAt + hintDelayMs(puzzle.length);
     if (level < 2 && hasDescription && !descriptionShown) return startedAt + descriptionDelayMs(puzzle.length);
     return null;

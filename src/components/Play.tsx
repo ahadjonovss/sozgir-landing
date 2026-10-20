@@ -98,7 +98,9 @@ function PlayBoard({ choice, game }: { choice: GameChoice; game: Game }) {
 
   const { stats } = game;
   const winRate = stats.played === 0 ? 0 : Math.round((stats.wins / stats.played) * 100);
-  const hint = useHint(game.puzzle, game.phase);
+  // Sanoq birinchi urinishdan keyin ketadi — `activeRow` yozib
+  // bo'lingan qatorlar soni.
+  const hint = useHint(game.puzzle, game.phase, game.activeRow);
   const hintLeft = useHintCountdown(hint.nextAt);
 
   /* O'yin tugadi — telefonda ilova taklif qilinadi. Aynan shu payt u
