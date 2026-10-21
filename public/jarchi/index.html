@@ -348,6 +348,15 @@
     var tag = (/[?&]s=([a-z]{1,3})\b/i.exec(location.search) || [])[1] || '';
     var source = CHANNELS[tag.toLowerCase()] || 'other';
 
+    // `?r=` — e'lonni qo'ygan o'yinchining taklif kodi
+    // (`sozgir.uz/jarchi/ol?r=SOZ4K9`, ilovadagi `DeepLink.campaignUrl`).
+    // Faqat qayd uchun: sahifa undan kod ko'rsatmaydi va hech narsa
+    // bermaydi — kim posti odam olib kelayotgani sanalsin, xolos.
+    // Shakli yo'ldagi kod bilan bir xil (olti belgi), boshqa narsa
+    // yuborilmaydi.
+    var ref = (/[?&]r=([a-z0-9]{6})\b/i.exec(location.search) || [])[1] || '';
+    ref = ref.toUpperCase();
+
     (function track() {
       var once = 'sozgir.jarchi.' + (code || source);
       try {
@@ -357,6 +366,7 @@
 
       var body = JSON.stringify({
         source: source,
+        ref: ref,
         path: location.pathname,
         platform: platform,
         ua: ua,

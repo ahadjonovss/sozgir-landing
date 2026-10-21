@@ -96,6 +96,8 @@ const COUNTRIES: Record<string, string> = {
 
 type Payload = {
   source?: unknown;
+  /** Jarchi e'lonini qo'ygan o'yinchining taklif kodi (`?r=SOZ4K9`). */
+  ref?: unknown;
   path?: unknown;
   platform?: unknown;
   ua?: unknown;
@@ -229,6 +231,50 @@ async function countHit(source: string, platform: Platform): Promise<void> {
   }
 }
 
+/** Jarchi e'lonidan kelgan ochilishni **kod bo'yicha** sanaydi —
+ *  `jarchi_link_hits/{KOD}_{sana}`.
+ *
+ *  `link_hits` manba bo'yicha sanaydi (qaysi tarmoq), bu esa kim: e'lon
+ *  havolasining oxirida o'yinchining taklif kodi turadi
+ *  (`/jarchi/ol?r=SOZ4K9`) va shu yerda qaysi o'yinchining posti odam
+ *  olib kelayotgani ko'rinadi. Shakl va qoidalar `link_hits` niki bilan
+ *  bir xil (`firestore.rules`, `jarchi_link_hits`): hujjat nomi
+ *  `{KOD}_{sana}`, har so'rovda `hits` bittaga oshadi. */
+async function countRef(code: string): Promise<void> {
+  const date = dateKey();
+  const document = `${ROOT}/jarchi_link_hits/${code}_${date}`;
+
+  const response = await fetch(
+    `https://firestore.googleapis.com/v1/${ROOT}:commit?key=${API_KEY}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        writes: [
+          {
+            update: {
+              name: document,
+              fields: {
+                code: { stringValue: code },
+                date: { stringValue: date },
+              },
+            },
+            updateMask: { fieldPaths: ['code', 'date'] },
+            updateTransforms: [
+              { fieldPath: 'hits', increment: { integerValue: '1' } },
+              { fieldPath: 'updatedAt', setToServerValue: 'REQUEST_TIME' },
+            ],
+          },
+        ],
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    console.error('jarchi_link_hits', response.status, await response.text());
+  }
+}
+
 /** `/ak/ol` — «Kulgili ovozlar» kanalidagi reklama uchun ochilgan mavzu
  *  («So'zgir Alerts» guruhida). Raqam maxfiy emas, shuning uchun shu
  *  yerda turadi; `TELEGRAM_AK_THREAD` berilsa, u ustun bo'ladi. */
@@ -284,6 +330,9 @@ export default async function handler(request: Request): Promise<Response> {
 
   const key = clean(payload.source, 20);
   const source = key in SOURCES ? key : 'other';
+  // Taklif kodi — faqat olti belgili shaklda; boshqa narsa yozilmaydi.
+  const refRaw = clean(payload.ref, 12).toUpperCase();
+  const ref = /^[A-Z0-9]{6}$/.test(refRaw) ? refRaw : '';
   const platform = (PLATFORMS as readonly string[]).includes(clean(payload.platform, 10))
     ? (payload.platform as Platform)
     : 'desktop';
@@ -314,7 +363,15 @@ export default async function handler(request: Request): Promise<Response> {
 
   // Birinchi qator — heshteglar: guruhda manba, platforma va davlat
   // bo'yicha qidirish shu bilan ishlaydi.
-  const tags = ['#ol', `#${source}`, `#${platform}`, country ? `#${country}` : '']
+  // Kod ham heshteg: guruhda `#SOZ4K9` bo'yicha qidirib o'sha
+  // o'yinchining postidan nechta odam kelganini ko'rish mumkin.
+  const tags = [
+    '#ol',
+    `#${source}`,
+    `#${platform}`,
+    country ? `#${country}` : '',
+    ref ? `#${ref}` : '',
+  ]
     .filter(Boolean)
     .join(' ');
 
@@ -323,6 +380,7 @@ export default async function handler(request: Request): Promise<Response> {
     `${info.emoji} <b>${escape(info.name)} — havola ochildi</b>`,
     '',
     row('Sahifa', path),
+    ...(ref ? [row('Jarchi kodi', ref)] : []),
     row('Joy', place),
     ...(region && region !== city ? [row('Viloyat', region)] : []),
     row('Qurilma', device),
@@ -337,8 +395,12 @@ export default async function handler(request: Request): Promise<Response> {
     `<i>sozgir.uz${path} · ${time}</i>`,
   ].join('\n');
 
-  // Ikki ish bir-biriga bog'liq emas: biri yiqilsa, ikkinchisi bajariladi.
-  await Promise.allSettled([notify(text, threadFor(source)), countHit(source, platform)]);
+  // Ishlar bir-biriga bog'liq emas: biri yiqilsa, qolgani bajariladi.
+  await Promise.allSettled([
+    notify(text, threadFor(source)),
+    countHit(source, platform),
+    ...(ref ? [countRef(ref)] : []),
+  ]);
 
   return done();
 }
