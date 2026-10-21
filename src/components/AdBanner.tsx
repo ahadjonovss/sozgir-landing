@@ -44,12 +44,32 @@ import {
  *  `edge` — bo'limning o'zida, sahifa kengligida. */
 type AdFit = 'inline' | 'edge';
 
-/** Reklama kutiladigan eng uzoq vaqt.
+/** Auksion kutiladigan eng uzoq vaqt — talab Yandex'ga uzatilgandan
+ *  boshlab.
  *
  *  Yandex to'ldirish topolmaganda har doim ham xabar bermaydi —
  *  shunchaki jim qoladi. Shusiz ajratilgan joy sahifa yopilguncha bo'sh
- *  turardi. */
+ *  turardi.
+ *
+ *  Muddat ataylab uzatilish paytidan sanaladi: ilgari u talab
+ *  tayyorlangan paytdan boshlanardi va skript yuklanishi uchun ketgan
+ *  vaqt ham shu hisobdan yeyilardi. Sekin tarmoqda skriptning o'zi bir
+ *  necha soniya keladi — reklama kelib ulgurmasdan bekor qilinardi. */
 const TIMEOUT = 8000;
+
+/** Yandex skripti yuklanishiga beriladigan muddat.
+ *
+ *  Skript umuman kelmasligi mumkin (tarmoq yiqildi, reklama
+ *  to'siqlagich bloklab qo'ydi) — bunda `onSent` ham, xato ham
+ *  kelmaydi, shuning uchun ajratilgan joyni shu muddat bo'shatadi. */
+const LOAD_TIMEOUT = 12000;
+
+/** Chizilgan reklamaning balandligi kutiladigan muddat.
+ *
+ *  Yandex `onRender` dan keyin ichki `iframe` ga o'lcham beradi va bu
+ *  keyingi kadrdayoq tayyor bo'lmaydi. Bitta kadr bilan o'lchash yaxshi
+ *  reklamani ham «bo'sh» deb tashlab yuborardi. */
+const DRAW_TIMEOUT = 1500;
 
 /** Banner ekranga shuncha yaqinlashganda talab ketadi: reklama
  *  ko'rinadigan payt tayyor bo'ladi, sahifa ochilishida esa hech narsa
@@ -129,12 +149,15 @@ export default function AdBanner({
       // o'lchamdagi sinov ramkasi turadi.
       if (!adsSupported) return finish('shown');
 
-      // Joy shu yerda band qilinadi — reklama kelishidan oldin.
-      setPhase('asked');
-      timer = window.setTimeout(() => {
+      /** Joy bo'shatiladi: na reklama, na xato keldi. */
+      const giveUp = () => {
         finish('gone');
         trackAd(placement, 'to‘ldirish yo‘q');
-      }, TIMEOUT);
+      };
+
+      // Joy shu yerda band qilinadi — reklama kelishidan oldin.
+      setPhase('asked');
+      timer = window.setTimeout(giveUp, LOAD_TIMEOUT);
 
       /* Guruhga uchta holat ham yoziladi: so'ralgani, kelgani va
          to'ldirish topilmagani. Faqat kelganini yozish yetmaydi —
@@ -147,18 +170,34 @@ export default function AdBanner({
       requestAd({
         blockId: unit,
         renderTo: id,
+        // Talab aynan shu paytda ketdi — auksion muddati shundan
+        // boshlanadi, skript yuklanishi uchun ketgan vaqt sanalmaydi.
+        onSent: () => {
+          if (!alive) return;
+          window.clearTimeout(timer);
+          timer = window.setTimeout(giveUp, TIMEOUT);
+        },
         // Yandex «chizdim» deydi, lekin balandligi nol bo'lishi mumkin.
         // Bunda ham joy bo'shatiladi: bo'sh ramka reklamadan yomonroq.
-        onRender: () =>
-          requestAnimationFrame(() => {
-            const drawn = (box.current?.offsetHeight ?? 0) > 0;
-            finish(drawn ? 'shown' : 'gone');
-            trackAd(placement, drawn ? 'keldi' : 'to‘ldirish yo‘q');
-          }),
-        onFailed: () => {
-          finish('gone');
-          trackAd(placement, 'to‘ldirish yo‘q');
+        // Lekin o'lcham darhol tayyor bo'lmaydi, shuning uchun u bir
+        // necha kadr kutiladi va birinchi noldan katta qiymatda to'xtaydi.
+        onRender: () => {
+          if (!alive) return;
+          window.clearTimeout(timer);
+          const until = Date.now() + DRAW_TIMEOUT;
+          const measure = () => {
+            if (!alive) return;
+            if ((box.current?.offsetHeight ?? 0) > 0) {
+              finish('shown');
+              trackAd(placement, 'keldi');
+              return;
+            }
+            if (Date.now() >= until) return giveUp();
+            timer = window.setTimeout(measure, 100);
+          };
+          requestAnimationFrame(measure);
         },
+        onFailed: giveUp,
       });
     };
 

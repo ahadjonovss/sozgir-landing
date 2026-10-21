@@ -190,6 +190,14 @@ export interface AdRequest {
   renderTo: string;
   /** Reklama chizildi (balandligi bor). */
   onRender: () => void;
+  /** Talab aynan shu paytda Yandex'ga uzatildi.
+   *
+   *  Skript yuklanishi va navbatning o'z navbati chaqiruvchi uchun
+   *  ko'rinmas edi, kutish muddati esa o'sha paytdan sanalardi: sekin
+   *  tarmoqda yaxshi reklama kelib ulgurmasdan bekor qilinardi. Endi
+   *  muddat shu chaqiruvdan boshlanadi — ya'ni faqat auksion vaqti
+   *  sanaladi. */
+  onSent?: () => void;
   /** To'ldirish topilmadi yoki xato — joy bo'shatiladi. */
   onFailed: () => void;
 }
@@ -200,11 +208,18 @@ export interface AdRequest {
  *  Bitta blok bir sahifada bir necha marta chizilishi mumkin (SPA'da
  *  manzil almashganda shunday bo'ladi) — buning uchun `blockId` o'sha
  *  bo'lib, `renderTo` boshqa bo'lishi kifoya. */
-export function requestAd({ blockId, renderTo, onRender, onFailed }: AdRequest): void {
+export function requestAd({
+  blockId,
+  renderTo,
+  onRender,
+  onFailed,
+  onSent,
+}: AdRequest): void {
   void loadAds().then((ready) => {
     if (!ready) return onFailed();
     window.yaContextCb?.push(() => {
       try {
+        onSent?.();
         window.Ya?.Context?.AdvManager?.render({
           blockId,
           renderTo,
