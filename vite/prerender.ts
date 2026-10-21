@@ -42,21 +42,23 @@ import { UPDATES } from '../src/data/updates.ts';
 import { BADGES } from '../src/lib/badges.ts';
 
 /**
- * Havola kartochkasidagi rasmning versiyasi.
+ * Havola kartochkasidagi rasm.
  *
- * Rasmning o'zi o'zgarmasa ham ko'tariladi: Telegram, Facebook va
- * LinkedIn kartochkani **rasm manzili** bo'yicha keshlaydi va eski
- * nusxani oylab ushlab turadi. Manzil o'zgargani ularni qaytadan
- * yuklashga majbur qiladi.
+ * Versiya **nomda**, so'rov qatorida emas (`?v=3` edi). Sabab: bir
+ * necha o'quvchi manzilni so'rovsiz holda keshlaydi yoki uni
+ * umuman tashlab yuboradi, ya'ni `?v=` o'zgargani ularga hech
+ * narsa aytmaydi. Fayl nomi esa hamma joyda boshqa manzil bo'lib
+ * ko'rinadi.
  *
- * X'ga ta'sir qilmaydi: u kartochkani sahifa manzili bo'yicha
- * keshlaydi va uni faqat o'zining Post Inspector'i yangilaydi.
+ * Rasm almashtirilganda bu son ham ko'tariladi va fayl yangi nom
+ * bilan yoziladi (`brand/render.sh`). Eski nomdagi fayl
+ * o'chiriladi: unga endi hech kim qaramaydi.
  *
- * `index.html` dagi ikkita teg ham shu son bilan yuriladi — u
+ * `index.html` dagi teglar ham shu manzil bilan yuriladi — u
  * shablon va dev serverda o'sha turadi, prod uchun esa shu yerda
  * qayta yoziladi.
  */
-const OG_VERSION = '?v=3';
+const OG_IMAGE = '/og-2.png';
 
 /** Lug'at olinadigan server — saytning `src/api/config.ts` dagisi.
  *  Bu yerda qayta yozilgan, chunki u fayl `import.meta.env` ga
@@ -371,7 +373,7 @@ function render(shell: string, page: Page): string {
   html = swap(
     html,
     /<meta property="og:image" content="[^"]*" \/>/,
-    `<meta property="og:image" content="${site}/og.png${OG_VERSION}" />`,
+    `<meta property="og:image" content="${site}${OG_IMAGE}" />`,
     'og:image',
   );
   // X `og:` ni o'qiydi deyiladi, lekin sarlavha va matnni o'z teglarida
@@ -392,7 +394,7 @@ function render(shell: string, page: Page): string {
   html = swap(
     html,
     /<meta name="twitter:image" content="[^"]*" \/>/,
-    `<meta name="twitter:image" content="${site}/og.png${OG_VERSION}" />`,
+    `<meta name="twitter:image" content="${site}${OG_IMAGE}" />`,
     'twitter:image',
   );
   html = swap(

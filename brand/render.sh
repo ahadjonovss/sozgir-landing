@@ -25,7 +25,7 @@ shot x-header-dark.png  x-header.html 1500 500 "?theme=dark"
 
 # Havola ko'rinishi (Open Graph) — 1200×630, @2x. Bu rasm serverdan
 # beriladi (`<meta property="og:image">`), shuning uchun `public/` ga.
-shot ../public/og.png og.html 1200 630 ""
+shot ../public/og-2.png og.html 1200 630 ""
 
 # Profil rasmi — 400×400, @2x. X uni aylana qilib kesadi.
 shot x-avatar-green.png x-avatar.html 400 400 ""
