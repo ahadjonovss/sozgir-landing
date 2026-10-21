@@ -11,13 +11,24 @@
  *  Ikkinchi tarmoq kerak bo'lsa `AdBanner` ichiga xuddi ilovadagidek
  *  navbat qo'shiladi.
  *
- *  **Qayerda yo'q.** O'yin taxtasi, klaviatura, jang ekrani va
- *  tanishtiruv sahifasi (`/`) reklamasiz qoladi. Banner faqat odam
- *  o'ynamayotgan joyda turadi: nimani o'ynashni tanlayotgan sahifa, yon
- *  ustun, boshqa o'yinchining profili, jang lobbisi. Mardu maydon va
- *  turnir ham shu qoida bilan: ro'yxat va kod kiritish ekranida banner
- *  bor, kutish xonasi va jangning o'zida yo'q — u yerda vaqt sanab
- *  turadi.
+ *  **Qayerda yo'q.** O'yin taxtasi va klaviaturaning o'zi reklamasiz:
+ *  banner hech qachon o'ynayotgan odamning qo'li yoki ko'zi
+ *  tushadigan joyda turmaydi.
+ *
+ *  **Qayerda bor.** Nimani o'ynashni tanlayotgan sahifa, yon ustun,
+ *  boshqa o'yinchining profili, jang lobbisi, maqola va hujjat
+ *  sahifalari.
+ *
+ *  **Chetdagi bo'shliq.** Keng ekranda taxta o'rtada tor ustunda
+ *  turadi va ikki yoni butunlay bo'sh qoladi. O'sha bo'shliq ham
+ *  ishlatiladi — lekin faqat joy haqiqatan yetganda va faqat taxtadan
+ *  ajratilgan holda: bosh sahifada taklif kartochkalari ostida
+ *  ([GameAside]), jang davomida esa varaqqa yopishtirilgan ikkita
+ *  ustunda ([SideAds]). Tor ekranda ikkalasi ham umuman chizilmaydi.
+ *
+ *  **Qo'llov sahifasi.** `/qollab` da banner yo'q va bo'lmaydi: pul
+ *  so'ralayotgan joyda reklama turishi ikkala iltimosni ham
+ *  arzonlashtiradi.
  *
  *  **Kim ko'rmaydi.** Loyihani qo'llagan odam ([isAdFree]) — ilovadagi
  *  bilan aynan bir xil shart: oxirgi 7 kunlik qo'llovlar 5 555 so'mga

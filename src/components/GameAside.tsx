@@ -20,6 +20,7 @@
  *  `aria-hidden` emas, lekin `aria-label` bor: bular haqiqiy
  *  havolalar, klaviatura bilan ham ochiladi. */
 import { gameLinks } from '../data/site';
+import AdBanner from './AdBanner';
 
 export default function GameAside({ current }: { current: string }) {
   // Joriy o'yin chiqarib tashlanadi: o'ynab turgan odamga o'sha
@@ -39,8 +40,6 @@ export default function GameAside({ current }: { current: string }) {
 }
 
 function Column({ items, side }: { items: typeof gameLinks; side: 'left' | 'right' }) {
-  if (items.length === 0) return null;
-
   return (
     <aside className={`aside-games aside-games--${side}`} aria-label="Boshqa o‘yinlar">
       {items.map((item) => (
@@ -54,6 +53,14 @@ function Column({ items, side }: { items: typeof gameLinks; side: 'left' | 'righ
           </span>
         </a>
       ))}
+      {/* Kartochkalardan keyin — ustunning qolgan qismi baribir bo'sh
+          qolardi. Taxtadan 28px narida va undan pastroqda: o'ynayotgan
+          odamning ko'zi oldida emas, lekin surilganda ko'rinadi.
+
+          Ustun `position: absolute`, ya'ni banner kelgani bilan taxta
+          ham, klaviatura ham joyidan qimirlamaydi. Tor ekranda butun
+          ustun chizilmaydi — banner ham u bilan birga yo'qoladi. */}
+      <AdBanner placement={side === 'left' ? 'game' : 'guncha'} />
     </aside>
   );
 }
