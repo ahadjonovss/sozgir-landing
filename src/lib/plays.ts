@@ -18,7 +18,7 @@
  *  bo'lmasa odam chegarani bilmay turib o'ynab ketardi, serverdagi
  *  tekshiruv bo'lmasa esa sonning o'zi hech narsani to'xtatmasdi. */
 import { useCallback, useEffect, useState } from 'react';
-import { api } from '../api/client';
+import { LIMIT_EVENT, api } from '../api/client';
 import { useAuth } from './auth';
 
 export interface Plays {
@@ -79,8 +79,14 @@ export function usePlays(): Plays | null {
     if (!uid) return;
     read();
     listeners.add(read);
+    /* Server «bugunga yetdi» desa (402) sanoq darhol qayta o'qiladi.
+       Shusiz ekranda eski son turib qolardi: odam tugmani bosardi,
+       xato ko'rardi, lekin «yana bitta qoldi» degan yozuv o'sha
+       joyda turaverardi va premium taklifi hech qachon chiqmasdi. */
+    window.addEventListener(LIMIT_EVENT, read);
     return () => {
       listeners.delete(read);
+      window.removeEventListener(LIMIT_EVENT, read);
     };
   }, [read, uid]);
 

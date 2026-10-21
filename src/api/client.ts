@@ -50,6 +50,13 @@ export class ApiError extends Error {
   }
 }
 
+/** Kunlik chegaraga yetilganda varaqqa yuboriladigan hodisa.
+ *
+ *  `lib/plays.ts` uni tinglaydi va sanoqni qaytadan o'qiydi: server
+ *  «tugadi» degan zahoti ekrandagi son ham nolga tushadi va premium
+ *  taklifi o'zi chiqadi. */
+export const LIMIT_EVENT = 'sozgir:limit';
+
 export interface Options {
   query?: Record<string, string | number | undefined>;
   body?: unknown;
@@ -131,6 +138,15 @@ async function send<T>(
   }
 
   if (response.ok) return data as T;
+
+  /* Kunlik chegaraga yetilgani — ekranga aytiladi.
+     Hodisa orqali, to'g'ridan-to'g'ri chaqiruv bilan emas: sanoqni
+     yurituvchi `lib/plays.ts` ning o'zi shu mijozdan foydalanadi va
+     uni bu yerdan import qilish ikkita modulni bir-biriga bog'lab
+     qo'yardi. Tinglovchi bo'lmasa hech narsa bo'lmaydi. */
+  if (response.status === 402) {
+    window.dispatchEvent(new Event(LIMIT_EVENT));
+  }
 
   const message = (data as { error?: unknown }).error;
   throw new ApiError(

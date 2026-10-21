@@ -7052,6 +7052,14 @@
 
 /* Saytning o'z kartochkalari tilida: yumshoq fon, hoshiyasiz,
    ko'zni urmaydi — yonida turgan taklif, banner emas. */
+/* Yon ustundagi banner ham cheklanadi: lenta formatidagi blok
+   kartochkalardan pastga uzun quyruq yasab, taxtadan ancha oshib
+   ketardi. */
+.aside-games .ad {
+  max-height: 640px;
+  overflow: hidden;
+}
+
 .aside-game {
   display: flex;
   gap: 10px;
@@ -7304,6 +7312,13 @@
     /* Taxtadan past: markazdagi ustun bilan hech qachon
        to'qnashmaydi. */
     z-index: 1;
+    /* Blok **lenta** formatida bo'lishi mumkin: bitta banner o'rniga
+       uch-to'rtta reklamani ustma-ust chizadi va ustun ekrandan ikki
+       tomonga toshib ketadi. Balandlik varaq bo'yiga cheklanadi,
+       sig'magani esa kesiladi — chetdagi ustun sahifani boshqarmasligi
+       kerak. */
+    max-height: calc(100vh - 40px);
+    overflow: hidden;
   }
 
   /* Markazdan hisoblanadi: o'rtadagi ustunning chekkasi `50% - 490px`,
