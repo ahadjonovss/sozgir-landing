@@ -320,6 +320,21 @@ export function useGunchaJang() {
     };
   }, [open, searching, uid]);
 
+  /* Ekran yopilsa navbat ham bo'shatiladi — `useSozjang` dagi bilan
+     bir sabab: navbat kuzatuvchisi `searching` bilan birga ketadi,
+     serverdagi yozuv esa qoladi va raqib bo'sh taxta oldida kutib
+     o'tiradi. */
+  const searchingRef = useRef(false);
+  useEffect(() => {
+    searchingRef.current = searching;
+  }, [searching]);
+  useEffect(
+    () => () => {
+      if (searchingRef.current) void leaveQueue().catch(() => undefined);
+    },
+    [],
+  );
+
   // Qidiruv davom etayotganini ko'rsatish va takroriy so'rov.
   useEffect(() => {
     if (!searching || !account) return;

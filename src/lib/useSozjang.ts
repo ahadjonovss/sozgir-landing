@@ -243,6 +243,33 @@ export function useSozjang() {
     };
   }, [open, searching, uid]);
 
+  /* Ekran yopilsa navbat ham bo'shatiladi.
+   *
+   *  Navbatni yuqoridagi kuzatuvchi eshitadi va u `searching` bilan
+   *  birga yashaydi. Komponent daraxtdan chiqsa (odam boshqa o'yinga
+   *  o'tdi, boshqa bo'limga ketdi) kuzatuvchi ham ketadi, serverdagi
+   *  yozuv esa qolaveradi: raqib o'sha yozuv bo'yicha tanlanadi,
+   *  jangni ochadigan hech kim qolmaydi va u bo'sh taxta oldida
+   *  kutib o'tiradi.
+   *
+   *  Shuning uchun ketishdan oldin navbatdan chiqamiz — «Bekor
+   *  qilish» bosilgandagi bilan bir xil ish. `searching` holatining
+   *  o'zi bu yerda yaramaydi: u o'chganda ham tozalovchi ishga
+   *  tushardi va raqib topilgan paytda (`setSearching(false)` dan
+   *  keyin) navbatni o'chirib yuborardi. Shu sababli oxirgi qiymat
+   *  havolada saqlanadi va tozalovchi faqat daraxtdan chiqishda
+   *  ishlaydi. */
+  const searchingRef = useRef(false);
+  useEffect(() => {
+    searchingRef.current = searching;
+  }, [searching]);
+  useEffect(
+    () => () => {
+      if (searchingRef.current) void leaveQueue().catch(() => undefined);
+    },
+    [],
+  );
+
   /* Qidiruv davom etayotganini ko'rsatadigan sanoq.
    *
    *  Bu yerda **takroriy so'rov yo'q** va bu muhim. Navbatga kirish
