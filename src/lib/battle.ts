@@ -424,6 +424,16 @@ export async function readBattle(battleId: string): Promise<BattleDoc | null> {
     status: battle.status as BattleStatus,
     length: typeof battle.length === 'number' ? battle.length : undefined,
     createdBy: typeof battle.hostUid === 'string' ? battle.hostUid : undefined,
+    /* Chaqiruv kodi. Maydon `BattleDoc` da boshidan bor edi, lekin
+       bu yerda hech qachon to'ldirilmagan — natijada kutish
+       ekranida kod ham, havola ham bo'sh chiqardi
+       (`sozgir.uz/jang/`) va do'stni taklif qilib bo'lmasdi.
+
+       Server uni **yozuvning o'zida** beradi, kod biriktirgan
+       javobda emas: shunda sahifa yangilangandan keyin ham kod
+       joyida qoladi. Mijozda saqlab qo'yish ikkinchi haqiqat
+       yasardi. */
+    inviteCode: typeof battle.code === 'string' && battle.code ? battle.code : undefined,
     players,
     winnerUid: typeof battle.winnerUid === 'string' ? battle.winnerUid : null,
     /* Javob so'zi — server uni **faqat tugagan jangda** qo'shadi
