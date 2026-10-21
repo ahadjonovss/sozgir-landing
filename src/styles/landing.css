@@ -452,6 +452,13 @@
   --reserve: 326px;
   --gap: 6px;
   --fit: calc(100dvh - var(--header-h) - var(--reserve));
+  /* So'ztop taxtasining odatdagi o'lchovi — g'uncha uchun zaxira.
+     `--rows` bilan `--cols` ni `Play` o'z uslubida beradi, lekin
+     g'uncha ko'ringanda `.play` umuman yo'q va hisob ularsiz
+     qolardi. Shu ikki son esa o'yinning standarti: olti urinish,
+     besh harf. */
+  --rows: 6;
+  --cols: 5;
   display: flex;
   flex-direction: column;
 }
@@ -495,9 +502,10 @@
    `min(100%, …)` — balandlikdan chiqqan o'lcham konteynerdan keng
    bo'lsa, ustun konteynerda qoladi.
 
-   `--rows` bilan `--cols` `.play` ning o'z uslubida turadi, shuning
-   uchun hisob shu yerda bir marta bajariladi va pastdagi uchala blok
-   uni tayyor holda oladi. */
+   `--rows` bilan `--cols` `.play` ning o'z uslubida turadi (zaxirasi
+   `.hero__board` da), shuning uchun hisob shu yerda bir marta
+   bajariladi va pastdagi bloklar uni tayyor holda oladi. */
+.hero__board,
 .hero__board .play {
   --board-w: min(
     100%,
@@ -514,7 +522,8 @@
    joy qolardi. */
 .hero__board .play__top,
 .hero__board .game__board,
-.hero__board .keyboard {
+.hero__board .keyboard,
+.hero__board .guncha {
   width: 100%;
   max-width: var(--board-w);
   margin-inline: auto;
