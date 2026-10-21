@@ -7306,9 +7306,12 @@
 
   .rails__one {
     position: fixed;
-    top: 50%;
+    /* Kontent boshlanadigan chiziqda: sarlavha 80px, undan keyin
+       sahifaning o'z hoshiyasi. Ilgari ustun varaq o'rtasiga
+       tenglashtirilgan edi va o'yin tepada turganda reklama undan
+       ancha pastda qolardi. */
+    top: 100px;
     width: 240px;
-    transform: translateY(-50%);
     /* Taxtadan past: markazdagi ustun bilan hech qachon
        to'qnashmaydi. */
     z-index: 1;
@@ -7317,7 +7320,7 @@
        tomonga toshib ketadi. Balandlik varaq bo'yiga cheklanadi,
        sig'magani esa kesiladi — chetdagi ustun sahifani boshqarmasligi
        kerak. */
-    max-height: calc(100vh - 40px);
+    max-height: calc(100vh - 124px);
     overflow: hidden;
   }
 
