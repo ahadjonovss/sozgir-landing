@@ -151,13 +151,17 @@
 
 /* ── Taxta ────────────────────────────────────────────────────────────── */
 
+/* G'uncha taxtasi — So'ztopnikidek **yalang'och**.
+   Ilgari u fonli kartochka edi (`--surface`, 20px ichki bo'shliq) va
+   So'ztop esa to'g'ridan-to'g'ri sahifada turardi. Ikkalasi bitta
+   o'ramda almashadi (`game-slot`), ya'ni bu farq almashgan zahoti
+   ko'rinardi: taxta goh panelga tushib, goh undan chiqardi. Panel
+   g'unchaga hech narsa qo'shmasdi ham — uning o'zi markazda, aniq
+   shaklga ega. */
 .guncha {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  padding: 20px;
-  border-radius: var(--radius);
-  background: var(--surface);
 }
 
 /* Tepa qator So'ztopnikidek: o'lchovlari `.play__top` va

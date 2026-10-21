@@ -65,6 +65,10 @@ const GAME_ROUTES = new Set([
   '/soztop',
 ]);
 
+/** Profil so'rovi shuncha kutiladi — undan keyin tashrif raqamsiz
+ *  yuboriladi. */
+const MAIL_WAIT = 4000;
+
 export default function App() {
   useReveal();
   const route = useRoute();
@@ -100,15 +104,25 @@ export default function App() {
      bir-birini almashtirmaydi: xatoni ertaga hisobotdan emas, bugun
      guruhdan bilish kerak.
 
-     Bo'g'liqliklar ro'yxati bo'sh: tashrif seans boshiga bitta
-     ([trackVisit]) va kuzatuvchilar bir marta o'rnatiladi. */
+     Kuzatuvchilar bir marta o'rnatiladi. */
   useEffect(() => {
     watchErrors();
     watchLinks();
-    /* Hisob `localStorage` dan birinchi kadrdayoq o'qiladi
-       (`auth.tsx`), ya'ni kirgan odamning taxallusi shu yerda
-       allaqachon ma'lum va kutishning hojati yo'q. Tashrif baribir
-       seansiga bitta: ichkaridagi belgi takrorni to'xtatadi. */
+  }, []);
+
+  /* Tashrif — seansiga bitta ([trackVisit] ichidagi belgi takrorni
+     to'xtatadi).
+
+     Taxallus `localStorage` dan birinchi kadrdayoq ma'lum, pochta
+     (ya'ni telefon raqami ham) esa profil so'rovidan keladi va biroz
+     kechikadi. Shuning uchun kirgan odamda xabar kutiladi: aks holda
+     u har safar raqamsiz ketardi. Kutish cheksiz emas — so'rov
+     yiqilsa xabar baribir, raqamsiz bo'lsa ham, yuboriladi. */
+  useEffect(() => {
+    if (account && account.email === null) {
+      const timer = window.setTimeout(() => trackVisit(account), MAIL_WAIT);
+      return () => window.clearTimeout(timer);
+    }
     trackVisit(account);
   }, [account]);
 

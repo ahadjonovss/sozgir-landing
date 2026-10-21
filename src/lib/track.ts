@@ -16,6 +16,7 @@
  *  hal qiladi. Sabab oddiy: brauzerga tushgan token ochiq matn va
  *  uni istagan odam o'qiydi. */
 import { adUnit, type AdPlacement } from './ads';
+import { prettyLogin } from './loginId';
 
 /** Hodisa turlari — `api/event.ts` dagi jadval bilan bir xil. */
 export type TrackEvent = 'visit' | 'error' | 'ad' | 'share' | 'get' | 'game';
@@ -140,7 +141,9 @@ function source(): string {
  *  Yashirin oynada yoki saqlash bloklangan brauzerda `sessionStorage`
  *  xato beradi. Bunda hodisa baribir yuboriladi: bitta ortiqcha xabar
  *  umuman yo'q xabardan yaxshiroq. */
-export function trackVisit(who?: { uid: string; nickname: string } | null): void {
+export function trackVisit(
+  who?: { uid: string; nickname: string; email?: string | null } | null,
+): void {
   try {
     if (sessionStorage.getItem(VISIT_KEY)) return;
     sessionStorage.setItem(VISIT_KEY, '1');
@@ -154,6 +157,11 @@ export function trackVisit(who?: { uid: string; nickname: string } | null): void
        Hisob raqamining boshi ham yoziladi: bir xil taxalluslar
        uchrashi mumkin va qaysi hisob ekanini ajratish kerak. */
     ['Kim', who ? `${who.nickname || 'nomsiz'} · ${who.uid.slice(0, 6)}` : 'mehmon'],
+    /* Telefon raqami yoki pochta — hisob nima bilan ochilgan bo'lsa.
+       Raqam bilan kirgan odamning manzili `901234567@gmail.com`
+       ko'rinishida saqlanadi va [prettyLogin] uni yana raqamga
+       qaytaradi; haqiqiy pochta esa o'z holicha qoladi. */
+    ['Aloqa', who?.email ? prettyLogin(who.email) : null],
     ['Sahifa', location.pathname],
     ['Qayerdan', source()],
     ['Qurilma', device()],
