@@ -16,6 +16,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../lib/auth';
 import { formatAqcha } from '../lib/aqcha';
 import { loadHeadToHead, lossesOf, type HeadToHead as Record_ } from '../lib/insights';
+import Locked from './Locked';
 
 /** Oxirgi janglarning zanjiri — eng yangisi **o'ngda**.
  *
@@ -61,6 +62,13 @@ export default function HeadToHead({ uid }: { uid: string }) {
         <span className="panel__tag">{record.played} jang</span>
       </div>
 
+      {/* Jangar soni sarlavhada ochiq qoladi, hisobning o'zi esa
+          qulf ortida: «biz o'n marta o'ynaganmiz» degan gap savol
+          tug'diradi, javobi esa shu yerda.
+
+          Qulf **raqib bo'yicha** (`subject`): bir odamning hisobini
+          ochgan odam ikkinchisini ko'rgan bo'lmaydi. */}
+      <Locked placement="headToHead" subject={uid} label="Hisobni ko‘rish">
       <ul className="metrics metrics--cells metrics--three">
         <li>
           <strong>{record.wins}</strong>
@@ -77,6 +85,7 @@ export default function HeadToHead({ uid }: { uid: string }) {
       </ul>
 
       <Recent recent={record.recent} />
+      </Locked>
 
       {/* Aqcha — shu raqib bilan o'ynab yutilgani yoki berilgani.
           Nol bo'lsa yozilmaydi: «0 aqcha» hech narsa aytmaydi. */}

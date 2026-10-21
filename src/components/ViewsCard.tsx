@@ -14,6 +14,7 @@ import { useAuth } from '../lib/auth';
 import { EMPTY_VIEWS, loadViews, type Views } from '../lib/insights';
 import { pretty } from '../lib/uz';
 import Avatar from './Avatar';
+import Locked from './Locked';
 import PlayerName from './PlayerName';
 
 /** Ro'yxatda shuncha qator. */
@@ -63,7 +64,13 @@ export default function ViewsCard() {
         {views.viewers} kishi, jami {views.opens} marta ochilgan.
       </p>
 
+      {/* Sanoq ochiq, **ro'yxat** qulf ortida.
+          Ikkisining farqi shunda: son «sizni ko'rishyapti» deydi va
+          bu o'zi ham qimmatli; ro'yxat esa «aynan kim» deydi — va
+          aynan shu savol uchun odam reklama ko'rishga rozi bo'ladi.
+          Sonni ham yopish kartochkani butunlay ma'nosiz qilardi. */}
       {views.items.length > 0 && (
+        <Locked placement="profileViews" label="Kimligini ko‘rish">
         <ul className="views__list">
           {views.items.map((viewer, index) => (
             <li key={`${viewer.uid}-${index}`}>
@@ -77,6 +84,7 @@ export default function ViewsCard() {
             </li>
           ))}
         </ul>
+        </Locked>
       )}
     </div>
   );

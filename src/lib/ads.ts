@@ -115,6 +115,28 @@ const FULLSCREEN_UNIT = '';
 export const fullscreenReady = (): boolean =>
   adsSupported ? FULLSCREEN_UNIT !== '' : true;
 
+/**
+ * Mukofotli bloklar — har mukofotga alohida.
+ *
+ * Ilovada ham shunday (`RewardedPlacement`): bitta blok bilan ham
+ * ishlardi, lekin o'shanda konsolda qaysi mukofot qancha daromad
+ * keltirgani ko'rinmasdi — ya'ni qaysi birini qoldirish, qaysi
+ * birini olib tashlash haqidagi qaror raqamsiz qolardi.
+ *
+ * Yandex Partner interfeysida «Sayt» → «Rewarded» bilan ochiladi.
+ * Bo'sh qolgani umuman so'ralmaydi va o'sha mukofot **reklamasiz**
+ * ochiladi: ekranda qulf ko'rinmaydi.
+ */
+const REWARDED_UNITS: Record<string, string> = {
+  profileViews: '',
+  headToHead: '',
+  scoreHistory: '',
+};
+
+/** Shu mukofotning bloki sozlanganmi. */
+export const rewardedReady = (name: string): boolean =>
+  adsSupported ? (REWARDED_UNITS[name] ?? '') !== '' : true;
+
 /** [placement] uchun blok. Sozlanmagan bo'lsa — bo'sh satr. */
 export function adUnit(placement: AdPlacement): string {
   return UNITS[placement] || UNITS[FALLBACK] || '';
@@ -370,6 +392,59 @@ export function showFullscreen(): Promise<boolean> {
               },
               // Yopilgani — ko'rilgani: shundan keyin o'yin boshlanadi.
               onClose: () => finish(true),
+            });
+          } catch {
+            finish(false);
+          }
+        });
+      }),
+  );
+}
+
+/**
+ * Mukofotli reklamani ko'rsatadi.
+ *
+ * To'liq ekranlidan farqi ikkitasi: bloki boshqa va u **faqat odam
+ * so'raganda** chaqiriladi. Yandex'ning qoidasi ham shu — mukofotli
+ * reklama rozilik bilan chiqadi.
+ *
+ * Javob: `true` — ko'rsatildi. `false` bo'lsa ham chaqiruvchi
+ * mukofotni beradi (`lib/rewarded.ts` dagi to'rtinchi qoida), ya'ni
+ * bu son faqat daromad uchun.
+ */
+export function showRewarded(name: string): Promise<boolean> {
+  const unit = REWARDED_UNITS[name] ?? '';
+  if (!adsSupported) return Promise.resolve(true);
+  if (unit === '') return Promise.resolve(false);
+
+  return loadAds().then(
+    (ready) =>
+      new Promise<boolean>((resolve) => {
+        if (!ready) return resolve(false);
+
+        let done = false;
+        const finish = (shown: boolean) => {
+          if (done) return;
+          done = true;
+          window.clearTimeout(timer);
+          resolve(shown);
+        };
+        const timer = window.setTimeout(() => finish(false), FULLSCREEN_TIMEOUT);
+
+        window.yaContextCb?.push(() => {
+          try {
+            window.Ya?.Context?.AdvManager?.render({
+              blockId: unit,
+              type: 'rewarded',
+              darkTheme: document.documentElement.dataset.theme === 'dark',
+              onError: (data?: { type?: string }) => {
+                if (data?.type !== 'warning') finish(false);
+              },
+              // Oxirigacha ko'rilgani — mukofot shundan.
+              onRewarded: () => finish(true),
+              // Yarmida yopilgani ham javob: mukofot baribir
+              // beriladi, lekin daromad yo'q.
+              onClose: () => finish(false),
             });
           } catch {
             finish(false);

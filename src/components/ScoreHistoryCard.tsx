@@ -16,6 +16,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../lib/auth';
 import { formatAqcha } from '../lib/aqcha';
 import { loadScoreHistory, type DayScore } from '../lib/insights';
+import Locked from './Locked';
 
 /** Nechta kun ko'rsatiladi. */
 const DAYS = 30;
@@ -49,6 +50,10 @@ export default function ScoreHistoryCard() {
         <span className="panel__tag">{DAYS} kun</span>
       </div>
 
+      {/* Chizma qulf ortida, ostidagi yig'indi esa ochiq: «jami
+          shuncha» degan son odamni chizmaga qiziqtiradi, chizmaning
+          o'zi esa «qaysi kuni qancha» degan javob. */}
+      <Locked placement="scoreHistory" label="Kunlarni ko‘rish">
       <div className="spark__bars">
         {rows.map((row) => (
           <i
@@ -61,6 +66,7 @@ export default function ScoreHistoryCard() {
           />
         ))}
       </div>
+      </Locked>
 
       <p className="panel__note">
         Shu kunlarda jami <b>{formatAqcha(total)}</b> aqcha, eng yaxshi kun{' '}

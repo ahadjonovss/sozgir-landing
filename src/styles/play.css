@@ -7641,3 +7641,30 @@
 .h2h__mark--d {
   background: var(--text-2);
 }
+
+/* ── Reklama ortidagi ma'lumot ──────────────────────────────────────── */
+
+/* Ichidagi chiziladi, faqat o'qilmaydi: odam nima ochilishini ko'rib
+   turadi va va'da aniq bo'ladi. */
+.locked {
+  position: relative;
+}
+
+.locked__veil {
+  filter: blur(5px);
+  opacity: 0.55;
+  /* Xira matnni belgilab, nusxa olib bo'lmasin: qulfning ma'nosi
+     ko'rinishda emas, kirishda. */
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Tugma o'rtada: xira qatlamning ustida turadi va u yerda bo'lishi
+   kerak — odam qulfni ko'rgan joyda yechimni ham ko'radi. */
+.locked__btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+}
