@@ -22,6 +22,7 @@ import DonorChip from './DonorChip';
 import AdBanner from './AdBanner';
 import Avatar from './Avatar';
 import BattleStats from './BattleStats';
+import HeadToHead from './HeadToHead';
 import { Aqcha } from './Units';
 import { VerifiedBadge } from './PlayerName';
 import { VERIFIED, useVerified } from '../lib/verified';
@@ -338,6 +339,10 @@ export default function PlayerPage() {
                 ) : (
                   <div className="player__block">
                     <BattleStats uid={profile.uid} />
+                    {/* Umumiy hisobdan keyin — ikkovimizniki. Tartib
+                        shunday: avval «bu odam qanday o'ynaydi»,
+                        keyin «menga nisbatan qanday». */}
+                    <HeadToHead uid={profile.uid} />
                     {profile.battleRank !== null && (
                       <ul className="metrics metrics--cells metrics--two">
                         <li>

@@ -26,6 +26,8 @@ import AdBanner from './AdBanner';
 import ArenaHistory from './ArenaHistory';
 import GameAside from './GameAside';
 import BadgesCard from './BadgesCard';
+import ScoreHistoryCard from './ScoreHistoryCard';
+import ViewsCard from './ViewsCard';
 import { GunchaBoard, GunchaFound } from './GunchaBoard';
 import Play from './Play';
 import StatsPanel from './StatsPanel';
@@ -102,6 +104,12 @@ export default function GameHub({ game }: { game: HubGame }) {
           {/* Nishonlar o'yin panelidan keyin: ikkalasi ham «men qanday
               o'ynayapman» degan savolga javob beradi. */}
           <BadgesCard />
+
+          {/* «Men haqimdagi» raqamlar nishonlardan keyin: ikkalasi ham
+              o'yinga ta'sir qilmaydi, lekin odam o'zini shular orqali
+              o'lchaydi. Hisobsiz odamda ikkalasi ham chizilmaydi. */}
+          <ScoreHistoryCard />
+          <ViewsCard />
 
           {/* Janglar tarixi — «kim bilan o'ynadim» degan savol o'yinga
               qarab bo'linmaydi. Hisobsiz odamga umuman chizilmaydi. */}
