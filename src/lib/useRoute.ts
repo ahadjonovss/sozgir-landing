@@ -17,6 +17,7 @@ const routes: readonly string[] = PAGES.map((page) => page.path);
  *
  *  | Manzil | Sahifa |
  *  | --- | --- |
+ *  | `/oynash/{o'yin}` | O'ynash sahifasi, o'sha o'yin tabi ochiq |
  *  | `/oyinchi/{uid}`, `/u/{uid}` | O'yinchining ochiq profili |
  *  | `/shikoyat/soz/{so'z}` | So'z haqida xabar berish |
  *  | `/shikoyat/oyinchi/{uid}` | O'yinchi ustidan shikoyat |
@@ -30,6 +31,11 @@ const routes: readonly string[] = PAGES.map((page) => page.path);
  *  ko'rsatardi. */
 const PARAM_ROUTES: { prefix: string; route: Route }[] = [
   { prefix: '/oyinchi/', route: '/oyinchi' },
+  /* Tanlangan o'yin — `/oynash/maydon`. Sahifa o'sha bo'lib qoladi,
+     parametr esa qaysi tab ochiqligini aytadi (`PlayHub`). Shu sababli
+     «ortga» tugmasi tabni qaytaradi va tanlangan o'yinga havola
+     yuborish mumkin. */
+  { prefix: '/oynash/', route: '/oynash' },
   /* Shikoyatning ikki turi bitta sahifada: `ReportPage` turini
      yo'lning o'zidan o'qiydi (`/shikoyat/soz/...` yoki
      `/shikoyat/oyinchi/...`). Uzunroq prefiks oldinroq turadi —

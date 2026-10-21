@@ -24,7 +24,6 @@
  *  o'ynagani emas, «qanchaman» deb keladi. Umumiy reyting esa
  *  o'yindan keyin — u «boshqalarga nisbatan qanday» degan boshqa
  *  savol. */
-import { useState } from 'react';
 import BattlePage from './BattlePage';
 import GunchaBattlePage from './GunchaBattlePage';
 import Leaderboard from './Leaderboard';
@@ -33,23 +32,49 @@ import SoonPage from './SoonPage';
 import PlaysLeft from './PlaysLeft';
 import TurnirPage from './TurnirPage';
 import AdBanner from './AdBanner';
-import { isSoon } from '../data/site';
+import { isSoon, links } from '../data/site';
+import { routeParam } from '../lib/useRoute';
 import { useStage } from '../lib/stage';
 
-/** Tanlov ro'yxati — tartibi yuqorida aytilgan. */
+/** Tanlov ro'yxati — tartibi yuqorida aytilgan.
+ *
+ *  `slug` — manzildagi bo'lak. U `id` dan farq qilishi mumkin: maydon
+ *  saytda hamma joyda `/maydon` deb ataladi (`links.arena`), ichkarida
+ *  esa `mardu` nomi ishlatiladi. Manzilga odam ko'radigan nom chiqadi. */
 const TABS = [
-  { id: 'sozjang', name: 'So‘zjang' },
-  { id: 'guncha', name: 'G‘uncha' },
-  { id: 'mardu', name: 'Mardu maydon' },
-  { id: 'turnir', name: 'Turnir' },
+  { id: 'sozjang', slug: 'sozjang', name: 'So‘zjang' },
+  { id: 'guncha', slug: 'guncha', name: 'G‘uncha' },
+  { id: 'mardu', slug: 'maydon', name: 'Mardu maydon' },
+  { id: 'turnir', slug: 'turnir', name: 'Turnir' },
 ] as const;
 
 type TabId = (typeof TABS)[number]['id'];
 
+/** Ochiq turadigani — birinchisi: So'zjang bu sahifadagi eng ko'p
+ *  bosiladigan o'yin. */
+const FIRST = TABS[0];
+
+/** Tabning manzili. Birinchisi `/oynash` ning o'zi: bo'lak qo'shilsa
+ *  bitta sahifaning ikkita manzili bo'lib qolardi. */
+function hrefOf(slug: string): string {
+  return slug === FIRST.slug ? links.hub : `${links.hub}/${slug}`;
+}
+
 export default function PlayHub() {
-  /** Ochiq turgani — birinchisi: So'zjang bu sahifadagi eng ko'p
-   *  bosiladigan o'yin. */
-  const [tab, setTab] = useState<TabId>('sozjang');
+  /* Tanlangan o'yin **manzilda**, holatda emas.
+   *
+   *  Ilgari u `useState` da turardi va shundan uchta narsa kelib
+   *  chiqardi: brauzerning «ortga» tugmasi tabni qaytarmasdi, tanlangan
+   *  o'yinga havola yuborib bo'lmasdi, sahifa yangilansa esa odam
+   *  qaysi tabda turgan bo'lsa ham birinchisiga qaytardi.
+   *
+   *  Manzil ko'rinishi — `/oynash/maydon`. Router buni parametrli
+   *  manzil deb oladi (`useRoute.ts` dagi `PARAM_ROUTES`), ya'ni
+   *  sahifa qayta yuklanmaydi va `PlayHub` daraxtda qolaveradi:
+   *  faqat markazdagi o'yin almashadi. Noma'lum bo'lak — birinchi
+   *  tab: qo'lda yozilgan manzil bo'sh ekran bermasligi kerak. */
+  const slug = routeParam();
+  const tab: TabId = (TABS.find((item) => item.slug === slug) ?? FIRST).id;
   /* Jang ketayotganda tanlov yashiriladi: taxtaning ustida boshqa
      o'yinga o'tkazadigan tugma turmasligi kerak. Jang tugab lobbiga
      qaytilganda nomlar o'z o'rniga qaytadi. */
@@ -68,15 +93,26 @@ export default function PlayHub() {
 
           <div className="hub__tabs" role="tablist" aria-label="O‘yinlar">
             {TABS.map((item) => (
-              <button
+              /* Tugma emas, havola: manzilni routerning o'zi suradi va
+                 «ortga» tugmasi ham shundan ishlaydi. `data-scroll`
+                 — sahifa tepaga sakramasin: almashadigan narsa
+                 o'rtadagi o'yin, sahifaning o'zi emas.
+
+                 Ochiq turgan tabning havolasi bosilganda hech narsa
+                 qilinmaydi: router bir xil manzilni o'ziga olmaydi va
+                 brauzer sahifani boshidan yuklab yuborardi. */
+              <a
                 key={item.id}
-                type="button"
                 role="tab"
+                href={hrefOf(item.slug)}
+                data-scroll="keep"
                 id={`hub-tab-${item.id}`}
                 aria-selected={tab === item.id}
                 aria-controls={`hub-panel-${item.id}`}
                 className={`hub-tab hub-tab--${item.id}${tab === item.id ? ' hub-tab--on' : ''}`}
-                onClick={() => setTab(item.id)}
+                onClick={(event) => {
+                  if (tab === item.id) event.preventDefault();
+                }}
               >
                 {item.name}
                 {/* Yopiq bo'lim tanlovdan olinmadi: u ilovada bor va
@@ -84,7 +120,7 @@ export default function PlayHub() {
                     taassurot qolardi. Bosiladi ham — ichida nega
                     yopiqligi yozilgan. */}
                 {isSoon(item.id) && <span className="hub-tab__soon">Tez orada</span>}
-              </button>
+              </a>
             ))}
           </div>
         </div>

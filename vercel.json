@@ -24,6 +24,10 @@
       "destination": "/:page/index.html"
     },
     {
+      "source": "/oynash/:tab(sozjang|guncha|maydon|turnir)",
+      "destination": "/oynash/index.html"
+    },
+    {
       "source": "/lugat",
       "destination": "/lugat/index.html"
     },

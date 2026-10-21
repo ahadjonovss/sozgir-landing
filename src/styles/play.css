@@ -3373,6 +3373,11 @@
   font-weight: 800;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
+  /* Tugma emas, havola (manzil tanlangan o'yinni ham saqlaydi), shuning
+     uchun tugmadan farq qiladigan ikkita narsa qo'lda qo'yiladi:
+     matnning o'rtaga tenglanishi va tagidagi chiziqning yo'qligi. */
+  text-align: center;
+  text-decoration: none;
 }
 
 .hub-tab:hover {
