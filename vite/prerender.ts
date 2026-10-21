@@ -41,6 +41,23 @@ import { categories, email, faq, gameLinks, links, modules, site, stats } from '
 import { UPDATES } from '../src/data/updates.ts';
 import { BADGES } from '../src/lib/badges.ts';
 
+/**
+ * Havola kartochkasidagi rasmning versiyasi.
+ *
+ * Rasmning o'zi o'zgarmasa ham ko'tariladi: Telegram, Facebook va
+ * LinkedIn kartochkani **rasm manzili** bo'yicha keshlaydi va eski
+ * nusxani oylab ushlab turadi. Manzil o'zgargani ularni qaytadan
+ * yuklashga majbur qiladi.
+ *
+ * X'ga ta'sir qilmaydi: u kartochkani sahifa manzili bo'yicha
+ * keshlaydi va uni faqat o'zining Post Inspector'i yangilaydi.
+ *
+ * `index.html` dagi ikkita teg ham shu son bilan yuriladi — u
+ * shablon va dev serverda o'sha turadi, prod uchun esa shu yerda
+ * qayta yoziladi.
+ */
+const OG_VERSION = '?v=3';
+
 /** Lug'at olinadigan server — saytning `src/api/config.ts` dagisi.
  *  Bu yerda qayta yozilgan, chunki u fayl `import.meta.env` ga
  *  tayanadi va uni Node ichida o'qib bo'lmaydi. */
@@ -354,7 +371,7 @@ function render(shell: string, page: Page): string {
   html = swap(
     html,
     /<meta property="og:image" content="[^"]*" \/>/,
-    `<meta property="og:image" content="${site}/og.png?v=2" />`,
+    `<meta property="og:image" content="${site}/og.png${OG_VERSION}" />`,
     'og:image',
   );
   // X `og:` ni o'qiydi deyiladi, lekin sarlavha va matnni o'z teglarida
@@ -375,7 +392,7 @@ function render(shell: string, page: Page): string {
   html = swap(
     html,
     /<meta name="twitter:image" content="[^"]*" \/>/,
-    `<meta name="twitter:image" content="${site}/og.png?v=2" />`,
+    `<meta name="twitter:image" content="${site}/og.png${OG_VERSION}" />`,
     'twitter:image',
   );
   html = swap(
