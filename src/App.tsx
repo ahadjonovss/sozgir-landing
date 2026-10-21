@@ -26,6 +26,7 @@ import ChallengePage from './components/ChallengePage';
 import GameHub from './components/GameHub';
 import GunchaBattlePage from './components/GunchaBattlePage';
 import MarduPage from './components/MarduPage';
+import AdGate from './components/AdGate';
 import SoonPage from './components/SoonPage';
 import TurnirPage from './components/TurnirPage';
 import Header from './components/Header';
@@ -211,6 +212,10 @@ export default function App() {
           ko'rinadi, shuning uchun ular ramkaning o'zida turadi. */}
       <AccountDialog />
       <InviteOverlay />
+      {/* Onlayn o'yin oldidagi reklama darvozasi. Ramkada turadi:
+          o'yin qaysi sahifadan boshlanishidan qat'i nazar bitta oyna
+          ishlaydi va qoidasi ham bitta (`lib/adGate.ts`). */}
+      <AdGate />
       {/* Telefonda ochilgan har qanday sahifada — ilova taklifi. Oyna
           o'zi qaror qiladi: kompyuterda umuman chizilmaydi, telefonda
           esa kuniga bir marta va sahifa ochilgandan bir necha soniya

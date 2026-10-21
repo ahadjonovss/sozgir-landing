@@ -1,9 +1,24 @@
 /** Reklama — saytdagi bannerlar. Ilovadagi `lib/core/ads/` ning veb
  *  muqobili va o'sha qoidalar bilan ishlaydi.
  *
- *  **Bitta tur — banner.** Oraliq oyna (interstitial), video, pop-up va
- *  «sahifa ustidan chiqadigan» hech narsa yo'q. Reklama sahifaning bir
- *  bo'lagi bo'lib turadi, ishni to'xtatmaydi.
+ *  **Ikki tur.** Asosiysi — banner: u sahifaning bir bo'lagi bo'lib
+ *  turadi va ishni to'xtatmaydi. Ikkinchisi — to'liq ekranli oyna, va
+ *  u **faqat bitta nuqtada** chiqadi: onlayn o'yin boshlanishidan
+ *  oldin, har beshinchisida (`lib/adGate.ts`). Ilovadagi qoidaning
+ *  o'zi, o'sha sonlar bilan.
+ *
+ *  Ilgari bu yerda «to'liq ekranli hech narsa yo'q» deb yozilgandi.
+ *  Qaror o'zgardi, lekin uning sababi o'z joyida qoldi: reklama
+ *  o'ynayotgan odamning qo'lidan hech narsa olmasligi kerak. Shuning
+ *  uchun u o'yin **oxirida** ham, o'rtasida ham emas — odam hali
+ *  o'yinga kirmagan paytda chiqadi.
+ *
+ *  **Mukofotli (rewarded) reklama yo'q.** Yandex'ning qoidasi:
+ *  rewarded faqat odam rozilik berganda chiqadi va mukofot evaziga
+ *  bo'ladi. Majburlab chiqarilgani rewarded emas, oddiy oraliq
+ *  reklama bo'lib qoladi — ya'ni «har besh o'yinda majburiy rewarded»
+ *  degan narsa texnik jihatdan ham, qoida bo'yicha ham mavjud emas.
+ *  Ilovadagi `RewardedAdService` izohida ham shu yozilgan.
  *
  *  **Bitta tarmoq — Yandex.** Ilovada kaskad bor (Yandex → AdMob),
  *  saytda esa bitta tarmoq: AdSense alohida moderatsiya va alohida
@@ -82,6 +97,23 @@ const UNITS: Record<AdPlacement, string> = {
   turnir: '',
   profile: '',
 };
+
+/**
+ * To'liq ekranli blok (Yandex'da «Полноэкранный», sayt turida).
+ *
+ * Bannerlardan **alohida** blok: hisobot ham ajraladi, o'chirish ham.
+ * Bo'sh qolsa darvoza oynasi umuman chiqmaydi — ya'ni blok
+ * ochilgunicha sayt avvalgidek ishlayveradi va hech kim bo'sh
+ * va'daga duch kelmaydi.
+ *
+ * Yandex Partner interfeysida «Sayt» → «Полноэкранный» bilan
+ * ochiladi va id shu yerga yoziladi.
+ */
+const FULLSCREEN_UNIT = '';
+
+/** To'liq ekranli reklama shu yig'ishda bormi. */
+export const fullscreenReady = (): boolean =>
+  adsSupported ? FULLSCREEN_UNIT !== '' : true;
 
 /** [placement] uchun blok. Sozlanmagan bo'lsa — bo'sh satr. */
 export function adUnit(placement: AdPlacement): string {
@@ -286,4 +318,63 @@ export const AD_LABEL = 'Reklama';
  *  moderatsiyadan keyin) o'zgarish yana shu yerda bo'ladi. */
 export function nextAdLabel(): string {
   return AD_LABEL;
+}
+
+/* ── To'liq ekranli reklama ─────────────────────────────────────────── */
+
+/** Reklama o'zi yopilmasa shuncha kutiladi.
+ *
+ *  Yandex `onClose` ni har doim ham yubormaydi (to'ldirish topilmasa
+ *  umuman hech narsa kelmasligi mumkin). Muddat bo'lmasa darvoza
+ *  oynasi ochiq qolib, odam o'yinga kira olmasdi. */
+const FULLSCREEN_TIMEOUT = 20_000;
+
+/**
+ * To'liq ekranli reklamani ko'rsatadi.
+ *
+ * Javob: `true` — ko'rsatildi (yopilgunicha kutildi), `false` —
+ * chiqmadi. Ikkinchi holatda chaqiruvchi odamni **to'xtatmaydi**:
+ * tarmoq to'ldirish topolmagani o'yinchining aybi emas va uni o'yinga
+ * kiritmay qo'yish reklamaga emas, saytga ziyon qiladi.
+ *
+ * Banner bilan bitta yo'ldan boradi (`loadAds`), lekin `renderTo`
+ * yo'q: to'liq ekranli oyna sahifadagi elementga emas, varaqning
+ * ustiga chiziladi.
+ */
+export function showFullscreen(): Promise<boolean> {
+  if (!adsSupported) return Promise.resolve(true);
+  if (FULLSCREEN_UNIT === '') return Promise.resolve(false);
+
+  return loadAds().then(
+    (ready) =>
+      new Promise<boolean>((resolve) => {
+        if (!ready) return resolve(false);
+
+        let done = false;
+        const finish = (shown: boolean) => {
+          if (done) return;
+          done = true;
+          window.clearTimeout(timer);
+          resolve(shown);
+        };
+        const timer = window.setTimeout(() => finish(false), FULLSCREEN_TIMEOUT);
+
+        window.yaContextCb?.push(() => {
+          try {
+            window.Ya?.Context?.AdvManager?.render({
+              blockId: FULLSCREEN_UNIT,
+              type: 'fullscreen',
+              darkTheme: document.documentElement.dataset.theme === 'dark',
+              onError: (data?: { type?: string }) => {
+                if (data?.type !== 'warning') finish(false);
+              },
+              // Yopilgani — ko'rilgani: shundan keyin o'yin boshlanadi.
+              onClose: () => finish(true),
+            });
+          } catch {
+            finish(false);
+          }
+        });
+      }),
+  );
 }

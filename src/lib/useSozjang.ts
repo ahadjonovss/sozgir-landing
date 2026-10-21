@@ -10,6 +10,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { apiError } from '../api/errors';
 import { refreshRating } from './battleRating';
+import { gateBeforeOnlineGame, registerOnlineGame } from './adGate';
 import { arenaTiles, isMardu, rankArena } from './mardu';
 import type { Unsubscribe } from '../api/poll';
 import {
@@ -321,6 +322,10 @@ export function useSozjang() {
    *  «0 jang» va boshlang'ich o'ljani ko'rardi. */
   useEffect(() => {
     if (phase !== 'finished') return;
+    /* Tugagan onlayn o'yin sanoqqa yoziladi — reklama darvozasi shu
+       sanoqqa qaraydi (`lib/adGate.ts`). Reklama bu yerda chiqmaydi:
+       o'yin oxiri odam uchun kutilmagan joy. */
+    registerOnlineGame();
     refreshRating();
     /* Tugagan jang endi «ochiq jang» emas.
      *
@@ -548,6 +553,7 @@ export function useSozjang() {
     () =>
       run(async () => {
         if (!account) return;
+        if (!(await gateBeforeOnlineGame(account.uid))) return;
         const reply = await createChallenge({
           length,
         });
@@ -560,6 +566,7 @@ export function useSozjang() {
     (code: string) =>
       run(async () => {
         if (!account) return;
+        if (!(await gateBeforeOnlineGame(account.uid))) return;
         const reply = await joinByCode({
           code: code.toUpperCase().trim(),
         });
@@ -572,6 +579,9 @@ export function useSozjang() {
     () =>
       run(async () => {
         if (!account) return;
+        // Darvoza qidiruvdan **oldin**: ekran navbatga tushib, ustiga
+        // oyna chiqsa odam o'zini allaqachon o'yinda deb o'ylardi.
+        if (!(await gateBeforeOnlineGame(account.uid))) return;
         setSeconds(0);
         waiting.current = true;
         /* Qidiruv ekrani so'rovdan **oldin** yoqiladi: javob kelgunicha

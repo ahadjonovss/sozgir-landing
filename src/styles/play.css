@@ -7474,3 +7474,89 @@
   gap: 10px;
   margin-top: 18px;
 }
+
+/* ── Reklama darvozasi ──────────────────────────────────────────────── */
+
+/* Onlayn o'yin oldidagi oyna (`AdGate`). Ichidagi tartib ilovadagi
+   `AdGateSheet` bilan bir xil: avval narx, keyin nima berishi, oxirida
+   ikkita yo'l. */
+.gate {
+  display: grid;
+  gap: 14px;
+}
+
+/* Oynadagi eng katta raqam — kirish tarifining narxi. */
+.gate__price {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+}
+
+.gate__price strong {
+  color: var(--green);
+  font-size: 32px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.gate__price span {
+  color: var(--text-2);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.gate__perks {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--text-2);
+  font-size: 14px;
+}
+
+.gate__perks li {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+/* Belgi ro'yxat nuqtasi o'rnida: uchala qator ham bitta narsani
+   aytadi — bu tarif nima beradi. */
+.gate__perks li::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--green);
+}
+
+.gate__actions {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+}
+
+.gate__actions .btn {
+  width: 100%;
+}
+
+/* Reklamani ko'rish — ikkinchi, jim yo'l. Tugma emas, havola
+   ko'rinishida: ikkalasi bir xil og'irlikda tursa, oyna nimani
+   taklif qilayotgani bilinmasdi. */
+.gate__watch {
+  padding: 4px;
+  border: 0;
+  background: none;
+  color: var(--text-2);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.gate__watch:hover {
+  color: var(--text);
+}

@@ -19,6 +19,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { apiError } from '../api/errors';
 import { refreshRating } from './battleRating';
+import { gateBeforeOnlineGame, registerOnlineGame } from './adGate';
 import { arenaTiles, isMardu, rankArena } from './mardu';
 import type { Unsubscribe } from '../api/poll';
 import { onBattleOpen, readActive, setActive } from './activeBattle';
@@ -374,6 +375,9 @@ export function useGunchaJang() {
    *  (`useSozjang` dagi bilan bir sabab). */
   useEffect(() => {
     if (!done) return;
+    // Tugagan onlayn o'yin reklama sanog'iga yoziladi
+    // (`useSozjang` dagi bilan bir xil).
+    registerOnlineGame();
     refreshRating();
     /* Tugagan jang «ochiq jang» bo'lib qolmaydi — `useSozjang`
      *  dagi bilan bir sabab: qaytib kelgan odam lobbini ko'rishi
@@ -637,6 +641,7 @@ export function useGunchaJang() {
     () =>
       run(async () => {
         if (!account) return;
+        if (!(await gateBeforeOnlineGame(account.uid))) return;
         const reply = await createGunchaBattle();
         open(reply.battleId);
       }),
@@ -647,6 +652,7 @@ export function useGunchaJang() {
     (code: string) =>
       run(async () => {
         if (!account) return;
+        if (!(await gateBeforeOnlineGame(account.uid))) return;
         const reply = await joinByCode({
           code: code.toUpperCase().trim(),
         });
@@ -661,6 +667,8 @@ export function useGunchaJang() {
     () =>
       run(async () => {
         if (!account) return;
+        // Darvoza qidiruvdan oldin — `useSozjang` dagi bilan bir xil.
+        if (!(await gateBeforeOnlineGame(account.uid))) return;
         setSeconds(0);
         waiting.current = true;
         /* Qidiruv ekrani so'rovdan **oldin** yoqiladi — So'zjangdagidek.
