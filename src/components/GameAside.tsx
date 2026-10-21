@@ -19,7 +19,7 @@
  *
  *  `aria-hidden` emas, lekin `aria-label` bor: bular haqiqiy
  *  havolalar, klaviatura bilan ham ochiladi. */
-import { gameLinks } from '../data/site';
+import { gameLinks, isSoon } from '../data/site';
 import AdBanner from './AdBanner';
 
 export default function GameAside({ current }: { current: string }) {
@@ -42,17 +42,37 @@ export default function GameAside({ current }: { current: string }) {
 function Column({ items, side }: { items: typeof gameLinks; side: 'left' | 'right' }) {
   return (
     <aside className={`aside-games aside-games--${side}`} aria-label="Boshqa o‘yinlar">
-      {items.map((item) => (
-        <a className="aside-game" key={item.id} href={item.href}>
-          <span className="aside-game__emoji" aria-hidden="true">
-            {item.emoji}
+      {items.map((item) => {
+        /* Yopiq bo'lim kartochkasi — havola **emas**: bosiladigan
+           narsa bosilganda hech qayerga olib bormasa, u nosozlikka
+           o'xshaydi. Ro'yxatdan butunlay olinmadi, chunki bo'lim
+           ilovada bor va bu yerda «tez orada» deb turgani rost. */
+        const soon = isSoon(item.id);
+        const inner = (
+          <>
+            <span className="aside-game__emoji" aria-hidden="true">
+              {item.emoji}
+            </span>
+            <span className="aside-game__text">
+              <strong>
+                {item.name}
+                {soon && <span className="aside-game__soon">Tez orada</span>}
+              </strong>
+              <span>{item.tagline}</span>
+            </span>
+          </>
+        );
+
+        return soon ? (
+          <span className="aside-game aside-game--soon" key={item.id}>
+            {inner}
           </span>
-          <span className="aside-game__text">
-            <strong>{item.name}</strong>
-            <span>{item.tagline}</span>
-          </span>
-        </a>
-      ))}
+        ) : (
+          <a className="aside-game" key={item.id} href={item.href}>
+            {inner}
+          </a>
+        );
+      })}
       {/* Kartochkalardan keyin — ustunning qolgan qismi baribir bo'sh
           qolardi. Taxtadan 28px narida va undan pastroqda: o'ynayotgan
           odamning ko'zi oldida emas, lekin surilganda ko'rinadi.

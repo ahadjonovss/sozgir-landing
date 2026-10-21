@@ -1,4 +1,4 @@
-import { links, modules } from '../data/site';
+import { isSoon, links, modules } from '../data/site';
 
 /** Olti o'yinning kartochkasi — nomi, bir qatorlik tavsifi va
  *  ikkita eng muhim qatori.
@@ -30,7 +30,6 @@ const ON_SITE: Record<string, { href: string; label: string }> = {
   soztop: { href: links.play, label: 'Saytda o‘ynash' },
   sozjang: { href: links.battle, label: 'Saytda o‘ynash' },
   guncha: { href: links.guncha, label: 'Saytda o‘ynash' },
-  turnir: { href: links.turnir, label: 'Saytda o‘ynash' },
   qollab: { href: links.donate, label: 'Hissa qo‘shish' },
 };
 
@@ -62,7 +61,12 @@ export default function Modules() {
                   <span className="module__emoji" aria-hidden="true">
                     {m.emoji}
                   </span>
-                  {site ? (
+                  {/* Yopiq bo'lim: «Ilovada» ham, havola ham emas —
+                      u ilovada bor, lekin bu yerdagi va'da saytga
+                      tegishli. */}
+                  {isSoon(m.id) ? (
+                    <span className="module__tag">Tez orada</span>
+                  ) : site ? (
                     <a className="module__link" href={site.href}>
                       {site.label} →
                     </a>

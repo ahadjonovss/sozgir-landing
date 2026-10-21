@@ -4,6 +4,7 @@
  *  modullar va yuklab olish. Qolgan manzillar shu ramka ichida ochiladi. */
 import { useEffect, useLayoutEffect } from 'react';
 import { pageOf } from './data/pages';
+import { isSoon } from './data/site';
 import { guideOf } from './data/guides';
 import { lugatPageOf } from './data/lugat';
 import { lengthPageOf } from './data/lengths';
@@ -25,6 +26,7 @@ import ChallengePage from './components/ChallengePage';
 import GameHub from './components/GameHub';
 import GunchaBattlePage from './components/GunchaBattlePage';
 import MarduPage from './components/MarduPage';
+import SoonPage from './components/SoonPage';
 import TurnirPage from './components/TurnirPage';
 import Header from './components/Header';
 import { useAuth } from './lib/auth';
@@ -158,8 +160,27 @@ export default function App() {
         )}
         {route === '/sozjang' && <BattlePage />}
         {route === '/gunchajang' && <GunchaBattlePage />}
-        {route === '/maydon' && <MarduPage />}
-        {route === '/turnir' && <TurnirPage />}
+        {/* Mardu va turnir vaqtincha yopiq (`soonGames`). Manzil
+            ham to'siladi, faqat tugmalar emas: havola ulashilgan
+            yoki xatcho'pda qolgan bo'lishi mumkin. */}
+        {route === '/maydon' &&
+          (isSoon('mardu') ? (
+            <SoonPage
+              name="Mardu maydon"
+              lead="O‘sha So‘zjang yoki G‘uncha, lekin ikki kishi emas: sakkiztagacha odam bir vaqtda o‘ynaydi va oxirida jadval tuziladi."
+            />
+          ) : (
+            <MarduPage />
+          ))}
+        {route === '/turnir' &&
+          (isSoon('turnir') ? (
+            <SoonPage
+              name="Turnir"
+              lead="Ketma-ket bir necha mardu maydoni: har davradan yuqori yarmi o‘tadi."
+            />
+          ) : (
+            <TurnirPage />
+          ))}
         {route === '/javoblar' && <AnswersPage />}
         {/* Uzunlik bo'yicha sahifalar (`/cheksiz/6-harf`) — bittasi
             komponent, matni `data/lengths.ts` dan keladi. */}

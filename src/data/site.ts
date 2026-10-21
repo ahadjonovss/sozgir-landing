@@ -285,6 +285,25 @@ export const faq = [
  *
  *  So'zjang havolasi `battleQuick` emas, oddiy `/sozjang`: bu yerdagi
  *  kartochka taklif, qidiruvni o'zi boshlab yuboradigan tugma emas. */
+/**
+ * Saytda hali ochilmagan bo'limlar.
+ *
+ * Mardu maydon va turnir ilovada ishlaydi, saytda esa hali
+ * sinalmagan: ular eng ko'p harakatlanadigan qism — bir nechta
+ * odam, sanoq, davralar — va sinalmagan holda qo'yib yuborish
+ * birinchi kirgan odamning o'yinini buzardi. Shuning uchun ular
+ * ko'rinib turadi, lekin ichiga kiritmaydi: o'rnida «Tez orada»
+ * yoziladi.
+ *
+ * **Bitta ro'yxat** — havolalar ham, tablar ham, kartochkalar ham
+ * shu yerga qaraydi. Ochish uchun `id` ni ro'yxatdan olib tashlash
+ * yetadi; boshqa hech qayerda o'zgartirish kerak emas.
+ */
+export const soonGames = new Set(['mardu', 'turnir']);
+
+/** Shu bo'lim hali yopiqmi. */
+export const isSoon = (id: string): boolean => soonGames.has(id);
+
 export type GameLink = {
   id: string;
   emoji: string;

@@ -29,9 +29,11 @@ import BattlePage from './BattlePage';
 import GunchaBattlePage from './GunchaBattlePage';
 import Leaderboard from './Leaderboard';
 import MarduPage from './MarduPage';
+import SoonPage from './SoonPage';
 import PlaysLeft from './PlaysLeft';
 import TurnirPage from './TurnirPage';
 import AdBanner from './AdBanner';
+import { isSoon } from '../data/site';
 import { useStage } from '../lib/stage';
 
 /** Tanlov ro'yxati — tartibi yuqorida aytilgan. */
@@ -77,6 +79,11 @@ export default function PlayHub() {
                 onClick={() => setTab(item.id)}
               >
                 {item.name}
+                {/* Yopiq bo'lim tanlovdan olinmadi: u ilovada bor va
+                    ro'yxatdan yo'qolsa «o'chirib tashlabdi» degan
+                    taassurot qolardi. Bosiladi ham — ichida nega
+                    yopiqligi yozilgan. */}
+                {isSoon(item.id) && <span className="hub-tab__soon">Tez orada</span>}
               </button>
             ))}
           </div>
@@ -99,8 +106,24 @@ export default function PlayHub() {
             ularning o'z joyi bor (`/guncha`), bu yerda esa odam
             raqib qidirib turibdi. */}
         {tab === 'guncha' && <GunchaBattlePage />}
-        {tab === 'mardu' && <MarduPage />}
-        {tab === 'turnir' && <TurnirPage />}
+        {tab === 'mardu' &&
+          (isSoon('mardu') ? (
+            <SoonPage
+              name="Mardu maydon"
+              lead="O‘sha So‘zjang yoki G‘uncha, lekin ikki kishi emas: sakkiztagacha odam bir vaqtda o‘ynaydi va oxirida jadval tuziladi."
+            />
+          ) : (
+            <MarduPage />
+          ))}
+        {tab === 'turnir' &&
+          (isSoon('turnir') ? (
+            <SoonPage
+              name="Turnir"
+              lead="Ketma-ket bir necha mardu maydoni: har davradan yuqori yarmi o‘tadi."
+            />
+          ) : (
+            <TurnirPage />
+          ))}
       </div>
 
       {/* Umumiy reyting o'yindan keyin. Janglar tarixi bu yerda yo'q:

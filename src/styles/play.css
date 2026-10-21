@@ -3387,6 +3387,26 @@
   box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--tone) 55%, transparent);
 }
 
+/* «Tez orada» nishoni — tabda nomdan keyin.
+   Tab bosiladigan bo'lib qoladi: ichida nega yopiqligi yozilgan va
+   bosib ko'rgan odam javobni o'sha yerda topadi. Nishon shuning
+   uchun kichkina va bo'yoqsiz — taqiq emas, izoh. */
+.hub-tab__soon {
+  margin-left: 7px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  vertical-align: middle;
+}
+
+.hub-tab--on .hub-tab__soon {
+  background: color-mix(in srgb, var(--bg) 55%, transparent);
+}
+
 /* Har o'yin o'z rangida — ostidagi kartochkadagi rangning o'zi. */
 .hub-tab--sozjang {
   --tone: var(--orange);
@@ -7117,6 +7137,24 @@
   background: var(--surface-2);
 }
 
+/* Yopiq bo'lim: havola emas, shuning uchun kursor ham o'zgarmaydi va
+   hover ham yo'q — ko'rinishining o'zi «hozir bosilmaydi» deydi. */
+.aside-game--soon {
+  opacity: 0.62;
+}
+
+.aside-game__soon {
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  vertical-align: middle;
+}
+
 .aside-game__emoji {
   font-size: 18px;
   line-height: 1.25;
@@ -7383,4 +7421,28 @@
   .rails {
     display: none;
   }
+}
+
+/* ── «Tez orada» sahifasi ─────────────────────────────────────────────── */
+
+/* Yopiq bo'limning o'rnidagi kartochka (`SoonPage`). O'yin
+   sahifalarining o'rnida turadi, shuning uchun eni ham o'shalarnikidek
+   cheklangan: butun enni egallagan bitta xat matni o'qilmasdi. */
+.soon {
+  max-width: 620px;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.soon__title {
+  margin: 6px 0 10px;
+  font-size: 28px;
+}
+
+.soon__links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 18px;
 }
