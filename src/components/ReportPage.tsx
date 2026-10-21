@@ -15,6 +15,7 @@
 import { reportLead, reportTitle } from '../lib/report';
 import ReportForm from './ReportForm';
 import { ChevronLeft } from './Icons';
+import AdBanner from './AdBanner';
 
 /** Manzildan nima ustidan shikoyat qilinayotgani o'qiladi.
  *
@@ -100,6 +101,9 @@ export default function ReportPage() {
             </a>
           }
         />
+
+        {/* Shakl to'ldirilgach pastda bo'sh joy qoladi. */}
+        <AdBanner placement="profile" />
       </div>
     </section>
   );

@@ -41,6 +41,7 @@ import { AqchaDelta } from './Units';
 import { seriesOf, turnirPath } from '../lib/turnir';
 import { TurnirGroups, TurnirNext, TurnirWaiting } from './TurnirSide';
 import { useTurnirHop } from '../lib/useTurnir';
+import AdBanner from './AdBanner';
 
 /** Oxirgi soniyalarda rang ogohlantiruvchiga o'tadi. */
 const URGENT_AT = 30;
@@ -252,6 +253,9 @@ function Lobby({ game }: { game: GunchaJang }) {
         {/* Telegram banneri vaqtincha olib turildi. */}
         {/* «Yakka o'ynash» taklifi ketdi: bu sahifa birov bilan
             o'ynash haqida, kunlik g'unchaning o'z manzili bor. */}
+        {/* Faqat lobbida — So'zjangdagidek: qidiruv, jang va natija
+            ekranlari reklamasiz qoladi. */}
+        <AdBanner placement="guncha" />
       </aside>
     </div>
   );

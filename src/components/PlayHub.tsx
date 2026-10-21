@@ -31,6 +31,7 @@ import Leaderboard from './Leaderboard';
 import MarduPage from './MarduPage';
 import PlaysLeft from './PlaysLeft';
 import TurnirPage from './TurnirPage';
+import AdBanner from './AdBanner';
 
 /** Tanlov ro'yxati — tartibi yuqorida aytilgan. */
 const TABS = [
@@ -103,6 +104,9 @@ export default function PlayHub() {
       <section className="oyin hub__after">
         <div className="wrap hub">
           <Leaderboard />
+          {/* Sahifaning eng oxiri: taxta ham, raqib qidirish ham
+              ancha yuqorida qoladi. */}
+          <AdBanner placement="hub" />
         </div>
       </section>
     </>

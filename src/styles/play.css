@@ -7218,7 +7218,10 @@
 }
 
 .report-page .form,
-.report-page .panel {
+.report-page .panel,
+/* Banner ham to'liq enini oladi: `justify-items: start` uni aks holda
+   nol enga yig'ib qo'yadi va reklama hech qachon chizilmasdi. */
+.report-page .ad {
   width: 100%;
 }
 

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { email, links } from '../data/site';
+import AdBanner from './AdBanner';
 
 const topics = ['Taklif', 'Xatolik haqida xabar', 'Hamkorlik', 'Ma’lumotlarim bo‘yicha so‘rov', 'Boshqa'];
 
@@ -164,6 +165,10 @@ export default function Contact() {
               )}
             </p>
           </form>
+
+          {/* Shakldan keyin: yozayotgan odamning oldida hech narsa
+              turmaydi, yuborgandan keyingi javob ham ko'rinib qoladi. */}
+          <AdBanner placement="profile" />
         </div>
       </div>
     </section>

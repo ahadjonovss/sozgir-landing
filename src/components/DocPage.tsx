@@ -1,5 +1,6 @@
 import { Fragment, useState } from 'react';
 import type { Block, Policy } from '../data/privacy';
+import AdBanner from './AdBanner';
 
 const linkable = /(https?:\/\/[^\s,;)]+|[\w.+-]+@[\w-]+\.[\w.]+)/;
 
@@ -84,6 +85,9 @@ export default function DocPage({ pages }: { pages: Record<string, Policy> }) {
             </section>
           ))}
         </div>
+
+        {/* Uzun matnning oxirida — o'qishga xalaqit bermaydi. */}
+        <AdBanner placement="profile" />
       </div>
     </section>
   );
