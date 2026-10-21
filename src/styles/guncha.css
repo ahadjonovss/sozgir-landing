@@ -188,11 +188,6 @@
   margin-left: auto;
 }
 
-.guncha__modes {
-  display: flex;
-  gap: 8px;
-}
-
 .guncha__rules {
   margin: 0;
   padding-left: 20px;
