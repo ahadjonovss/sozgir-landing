@@ -22,10 +22,14 @@ type Guncha = ReturnType<typeof useGuncha>;
 export function GunchaBoard({
   guncha,
   onSwap,
+  practiceOnly = false,
 }: {
   guncha: Guncha;
   /** O'yin turini almashtirish — `Play` dagi bilan bir xil. */
   onSwap?: () => void;
+  /** «Kunlik / Mashq» tanlovi chizilmaydi — bosh sahifadagi taxta
+   *  uchun. Sababi `useGameSwap` da yozilgan. */
+  practiceOnly?: boolean;
 }) {
   const [rules, setRules] = useState(false);
   const { mode, puzzle, order, typed, foundTargets, score, maxScore, rank, toNext,
@@ -34,24 +38,40 @@ export function GunchaBoard({
   return (
       <div className="guncha">
         <div className="guncha__head">
+          {/* Tanlov bosh sahifada chizilmaydi: u yerda g'uncha
+              doim mashq va tanlaydigan narsa yo'q. Bo'sh `div`
+              baribir qoladi — sarlavha qatori ikki chekkaga
+              yoyilgan va uni olib tashlash «Qoidalar» ni chapga
+              tortib yuborardi. */}
           <div className="guncha__modes">
-            <button
-              className={`chip${mode === 'daily' ? ' chip--on' : ''}`}
-              onClick={() => guncha.pickMode('daily')}
-            >
-              Kunlik
-            </button>
-            <button
-              className={`chip${mode === 'practice' ? ' chip--on' : ''}`}
-              onClick={() => guncha.pickMode('practice')}
-            >
-              Mashq
-            </button>
+            {!practiceOnly && (
+              <>
+                <button
+                  className={`chip${mode === 'daily' ? ' chip--on' : ''}`}
+                  onClick={() => guncha.pickMode('daily')}
+                >
+                  Kunlik
+                </button>
+                <button
+                  className={`chip${mode === 'practice' ? ' chip--on' : ''}`}
+                  onClick={() => guncha.pickMode('practice')}
+                >
+                  Mashq
+                </button>
+              </>
+            )}
           </div>
           <span className="guncha__head-right">
             {/* O'yin turini almashtirish. Hech qayerga o'tilmaydi —
                 faqat shu belgining ostidagi taxta So'ztopga
-                almashadi. */}
+                almashadi.
+
+                Nomi ham yozilgan, faqat belgi emas. So'ztopning
+                belgisi `gameLinks` da 🟩 — yashil kvadrat, va u
+                yolg'iz turganda tugmaga o'xshamasdi: taxtaning
+                tepasidagi bezakdan farqi bilinmasdi. G'unchaning
+                🌸 si o'zi ko'zga tashlanadi, bu esa yo'q, shuning
+                uchun ajrim belgida emas, matnda. */}
             {onSwap && (
               <button
                 type="button"
@@ -61,6 +81,7 @@ export function GunchaBoard({
                 title="So‘ztopga almashtirish"
               >
                 <span aria-hidden="true">🟩</span>
+                <span className="play__swap-name">So‘ztop</span>
               </button>
             )}
             <button className="link" onClick={() => setRules((open) => !open)}>

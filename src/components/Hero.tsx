@@ -49,7 +49,10 @@ export default function Hero() {
   // kunlik so'zning o'z sahifasi bor va tepadagi banner aynan o'sha
   // yerga olib boradi.
   const choice = useGameChoice({ mode: 'endless' });
-  const swap = useGameSwap();
+  // G'uncha ham shu sababdan **mashq**: kunligi kuniga bitta va uni
+  // bosh sahifadagi taxtada sarflab qo'yish kerak emas. Tanlov ham
+  // berilmaydi — bu yerda odam o'ynab ko'radi, rejim tanlamaydi.
+  const swap = useGameSwap(false, true);
   const game = useSozTop(choice, !swap.flower);
 
   return (
@@ -92,7 +95,11 @@ export default function Hero() {
             {/* Belgi bilan almashadigan taxta: g'uncha ham shu
                 yerda ochiladi, sahifa esa o'zgarmaydi. */}
             {swap.flower ? (
-              <GunchaBoard guncha={swap.guncha} onSwap={swap.toggle} />
+              <GunchaBoard
+                guncha={swap.guncha}
+                onSwap={swap.toggle}
+                practiceOnly={swap.practiceOnly}
+              />
             ) : (
               <Play choice={choice} game={game} onSwap={swap.toggle} />
             )}

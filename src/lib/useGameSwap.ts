@@ -23,15 +23,24 @@
 import { useState } from 'react';
 import { useGuncha } from './useGuncha';
 
-export function useGameSwap(forced = false) {
+export function useGameSwap(
+  forced = false,
+  /** Bosh sahifadagi taxta uchun: g'uncha **faqat mashq** bo'ladi va
+   *  «Kunlik / Mashq» tanlovi umuman chizilmaydi. Sabab So'ztopniki
+   *  bilan bir xil (`Hero` dagi izoh): kunligi kuniga bitta va uning
+   *  o'z sahifasi bor, tanishtiruv taxtasida esa odam o'ynab
+   *  ko'rishi kerak — tanlashi emas. */
+  practiceOnly = false,
+) {
   const [swap, setSwap] = useState<{ from: boolean; to: boolean } | null>(null);
   const flower = swap?.from === forced ? swap.to : forced;
-  const guncha = useGuncha(flower);
+  const guncha = useGuncha(flower, practiceOnly ? 'practice' : 'daily');
 
   return {
     /** Hozir g'uncha ko'rinib turibdimi. */
     flower,
     guncha,
+    practiceOnly,
     toggle: () => setSwap({ from: forced, to: !flower }),
   };
 }

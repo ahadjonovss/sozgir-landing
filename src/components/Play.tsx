@@ -262,7 +262,9 @@ function PlayBoard({
               ochilgandek bo'lardi.
 
               Belgi emoji: `gameLinks` kartochkalarida ham o'sha
-              turadi, ya'ni odam uni allaqachon ko'rgan. */}
+              turadi, ya'ni odam uni allaqachon ko'rgan. Yonida nomi
+              ham yoziladi — qarshi tomondagi tugma bilan bir xil
+              ko'rinsin va «bu nima?» degan savol tug'ilmasin. */}
           {onSwap && (
             <button
               type="button"
@@ -272,6 +274,7 @@ function PlayBoard({
               title="G‘unchaga almashtirish"
             >
               <span aria-hidden="true">🌸</span>
+              <span className="play__swap-name">G‘uncha</span>
             </button>
           )}
           {/* Boshqa so'zga o'tish — oddiy yangilash belgisi.

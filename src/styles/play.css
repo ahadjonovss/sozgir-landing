@@ -505,13 +505,29 @@
   transition: background 0.16s ease, color 0.16s ease;
 }
 
-/* O'yin turini almashtiradigan belgi — emoji, shuning uchun `svg`
-   o'lchami emas, shrift o'lchami beriladi. Havola bo'lgani uchun
-   matn bezagi ham olinadi. */
+/* O'yin turini almashtiradigan tugma — emoji va nomi.
+   Emoji bo'lgani uchun `svg` o'lchami emas, shrift o'lchami
+   beriladi. Havola bo'lgani uchun matn bezagi ham olinadi.
+
+   Kengligi `.play__ranks` dagi kvadratdan **ozod**: yonida nom
+   turadi. Ilgari u yolg'iz emoji edi va So'ztop tomonida (🟩 —
+   yashil kvadrat) tugmaga umuman o'xshamasdi. */
 .play__swap {
-  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: auto;
+  padding: 0 10px;
+  font-size: 15px;
   line-height: 1;
   text-decoration: none;
+}
+
+.play__swap-name {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
 }
 
 .play__ranks svg {
@@ -7014,6 +7030,32 @@
    yo'qolardi. */
 .game-slot {
   position: relative;
+}
+
+/* Taxta almashganda silliq kirib keladi.
+   React ikkala o'yinni bir zumda almashtiradi va u sakrab
+   ko'rinardi: bitta kadrda So'ztop, keyingisida g'uncha. Chiqib
+   ketayotganini kutib turib bo'lmaydi (u darhol olinadi), shuning
+   uchun faqat **kelayotgani** yumshatiladi — ko'zga shu yetadi.
+   Yon ustunlar animatsiyaga tushmaydi: ular o'ramning o'zida va
+   almashganda joyida qoladi. */
+.game-slot > .play,
+.game-slot > .guncha {
+  animation: game-swap 0.22s ease both;
+}
+
+@keyframes game-swap {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-slot > .play,
+  .game-slot > .guncha {
+    animation: none;
+  }
 }
 
 .play {

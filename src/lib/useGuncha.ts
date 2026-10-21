@@ -63,9 +63,17 @@ export function useGuncha(
   /** G'uncha hozir ekranda turibdimi — `useSozTop` dagi bilan bir
    *  sabab: ko'rinmayotgan o'yin klaviaturani eshitmaydi. */
   active = true,
+  /** Qaysi rejimdan boshlanadi.
+   *
+   *  Faqat **boshlang'ich** qiymat: keyin uni `pickMode` boshqaradi.
+   *  Bosh sahifadagi taxta shu sababli `practice` dan boshlanadi —
+   *  kunlik g'uncha kuniga bitta va uni tanishtiruv taxtasida
+   *  sarflab qo'yish kerak emas (`Hero` dagi izoh: o'sha yerda
+   *  So'ztop ham aynan shu sababdan cheksiz rejimda turadi). */
+  startMode: GunchaMode = 'daily',
 ) {
   const { account } = useAuth();
-  const [mode, setMode] = useState<GunchaMode>('daily');
+  const [mode, setMode] = useState<GunchaMode>(startMode);
   const [loaded, setLoaded] = useState<Loaded | null>(null);
   /** Yozilayotgan so'z ham kalit bilan: g'uncha almashsa o'zi tozalanadi. */
   const [input, setInput] = useState<{ key: string; units: string[] }>({
