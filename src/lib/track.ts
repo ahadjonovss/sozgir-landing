@@ -140,7 +140,7 @@ function source(): string {
  *  Yashirin oynada yoki saqlash bloklangan brauzerda `sessionStorage`
  *  xato beradi. Bunda hodisa baribir yuboriladi: bitta ortiqcha xabar
  *  umuman yo'q xabardan yaxshiroq. */
-export function trackVisit(): void {
+export function trackVisit(who?: { uid: string; nickname: string } | null): void {
   try {
     if (sessionStorage.getItem(VISIT_KEY)) return;
     sessionStorage.setItem(VISIT_KEY, '1');
@@ -149,6 +149,11 @@ export function trackVisit(): void {
   }
 
   track('visit', [
+    /* Kim kirgani birinchi qatorda: xabarni o'qiyotgan odam avval
+       shuni qidiradi. Kirmagan odamda taxallus yo'q — «mehmon».
+       Hisob raqamining boshi ham yoziladi: bir xil taxalluslar
+       uchrashi mumkin va qaysi hisob ekanini ajratish kerak. */
+    ['Kim', who ? `${who.nickname || 'nomsiz'} · ${who.uid.slice(0, 6)}` : 'mehmon'],
     ['Sahifa', location.pathname],
     ['Qayerdan', source()],
     ['Qurilma', device()],

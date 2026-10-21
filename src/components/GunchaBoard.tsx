@@ -38,12 +38,21 @@ export function GunchaBoard({
   return (
       <div className="guncha">
         <div className="guncha__head">
-          {/* Tanlov bosh sahifada chizilmaydi: u yerda g'uncha
-              doim mashq va tanlaydigan narsa yo'q. Bo'sh `div`
-              baribir qoladi — sarlavha qatori ikki chekkaga
-              yoyilgan va uni olib tashlash «Qoidalar» ni chapga
-              tortib yuborardi. */}
-          <div className="guncha__modes">
+          {/* Chap guruh — So'ztopnikining ko'zgusi (`play__top-left`):
+              avval «bu qaysi o'yin» degan savolga javob beradigan
+              raqam, keyin rejim tugmalari. Raqam ilgari pastki
+              qatorda edi va ikkala taxtaning tepasi bir-biriga
+              o'xshamasdi: birida chap chetda chip, ikkinchisida
+              bo'shliq. Pastda so'z va pangramma sanog'i qoladi. */}
+          <div className="guncha__head-left">
+            {puzzle && (
+              <span className="phone__live">
+                <i />
+                {mode === 'daily' ? `№${puzzle.number}` : `${puzzle.number}-mashq`}
+              </span>
+            )}
+            {/* Tanlov bosh sahifada chizilmaydi: u yerda g'uncha
+                doim mashq va tanlaydigan narsa yo'q. */}
             {!practiceOnly && (
               <>
                 <button
@@ -84,8 +93,19 @@ export function GunchaBoard({
                 <span className="play__swap-name">So‘ztop</span>
               </button>
             )}
-            <button className="link" onClick={() => setRules((open) => !open)}>
-              Qoidalar
+            {/* Qoidalar ham o'sha chip: ilgari ko'k havola edi va
+                yonidagi tugmalarga umuman o'xshamasdi. Sinf nomi
+                «swap» bo'lib qoldi — uni qayta nomlash uchun uch
+                faylni o'zgartirish kerak bo'lardi va ko'rinishga
+                hech narsa qo'shmasdi (`.play__ranks` dagi izoh
+                bilan bir sabab). */}
+            <button
+              type="button"
+              className="play__ranks play__swap"
+              aria-expanded={rules}
+              onClick={() => setRules((open) => !open)}
+            >
+              <span className="play__swap-name">Qoidalar</span>
             </button>
           </span>
         </div>
@@ -170,12 +190,9 @@ export function GunchaBoard({
               </button>
             </div>
 
+            {/* Raqam bu yerdan tepaga, chap chetdagi chipga ko'chdi
+                — So'ztopda ham o'sha joyda turadi. */}
             <div className="guncha__foot">
-              <span>
-                {mode === 'daily'
-                  ? `Kunlik g‘uncha №${puzzle.number}`
-                  : `Mashq №${puzzle.number}`}
-              </span>
               <span>
                 {foundTargets} / {puzzle.words.length} so‘z ·{' '}
                 {pangramsOf(puzzle)} pangramma

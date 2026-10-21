@@ -27,6 +27,7 @@ import GunchaBattlePage from './components/GunchaBattlePage';
 import MarduPage from './components/MarduPage';
 import TurnirPage from './components/TurnirPage';
 import Header from './components/Header';
+import { useAuth } from './lib/auth';
 import SideAds from './components/SideAds';
 import { StageProvider } from './lib/stage';
 import Hero from './components/Hero';
@@ -67,6 +68,7 @@ const GAME_ROUTES = new Set([
 export default function App() {
   useReveal();
   const route = useRoute();
+  const { account } = useAuth();
   const script = useScript();
   const endless = lengthPageOf(route);
   const guide = guideOf(route);
@@ -103,8 +105,12 @@ export default function App() {
   useEffect(() => {
     watchErrors();
     watchLinks();
-    trackVisit();
-  }, []);
+    /* Hisob `localStorage` dan birinchi kadrdayoq o'qiladi
+       (`auth.tsx`), ya'ni kirgan odamning taxallusi shu yerda
+       allaqachon ma'lum va kutishning hojati yo'q. Tashrif baribir
+       seansiga bitta: ichkaridagi belgi takrorni to'xtatadi. */
+    trackVisit(account);
+  }, [account]);
 
   return (
     <StageProvider>

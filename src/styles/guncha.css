@@ -160,18 +160,32 @@
   background: var(--surface);
 }
 
+/* Tepa qator So'ztopnikidek: o'lchovlari `.play__top` va
+   `.play__top-right` dagi bilan bir xil, chunki ikkala taxta bitta
+   o'ramda almashadi va qator qimirlamasligi kerak. */
 .guncha__head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
+}
+
+/* Chap guruh: g'uncha raqami va rejim tugmalari. */
+.guncha__head-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
 }
 
 /* Sarlavhaning o'ng cheti: o'yin turini almashtirish va qoidalar. */
 .guncha__head-right {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  /* Doim o'ng chetda: bosh sahifada chap guruhda faqat raqam
+     qoladi va `space-between` ni kutib o'tirmaydi. */
+  margin-left: auto;
 }
 
 .guncha__modes {

@@ -49,6 +49,7 @@ import { seriesOf, turnirPath } from '../lib/turnir';
 import { TurnirGroups, TurnirNext, TurnirWaiting } from './TurnirSide';
 import { useTurnirHop } from '../lib/useTurnir';
 import { useLiveStage } from '../lib/stage';
+import { trackOnce } from '../lib/track';
 
 /** Havoladagi kod — chaqiruvni bosib kelgan odam uchun.
  *
@@ -871,6 +872,46 @@ function Result({ game }: { game: Sozjang }) {
    *  bo'limi bu yerda noto'g'ri manzil: odam turnirning keyingi
    *  davrasini kutyapti. */
   const series = seriesOf(game.battle);
+
+  /* Tugagan jang — Telegram guruhiga. Yakka o'yinni `Play` yozadi,
+     onlayn o'yinlar esa shu paytgacha umuman yozilmasdi: guruhda
+     faqat kunlik so'z ko'rinardi.
+
+     Kalit — jang raqami, ya'ni bitta jang bitta xabar. Natija ekrani
+     qayta chizilsa ham (revansh oynasi ochildi, shikoyat yopildi)
+     ikkinchi xabar ketmaydi.
+
+     Javob so'zi yozilmaydi: `Play` dagi sabab bu yerda ham amal
+     qiladi — guruhni ochgan odam o'ynashdan oldin ko'rib qo'yardi. */
+  useEffect(() => {
+    if (!game.battleId) return;
+    trackOnce(`jang:${game.battleId}`, 'game', [
+      ['O‘yin', game.mardu ? 'Mardu maydon' : series ? 'Turnir' : 'So‘zjang'],
+      [
+        'Natija',
+        expired
+          ? 'muddati o‘tdi'
+          : gaveUp
+            ? 'taslim'
+            : game.mardu
+              ? place > 0
+                ? `${place}-o‘rin`
+                : 'tugadi'
+              : mine
+                ? 'g‘alaba'
+                : draw
+                  ? 'durang'
+                  : 'mag‘lubiyat',
+      ],
+      ['Kim', meName],
+      ['Raqib', game.mardu ? `${game.arena.length} kishi` : foeName],
+      ['Aqcha', meAqcha || null],
+    ]);
+    /* Bog'liqlikda faqat jang raqami: natija o'sha paytda o'qiladi va
+       keyingi qayta chizish yangi xabar emas. */
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [game.battleId]);
+
   /** Javob so'zining ma'nosi — ilovadagi natija ekranidagidek, so'z
    *  ostida. Jang tugagan, yashirishdan ma'no yo'q. */
   const meaning = useMeaning(game.battle?.answer, game.boardLength);

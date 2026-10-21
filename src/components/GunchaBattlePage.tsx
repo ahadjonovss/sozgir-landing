@@ -43,6 +43,7 @@ import { TurnirGroups, TurnirNext, TurnirWaiting } from './TurnirSide';
 import { useTurnirHop } from '../lib/useTurnir';
 import AdBanner from './AdBanner';
 import { useLiveStage } from '../lib/stage';
+import { trackOnce } from '../lib/track';
 
 /** Oxirgi soniyalarda rang ogohlantiruvchiga o'tadi. */
 const URGENT_AT = 30;
@@ -602,6 +603,30 @@ function Result({ game }: { game: GunchaJang }) {
   /** Turnir guruhi bo'lsa — o'z turniriga qaytish yo'li. Umumiy maydon
    *  bo'limi bu yerda noto'g'ri manzil: odam keyingi davrani kutyapti. */
   const series = seriesOf(game.battle);
+
+  /* Tugagan jang — Telegram guruhiga, So'zjangdagidek. Kalit jang
+     raqami: natija ekrani qayta chizilsa ikkinchi xabar ketmaydi. */
+  useEffect(() => {
+    if (!game.battleId) return;
+    trackOnce(`jang:${game.battleId}`, 'game', [
+      ['O‘yin', game.mardu ? 'G‘uncha · maydon' : series ? 'G‘uncha · turnir' : 'G‘uncha jangi'],
+      [
+        'Natija',
+        game.mardu
+          ? place > 0
+            ? `${place}-o‘rin`
+            : 'tugadi'
+          : !winner
+            ? 'durang'
+            : winner === uid
+              ? 'g‘alaba'
+              : 'mag‘lubiyat',
+      ],
+      ['Hisob', `${mineScore}:${theirScore}`],
+      ['Aqcha', meAqcha ?? null],
+    ]);
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [game.battleId]);
 
   /** Natijani rasm bilan ulashadi — ilovadagi kartochkaning o'zi.
    *

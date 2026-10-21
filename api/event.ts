@@ -82,6 +82,31 @@ function body(rows: unknown): string[] {
   return out;
 }
 
+/** Odam qayerdan ulangan — shahar va davlat.
+ *
+ *  Sarlavhalarni Vercel chekkasi o'zi qo'yadi: mijoz hech narsa
+ *  yubormaydi va yubora ham olmaydi (bu sarlavhalar tashqaridan
+ *  kelsa ham ustidan yoziladi). Shuning uchun bu qator xabardagi
+ *  yagona ishonchli ma'lumot.
+ *
+ *  IP yozilmaydi — u shaxsiy ma'lumot va xabarni o'qiyotgan odamga
+ *  hech narsa bermaydi. Shahar va davlat «kimlar kiryapti» degan
+ *  savolga yetarli javob.
+ *
+ *  Shahar nomi foizli kodlangan holda keladi (`Tashkent`,
+ *  `Nukus`, lekin `San%20Francisco` ham) — ochib beriladi. */
+function place(request: Request): string {
+  const head = (name: string) => request.headers.get(name) ?? '';
+  let city = head('x-vercel-ip-city');
+  try {
+    city = decodeURIComponent(city);
+  } catch {
+    // Kodlash buzuq — borini olamiz.
+  }
+  const country = head('x-vercel-ip-country');
+  return [city, country].filter(Boolean).join(', ');
+}
+
 /** So'rov saytning o'zidan keldimi.
  *
  *  Bu to'siq emas — `Origin` ni istalgan skript qo'lda qo'ya oladi va
@@ -136,6 +161,11 @@ export default async function handler(request: Request): Promise<Response> {
   if (type === 'visit' && process.env.TELEGRAM_SITE_VISIT === '0') return done();
 
   const rows = body(payload.rows);
+  /* Joy oxirida: mijoz yuborgan qatorlar birinchi o'rinda turadi,
+     chunki xabarning mazmuni o'sha yerda. */
+  const where = place(request);
+  if (where) rows.push(`Joy: <code>${escape(where)}</code>`);
+
   const text = [`${event.tag} <b>${escape(event.title)}</b>`, ...rows].join('\n');
   const threadId = Number(process.env[`TELEGRAM_SITE_${event.thread}_THREAD`] ?? 0);
 
