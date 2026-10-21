@@ -584,6 +584,14 @@ export function useSozjang() {
         if (!(await gateBeforeOnlineGame(account.uid))) return;
         setSeconds(0);
         waiting.current = true;
+        /* O'tgan jang ekrandan olinadi — qidiruvdan **oldin**.
+           Holat `battleId` bor-yo'qligidan boshlanadi: eski jang
+           raqami joyida turganda `searching` umuman qaralmasdi va
+           «Raqib qidirish» bosilgan odam qidiruv ekrani o'rnida
+           o'zi endigina ko'rgan natijani ko'rardi. Jangning
+           davomida bu tugma chizilmaydi, ya'ni bu yerda
+           yo'qotiladigan narsa yo'q. */
+        close();
         /* Qidiruv ekrani so'rovdan **oldin** yoqiladi: javob kelgunicha
            ekranda lobbi turardi va tugma bosilgani bilinmasdi — sekin
            aloqada bu bir necha soniya edi. Raqib darrov topilsa
@@ -617,7 +625,7 @@ export function useSozjang() {
           throw error;
         }
       }),
-    [account, length, open, run],
+    [account, close, length, open, run],
   );
 
   const cancelSearch = useCallback(async () => {

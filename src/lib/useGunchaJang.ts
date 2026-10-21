@@ -671,6 +671,10 @@ export function useGunchaJang() {
         if (!(await gateBeforeOnlineGame(account.uid))) return;
         setSeconds(0);
         waiting.current = true;
+        /* O'tgan jang ekrandan olinadi — So'zjangdagi bilan bir sabab:
+           holat `battleId` dan boshlanadi va eski jang raqami joyida
+           turganda `searching` umuman qaralmasdi. */
+        close();
         /* Qidiruv ekrani so'rovdan **oldin** yoqiladi — So'zjangdagidek.
            Ilgari u faqat javob «raqib topilmadi» bo'lganda chiqardi va
            o'shangacha ekranda lobbi turardi: natijadan «Keyingi jang»
@@ -697,7 +701,7 @@ export function useGunchaJang() {
           throw error;
         }
       }),
-    [account, open, run],
+    [account, close, open, run],
   );
 
   const cancelSearch = useCallback(async () => {
