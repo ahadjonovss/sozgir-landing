@@ -32,6 +32,7 @@ import MarduPage from './MarduPage';
 import PlaysLeft from './PlaysLeft';
 import TurnirPage from './TurnirPage';
 import AdBanner from './AdBanner';
+import { useStage } from '../lib/stage';
 
 /** Tanlov ro'yxati — tartibi yuqorida aytilgan. */
 const TABS = [
@@ -47,10 +48,14 @@ export default function PlayHub() {
   /** Ochiq turgani — birinchisi: So'zjang bu sahifadagi eng ko'p
    *  bosiladigan o'yin. */
   const [tab, setTab] = useState<TabId>('sozjang');
+  /* Jang ketayotganda tanlov yashiriladi: taxtaning ustida boshqa
+     o'yinga o'tkazadigan tugma turmasligi kerak. Jang tugab lobbiga
+     qaytilganda nomlar o'z o'rniga qaytadi. */
+  const live = useStage();
 
   return (
     <>
-      <section className="oyin hub__top">
+      <section className={`oyin hub__top${live ? ' hub__top--off' : ''}`}>
         <div className="wrap hub hub--pick">
           {/* Aqcha kartochkasi bu yerda yo'q: tanlangan o'yinning
               sahifasida «Jang aqchasi» allaqachon turibdi va
@@ -100,15 +105,23 @@ export default function PlayHub() {
 
       {/* Umumiy reyting o'yindan keyin. Janglar tarixi bu yerda yo'q:
           u tanlangan o'yinning o'z sahifasida chiqadi va bu yerda
-          ikkinchi marta turardi. */}
-      <section className="oyin hub__after">
-        <div className="wrap hub">
-          <Leaderboard />
-          {/* Sahifaning eng oxiri: taxta ham, raqib qidirish ham
-              ancha yuqorida qoladi. */}
-          <AdBanner placement="hub" />
-        </div>
-      </section>
+          ikkinchi marta turardi.
+
+          Jang ketayotganda reyting umuman chizilmaydi: o'ynayotgan
+          odam uni o'qimaydi, lekin u taxtadan kengroq bo'lib
+          chetdagi bannerlarga tiqilardi. Jang tugagach qaytadi —
+          aynan o'sha payt «boshqalarga nisbatan qanday» degan savol
+          tug'iladi. */}
+      {!live && (
+        <section className="oyin hub__after">
+          <div className="wrap hub">
+            <Leaderboard />
+            {/* Sahifaning eng oxiri: taxta ham, raqib qidirish ham
+                ancha yuqorida qoladi. */}
+            <AdBanner placement="hub" />
+          </div>
+        </section>
+      )}
     </>
   );
 }

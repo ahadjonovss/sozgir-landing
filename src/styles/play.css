@@ -7260,3 +7260,67 @@
   justify-items: center;
   text-align: center;
 }
+
+/* ── Jang paytidagi ramka ────────────────────────────────────────────
+
+   Jangga kirgandan keyin sahifada faqat o'yin qoladi: tanlov nomlari
+   yashiriladi, chetdagi bo'shliqqa esa reklama chiqadi. Ikkalasi ham
+   `stage.tsx` dagi bitta bayroqdan boshqariladi. */
+
+/* Tanlov (`O'ynash` sahifasidagi to'rtta nom) jang paytida yo'qoladi.
+   `display: none` emas, chunki qolgan o'yinlar soni (`PlaysLeft`) shu
+   bo'limda va u jang paytida ham kerak — faqat nomlar olinadi. */
+.hub__top--off .hub__tabs {
+  display: none;
+}
+
+/* Qolgan bir qator (necha bellashuv qolgani) taxta bilan bir enda
+   turadi. Shusiz u sahifaning to'liq enini egallardi va chetdagi
+   bannerlarga tiqilardi. */
+.hub__top--off .hub {
+  max-width: 980px;
+}
+
+/* Ikkita chet banneri. Varaqning o'zida turadi (`fixed`), shuning
+   uchun ularning paydo bo'lishi matnni surmaydi va surilganda ular
+   joyida qoladi. */
+.rails {
+  display: none;
+}
+
+/* Joy faqat shu kenglikdan boshlab yetadi: o'rtadagi ustun 980px,
+   ikki yonda banner uchun 240px va hoshiya uchun 32px kerak. Tor
+   ekranda — telefon, planshet, oddiy noutbuk — umuman chizilmaydi. */
+@media (min-width: 1560px) {
+  .rails {
+    display: block;
+  }
+
+  .rails__one {
+    position: fixed;
+    top: 50%;
+    width: 240px;
+    transform: translateY(-50%);
+    /* Taxtadan past: markazdagi ustun bilan hech qachon
+       to'qnashmaydi. */
+    z-index: 1;
+  }
+
+  /* Markazdan hisoblanadi: o'rtadagi ustunning chekkasi `50% - 490px`,
+     undan 32px hoshiya va banner enining o'zi. */
+  .rails__one--left {
+    right: calc(50% + 490px + 32px);
+  }
+
+  .rails__one--right {
+    left: calc(50% + 490px + 32px);
+  }
+}
+
+/* Past ekranda (masalan yonboshlatilgan planshet) banner sarlavha
+   bilan footer orasiga sig'masligi mumkin — shunda ham yashiriladi. */
+@media (max-height: 560px) {
+  .rails {
+    display: none;
+  }
+}

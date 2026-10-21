@@ -27,6 +27,8 @@ import GunchaBattlePage from './components/GunchaBattlePage';
 import MarduPage from './components/MarduPage';
 import TurnirPage from './components/TurnirPage';
 import Header from './components/Header';
+import SideAds from './components/SideAds';
+import { StageProvider } from './lib/stage';
 import Hero from './components/Hero';
 import InviteOverlay from './components/InviteOverlay';
 import Modules from './components/Modules';
@@ -105,7 +107,7 @@ export default function App() {
   }, []);
 
   return (
-    <>
+    <StageProvider>
       <Header route={route} />
 
       <main>
@@ -173,6 +175,10 @@ export default function App() {
           esa kuniga bir marta va sahifa ochilgandan bir necha soniya
           keyin chiqadi. */}
       <AppPopup />
-    </>
+      {/* Jang paytida chetlarda qoladigan bo'shliq. Ramkaning o'zida
+          turadi: o'yin qaysi sahifada ochilganidan qat'i nazar bir xil
+          joyda bo'lishi kerak. */}
+      <SideAds />
+    </StageProvider>
   );
 }

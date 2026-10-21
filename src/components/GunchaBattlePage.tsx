@@ -42,6 +42,7 @@ import { seriesOf, turnirPath } from '../lib/turnir';
 import { TurnirGroups, TurnirNext, TurnirWaiting } from './TurnirSide';
 import { useTurnirHop } from '../lib/useTurnir';
 import AdBanner from './AdBanner';
+import { useLiveStage } from '../lib/stage';
 
 /** Oxirgi soniyalarda rang ogohlantiruvchiga o'tadi. */
 const URGENT_AT = 30;
@@ -62,6 +63,10 @@ export default function GunchaBattlePage() {
   // Turnir guruhida o'ynagan odamni keyingi davra o'zi olib ketadi:
   // natija ekranida o'tirgan odam turnir hujjatini kuzatmaydi.
   useTurnirHop(game.battleId, game.battle);
+  /* Lobbidan chiqdi — demak o'ynayapti. Chaqiruv hisob tekshiruvidan
+     **oldin** turadi: `if (!account)` dan keyin qo'yilsa u shartli
+     bo'lib qolardi. */
+  useLiveStage('gunchajang', game.phase !== 'lobby');
 
   if (!account) {
     return (

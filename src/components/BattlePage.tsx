@@ -48,6 +48,7 @@ import { routeParam } from '../lib/useRoute';
 import { seriesOf, turnirPath } from '../lib/turnir';
 import { TurnirGroups, TurnirNext, TurnirWaiting } from './TurnirSide';
 import { useTurnirHop } from '../lib/useTurnir';
+import { useLiveStage } from '../lib/stage';
 
 /** Havoladagi kod — chaqiruvni bosib kelgan odam uchun.
  *
@@ -1245,6 +1246,11 @@ export default function BattlePage() {
   // och yashil-ko'k parda (ilovadagi `ArenaBackdrop`). Arena kartochkasi
   // yolg'iz turganda sahifaning qolgani oddiy oq ro'yxatdek ko'rinardi.
   const arena = phase === 'waiting' || (phase === 'playing' && intro);
+
+  /* Lobbidan chiqdi — demak o'ynayapti: tanlov nomlari yashirinadi va
+     keng ekranda chetlarga reklama chiqadi. Natija ekrani ham shu
+     hisobda: u hali jangning davomi, odam undan lobbiga qaytadi. */
+  useLiveStage('sozjang', phase !== 'lobby');
 
   return (
     <section className={`oyin jang${arena ? ' jang--arena' : ''}`}>
