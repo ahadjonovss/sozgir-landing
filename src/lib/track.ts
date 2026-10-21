@@ -16,7 +16,7 @@
  *  hal qiladi. Sabab oddiy: brauzerga tushgan token ochiq matn va
  *  uni istagan odam o'qiydi. */
 import { adUnit, type AdPlacement } from './ads';
-import { prettyLogin } from './loginId';
+import { compactLogin } from './loginId';
 
 /** Hodisa turlari — `api/event.ts` dagi jadval bilan bir xil. */
 export type TrackEvent = 'visit' | 'error' | 'ad' | 'share' | 'get' | 'game';
@@ -159,9 +159,14 @@ export function trackVisit(
     ['Kim', who ? `${who.nickname || 'nomsiz'} · ${who.uid.slice(0, 6)}` : 'mehmon'],
     /* Telefon raqami yoki pochta — hisob nima bilan ochilgan bo'lsa.
        Raqam bilan kirgan odamning manzili `901234567@gmail.com`
-       ko'rinishida saqlanadi va [prettyLogin] uni yana raqamga
-       qaytaradi; haqiqiy pochta esa o'z holicha qoladi. */
-    ['Aloqa', who?.email ? prettyLogin(who.email) : null],
+       ko'rinishida saqlanadi va [compactLogin] uni yana raqamga
+       qaytaradi; haqiqiy pochta esa o'z holicha qoladi.
+
+       Bo'shliqsiz ataylab: guruhda bu qator `<code>` ga
+       o'ralmaydi va Telegram raqamni o'zi havolaga aylantiradi —
+       xabarni o'qigan odam bosib qo'ng'iroq qila oladi
+       (`api/event.ts` dagi `wrap`). */
+    ['Aloqa', who?.email ? compactLogin(who.email) : null],
     ['Sahifa', location.pathname],
     ['Qayerdan', source()],
     ['Qurilma', device()],

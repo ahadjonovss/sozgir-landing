@@ -85,6 +85,22 @@ export function prettyLogin(email: string | null | undefined): string {
   return `+${COUNTRY_CODE} ${name.slice(0, 2)} ${name.slice(2, 5)} ${name.slice(5, 7)} ${name.slice(7)}`;
 }
 
+/** Bo'shliqsiz ko'rinish: `901234567@gmail.com` → `+998901234567`.
+ *
+ *  Ekranga emas — xabarga. Guruhdagi tashrif xabarida raqam shu
+ *  ko'rinishda ketadi: Telegram bo'shliqsiz raqamni o'zi taniydi va
+ *  bosiladigan qiladi, oraliqlisini esa hamma terminal ham
+ *  tanimaydi. Odamga ko'rsatiladigan joyda [prettyLogin] qoladi —
+ *  u yerda o'qilishi muhimroq.
+ *
+ *  Raqamdan yasalmagan manzil o'z holicha qaytadi. */
+export function compactLogin(email: string | null | undefined): string {
+  const value = (email ?? '').trim();
+  const [name, domain] = value.split('@');
+  if (domain !== PHONE_DOMAIN || !name || !/^\d{9}$/.test(name)) return value;
+  return `+${COUNTRY_CODE}${name}`;
+}
+
 /** Ekran uchun guruhlab yozadi: `901234567` → `90 123 45 67`. Yarim
  *  yozilgan raqam ham bo'linadi — maydon terilayotganda ham o'qiladi. */
 export function formatPhone(digits: string): string {

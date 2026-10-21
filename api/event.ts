@@ -35,13 +35,43 @@ export const config = { runtime: 'edge' };
  *  `loud` — telefonni jiringlatadimi. Faqat xatolar: qolgani kuzatuv
  *  oqimi va har biri bildirishnoma bo'lsa guruh o'chirib qo'yiladi,
  *  keyin xatolar ham ko'rinmay ketadi. */
-const EVENTS: Record<string, { tag: string; title: string; thread: string; loud?: boolean }> = {
-  visit: { tag: '#tashrif', title: 'Saytga kirildi', thread: 'VISIT' },
-  error: { tag: '#xato', title: 'Saytda xato', thread: 'ERRORS', loud: true },
-  ad: { tag: '#reklama', title: 'Reklama', thread: 'ADS' },
-  share: { tag: '#ulashish', title: 'Ulashildi', thread: 'SHARE' },
-  get: { tag: '#yuklab_olish', title: 'Do‘kon havolasi', thread: 'GET' },
-  game: { tag: '#oyin', title: 'O‘yin', thread: 'GAME' },
+const EVENTS: Record<
+  string,
+  { tag: string; emoji: string; title: string; thread: string; loud?: boolean }
+> = {
+  visit: { tag: '#tashrif', emoji: '👋', title: 'Saytga kirildi', thread: 'VISIT' },
+  error: { tag: '#xato', emoji: '🐞', title: 'Saytda xato', thread: 'ERRORS', loud: true },
+  ad: { tag: '#reklama', emoji: '📣', title: 'Reklama', thread: 'ADS' },
+  share: { tag: '#ulashish', emoji: '🔗', title: 'Ulashildi', thread: 'SHARE' },
+  get: { tag: '#yuklab_olish', emoji: '⬇️', title: 'Do‘kon havolasi', thread: 'GET' },
+  game: { tag: '#oyin', emoji: '🎮', title: 'O‘yin', thread: 'GAME' },
+};
+
+/** Qator yorlig'iga mos belgi.
+ *
+ *  Bezak emas, qidirish uchun: guruhdagi xabar bir xil shakldagi
+ *  o'nlab qatordan iborat va ko'z ularni matndan emas, belgidan
+ *  topadi — «qayerdan kirgan» degan savolga javob ↪️ ning yonida
+ *  turadi.
+ *
+ *  Ro'yxatda yo'q yorliq belgisiz chiqadi: mijoz yangi yorliq
+ *  yuborsa xabar baribir o'qiladi, faqat belgisi bo'lmaydi. */
+const MARKS: Record<string, string> = {
+  Kim: '👤',
+  Aloqa: '📞',
+  Sahifa: '📄',
+  Qayerdan: '↪️',
+  Qurilma: '💻',
+  Ekran: '🖥',
+  Til: '🌐',
+  Joy: '📍',
+  Xato: '⚠️',
+  Qayerda: '🧭',
+  Nima: '🔸',
+  Holat: '🔔',
+  Blok: '🧱',
+  Tugma: '🔘',
+  'Do‘kon': '🏬',
 };
 
 /** Bitta xabardagi eng ko'p qator va har birining uzunligi.
@@ -68,6 +98,29 @@ function clean(value: unknown, limit: number): string {
   return value.replace(/\s+/g, ' ').trim().slice(0, limit);
 }
 
+/** Telefon raqamimi — `+` va 9–15 ta raqam, orasida hech narsa yo'q.
+ *
+ *  Tekshiruv **serverda**: xabarning shaklini mijoz hal qilmaydi
+ *  degan qoida (fayl sarlavhasiga qarang) bu yerda ham amal qiladi
+ *  — mijoz «bu raqam, ochiq yoz» deb ayta olmaydi, qiymatning o'zi
+ *  shunday ko'rinsa ochiq yoziladi. */
+const PHONE = /^\+\d{9,15}$/;
+
+/** Qiymat qanday o'raladi.
+ *
+ *  Odatda `<code>`: Telegram'da u bosilsa nusxa olinadi va xabarni
+ *  o'qiyotgan odam uzun `uid` ni qo'lda ko'chirmaydi.
+ *
+ *  Telefon raqami esa **o'ralmaydi**. `<code>` ichidagi raqamni
+ *  Telegram havolaga aylantirmaydi, ya'ni uni bosib qo'ng'iroq
+ *  qilib bo'lmaydi — nusxa olinadi, xolos. Ochiq matnda esa
+ *  Telegram uni o'zi taniydi va bosiladigan qiladi. Shu sabab
+ *  bo'shliqlar ham olib tashlangan (`compactLogin`): oraliqli
+ *  raqamni hamma terminal ham tanimaydi. */
+function wrap(value: string): string {
+  return PHONE.test(value) ? escape(value) : `<code>${escape(value)}</code>`;
+}
+
 /** Qatorlarni `[label, value]` juftliklaridan yig'adi. */
 function body(rows: unknown): string[] {
   if (!Array.isArray(rows)) return [];
@@ -77,7 +130,8 @@ function body(rows: unknown): string[] {
     const label = clean(row[0], LIMITS.label);
     const value = clean(row[1], LIMITS.value);
     if (!label || !value) continue;
-    out.push(`${escape(label)}: <code>${escape(value)}</code>`);
+    const mark = MARKS[label];
+    out.push(`${mark ? `${mark} ` : ''}${escape(label)}: ${wrap(value)}`);
   }
   return out;
 }
@@ -164,9 +218,18 @@ export default async function handler(request: Request): Promise<Response> {
   /* Joy oxirida: mijoz yuborgan qatorlar birinchi o'rinda turadi,
      chunki xabarning mazmuni o'sha yerda. */
   const where = place(request);
-  if (where) rows.push(`Joy: <code>${escape(where)}</code>`);
+  if (where) rows.push(`${MARKS.Joy} Joy: <code>${escape(where)}</code>`);
 
-  const text = [`${event.tag} <b>${escape(event.title)}</b>`, ...rows].join('\n');
+  /* Teg **o'z qatorida**, xabar esa uning ostida.
+     Telegram tegni bosilsa guruh ichida o'sha teg bo'yicha qidiradi;
+     sarlavha bilan bir qatorda turganda u matnning bir bo'lagiga
+     o'xshab ketardi va ko'z uni ajratmasdi. Endi har xabar tegdan
+     boshlanadi va ro'yxat bir xil shaklda o'qiladi. */
+  const text = [
+    event.tag,
+    `${event.emoji} <b>${escape(event.title)}</b>`,
+    ...rows,
+  ].join('\n');
   const threadId = Number(process.env[`TELEGRAM_SITE_${event.thread}_THREAD`] ?? 0);
 
   try {
