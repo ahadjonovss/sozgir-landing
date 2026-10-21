@@ -4442,6 +4442,34 @@
   --ad-h: 100px;
 }
 
+/* «Reklamani o'chirish uchun premium oling» — ramkaning **ustida**.
+   Reklamaning ichida emas: ichidagi hamma narsa reklama tarmog'iniki
+   va uning ustiga o'z tugmamizni qo'yish yorliqning ma'nosini
+   buzardi — qaysi biri bizniki, qaysi biri begona ekani
+   bilinmasdi.
+
+   Ko'zga tashlanmaydi: kulrang, kichkina va chiziqsiz. U taklif,
+   o'yinning ustidagi ikkinchi reklama emas. */
+.ad__premium {
+  display: block;
+  width: 100%;
+  margin-bottom: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-2);
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.ad__premium:hover {
+  color: var(--green);
+}
+
 .ad__frame {
   display: none;
 }

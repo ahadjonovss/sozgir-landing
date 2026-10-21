@@ -25,6 +25,7 @@
  *  «o'chib-yonadigan» reklama yasaydi va bu eng bezovta qiladigan
  *  narsa. */
 import { useEffect, useRef, useState } from 'react';
+import DonateModal from './DonateModal';
 import { useAuth } from '../lib/auth';
 import { isAdFree } from '../lib/donor';
 import { isVerifiedAsync } from '../lib/verified';
@@ -107,6 +108,8 @@ export default function AdBanner({
   const [phase, setPhase] = useState<Phase>('idle');
   const slot = useRef<HTMLDivElement>(null);
   const box = useRef<HTMLDivElement>(null);
+  /** Donat oynasi ochiqmi — reklama ustidagi tugma ochadi. */
+  const [donate, setDonate] = useState(false);
   /** Talab bir marta ketadi. `phase` ni bog'liqliklarga qo'shib
    *  bo'lmaydi: effekt qayta ishga tushsa tozalovchi eski yopilmani
    *  o'ldiradi va Yandex'ning javobi hech kimga yetib bormaydi. */
@@ -265,6 +268,28 @@ export default function AdBanner({
       }`}
       ref={slot}
     >
+      {/* «Premium oling» — reklama **kelganidagina**.
+          Reklama chiqmagan joyda uni taklif qilish bema'ni bo'lardi:
+          odam o'chiradigan narsani ko'rmayapti. Shu sabab tugma
+          `shown` holatiga bog'langan va ramka bo'sh turganda ham,
+          to'ldirish topilmaganda ham chizilmaydi.
+
+          Va'da rost: donat `premium_until` ni qo'yadi, `isAdFree`
+          esa aynan shuni o'qiydi va banner umuman so'ralmaydi.
+
+          Sahifaga o'tkazmaydi, oyna ochadi — odam o'yin o'ynab
+          turgan bo'lishi mumkin va uni tashlatib yuborish kerak
+          emas. */}
+      {phase === 'shown' && (
+        <button
+          type="button"
+          className="ad__premium"
+          onClick={() => setDonate(true)}
+        >
+          Reklamani o‘chirish uchun premium oling
+        </button>
+      )}
+      {donate && <DonateModal onClose={() => setDonate(false)} />}
       <div className="ad__frame">
         {/* Yorliq bezak emas, talab: tarmoq reklamani sayt kontentidan
             aniq ajratishni so'raydi. */}
