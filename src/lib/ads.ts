@@ -131,6 +131,7 @@ const REWARDED_UNITS: Record<string, string> = {
   profileViews: '',
   headToHead: '',
   scoreHistory: '',
+  answerReveal: '',
 };
 
 /** Shu mukofotning bloki sozlanganmi. */

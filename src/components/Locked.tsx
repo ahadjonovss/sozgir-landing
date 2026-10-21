@@ -19,11 +19,13 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { useAuth } from '../lib/auth';
 import { freeFor, unlocked, watchFor, type Placement } from '../lib/rewarded';
+import DonateModal from './DonateModal';
 
 export default function Locked({
   placement,
   subject,
   label,
+  premium = false,
   children,
 }: {
   placement: Placement;
@@ -32,11 +34,20 @@ export default function Locked({
   subject?: string;
   /** Tugmadagi matn: «Ro'yxatni ko'rish» kabi. */
   label: string;
+  /** Ikkinchi yo'l — premium: bir marta to'lab, qulflardan butunlay
+   *  qutulish.
+   *
+   *  Hamma joyda emas: u faqat odam **aniq biror narsani** ochmoqchi
+   *  bo'lgan paytda o'rinli. Yon ustundagi kartochkada «premium
+   *  oling» degan taklif reklama tugmasining yonida turib, ikkalasini
+   *  ham kuchsizlantirardi. */
+  premium?: boolean;
   children: ReactNode;
 }) {
   const { account } = useAuth();
   const [open, setOpen] = useState(() => unlocked(placement, subject));
   const [busy, setBusy] = useState(false);
+  const [donate, setDonate] = useState(false);
   /** Tekshiruv tugamaguncha qulf **chizilmaydi**: aks holda qo'llagan
    *  odam bir zum qulfni ko'rib, keyin u yo'qolardi. */
   const [free, setFree] = useState<boolean | null>(null);
@@ -72,9 +83,21 @@ export default function Locked({
       <div className="locked__veil" aria-hidden="true">
         {children}
       </div>
-      <button className="btn btn--sm locked__btn" onClick={() => void watch()} disabled={busy}>
-        {busy ? 'Ochilmoqda…' : label}
-      </button>
+      <div className="locked__ways">
+        <button className="btn btn--sm" onClick={() => void watch()} disabled={busy}>
+          {busy ? 'Ochilmoqda…' : label}
+        </button>
+        {/* Premium — ikkinchi, jim yo'l. Reklama birinchi: odam
+            hozir bitta narsani ochmoqchi, pul to'lash esa kattaroq
+            qaror va uni birinchi o'ringa qo'yish taklifni bosimga
+            aylantirardi. */}
+        {premium && (
+          <button className="link locked__premium" onClick={() => setDonate(true)}>
+            yoki premium — qulflar butunlay ketadi
+          </button>
+        )}
+      </div>
+      {donate && <DonateModal onClose={() => setDonate(false)} />}
     </div>
   );
 }

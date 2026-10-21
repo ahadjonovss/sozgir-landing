@@ -7659,12 +7659,39 @@
   pointer-events: none;
 }
 
-/* Tugma o'rtada: xira qatlamning ustida turadi va u yerda bo'lishi
+/* Yo'llar o'rtada: xira qatlamning ustida turadi va u yerda bo'lishi
    kerak — odam qulfni ko'rgan joyda yechimni ham ko'radi. */
-.locked__btn {
+.locked__ways {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  width: max-content;
+  max-width: 100%;
+}
+
+.locked__ways .btn {
   white-space: nowrap;
+}
+
+/* Premium — jim yo'l: tugma emas, havola. Ikkalasi bir xil
+   og'irlikda tursa, odam qaysi biri arzonroq ekanini o'ylab
+   qolardi. */
+.locked__premium {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-2);
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+}
+
+.locked__premium:hover {
+  color: var(--green);
 }

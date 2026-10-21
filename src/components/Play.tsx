@@ -19,6 +19,7 @@ import type { Game } from '../lib/useSozTop';
 import { puzzleKey, useHint } from '../lib/useHint';
 import { pretty } from '../lib/uz';
 import { Board, Keyboard } from './Board';
+import Locked from './Locked';
 import { Refresh } from './Icons';
 import { Aqcha } from './Units';
 import DownloadPromo from './DownloadPromo';
@@ -430,9 +431,39 @@ function PlayBoard({
                   .
                 </p>
               )}
-              <p className="result__word" data-script="word">{game.answerWord}</p>
-              {game.puzzle.description && (
-                <p className="result__def">{pretty(game.puzzle.description)}</p>
+              {/* Topgan odamga so'z ochiq: u uni allaqachon biladi va
+                  yopish kulgili bo'lardi.
+
+                  Topolmaganda esa javob — aynan o'sha payt eng
+                  kerakli narsa, ya'ni uni reklama ko'tara oladi
+                  (ilovadagi `RewardedPlacement.answerReveal`).
+                  Boshqa qurilmada o'ynalgan bo'lsa ham ochiq
+                  qoladi: odam javobni o'sha yerda ko'rgan va
+                  ikkinchi marta to'lashi noto'g'ri.
+
+                  Mukofot o'yinga ta'sir qilmaydi: o'yin allaqachon
+                  tugagan, ball yozilgan. Faqat javob ko'rsatiladi —
+                  shuning uchun jadval ham, ustunlik ham
+                  o'zgarmaydi. */}
+              {game.phase === 'lost' && !elsewhere ? (
+                <Locked
+                  placement="answerReveal"
+                  subject={puzzleKey(game.puzzle)}
+                  label="So‘zni ko‘rish"
+                  premium
+                >
+                  <p className="result__word" data-script="word">{game.answerWord}</p>
+                  {game.puzzle.description && (
+                    <p className="result__def">{pretty(game.puzzle.description)}</p>
+                  )}
+                </Locked>
+              ) : (
+                <>
+                  <p className="result__word" data-script="word">{game.answerWord}</p>
+                  {game.puzzle.description && (
+                    <p className="result__def">{pretty(game.puzzle.description)}</p>
+                  )}
+                </>
               )}
 
               {game.result && game.result.points > 0 && (

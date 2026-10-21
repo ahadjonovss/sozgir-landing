@@ -39,7 +39,11 @@ export type Scope =
  *
  *  Nom konsolda ham ishlatiladi: har mukofotga alohida blok ochilsa,
  *  qaysi biri qancha daromad keltirgani ajralib ko'rinadi. */
-export type Placement = 'profileViews' | 'headToHead' | 'scoreHistory';
+export type Placement =
+  | 'profileViews'
+  | 'headToHead'
+  | 'scoreHistory'
+  | 'answerReveal';
 
 const SCOPES: Record<Placement, Scope> = {
   /* Ro'yxat o'sib boradi: yangi odam ochgan bo'lishi mumkin. */
@@ -50,6 +54,12 @@ const SCOPES: Record<Placement, Scope> = {
   headToHead: 'session',
   /* Har kuni yangi ustun qo'shiladi. */
   scoreHistory: 'day',
+  /* Topilmay qolgan so'z — **abadiy**, lekin o'sha so'zga.
+     Kalit topishmoqning raqami bo'ladi, ya'ni bugungi javobni
+     ochgan odam ertangisini ochgan bo'lmaydi. Bir marta
+     to'langan narsani ikkinchi marta so'rash esa noto'g'ri: so'z
+     o'zgarmaydi va «yana ko'ring» degan taklif aldov bo'lardi. */
+  answerReveal: 'forever',
 };
 
 const KEY = 'sozgir.rewarded';
