@@ -19,16 +19,22 @@ import {
   balanceHint,
   createDonation,
   DONATION_MAX,
-  DONATION_MIN,
+  donationMin,
   donationPhrase,
   formatSum,
   type Donation,
   type SupportBalance,
 } from '../lib/support';
+import {
+  ENTRY_PRICE,
+  grantLabel,
+  premiumPacks,
+  savePercent,
+  type Pack,
+} from '../lib/premium';
 import { pretty } from '../lib/uz';
 import { playerLink } from '../data/site';
 import { DONOR_TIERS, donorLabel, donorTier, forgetDonorTotals, nextDonorTier } from '../lib/donor';
-import { DonorBadge } from './Units';
 import YouTag from './YouTag';
 
 export function Balance({ balance }: { balance: SupportBalance }) {
@@ -112,14 +118,18 @@ export function DonateForm({
   onSignIn: () => void;
   onRegister: () => void;
 }) {
-  const [amount, setAmount] = useState(String(DONOR_TIERS[DONOR_TIERS.length - 2].min));
+  // Ochilganda bir haftalik tarif tanlangan turadi — ilovadagidek:
+  // u ro'yxatning o'rtasi va «odatdagi» tanlov.
+  const [amount, setAmount] = useState(String(premiumPacks()[0].price));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
+  const min = donationMin();
   const value = Number(amount.replace(/[^0-9]/g, '')) || 0;
-  const valid = value >= DONATION_MIN && value <= DONATION_MAX;
+  const valid = value >= min && value <= DONATION_MAX;
   const after = donorTier((current ?? 0) + value);
   const now = current === null ? null : donorTier(current);
+  const grant = valid ? grantLabel(value) : '';
 
   async function pay() {
     if (!valid || busy) return;
@@ -138,36 +148,53 @@ export function DonateForm({
     }
   }
 
-  // Tayyor summalar — darajalar pastdan yuqoriga.
-  //
-  // Eng past darajaning chegarasi (5 000) eng kam donatdan past, ya'ni uni
-  // o'z holicha qo'ysak tugma serverdan xato olib qaytardi. Shuning uchun
-  // summa ko'tariladi — daraja o'sha-o'sha qoladi.
-  const presets = [...DONOR_TIERS].reverse().map((level) => ({
-    ...level,
-    amount: Math.max(level.min, DONATION_MIN),
-  }));
+  const pick = (sum: number) => {
+    setAmount(String(sum));
+    setError('');
+  };
+
+  /* Tayyor tariflar — ilovadagi `PremiumPackChips` ning o'zi.
+     Ilgari bu yerda homiylik **darajalari** turardi (5 555
+     «Saxovatpesha», 20 000 «Boyvachcha» …): ular boshqa narsani
+     o'lchaydi va qancha vaqt reklamasiz bo'lishini aytmasdi. Ilovada
+     esa savol bitta — «qancha vaqtga», shuning uchun ekrandagi
+     tanlov ham o'sha.
+
+     Kirish tarifi birinchi: ro'yxat eng past narxdan boshlanishi
+     kerak, odam zinapoyani pastdan yuqoriga o'qiydi. */
+  const chip = (sum: number, note: string, key: string, hint?: string) => (
+    <button
+      key={key}
+      type="button"
+      className={`pack${value === sum ? ' pack--on' : ''}`}
+      onClick={() => pick(sum)}
+    >
+      <strong>{formatSum(sum)} so‘m</strong>
+      <span>
+        {note}
+        {hint && (
+          <>
+            {' · '}
+            <i>{hint}</i>
+          </>
+        )}
+      </span>
+    </button>
+  );
 
   return (
     <div className="form donate">
-      <div className="donate__presets" role="group" aria-label="Tayyor summalar">
-        {presets.map((level) => (
-          <button
-            key={level.tier}
-            type="button"
-            className={`donate__preset donate__preset--${level.tier}${
-              value === level.amount ? ' donate__preset--on' : ''
-            }`}
-            onClick={() => {
-              setAmount(String(level.amount));
-              setError('');
-            }}
-          >
-            <DonorBadge tier={level.tier} size={24} />
-            <strong>{formatSum(level.amount)}</strong>
-            <span>{level.label}</span>
-          </button>
-        ))}
+      <div className="packs" role="group" aria-label="Premium tariflari">
+        {chip(ENTRY_PRICE, grantLabel(ENTRY_PRICE), 'entry', 'metrodan arzon')}
+        {premiumPacks().map((item: Pack) =>
+          chip(
+            item.price,
+            grantLabel(item.price),
+            `w${item.weeks}`,
+            // Chegirmasiz tarifda yozilmaydi: «−0%» chalg'itardi.
+            savePercent(item) > 0 ? `−${savePercent(item)}%` : undefined,
+          ),
+        )}
       </div>
 
       <label className="field">
@@ -185,12 +212,22 @@ export function DonateForm({
 
       {!valid && value > 0 && (
         <p className="support__error">
-          {value < DONATION_MIN
-            ? `Eng kami ${formatSum(DONATION_MIN)} so‘m`
+          {value < min
+            ? `Eng kami ${formatSum(min)} so‘m`
             : 'Summa juda katta'}
         </p>
       )}
       {error && <p className="support__error">{error}</p>}
+
+      {/* Birinchi qator — **nima olasiz**: ilovadagi savol ham shu.
+          Homiylik darajasi undan keyin: u ham bor, lekin to'lov
+          paytidagi asosiy savolga javob bermaydi. */}
+      {valid && grant && (
+        <p className="donate__grant">
+          <i aria-hidden="true" />
+          <b>{grant}</b> reklamasiz o‘yin
+        </p>
+      )}
 
       {/* Natija: shu hissa bilan qaysi daraja. */}
       {valid && after && (

@@ -12,22 +12,23 @@
 
 import { api } from '../api/client';
 import { API_BASE } from '../api/config';
+import { applyPremium, DONATION_MAX, minDonation } from './premium';
 
-/** Eng kam donat — reklamasiz rejim narxi bilan bir xil (ilovadagi
- *  `AdFreePlan.price`).
- *
- *  inPAY texnik chegarasi 1 000 so'm, bu esa **bizning** chegaramiz:
- *  har qanday qo'llov kamida bir haftalik reklamasizlikka yetsin. Kichik
- *  summa na qo'llovchiga sezilarli narsa beradi, na to'lov komissiyasidan
- *  keyin loyihaga qoladi.
- *
- *  Serverda ham shu son turadi (`DONATION_MIN`): bu yerdagi tekshiruv
- *  faqat odamga darhol aytish uchun, qaror serverniki. */
-export const DONATION_MIN = 5555;
-export const DONATION_MAX = 10_000_000;
+export { DONATION_MAX };
 
-/** Tayyor summalar — ko'pchilik shulardan birini tanlaydi (ilovadagidek). */
-export const PRESETS = [DONATION_MIN, 10000, 25000, 50000] as const;
+/** Eng kam qo'llov.
+ *
+ *  Qat'iy son emas — adminka qo'yadi (`premium.min`) va ilova ham
+ *  **o'sha** sondan ishlaydi. Chegirma e'lon qilinsa pol ham tushishi
+ *  kerak va buning uchun saytni qayta yig'ib o'tirib bo'lmaydi.
+ *
+ *  Ilgari bu yerda `5555` turardi: ilovada narx yangilanganda sayt
+ *  eskisida qolib ketgan va bitta loyihaning ikki ekranida ikki xil
+ *  son turardi.
+ *
+ *  Bu yerdagi tekshiruv faqat odamga darhol aytish uchun — qaror
+ *  serverniki. */
+export const donationMin = minDonation;
 
 export interface Donation {
   name: string;
@@ -80,6 +81,11 @@ export async function loadBalance(): Promise<SupportBalance> {
   } catch {
     return EMPTY_BALANCE;
   }
+
+  /* Premium narxlari shu javobda keladi va ilova o'qiydigan
+     hujjatning aynan o'zi (`app/support` → `premium`). Shuning uchun
+     narx bir joyda yoziladi va ikki ekranda ayri tushmaydi. */
+  applyPremium(data.premium);
 
   const donation = (data.donation ?? {}) as Record<string, unknown>;
   return {
