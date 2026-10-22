@@ -325,6 +325,24 @@
       });
     }
 
+    // ── Play referrer ─────────────────────────────────────────────────
+    //
+    // Kechiktirilgan havola: do'kondan o'rnatgan odamda kod yo'qolib
+    // ketardi va uni qo'lda terishga to'g'ri kelardi. Play havolasiga
+    // qo'shilgan `referrer` qatori esa o'rnatishdan keyin ham saqlanadi
+    // — ilova uni birinchi ochilishida o'qiydi va kodni o'zi qo'llaydi
+    // (`InstallReferrerCode`, soztop repozitoriysi).
+    //
+    // Nomi `jarchi=<KOD>`: ilova aynan shu kalitni qidiradi, boshqa
+    // manbalardan kelgan qatorlarni esa e'tiborsiz qoldiradi.
+    //
+    // iOS'da bunday yo'l yo'q — u yerda kod bufer orqali ketadi
+    // («Kodni nusxalash» tugmasi).
+    if (code) {
+      var play = document.getElementById('android');
+      play.href += '&referrer=' + encodeURIComponent('jarchi=' + code);
+    }
+
     // ── Qayd ──────────────────────────────────────────────────────────
     // `?s=` — e'lon qaysi tarmoqqa qo'yilgani. Kalitlar `api/ol.ts` va
     // `firestore.rules` dagi ro'yxat bilan harfma-harf bir xil: qoida
