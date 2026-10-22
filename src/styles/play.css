@@ -7695,3 +7695,15 @@
 .locked__premium:hover {
   color: var(--green);
 }
+
+/* Mehmonga «natijangiz yozilsin» taklifi — natija ekranining
+   ichida, javobdan keyin. Ajratib turadigan chiziq bor: bu
+   o'yinning natijasi emas, undan keyingi taklif. */
+.result__save {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--divider);
+}

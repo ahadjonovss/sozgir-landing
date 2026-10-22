@@ -132,6 +132,10 @@ export async function peekChallenge(input: {
 export async function guestGuess(input: {
   code: string;
   word: string;
+  /** Shu mehmonning **birinchi** taxmini — server «nechta mehmon
+   *  o'ynadi» sanog'ini shundan oshiradi. Uni server o'zi bila
+   *  olmaydi: mehmonni taniydigan hech narsa yo'q. */
+  first?: boolean;
 }): Promise<ChallengeGuess> {
   const data = await api.post<{
     accepted?: unknown;
@@ -139,7 +143,7 @@ export async function guestGuess(input: {
     won?: unknown;
   }>(`/v1/public/challenges/${encodeURIComponent(input.code)}/guess`, {
     auth: false,
-    body: { word: input.word },
+    body: { word: input.word, first: input.first === true },
   });
 
   if (data.accepted !== true) {
@@ -181,5 +185,34 @@ export async function guessChallenge(input: {
     row: strings(data.statuses).join(''),
     won: data.won === true,
     finished: data.finished === true,
+  };
+}
+
+/** Mehmon o'ynagan o'yinni hisobga ko'chiradi.
+ *
+ *  Mehmon yo'li hech narsa saqlamaydi, ya'ni o'yin faqat shu
+ *  sahifada turadi va yashirgan odam uni ko'rmaydi. Odam o'yindan
+ *  keyin kirsa, tergan so'zlari shu marshrutga yuboriladi va
+ *  server ularni **qayta tekshirib** ismli qator yozadi.
+ *
+ *  Faqat so'zlar yuboriladi: ranglar ham, urinishlar soni ham
+ *  serverda hisoblanadi — aks holda har kim «bir urinishda topdim»
+ *  deb yozdira olardi. */
+export async function claimChallenge(input: {
+  code: string;
+  words: readonly string[];
+}): Promise<{ claimed: boolean; won: boolean; attempts: number }> {
+  const data = await api.post<{
+    claimed?: unknown;
+    won?: unknown;
+    attempts?: unknown;
+  }>(`/v1/web/challenges/${encodeURIComponent(input.code)}/claim`, {
+    body: { words: [...input.words] },
+  });
+
+  return {
+    claimed: data.claimed === true,
+    won: data.won === true,
+    attempts: Number(data.attempts ?? 0) || 0,
   };
 }

@@ -16,6 +16,7 @@ import { useAuth } from './auth';
 import { autoFill, verdictsOf } from './battle';
 import {
   guessChallenge,
+  claimChallenge,
   guestGuess,
   openChallenge,
   peekChallenge,
@@ -111,17 +112,45 @@ export function useChallenge(code: string): Challenge {
    *  bo'sh to'r bilan ochilardi. */
   const guest = ready && !account;
 
+  /** Mehmon sifatida tergan so'zlar.
+   *
+   *  Holatda ham turadi, lekin bu yerda **alohida** saqlanadi: odam
+   *  kirgan zahoti quyidagi effekt qayta ishga tushadi va holatni
+   *  serverdagi (bo'sh) yozuv bilan almashtiradi. Ro'yxat o'shandan
+   *  oldin olinishi kerak. */
+  const guestWords = useRef<string[]>([]);
+  useEffect(() => {
+    if (guest && state) guestWords.current = state.words;
+  }, [guest, state]);
+
   /** O'yinga kirish.
    *
    *  Kirgan odamniki serverda saqlanadi (`openChallenge`: qatnashchi
    *  yoziladi va yashirgan odam statistikada ko'radi). Mehmonniki
    *  saqlanmaydi (`peekChallenge`) — server qatorlarni ham, urinishlarni
-   *  ham eslab qolmaydi, ya'ni o'yin shu sahifada, xotirada boradi. */
+   *  ham eslab qolmaydi, ya'ni o'yin shu sahifada, xotirada boradi.
+   *
+   *  Mehmon o'ynab bo'lib **keyin kirsa**, o'yini yo'qolmaydi: tergan
+   *  so'zlari avval serverga ko'chiriladi (`claimChallenge`) va
+   *  o'shandan keyin yozuv o'qiladi — ya'ni ekranda o'sha o'yinning
+   *  o'zi qoladi, endi saqlangan holida. */
   useEffect(() => {
     if (!ready || !code) return;
     let alive = true;
 
-    void (account ? openChallenge({ code }) : peekChallenge({ code }))
+    const start = async () => {
+      if (!account) return peekChallenge({ code });
+      const kept = guestWords.current;
+      if (kept.length > 0) {
+        guestWords.current = [];
+        // Yiqilsa ham o'yin ochiladi: ko'chirilmagani sahifani
+        // to'xtatish uchun sabab emas.
+        await claimChallenge({ code, words: kept }).catch(() => null);
+      }
+      return openChallenge({ code });
+    };
+
+    void start()
       .then((reply) => {
         if (alive) setLoaded({ key, state: reply, error: null });
       })
@@ -248,7 +277,8 @@ export function useChallenge(code: string): Challenge {
     setBusy(true);
     try {
       const reply = guest
-        ? await guestGuess({ code, word })
+        ? // Birinchi taxmin — «nechta mehmon o'ynadi» sanog'i uchun.
+          await guestGuess({ code, word, first: myRows.length === 0 })
         : await guessChallenge({ code, word });
       if (!reply.accepted) {
         bump(reply.reason ?? 'Bu so‘z qabul qilinmadi');

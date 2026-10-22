@@ -13,6 +13,7 @@
  *  o'yinni endigina o'ynab ko'rdi. */
 import { useEffect, type CSSProperties } from 'react';
 import { links } from '../data/site';
+import { useAuth } from '../lib/auth';
 import { askAppPromo } from '../lib/appPromo';
 import { isChallengeCode } from '../lib/challenge';
 import { useChallenge } from '../lib/useChallenge';
@@ -41,16 +42,51 @@ function Result({
       <p className="result__def">
         {won
           ? guest
-            ? 'Mehmon o‘yini hech qayerga yozilmaydi — yashirgan odam buni ko‘rmaydi. Kirib o‘ynasangiz, uning statistikasida siz necha urinishda topganingiz turadi.'
+            ? 'Yashirgan odam sizni ismsiz ko‘radi — «kimdir topdi» deb. Kirsangiz, o‘yiningiz shu zahoti uning statistikasiga ismingiz bilan yoziladi.'
             : 'Yashirgan odam buni darhol ko‘radi: uning statistikasida siz necha urinishda topganingiz yoziladi.'
           : 'So‘z serverda qoladi va uni faqat yashirgan odam biladi — so‘rab ko‘ring.'}
       </p>
+
+      {/* Taklif aynan shu yerda: odam endigina o'ynab bo'ldi va
+          natijasi qo'lida. Kirish o'yinni boshidan boshlatmaydi —
+          tergan so'zlari serverga ko'chiriladi va ekranda o'sha
+          o'yinning o'zi qoladi (`useChallenge`). */}
+      {guest && <SaveCall won={won} />}
       <p className="result__next">
         Bitta so‘z bir marta o‘ynaladi. Endi o‘zingiz so‘z yashiring va
         do‘stlaringizga tashlang.
       </p>
       {/* Yashirish faqat ilovada: so'z lug'atdan qidirib tanlanadi. */}
       <DownloadPromo />
+    </div>
+  );
+}
+
+/** Mehmonga: «natijangiz yozilsin» taklifi.
+ *
+ *  Topganda ham, topolmaganda ham chiqadi — ikkala holat ham
+ *  yashirgan odam uchun ma'lumot. Faqat matni boshqacha: yutgan
+ *  odamga ismi, yutqazganga qatnashgani va'da qilinadi. */
+function SaveCall({ won }: { won: boolean }) {
+  const { openPrompt } = useAuth();
+  return (
+    <div className="result__save">
+      <p className="panel__note">
+        {won
+          ? 'Ismingiz bilan yozilsinmi?'
+          : 'Qatnashganingiz yozilsinmi? Yashirgan odam kim urinib ko‘rganini ko‘radi.'}
+      </p>
+      <div className="result__actions">
+        <button className="btn btn--sm" onClick={() => openPrompt('signIn')}>
+          Kirish
+        </button>
+        <button
+          className="btn btn--sm btn--ghost"
+          onClick={() => openPrompt('register')}
+        >
+          Hisob ochish
+        </button>
+      </div>
     </div>
   );
 }
