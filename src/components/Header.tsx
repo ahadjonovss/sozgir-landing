@@ -13,12 +13,14 @@ import { toggleTheme } from '../lib/useReveal';
 import { formatPlayers, useTodayPlayers } from '../lib/players';
 import type { Route } from '../lib/useRoute';
 import Account from './Account';
+import { useAuth } from '../lib/auth';
 import Notifications from './Notifications';
 import Logo from './Logo';
 import Settings from './Settings';
 import { Moon, Sun } from './Icons';
 
 export default function Header({ route }: { route: Route }) {
+  const { account, openPrompt } = useAuth();
   const players = useTodayPlayers();
   const [dark, setDark] = useState(
     () => document.documentElement.dataset.theme === 'dark',
@@ -67,25 +69,45 @@ export default function Header({ route }: { route: Route }) {
             {/* Qo'ng'iroq faqat kirgan odamda: do'stlik so'rovlari va
                 jangga chaqiruvlar hisobga bog'langan. */}
             <Notifications />
-            <span className="header__account">
-              <Account />
-            </span>
-            <a
-              className="btn btn--sm header__play"
-              href={links.hub}
-              aria-current={
-                route === '/oynash' ||
-                route === '/oyin' ||
-                route === '/sozjang' ||
-                route === '/guncha' ||
-                route === '/gunchajang' ||
-                route === '/maydon'
-                  ? 'page'
-                  : undefined
-              }
-            >
-              O‘ynash
-            </a>
+            {/* Kirmagan odamda bitta tugma — «Kirish», va u yashil
+                o'rinda turadi.
+                
+                Ilgari ikkitasi yonma-yon edi: xira «Kirish» va yashil
+                «O'ynash». Ikkinchisi `/oynash` ga olib borardi, u
+                yerdagi hamma narsa esa hisob talab qiladi — ya'ni
+                odam bosib borib, o'sha yerda yana kirishga
+                qaytarilardi. Kirgandan keyin ikkalasi ham o'z joyiga
+                qaytadi: ism va yashil «O'ynash». */}
+            {account ? (
+              <>
+                <span className="header__account">
+                  <Account />
+                </span>
+                <a
+                  className="btn btn--sm header__play"
+                  href={links.hub}
+                  aria-current={
+                    route === '/oynash' ||
+                    route === '/oyin' ||
+                    route === '/sozjang' ||
+                    route === '/guncha' ||
+                    route === '/gunchajang' ||
+                    route === '/maydon'
+                      ? 'page'
+                      : undefined
+                  }
+                >
+                  O‘ynash
+                </a>
+              </>
+            ) : (
+              <button
+                className="btn btn--sm header__play"
+                onClick={() => openPrompt('signIn')}
+              >
+                Kirish
+              </button>
+            )}
           </div>
         </div>
       </div>

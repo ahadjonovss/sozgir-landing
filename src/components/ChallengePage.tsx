@@ -11,7 +11,7 @@
  *  taklif qilinadi: «endi o'zingiz yashiring» — bu sahifaning tabiiy
  *  davomi va ilovaning eng o'rinli taklif qilinadigan payti: odam
  *  o'yinni endigina o'ynab ko'rdi. */
-import { useEffect, type CSSProperties } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { links } from '../data/site';
 import { useAuth } from '../lib/auth';
 import { askAppPromo } from '../lib/appPromo';
@@ -76,17 +76,14 @@ function SaveCall({ won }: { won: boolean }) {
           ? 'Ismingiz bilan yozilsinmi?'
           : 'Qatnashganingiz yozilsinmi? Yashirgan odam kim urinib ko‘rganini ko‘radi.'}
       </p>
-      <div className="result__actions">
-        <button className="btn btn--sm" onClick={() => openPrompt('signIn')}>
-          Kirish
-        </button>
-        <button
-          className="btn btn--sm btn--ghost"
-          onClick={() => openPrompt('register')}
-        >
-          Hisob ochish
-        </button>
-      </div>
+      {/* Bitta tugma: kirish va hisob ochish bitta oqim — oynaning
+          o'zida «Hisobim yo'q» havolasi bor va ilovada ham shunday
+          (`AuthFormMode` bitta ekranda almashadi). Ikkita tugma
+          odamni bo'lmagan tanlov oldida qoldirardi: u hisobi
+          borligini biladi, biz esa so'rab o'tirardik. */}
+      <button className="btn btn--sm" onClick={() => openPrompt('signIn')}>
+        Kirish
+      </button>
     </div>
   );
 }
@@ -97,7 +94,25 @@ export default function ChallengePage() {
   const code = routeParam().toUpperCase();
   const valid = isChallengeCode(code);
   const game = useChallenge(valid ? code : '');
-  const over = game.phase === 'won' || game.phase === 'lost';
+  const done = game.phase === 'won' || game.phase === 'lost';
+
+  /* Taxta oxirgi qator ag'darilib bo'lgach yopiladi.
+   *
+   *  Darhol yopilsa o'yinning eng qiziq lahzasi — oxirgi qatorning
+   *  rang olishi — umuman ko'rinmasdi: javob yuborilgan zahoti
+   *  ekranda natija paydo bo'lardi.
+   *
+   *  Muddat aniq hisoblanadi, taxminiy son emas: har katak 0,5
+   *  soniya ag'dariladi va ular 130 ms oralab boshlanadi
+   *  (`landing.css`), ya'ni oxirgisi shuncha vaqtdan keyin
+   *  tugaydi. */
+  const [over, setOver] = useState(false);
+  useEffect(() => {
+    if (!done) return setOver(false);
+    const wait = 500 + 130 * Math.max(0, game.length - 1);
+    const timer = window.setTimeout(() => setOver(true), wait);
+    return () => window.clearTimeout(timer);
+  }, [done, game.length]);
 
   /* O'yin tugadi — telefonda ilova taklifi chiqadi va u yerda do'kon
      besh soniyadan keyin o'zi ochiladi (`AppPopup`, `soztop` sababi).
@@ -173,7 +188,22 @@ export default function ChallengePage() {
           </div>
         )}
 
-        {valid && (game.phase === 'playing' || over) && (
+        {/* O'yin tugadi — taxta **yopiladi** va o'rnida natija turadi.
+            Ilgari ikkalasi ustma-ust turardi: tugagan o'yinning to'ri
+            hech narsa qo'shmaydi (odam uni endigina o'ynadi), lekin
+            ekranning yarmini egallab, natijani pastga surib
+            yuborardi — telefonda u ko'rinmay ham qolardi. */}
+        {valid && over && (
+          <div className="oyin__board">
+            <Result
+              won={game.phase === 'won'}
+              attempts={game.attempts}
+              guest={game.guest}
+            />
+          </div>
+        )}
+
+        {valid && !over && (game.phase === 'playing' || done) && (
           <div className="oyin__board oyin__board--fit">
             {/* Taxta, klaviatura va tepadagi qator bitta enni baham
                 ko'radi — `Play` dagidek. */}
@@ -190,7 +220,7 @@ export default function ChallengePage() {
                   flipRow={game.flipRow}
                   shakeRow={game.shake ? game.activeRow : -1}
                   winRow={game.phase === 'won' ? game.activeRow - 1 : -1}
-                  activeRow={game.phase === 'playing' ? game.activeRow : -1}
+                  activeRow={done ? -1 : game.activeRow}
                 />
                 {game.message && (
                   <p className="play__msg" role="status">
@@ -199,28 +229,18 @@ export default function ChallengePage() {
                 )}
               </div>
 
-              {over ? (
-                <Result
-                  won={game.phase === 'won'}
-                  attempts={game.attempts}
-                  guest={game.guest}
-                />
-              ) : (
-                <>
-                  <Keyboard
-                    keyState={game.keyState}
-                    onPress={game.press}
-                    cols={game.length}
-                    rows={game.rows.length}
-                  />
-                  <p className="game__hint">
-                    Kompyuter klaviaturasida ham yozing:{' '}
-                    <kbd data-script="off">s</kbd>+<kbd data-script="off">h</kbd>{' '}
-                    → SH, <kbd data-script="off">o</kbd>+
-                    <kbd data-script="off">'</kbd> → O‘
-                  </p>
-                </>
-              )}
+              <Keyboard
+                keyState={game.keyState}
+                onPress={game.press}
+                cols={game.length}
+                rows={game.rows.length}
+              />
+              <p className="game__hint">
+                Kompyuter klaviaturasida ham yozing:{' '}
+                <kbd data-script="off">s</kbd>+<kbd data-script="off">h</kbd> →
+                SH, <kbd data-script="off">o</kbd>+
+                <kbd data-script="off">'</kbd> → O‘
+              </p>
             </div>
           </div>
         )}

@@ -13,7 +13,7 @@ import AvatarEditor from './AvatarEditor';
 import Modal from './Modal';
 import PlayerName from './PlayerName';
 import { nicknameError } from '../lib/nickname';
-import { isValidLogin, PHONE_LENGTH, prettyLogin } from '../lib/loginId';
+import { PHONE_LENGTH, prettyLogin } from '../lib/loginId';
 import { loadDetails, MAX_AGE, MIN_AGE, type ProfileDetails } from '../lib/profile';
 import PhoneField from './PhoneField';
 import { toLatin } from '../lib/useScript';
@@ -32,10 +32,6 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
   const auth = useAuth();
   /** Faqat raqamlar — `+998` maydonning o'zida turadi. */
   const [phone, setPhone] = useState('');
-  /** Kirishda email yo'li. Yangi hisob faqat raqam bilan ochiladi, lekin
-   *  ilgari email bilan ro'yxatdan o'tganlar ham kira olishi kerak. */
-  const [byEmail, setByEmail] = useState(false);
-  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState(() => auth.nickname);
   const [birthDate, setBirthDate] = useState('');
@@ -96,13 +92,15 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
     }
 
     const nameProblem = nicknameError(name);
-    const loginProblem = byEmail
-      ? isValidLogin(email)
-        ? null
-        : 'Email manzili noto‘g‘ri'
-      : phone.length === PHONE_LENGTH
-        ? null
-        : 'Telefon raqamni to‘liq kiriting';
+    /* Faqat raqam — ilovadagidek.
+     *
+     * Pochta bo'limi olib tashlandi: hisob raqamga bog'lanadi va
+     * parolni tiklash ham raqam bo'yicha ishlaydi (`parolbot`),
+     * ya'ni ikkinchi yo'l shaklni murakkablashtirardi. Ilgari
+     * pochta bilan ochilgan hisoblar bor va ularga pastdagi izoh
+     * yo'l ko'rsatadi. */
+    const loginProblem =
+      phone.length === PHONE_LENGTH ? null : 'Telefon raqamni to‘liq kiriting';
     const passProblem =
       password.length >= 6 ? null : 'Parol kamida 6 belgidan iborat bo‘lsin';
 
@@ -121,7 +119,7 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
     if (mode === 'signIn') {
       if (loginProblem) return setInvalid(loginProblem);
       if (passProblem) return setInvalid(passProblem);
-      if (await auth.signIn({ email: byEmail ? email.trim() : phone, password })) {
+      if (await auth.signIn({ email: phone, password })) {
         close();
       }
       return;
@@ -351,38 +349,12 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
       onClose={close}
     >
       <form className="form" onSubmit={submit}>
-        {byEmail ? (
-          <label className="field">
-            <span>Email</span>
-            <input
-              ref={first}
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              placeholder="misol@mail.com"
-              autoComplete="email"
-            />
-          </label>
-        ) : (
-          <PhoneField
-            value={phone}
-            onChange={setPhone}
-            inputRef={first}
-            autoComplete="tel"
-          />
-        )}
-        {/* Yangi hisob faqat raqam bilan ochiladi, lekin ilgari email
-            bilan kirganlar yo'ldan qolmasligi kerak. */}
-        <button
-          type="button"
-          className="link form__swap"
-          onClick={() => {
-            setInvalid(null);
-            setByEmail((value) => !value);
-          }}
-        >
-          {byEmail ? 'Telefon raqam bilan kirish' : 'Email bilan kirish'}
-        </button>
+        <PhoneField
+          value={phone}
+          onChange={setPhone}
+          inputRef={first}
+          autoComplete="tel"
+        />
         <label className="field">
           <span>Parol</span>
           <input
@@ -397,6 +369,14 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
           {auth.busy ? 'Kirilmoqda…' : 'Kirish'}
         </button>
       </form>
+
+      {/* Pochta bilan ochilgan eski hisoblar uchun yagona yo'l.
+          Ilovada ham aynan shu izoh turadi (`authEmailMoved`): ular
+          raqamga bog'lanmagan va shakl orqali kira olmaydi. */}
+      <a className="modal__hint" href={links.telegramGroup} target="_blank" rel="noreferrer">
+        Ilgari email bilan kirgan bo‘lsangiz, hisobingizni telefon raqamga
+        o‘tkazish uchun Telegram orqali yozing
+      </a>
 
       {/* Telegram — ikkinchi yo'l, tanlov emas.
           Bo'lim qilib qo'yilmadi: ko'pchilik raqam va parol bilan
