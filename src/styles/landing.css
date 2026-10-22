@@ -2040,6 +2040,26 @@
   border-color: var(--tile-border);
 }
 
+/* Brauzer to'ldirgan maydon ham o'z rangida qoladi.
+   Chrome va Safari saqlangan qiymatni qo'yganda maydonga o'zining
+   oq-ko'kimtir fonini beradi va uni `background` bilan bosib
+   bo'lmaydi. Tungi mavzuda bu ko'zga shunday urardi: oyna qora,
+   ichidagi ikkita maydon esa oppoq.
+
+   Ichki soya — yagona ishlaydigan yo'l: u fonning ustiga chiziladi.
+   Matn rangi ham alohida (`-webkit-text-fill-color`), chunki
+   odatdagi `color` ham e'tiborga olinmaydi. */
+.field input:-webkit-autofill,
+.field input:-webkit-autofill:hover,
+.field input:-webkit-autofill:focus,
+.telfield__input:-webkit-autofill,
+.telfield__input:-webkit-autofill:hover,
+.telfield__input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--text);
+  caret-color: var(--text);
+  box-shadow: inset 0 0 0 100px var(--bg);
+}
+
 .field input:focus-visible,
 .field select:focus-visible,
 .field textarea:focus-visible {
@@ -2503,6 +2523,12 @@
   flex: none;
   border-radius: 50%;
   background: var(--green);
+}
+
+/* Ism bosqichining izohi — maydonning ustida, oynaning
+   sarlavhasidan ajratilgan holda. */
+.modal__lead--step {
+  margin: 2px 0 -2px;
 }
 
 /* Natija: shu hissa bilan qaysi daraja. */

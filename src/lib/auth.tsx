@@ -93,6 +93,14 @@ export interface AuthValue {
     input: Credentials & { nickname: string; details?: ProfileDetails },
   ) => Promise<boolean>;
   signIn: (input: Credentials) => Promise<boolean>;
+  /** Shu raqam bo'yicha hisob bormi.
+   *
+   *  Kirish yiqilganda sabab bitta: server parol xatosi bilan
+   *  «bunday hisob yo'q» ni ajratmaydi va ataylab shunday — javob
+   *  birovning raqami ro'yxatda borligini oshkor qilmasligi kerak.
+   *  Shakl esa buni bilishi kerak: hisob yo'q bo'lsa ism so'raladi,
+   *  bor bo'lsa parol aytiladi. Shuning uchun alohida so'rov. */
+  exists: (login: string) => Promise<boolean>;
   /** Telegram roboti bergan olti xonali kod bilan kirish.
    *
    *  Parol so'ralmaydi va hisob topilmasa robot uni o'zi ochadi
@@ -297,6 +305,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [open, run],
   );
 
+  /** Yiqilsa **`true`** — ya'ni «hisob bor» deb hisoblanadi.
+   *
+   *  Xavfsiz tomoni shu. Javobsiz qolgan so'rovda `false` qaytsa,
+   *  parolini xato tergan odamga «bu raqamda hisob yo'q, ochamiz»
+   *  deb chiqardi — u ism yozib, oxirida «bu raqam band» degan
+   *  xatoga urilardi. Teskarisida esa u odatdagi «raqam yoki parol
+   *  noto'g'ri» xabarini ko'radi va Telegram orqali kira oladi. */
+  const exists = useCallback(async (login: string): Promise<boolean> => {
+    try {
+      const data = await api.post<{ exists?: unknown }>('/v1/web/auth/exists', {
+        auth: false,
+        body: { email: toLoginEmail(login) },
+      });
+      return data.exists !== false;
+    } catch {
+      return true;
+    }
+  }, []);
+
   /** Telegram kodi bilan kirish.
    *
    *  Shakli ilovanikining o'zi (`AuthApiDataSource.signInWithCode`):
@@ -403,6 +430,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       nickname,
       register,
       signIn,
+      exists,
       signInWithCode,
       updatePassword,
       saveNickname,

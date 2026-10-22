@@ -43,6 +43,12 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
    *  qaytib kodni teradi. Ilovada ham xuddi shunday — robot
    *  ilovadan tashqarida ishlaydi, oyna esa ochiq qoladi. */
   const [codeStep, setCodeStep] = useState(false);
+  /** Hisob topilmadi — ism so'raladigan bosqich.
+   *
+   *  Alohida oyna emas, shu oynaning davomi: odam raqam va parolni
+   *  allaqachon kiritgan va ularni qaytadan so'rash ortiqcha ish
+   *  bo'lardi. Ilovada ham shunday (`_askForAccount`). */
+  const [nameStep, setNameStep] = useState(false);
   const [code, setCode] = useState('');
   const [note, setNote] = useState<string | null>(null);
   const [invalid, setInvalid] = useState<string | null>(null);
@@ -73,7 +79,11 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
 
   const close = () => auth.closePrompt();
   const open = (next: AuthPrompt) => auth.openPrompt(next);
-  const problem = invalid ?? auth.error;
+  /* Ism bosqichiga o'tilganda serverning xatosi yashiriladi.
+     U «raqam yoki parol noto'g'ri» deb turardi, holbuki biz
+     o'shanda hisob yo'qligini aniqlab bo'lgan edik va endi ism
+     so'rayapmiz — eski xato odamni chalg'itardi. */
+  const problem = invalid ?? (nameStep ? null : auth.error);
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
@@ -119,8 +129,31 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
     if (mode === 'signIn') {
       if (loginProblem) return setInvalid(loginProblem);
       if (passProblem) return setInvalid(passProblem);
+
+      /* Ism bosqichida kirish emas, hisob ochish bo'ladi: raqam va
+         parol o'sha-o'sha, faqat ism qo'shildi. */
+      if (nameStep) {
+        if (nameProblem) return setInvalid(nameProblem);
+        if (await auth.register({ email: phone, password, nickname: name })) {
+          close();
+        }
+        return;
+      }
+
       if (await auth.signIn({ email: phone, password })) {
         close();
+        return;
+      }
+
+      /* Kirish yiqildi — sababi ikki xil bo'lishi mumkin va server
+         ularni ajratmaydi (javob birovning raqami ro'yxatda
+         borligini oshkor qilmasligi kerak). Shuning uchun alohida
+         so'raladi: hisob yo'q bo'lsa ism so'rab, shu yerda ochamiz
+         — ilovadagi `signInOrAsk` ning o'zi. Hisob bor bo'lsa
+         `auth.error` allaqachon parol haqida gapirib turibdi. */
+      if (!(await auth.exists(phone))) {
+        setInvalid(null);
+        setNameStep(true);
       }
       return;
     }
@@ -345,7 +378,10 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
   return (
     <Modal
       title="Hisobga kirish"
-      lead="Statistika, aqcha va jadvaldagi o‘rningiz tiklanadi."
+      // Ilovadagi matnning o'zi (`authSingleHint`): shakl bitta va u
+      // ikkala ishni ham qiladi, ya'ni odam «qaysi tugmani bosay»
+      // deb o'ylab o'tirmaydi.
+      lead="Raqamingiz va parolingizni kiriting. Hisobingiz bo‘lmasa, biz uni shu yerda ochamiz."
       onClose={close}
     >
       <form className="form" onSubmit={submit}>
@@ -361,12 +397,32 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
             type="password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            autoComplete="current-password"
+            autoComplete={nameStep ? 'new-password' : 'current-password'}
           />
         </label>
+
+        {/* Hisob topilmadi — ism so'raladi va hisob shu yerda
+            ochiladi. Raqam va parol o'sha-o'sha: ularni qaytadan
+            so'rash ortiqcha ish bo'lardi. */}
+        {nameStep && (
+          <>
+            <p className="modal__lead modal__lead--step">
+              Bu raqamda hisob yo‘q ekan — shu yerda ochamiz. Ismingizni
+              yozing, jadvalda va jangda shu ko‘rinadi.
+            </p>
+            {nameField('Ismingiz yoki taxallusingiz', true)}
+          </>
+        )}
+
         {status}
         <button className="btn" disabled={auth.busy}>
-          {auth.busy ? 'Kirilmoqda…' : 'Kirish'}
+          {auth.busy
+            ? nameStep
+              ? 'Ochilmoqda…'
+              : 'Kirilmoqda…'
+            : nameStep
+              ? 'Hisob ochish'
+              : 'Kirish'}
         </button>
       </form>
 
@@ -413,9 +469,6 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
         <a className="link" href={links.parolBot} target="_blank" rel="noreferrer">
           Parolni unutdingizmi?
         </a>
-        <button className="link" onClick={() => open('register')}>
-          Hisobim yo‘q
-        </button>
       </div>
     </Modal>
   );
