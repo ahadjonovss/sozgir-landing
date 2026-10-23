@@ -83,6 +83,18 @@ export function useSozjang() {
   const [battleId, setBattleId] = useState<string | null>(() =>
     readActive('soztop'),
   );
+  /** Jang raqami brauzerdagi yozuvdan tiklandimi.
+   *
+   *  Tugagan jang «ochiq jang» belgisini o'zi o'chiradi, lekin buni
+   *  faqat ekran ochiq bo'lganda qila oladi. Odam jang tugashidan
+   *  oldin chiqib ketsa (yoki jangni server muddat bo'yicha yopsa)
+   *  belgi joyida qolardi va keyingi safar — masalan bosh sahifadagi
+   *  «O'ynash» tugmasidan — lobbi o'rnida o'tgan jangning natijasi
+   *  ochilardi.
+   *
+   *  Belgi hujjat kelgach aniqlanadi: tirik jang bo'lsa o'chadi
+   *  (odam o'ynashda davom etadi), tugagani esa lobbiga qaytariladi. */
+  const restored = useRef(battleId !== null);
   const [battle, setBattle] = useState<BattleDoc | null>(null);
   const [searching, setSearching] = useState(false);
   const [seconds, setSeconds] = useState(0);
@@ -165,6 +177,8 @@ export function useSozjang() {
   );
 
   const open = useCallback((id: string) => {
+    // Shu seansda ochilgan jang — tiklangan emas: natijasi ko'rsatiladi.
+    restored.current = false;
     setBattleId(id);
     // Oldingi jangning hujjati yangi jang holati o'rnida ko'rinmasin.
     setBattle(null);
@@ -200,7 +214,14 @@ export function useSozjang() {
     if (!battleId || !account) return;
     let alive = true;
     const stop: Unsubscribe = watchBattle(battleId, (doc) => {
-      if (alive) setBattle(doc);
+      if (!alive) return;
+      /* Tiklangan jang tirik ekan — demak u o'tgan jang emas, davom
+         etayotgani. Belgini shu yerda olib tashlaymiz, aks holda shu
+         jang keyinroq tugaganda natija ko'rsatilmasdi. */
+      if (doc && doc.status !== 'finished' && doc.status !== 'expired') {
+        restored.current = false;
+      }
+      setBattle(doc);
     });
 
     return () => {
@@ -349,6 +370,15 @@ export function useSozjang() {
    *  «0 jang» va boshlang'ich o'ljani ko'rardi. */
   useEffect(() => {
     if (phase !== 'finished') return;
+    /* O'tgan jang qayta ochilmaydi: tiklangan jang allaqachon tugagan
+       ekan, odam natijani emas, lobbini ko'rishi kerak — u o'ynagani
+       keldi. Sanoq ham yuritilmaydi: bu o'yin o'z vaqtida sanalgan
+       (yoki sanalmagan), endi uni qo'shish esa har tashrifda
+       takrorlanardi. */
+    if (restored.current) {
+      close();
+      return;
+    }
     /* Tugagan onlayn o'yin sanoqqa yoziladi — reklama darvozasi shu
        sanoqqa qaraydi (`lib/adGate.ts`). Reklama bu yerda chiqmaydi:
        o'yin oxiri odam uchun kutilmagan joy. */
@@ -363,7 +393,7 @@ export function useSozjang() {
      *  (`battleId` holatda), lekin keyingi tashrif toza
      *  boshlanadi. */
     setActive(null);
-  }, [phase]);
+  }, [close, phase]);
 
   // `me` hujjat bilan birga o'zgaradi — ro'yxat har renderda yangi
   // bo'lib qolmasligi uchun eslab qo'yiladi.

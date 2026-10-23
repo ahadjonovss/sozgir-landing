@@ -106,6 +106,11 @@ export function useGunchaJang() {
   const uid = account?.uid ?? '';
 
   const [battleId, setBattleId] = useState<string | null>(() => readActive('guncha'));
+  /** Jang raqami brauzerdagi yozuvdan tiklandimi — `useSozjang` dagi
+   *  bilan bir xil savol va bir xil sabab: tugagan jang belgini faqat
+   *  ekran ochiq bo'lganda o'chira oladi, shuning uchun u qolib
+   *  ketishi va keyingi tashrifda natija bo'lib ochilishi mumkin. */
+  const restored = useRef(battleId !== null);
   const [battle, setBattle] = useState<BattleDoc | null>(null);
   const [puzzle, setPuzzle] = useState<GunchaPuzzle | null>(null);
   const [order, setOrder] = useState<string[]>([]);
@@ -164,6 +169,8 @@ export function useGunchaJang() {
   }, []);
 
   const open = useCallback((id: string) => {
+    // Shu seansda ochilgan jang — tiklangan emas.
+    restored.current = false;
     setBattleId(id);
     setBattle(null);
     setPuzzle(null);
@@ -196,7 +203,12 @@ export function useGunchaJang() {
     if (!battleId || !account) return;
     let alive = true;
     const stop: Unsubscribe = watchBattle(battleId, (doc) => {
-      if (alive) setBattle(doc);
+      if (!alive) return;
+      // Tiklangan jang tirik ekan — demak u davom etayotgani.
+      if (doc && doc.status !== 'finished' && doc.status !== 'expired') {
+        restored.current = false;
+      }
+      setBattle(doc);
     });
 
     return () => {
@@ -390,6 +402,13 @@ export function useGunchaJang() {
    *  (`useSozjang` dagi bilan bir sabab). */
   useEffect(() => {
     if (!done) return;
+    /* O'tgan jang qayta ochilmaydi: odam o'ynagani keldi, natija esa
+       allaqachon ko'rilgan (yoki umuman ko'rilmagan — jangni server
+       muddat bo'yicha yopgan). */
+    if (restored.current) {
+      close();
+      return;
+    }
     // Tugagan onlayn o'yin reklama sanog'iga yoziladi
     // (`useSozjang` dagi bilan bir xil).
     registerOnlineGame();
@@ -398,7 +417,7 @@ export function useGunchaJang() {
      *  dagi bilan bir sabab: qaytib kelgan odam lobbini ko'rishi
      *  kerak, o'tgan jangning natijasini emas. */
     setActive('guncha', null);
-  }, [done]);
+  }, [close, done]);
 
   /* Sanoq jang hujjatidan sinxronlanadi.
    *
