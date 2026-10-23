@@ -388,13 +388,23 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
         </button>
       </form>
 
-      {/* Pochta bilan ochilgan eski hisoblar uchun yagona yo'l.
-          Ilovada ham aynan shu izoh turadi (`authEmailMoved`): ular
-          raqamga bog'lanmagan va shakl orqali kira olmaydi. */}
-      <a className="modal__hint" href={links.telegramGroup} target="_blank" rel="noreferrer">
-        Ilgari email bilan kirgan bo‘lsangiz, hisobingizni telefon raqamga
-        o‘tkazish uchun Telegram orqali yozing
-      </a>
+      {/* Parolni tiklash — asosiy tugmaning **ostida**, chunki u
+          o'sha yo'lning davomi: parol bilan kira olmagan odam
+          birinchi navbatda shuni qidiradi. Ilgari u oynaning eng
+          pastida, Telegram tugmasidan ham keyin turardi va
+          «parolimni unutdim» degan odam uni oxirgi bo'lib topardi.
+
+          Tiklash robot orqali: avtomatik xat kanali yo'q va
+          raqamli hisobda u baribir ishlamasdi — manzil
+          `<raqam>@gmail.com` bo'lib chiqadi va xat begona qutiga
+          ketardi. */}
+      {!nameStep && (
+        <div className="modal__under">
+          <a className="link" href={links.parolBot} target="_blank" rel="noreferrer">
+            Parolni unutdingizmi?
+          </a>
+        </div>
+      )}
 
       {/* Telegram — ikkinchi yo'l, tanlov emas.
           Bo'lim qilib qo'yilmadi: ko'pchilik raqam va parol bilan
@@ -421,17 +431,29 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
       >
         Telegram orqali kirish
       </a>
+      <p className="modal__hint modal__hint--quiet">
+        Parol kerak emas: robot raqamingizni tasdiqlaydi va olti xonali
+        kod beradi. Hisobingiz bo‘lmasa, o‘zi ochib beradi.
+      </p>
 
-      <div className="modal__tabs">
-        {/* Parolni tiklash — robot orqali.
-            Avtomatik xat yuborish kanali yo'q va raqamli hisobda u
-            baribir ishlamasdi: manzil `<raqam>@gmail.com` bo'lib
-            chiqadi va xat begona qutiga ketardi. Robot esa raqamni
-            Telegram orqali tasdiqlaydi — ilovada ham shu havola. */}
-        <a className="link" href={links.parolBot} target="_blank" rel="noreferrer">
-          Parolni unutdingizmi?
+      {/* Eng pastda — eng kam uchraydigan hol: pochta bilan ochilgan
+          eski hisoblar. Ular raqamga bog'lanmagan, ya'ni na shakl, na
+          robot ularni topa oladi va yagona yo'l — yozish. Ilgari bu
+          izoh «Kirish» tugmasining tagida turardi va har kirgan odam
+          avval o'shani o'qirdi. Ilovadagi matnning o'zi
+          (`authEmailMoved`). */}
+      <div className="modal__foot modal__foot--quiet">
+        <a
+          className="modal__hint"
+          href={links.telegramGroup}
+          target="_blank"
+          rel="noreferrer"
+        >
+          Ilgari email bilan kirgan bo‘lsangiz, hisobingizni telefon raqamga
+          o‘tkazish uchun Telegram orqali yozing
         </a>
       </div>
+
     </Modal>
   );
 }

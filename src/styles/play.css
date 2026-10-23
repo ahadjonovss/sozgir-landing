@@ -4426,6 +4426,37 @@
   margin-top: 10px;
 }
 
+/* Asosiy tugmaning ostidagi bitta havola — «Parolni unutdingizmi?».
+   O'rtada turadi, chunki u tugmaga tegishli va chetga surilsa o'sha
+   bog'liqlik yo'qoladi. `.modal__tabs` yaramaydi: u chapga
+   tiziladigan bir nechta havola uchun. */
+.modal__under {
+  margin-top: 10px;
+  text-align: center;
+  font-size: 13.5px;
+}
+
+/* Ikkinchi yo'lning ostidagi izoh — nima bo'lishini oldindan
+   aytadi, lekin ovozi past: u tushuntirish, taklif emas. */
+.modal__hint--quiet {
+  margin-top: 10px;
+  text-align: center;
+  font-size: 12.5px;
+}
+
+/* Oynaning eng pastki qavati: chiziq bilan ajratilgan, kamdan-kam
+   kerak bo'ladigan narsa uchun. */
+.modal__foot--quiet {
+  margin-top: 20px;
+  padding-top: 14px;
+}
+
+.modal__foot--quiet .modal__hint {
+  display: block;
+  margin-top: 0;
+  font-size: 12.5px;
+}
+
 /* ── Reklama ──────────────────────────────────────────────────────────
    Ramka sahifaning o'z kartochkalari bilan bir tilda: `surface` foni,
    yumshoq burchak, ingichka chegara — reklama begona bo'lak bo'lib
