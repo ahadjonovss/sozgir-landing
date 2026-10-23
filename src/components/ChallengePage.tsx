@@ -12,7 +12,7 @@
  *  davomi va ilovaning eng o'rinli taklif qilinadigan payti: odam
  *  o'yinni endigina o'ynab ko'rdi. */
 import { useEffect, useState, type CSSProperties } from 'react';
-import { links } from '../data/site';
+import { links, playerLink } from '../data/site';
 import { useAuth } from '../lib/auth';
 import { askAppPromo } from '../lib/appPromo';
 import { isChallengeCode } from '../lib/challenge';
@@ -135,9 +135,28 @@ export default function ChallengePage() {
           <h1>{game.title || 'Yashirilgan so‘z'}</h1>
           {!broken && (
             <p className="section__lead">
-              {game.host
-                ? `${game.host} bitta so‘z yashirdi — uni oddiy o‘yindagidek toping: uzunlik + 1 urinish.`
-                : 'Do‘stingiz bitta so‘z yashirdi — uni oddiy o‘yindagidek toping: uzunlik + 1 urinish.'}
+              {/* Ism bosiladigan: havolani tashlagan odam ko'pincha
+                  notanish bo'ladi va «bu kim?» degan savol o'sha
+                  zahoti tug'iladi. Profil ochiq, ya'ni javob bir
+                  bosishda.
+
+                  Hisobi noma'lum bo'lsa (eski server javobida
+                  `hostUid` yo'q) oddiy matn qoladi: hech qayerga
+                  olib bormaydigan havola nosozlikka o'xshaydi. */}
+              {game.host ? (
+                <>
+                  {game.hostUid ? (
+                    <a className="link" href={playerLink(game.hostUid)}>
+                      {game.host}
+                    </a>
+                  ) : (
+                    game.host
+                  )}
+                  {' bitta so‘z yashirdi — uni oddiy o‘yindagidek toping: uzunlik + 1 urinish.'}
+                </>
+              ) : (
+                'Do‘stingiz bitta so‘z yashirdi — uni oddiy o‘yindagidek toping: uzunlik + 1 urinish.'
+              )}
             </p>
           )}
         </div>

@@ -40,6 +40,10 @@ export interface ChallengeState {
   /** Yashirgan odam qo'ygan sarlavha — ixtiyoriy. */
   title: string;
   hostNickname: string;
+  /** Yashirgan odamning hisobi — ismini ochiq profiliga bog'lash
+   *  uchun. Taxallusning o'zi kam: bir xil ismlar uchraydi va
+   *  havola aniq odamga olib borishi kerak. */
+  hostUid: string;
   /** Ranglar qatorlari (`srryy`) — `battle.ts` dagi `verdictsOf` o'qiydi. */
   rows: string[];
   words: string[];
@@ -72,6 +76,7 @@ export async function openChallenge(input: {
     length?: unknown;
     title?: unknown;
     host?: unknown;
+    hostUid?: unknown;
     rows?: unknown;
     words?: unknown;
     won?: unknown;
@@ -85,6 +90,7 @@ export async function openChallenge(input: {
     title: typeof data.title === 'string' ? data.title : '',
     // Serverda `host` — yashirgan odamning taxallusi.
     hostNickname: typeof data.host === 'string' ? data.host : '',
+    hostUid: typeof data.hostUid === 'string' ? data.hostUid : '',
     rows,
     words: strings(data.words),
     // Urinishlar soni alohida kelmaydi — u qatorlar soniga teng.
@@ -110,6 +116,7 @@ export async function peekChallenge(input: {
     length?: unknown;
     title?: unknown;
     host?: unknown;
+    hostUid?: unknown;
   }>(`/v1/public/challenges/${encodeURIComponent(input.code)}`, {
     auth: false,
   });
@@ -119,6 +126,7 @@ export async function peekChallenge(input: {
     length: typeof data.length === 'number' ? data.length : 5,
     title: typeof data.title === 'string' ? data.title : '',
     hostNickname: typeof data.host === 'string' ? data.host : '',
+    hostUid: typeof data.hostUid === 'string' ? data.hostUid : '',
     rows: [],
     words: [],
     attempts: 0,

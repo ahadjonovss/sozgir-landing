@@ -46,6 +46,8 @@ export interface Challenge {
    *  mumkin (`challengeOpen` bo'sh satr qaytaradi). */
   title: string;
   host: string;
+  /** Yashirgan odamning hisobi — ismi uning profiliga bog'lanadi. */
+  hostUid: string;
   length: number;
   rows: BoardRow[];
   keyState: Map<string, Verdict>;
@@ -403,6 +405,7 @@ export function useChallenge(code: string): Challenge {
     guest,
     title: state?.title ?? '',
     host: state?.hostNickname ?? '',
+    hostUid: state?.hostUid ?? '',
     length,
     rows,
     keyState,
