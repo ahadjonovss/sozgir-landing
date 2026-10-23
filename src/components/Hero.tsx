@@ -4,9 +4,22 @@ import Play from './Play';
 import { useGameChoice } from '../lib/useGameChoice';
 import { useGameSwap } from '../lib/useGameSwap';
 import { useSozTop } from '../lib/useSozTop';
+import { useAuth } from '../lib/auth';
 import { dailyNumber } from '../lib/daily';
-import { Today } from './Icons';
+import { Download, Today } from './Icons';
 import { links } from '../data/site';
+
+/** Qurilmaning do'koni.
+ *
+ *  Bitta tugmada ikkala do'konni ko'rsatib bo'lmaydi, tanlov esa
+ *  ortiqcha savol: odam o'z telefonini biladi, biz ham bilamiz.
+ *  Kompyuterda Google Play qoladi — u brauzerda ochiladi va
+ *  havolani telefonga yuborish mumkin. */
+const storeLink = (): string =>
+  /iPhone|iPad|iPod/.test(navigator.userAgent) ||
+  (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1)
+    ? links.appStore
+    : links.playStore;
 
 /** Orqa fondagi bezak kataklar — «so'z» harflari va ranglar. Faqat
  *  ko'rinish uchun, ekran o'quvchisiga chiqmaydi. */
@@ -48,6 +61,7 @@ export default function Hero() {
   // marta kelgan odam bosh sahifada darrov to'siqqa urilardi; ikkinchidan
   // kunlik so'zning o'z sahifasi bor va tepadagi banner aynan o'sha
   // yerga olib boradi.
+  const { account } = useAuth();
   const choice = useGameChoice({ mode: 'endless' });
   // G'uncha ham shu sababdan **mashq**: kunligi kuniga bitta va uni
   // bosh sahifadagi taxtada sarflab qo'yish kerak emas. Tanlov ham
@@ -69,19 +83,48 @@ export default function Hero() {
 
       <div className="wrap hero__inner">
         <div className="hero__play">
-          {/* Kunlik so'z — sahifaning eng muhim havolasi, shuning uchun u
-              taxtaning tepasida alohida qatorda turadi. Bosh sahifadagi
-              taxta esa cheksiz rejim: u hisobsiz ham o'ynaladi. */}
-          <a className="daily-card" href={links.play}>
-            <span className="daily-card__icon" aria-hidden="true">
-              <Today size={20} />
-            </span>
-            <span className="daily-card__text">
-              <strong>Kunlik so‘z №{dailyNumber()}</strong>
-              <span>Butun O‘zbekiston uchun bitta so‘z</span>
-            </span>
-            <span className="btn btn--sm daily-card__go">O‘ynash</span>
-          </a>
+          {/* Taxtaning tepasidagi qator — sahifaning eng muhim
+              havolasi. Lekin u kimga nima ko'rsatishi hisobga
+              bog'liq.
+
+              **Kirgan odamga** — kunlik so'z: natijasi saqlanadi,
+              reytingga tushadi va u buni darhol o'ynashi mumkin.
+
+              **Kirmaganga** — ilova. Kunlik so'z unga baribir
+              yopiq (u hisob talab qiladi), ya'ni eski qator uni
+              bosib borib, kirish ekraniga urilish uchun chaqirardi.
+              Ilova esa hisobsiz ham ishlaydi va natijani o'zi
+              saqlaydi — ya'ni bu yerda taklif qilinadigan eng
+              foydali narsa o'sha. Bosh sahifadagi taxta esa
+              ikkalasiga ham ochiq: u cheksiz rejim. */}
+          {account ? (
+            <a className="daily-card" href={links.play}>
+              <span className="daily-card__icon" aria-hidden="true">
+                <Today size={20} />
+              </span>
+              <span className="daily-card__text">
+                <strong>Kunlik so‘z №{dailyNumber()}</strong>
+                <span>Butun O‘zbekiston uchun bitta so‘z</span>
+              </span>
+              <span className="btn btn--sm daily-card__go">O‘ynash</span>
+            </a>
+          ) : (
+            <a
+              className="daily-card"
+              href={storeLink()}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <span className="daily-card__icon" aria-hidden="true">
+                <Download size={20} />
+              </span>
+              <span className="daily-card__text">
+                <strong>Ilovani yuklab oling</strong>
+                <span>Natijalar saqlanadi, kunlik eslatma keladi</span>
+              </span>
+              <span className="btn btn--sm daily-card__go">Yuklab olish</span>
+            </a>
+          )}
 
           <div className="hero__board game-slot">
             {/* Yon ustunlar taxtaning **yonida**, oqimdan tashqarida
