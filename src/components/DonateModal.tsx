@@ -36,10 +36,6 @@ export default function DonateModal({ onClose }: { onClose: () => void }) {
           onClose();
           openPrompt('signIn');
         }}
-        onRegister={() => {
-          onClose();
-          openPrompt('register');
-        }}
       />
     </Modal>
   );

@@ -142,12 +142,13 @@ function Gate() {
             Jang uchun hisob kerak: raqib taxallusingizni ko‘radi, jang
             aqcha beradi.
           </p>
+          {/* Bitta tugma: oyna ikkala ishni ham qiladi — hisob
+              bo'lmasa o'sha yerda ochiladi. Ilgari «Kirish» va
+              «Hisob ochish» yonma-yon turardi va ular ikki xil
+              oyna ochardi. */}
           <div className="result__actions">
             <button className="btn btn--lg" onClick={() => openPrompt('signIn')}>
               Kirish
-            </button>
-            <button className="btn btn--lg btn--outline" onClick={() => openPrompt('register')}>
-              Hisob ochish
             </button>
           </div>
         </div>

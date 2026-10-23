@@ -225,7 +225,6 @@ export default function SupportPage() {
                 signedIn={!!account}
                 current={account ? total : null}
                 onSignIn={() => openPrompt('signIn')}
-                onRegister={() => openPrompt('register')}
               />
             </div>
 

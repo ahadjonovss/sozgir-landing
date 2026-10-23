@@ -79,7 +79,15 @@ interface Credentials {
 
 /** Hisob oynasining ko'rinishi. Holat provayderda turadi, chunki oynani
  *  sarlavhadagi tugma ham, o'yin natijasi ham chaqiradi. */
-export type AuthPrompt = 'register' | 'signIn' | 'profile' | 'password';
+/** Hisob oynasining ko'rinishlari.
+ *
+ *  `register` yo'q va bu ataylab: kirish bitta oyna
+ *  (`signIn`) — odam raqam va parolini yozadi, hisob topilmasa
+ *  o'sha yerda ism so'raladi va hisob ochiladi. Ilgari yonida
+ *  alohida «Yangi hisob» oynasi turardi; ilovada u 19-oktabrda
+ *  olib tashlangan (`soztop`, `e64119cf`) va saytda qolib
+ *  ketgandi — bitta ish ikki xil ekranda, ikki xil matn bilan. */
+export type AuthPrompt = 'signIn' | 'profile' | 'password';
 
 export interface AuthValue {
   account: Account | null;
@@ -256,13 +264,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [],
   );
 
-  /** Seansni ochadi — kirish, ro'yxatdan o'tish va parol almashishi
-   *  uchun bitta yo'l. */
+  /** Seansni ochadi — kirish, hisob ochish va parol almashishi uchun
+   *  bitta yo'l.
+   *
+   *  [adopt] — hozirgi token so'rovga qo'shiladimi. Kirishda **yo'q**:
+   *  aynan tokenni olyapmiz va eskisini yuborishning ma'nosi yo'q.
+   *  Hisob ochishda esa **ha**, va bu muhim: mehmon tokeni bilan
+   *  kelgan so'rovda server eski qatorni yangi hisobga biriktiradi
+   *  (`backend/src/web/auth.ts`, `adoptUid`). Usiz hisobsiz
+   *  o'ynalgan hamma narsa — ball, streak, topilgan so'zlar — yetim
+   *  qolardi, holbuki oynadagi matn aynan ularning saqlanishini
+   *  va'da qiladi. */
   const open = useCallback(
-    async (path: string, body: Record<string, unknown>): Promise<void> => {
+    async (
+      path: string,
+      body: Record<string, unknown>,
+      adopt = false,
+    ): Promise<void> => {
       const data = await api.post<Record<string, unknown>>(path, {
-        // Token so'ralmaydi — aynan uni olyapmiz.
-        auth: false,
+        auth: adopt,
         body: { ...body, platform: 'web' },
       });
 
@@ -280,11 +300,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }) =>
       run(async () => {
         const clean = sanitizeNickname(name);
-        await open('/v1/web/auth/register', {
-          email: toLoginEmail(login),
-          password,
-          ...(clean ? { nickname: clean } : {}),
-        });
+        await open(
+          '/v1/web/auth/register',
+          {
+            email: toLoginEmail(login),
+            password,
+            ...(clean ? { nickname: clean } : {}),
+          },
+          // Mehmon hisobi yangisiga ko'chsin.
+          true,
+        );
 
         writeStoredNickname(clean);
         setNickname(clean);

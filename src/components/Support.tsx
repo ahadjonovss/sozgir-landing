@@ -109,14 +109,15 @@ export function DonateForm({
   signedIn,
   current = null,
   onSignIn,
-  onRegister,
 }: {
   nickname: string;
   signedIn: boolean;
   /** Joriy yig'indi (so'm); noma'lum bo'lsa `null`. */
   current?: number | null;
+  /** Kirish oynasini ochadi. Ilgari yonida `onRegister` turardi va
+   *  u alohida «Yangi hisob» oynasini ochardi; endi oyna bitta va
+   *  hisob bo'lmasa o'sha yerda ochiladi. */
   onSignIn: () => void;
-  onRegister: () => void;
 }) {
   // Ochilganda bir haftalik tarif tanlangan turadi — ilovadagidek:
   // u ro'yxatning o'rtasi va «odatdagi» tanlov.
@@ -270,9 +271,6 @@ export function DonateForm({
           <div className="result__actions donate__gate">
             <button className="btn" onClick={onSignIn}>
               Kirish
-            </button>
-            <button className="btn btn--ghost" onClick={onRegister}>
-              Hisob ochish
             </button>
           </div>
         </>

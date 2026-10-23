@@ -1,8 +1,13 @@
 /** Sarlavhadagi hisob tugmasi va hisob oynasi.
  *
- *  Ikki yo'l: kirish va yangi hisob. Kirish tugmasi to'g'ridan-to'g'ri
- *  kirish shaklini ochadi — oldin oldida taxallus so'raydigan «mehmon»
- *  qadami bor edi, u olib tashlandi.
+ *  **Bitta yo'l.** Odam raqam va parolini yozadi; hisob topilmasa
+ *  o'sha oynaning o'zida ism so'raladi va hisob ochiladi. Ilgari
+ *  yonida alohida «Yangi hisob» oynasi turardi — o'sha maydonlar,
+ *  boshqa sarlavha va beshta joydan kiriladigan ikkinchi yo'l.
+ *  Ilovada u 19-oktabrda olib tashlangan (`soztop`, `e64119cf`),
+ *  saytda esa qolib ketgandi: odam «qaysi tugmani bosay» degan
+ *  savolni o'zi hal qilishi kerak edi, holbuki javob ikkalasida
+ *  ham bir xil.
  *
  *  Oynaning ochiq/yopiq holati `AuthProvider` da turadi: uni sarlavhadagi
  *  tugma ham, o'yin natijasidagi «Natijani saqlash» ham chaqiradi. */
@@ -114,18 +119,6 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
     const passProblem =
       password.length >= 6 ? null : 'Parol kamida 6 belgidan iborat bo‘lsin';
 
-    if (mode === 'register') {
-      if (nameProblem) return setInvalid(nameProblem);
-      if (loginProblem) return setInvalid(loginProblem);
-      if (passProblem) return setInvalid(passProblem);
-      const joined = await auth.register({
-        email: phone,
-        password,
-        nickname: name,
-      });
-      if (joined) close();
-      return;
-    }
     if (mode === 'signIn') {
       if (loginProblem) return setInvalid(loginProblem);
       if (passProblem) return setInvalid(passProblem);
@@ -264,7 +257,11 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
           <p className="modal__hint">
             Mehmon hisobi shu brauzerga bog‘langan. Telefon raqam
             qo‘shsangiz natijalaringiz boshqa qurilmadan ham ko‘rinadi —{' '}
-            <button className="link" onClick={() => open('register')}>
+            {/* Kirish oynasi: o'sha yerda raqam so'raladi va bu
+                raqamda hisob bo'lmasa shu yerning o'zida ochiladi.
+                Hozirgi mehmon qatori yangi hisobga ko'chadi —
+                so'rov token bilan ketadi (`lib/auth.tsx`, `adopt`). */}
+            <button className="link" onClick={() => open('signIn')}>
               raqam qo‘shish
             </button>
             .
@@ -280,41 +277,6 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
             }}
           >
             Chiqish
-          </button>
-        </div>
-      </Modal>
-    );
-  }
-
-  if (mode === 'register') {
-    return (
-      <Modal
-        title="Yangi hisob"
-        lead="Telefon raqamingiz bilan. Natijalaringiz saqlanadi, jadvalda ko‘rinadi va boshqa qurilmadan ham ochiladi."
-        onClose={close}
-      >
-        <form className="form" onSubmit={submit}>
-          {nameField('Ismingiz yoki taxallusingiz', true)}
-          <PhoneField value={phone} onChange={setPhone} autoComplete="tel" />
-          <label className="field">
-            <span>Parol</span>
-            <input
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder="Kamida 6 belgi"
-              autoComplete="new-password"
-            />
-          </label>
-          {status}
-          <button className="btn" disabled={auth.busy}>
-            {auth.busy ? 'Yaratilmoqda…' : 'Ro‘yxatdan o‘tish'}
-          </button>
-        </form>
-
-        <div className="modal__tabs">
-          <button className="link" onClick={() => open('signIn')}>
-            Hisobim bor
           </button>
         </div>
       </Modal>

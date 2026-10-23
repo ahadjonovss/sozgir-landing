@@ -365,15 +365,11 @@ function PlayBoard({
             oladi, natijalaringiz esa saqlanadi va boshqa qurilmadan ham
             ko‘rinadi.
           </p>
+          {/* Bitta tugma: kirish oynasi hisob bo'lmasa uni o'zi
+              ochadi. */}
           <div className="result__actions">
             <button className="btn btn--sm" onClick={() => auth.openPrompt('signIn')}>
               Kirish
-            </button>
-            <button
-              className="btn btn--sm btn--ghost"
-              onClick={() => auth.openPrompt('register')}
-            >
-              Hisob ochish
             </button>
           </div>
           {/* Hisobsiz ham o'ynash yo'li ochiq qoladi: «bo'lmaydi» deb
