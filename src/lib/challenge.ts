@@ -135,6 +135,31 @@ export async function peekChallenge(input: {
   };
 }
 
+/** Shu brauzerning mehmon belgisi — bir marta yasaladi va qoladi.
+ *
+ *  Nima uchun: server mehmonni hech qanday yo'l bilan taniy
+ *  olmaydi va shu sabab yashirgan odamning jadvalida ular umuman
+ *  ko'rinmasdi — faqat «yettita odam hisobsiz o'ynadi» degan
+ *  sanoq turardi. Belgi bitta o'yinni boshqasidan ajratadi,
+ *  xolos: u kimligini aytmaydi, boshqa saytga ketmaydi va
+ *  brauzer keshi tozalansa yangisi yasaladi.
+ *
+ *  `localStorage` ishlamasa (shaxsiy oyna, taqiq) bo'sh satr
+ *  qaytadi — o'shanda eski yo'l qoladi: mehmon faqat sanoqqa
+ *  tushadi. */
+function guestId(): string {
+  const key = 'sozgir.guest';
+  try {
+    const saved = localStorage.getItem(key);
+    if (saved) return saved;
+    const fresh = Math.random().toString(36).slice(2, 10);
+    localStorage.setItem(key, fresh);
+    return fresh;
+  } catch {
+    return '';
+  }
+}
+
 /** Mehmonning taxmini. Server urinishlarni sanamaydi — `finished`
  *  shu yerda, qatorlar sonidan chiqadi (`useChallenge`). */
 export async function guestGuess(input: {
@@ -151,7 +176,13 @@ export async function guestGuess(input: {
     won?: unknown;
   }>(`/v1/public/challenges/${encodeURIComponent(input.code)}/guess`, {
     auth: false,
-    body: { word: input.word, first: input.first === true },
+    body: {
+      word: input.word,
+      first: input.first === true,
+      // Belgi har taxminda ketadi: server shu bo'yicha
+      // mehmonning qatorini topadi va urinishini sanaydi.
+      guestId: guestId(),
+    },
   });
 
   if (data.accepted !== true) {
@@ -223,4 +254,97 @@ export async function claimChallenge(input: {
     won: data.won === true,
     attempts: Number(data.attempts ?? 0) || 0,
   };
+}
+
+/** Yashirgan so'zning ro'yxatdagi ko'rinishi.
+ *
+ *  Serverdagi `ChallengeRow` ning saytga keragi: kod, sarlavha,
+ *  uzunlik, sanoqlar va muddat. Javob ham, qaysi odam o'ynagani
+ *  ham bu yerda yo'q — ikkinchisi alohida so'rov
+ *  (`challengeBoard`), chunki u faqat ochilgan qatorga kerak. */
+export interface MyChallenge {
+  code: string;
+  title: string;
+  length: number;
+  /** `open`, `closed` yoki `expired` — serverning o'z yozuvi. */
+  status: string;
+  /** Hisobi bor o'yinchilar va mehmonlar birga: ro'yxatdagi son
+   *  «nechta odam o'ynadi» degan savolga javob beradi va bu
+   *  savolda ikkisining farqi yo'q. */
+  plays: number;
+  solved: number;
+  /** Muddati — millisekundda; `0` bo'lsa server muddat qo'ymagan. */
+  expiresAt: number;
+}
+
+const asRow = (value: unknown): MyChallenge => {
+  const row = (value ?? {}) as Record<string, unknown>;
+  const expires = Date.parse(String(row.expires_at ?? ''));
+  return {
+    code: String(row.code ?? ''),
+    title: typeof row.title === 'string' ? row.title : '',
+    length: Number(row.length ?? 0) || 0,
+    status: String(row.status ?? 'open'),
+    plays: (Number(row.plays ?? 0) || 0) + (Number(row.guest_plays ?? 0) || 0),
+    solved:
+      (Number(row.solved ?? 0) || 0) + (Number(row.guest_solved ?? 0) || 0),
+    expiresAt: Number.isNaN(expires) ? 0 : expires,
+  };
+};
+
+/** So'z yashirish. Javobda faqat kod — havola shundan yasaladi.
+ *
+ *  So'z serverda qayta tekshiriladi (`canBeAnswer`): saytdagi
+ *  qidiruv keshdagi lug'atga tayanadi va u bir necha kun eski
+ *  bo'lishi mumkin. Shuning uchun bu yerdagi xato matni
+ *  serverniki — o'zimiznikini o'ylab topsak, ikkisi ajralib
+ *  ketardi. */
+export async function createChallenge(input: {
+  word: string;
+  title?: string;
+}): Promise<{ code: string }> {
+  const data = await api.post<{ code?: unknown }>('/v1/web/challenges', {
+    body: { word: input.word, title: input.title ?? '' },
+  });
+  return { code: String(data.code ?? '') };
+}
+
+/** O'zim yashirgan so'zlar — yangisi birinchi. */
+export async function myChallenges(): Promise<MyChallenge[]> {
+  const data = await api.get<{ mine?: unknown }>('/v1/web/challenges/mine');
+  return (Array.isArray(data.mine) ? data.mine : []).map(asRow);
+}
+
+/** Muddatidan oldin yopish — havola endi yangi o'yinchini olmaydi.
+ *
+ *  O'chirish emas: o'ynab bo'lganlarning natijasi joyida qoladi va
+ *  statistika o'qilaveradi. */
+export async function closeChallenge(code: string): Promise<void> {
+  await api.delete(`/v1/web/challenges/${encodeURIComponent(code)}`);
+}
+
+/** Kim o'ynagani — faqat so'z egasiga (serverda tekshiriladi). */
+export interface ChallengePlayer {
+  nickname: string;
+  attempts: number;
+  won: boolean;
+  finished: boolean;
+}
+
+export async function challengeBoard(
+  code: string
+): Promise<ChallengePlayer[]> {
+  const data = await api.get<{ board?: unknown }>(
+    `/v1/web/challenges/${encodeURIComponent(code)}/board`
+  );
+  return (Array.isArray(data.board) ? data.board : []).map((value) => {
+    const row = (value ?? {}) as Record<string, unknown>;
+    return {
+      nickname:
+        typeof row.nickname === 'string' && row.nickname ? row.nickname : '',
+      attempts: Number(row.attempts ?? 0) || 0,
+      won: row.won === true,
+      finished: row.finished === true,
+    };
+  });
 }
