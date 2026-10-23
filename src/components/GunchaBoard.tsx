@@ -112,7 +112,7 @@ export function GunchaBoard({
 
         {rules && (
           <ol className="guncha__rules">
-            <li>So‘z kamida 4 harfdan bo‘lsin.</li>
+            <li>So‘z kamida 2 harfdan bo‘lsin.</li>
             <li>Yurak harf (o‘rtadagi) har bir so‘zda qatnashsin.</li>
             <li>Harflar takrorlanishi mumkin.</li>
             <li>Yettala harf ishlatilgan so‘z — pangramma: +7.</li>

@@ -43,7 +43,7 @@ function linesOf(game: ScoredGame): string[] {
       ];
     case 'guncha':
       return [
-        'O‘yin ichidagi hisob: 4 harfli so‘z — 1, undan uzuni harflari soniga teng. Daraja shu hisob bo‘yicha o‘sadi.',
+        'O‘yin ichidagi hisob: 2–3 harfli so‘z — 1, 4 harfli — 2, undan uzuni harflari soniga teng. Daraja shu hisob bo‘yicha o‘sadi.',
         'Hamyonga esa raundning ulushi tushadi: g‘unchani to‘liq yechsangiz 20 aqcha, yarmini yechsangiz 10.',
         'Shuning uchun mukofot o‘sha kungi harflarga bog‘liq emas — og‘ir g‘uncha ham, yengili ham bir xil turadi.',
       ];
@@ -56,7 +56,7 @@ function linesOf(game: ScoredGame): string[] {
       ];
     case 'gunchajang':
       return [
-        'Jangdagi hisob g‘unchadagidek: 4 harfli so‘z — 1, uzuni harflari soniga teng, pangramma — qo‘shimcha 7.',
+        'Jangdagi hisob g‘unchadagidek: 2–3 harfli so‘z — 1, 4 harfli — 2, uzuni harflari soniga teng, pangramma — qo‘shimcha 7.',
         'Jang ham aqcha beradi: eng ko‘pi ±5, birinchi janglarda ±7.',
         'Jangda yig‘ilgan hisob umumiy aqchaga qo‘shilmaydi — u shu jangning o‘lchovi.',
       ];

@@ -9,8 +9,9 @@
  *  ballni ikkilantirmaydi va eski raund yozuvi o'chirilsa ham yig'ma
  *  hisob joyida qoladi.
  *
- *  G'unchaning **o'z balli o'yin ichida qoladi** (4 harfli so'z 1, uzuni
- *  uzunligicha, pangramma +7): u daraja zinapoyasini yuritadi. Hamyonga
+ *  G'unchaning **o'z balli o'yin ichida qoladi** (2–3 harfli so'z 1,
+ *  4 harfli 2, uzuni uzunligicha, pangramma +7): u daraja zinapoyasini
+ *  yuritadi. Hamyonga
  *  esa raundning **ulushi** tushadi — to'liq yechilgan g'uncha 20 aqcha,
  *  yarmi 10 (`docs/aqcha.md`, 4.2). Ilgari xom yig'indining o'zi
  *  tushardi va kunlik mukofotni o'yinchi emas, o'sha kungi harflar

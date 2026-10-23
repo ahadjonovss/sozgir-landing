@@ -6,7 +6,7 @@
  *  g'unchaning harflarini o'sha tanlaydi.
  *
  *  Qoidalar:
- *   1. So'z kamida **4 harfdan** (`sh`, `ch`, `oʻ`, `gʻ` — bitta harf);
+ *   1. So'z kamida **2 harfdan** (`sh`, `ch`, `oʻ`, `gʻ` — bitta harf);
  *   2. **yurak harf** albatta qatnashsin;
  *   3. faqat g'unchadagi harflar, lekin har biri necha marta bo'lsa ham;
  *   4. so'z lug'atda bo'lsin — javob so'zlari ham, `valid` ro'yxatidagi
@@ -26,12 +26,28 @@ const LETTER_INDEX = new Map(LETTERS.map((letter, index) => [letter, index]));
 /** G'unchadagi harflar soni: yurak + olti barg. */
 export const LETTER_COUNT = 7;
 
-/** Eng qisqa hisoblanadigan so'z. */
-export const MIN_LENGTH = 4;
+/** Eng qisqa hisoblanadigan so'z.
+ *
+ *  2026-10-22 da to'rtdan **ikkiga** tushdi — ilova va serverdagi bilan
+ *  bir vaqtda (`domain/guncha.ts` dagi `MIN_WORD_LENGTH`). Sabab:
+ *  harflarni ko'rib turib `ish`, `oq`, `oʻn` ni yoza olmaslik eng ko'p
+ *  uchraydigan shikoyat edi.
+ *
+ *  Uchalasida bir xil bo'lishi **shart**: jangda so'zni server
+ *  baholaydi, kunlik g'unchada esa ekrandagi ball ilovadagiga mos
+ *  kelishi kerak. */
+export const MIN_LENGTH = 2;
 
-/** 4 harfli so'z uchun ball — ataylab arzon: u eng oson topiladigan so'z
- *  va u bilan ballni «to'ldirib» bo'lmasin. */
-const SHORT_WORD_SCORE = 1;
+/** Besh harfdan qisqa so'zlarning balli — uzunlik bo'yicha.
+ *
+ *  Ataylab arzon: eng oson topiladigan so'zlar bilan ballni
+ *  «to'ldirib» bo'lmasin. Ro'yxatda yo'q uzunlik o'z sonini oladi
+ *  (5 harf — 5 ball).
+ *
+ *  Jadval chegara tushganda qayta chizildi: uch harfli so'z lug'atga
+ *  qo'shilgach eng ko'p topiladigani bo'lib qoladi va eski jadvalda u
+ *  to'rt harfli bilan teng ball olardi. */
+const SHORT_WORD_SCORES: Record<number, number> = { 2: 1, 3: 1, 4: 2 };
 
 /** Yettala harf ishlatilgan so'z — pangramma. */
 const PANGRAM_BONUS = 7;
@@ -54,7 +70,7 @@ export function wordScore({
   pangram: boolean;
 }): number {
   if (length < MIN_LENGTH) return 0;
-  const base = length === MIN_LENGTH ? SHORT_WORD_SCORE : length;
+  const base = SHORT_WORD_SCORES[length] ?? length;
   return base + (pangram ? PANGRAM_BONUS : 0);
 }
 
@@ -521,7 +537,7 @@ export type GunchaVerdict =
 
 export const VERDICT_TEXT: Record<Exclude<GunchaVerdict, 'accepted'>, string> = {
   repeated: 'Bu so‘zni topgansiz',
-  tooShort: 'Kamida 4 harf',
+  tooShort: 'Kamida 2 harf',
   missingCenter: 'Yurak harf yo‘q',
   foreignLetter: 'Bu harf g‘unchada yo‘q',
   unknown: 'Bunday so‘z lug‘atda yo‘q',

@@ -245,7 +245,7 @@ function Lobby({ game }: { game: GunchaJang }) {
         <div className="panel">
           <h3>Qoidalar</h3>
           <ol className="guncha__rules">
-            <li>So‘z kamida 4 harfdan bo‘lsin va yurak harf qatnashsin.</li>
+            <li>So‘z kamida 2 harfdan bo‘lsin va yurak harf qatnashsin.</li>
             <li>Uzun so‘z ko‘proq beradi, pangramma — qo‘shimcha 7.</li>
             <li>Vaqtni server hisoblaydi: muddat o‘tgach so‘z hisoblanmaydi.</li>
             <li>Hisob teng bo‘lsa — durang.</li>
