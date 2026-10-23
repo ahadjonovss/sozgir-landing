@@ -308,7 +308,7 @@ export const faq = [
  * shu yerga qaraydi. Ochish uchun `id` ni ro'yxatdan olib tashlash
  * yetadi; boshqa hech qayerda o'zgartirish kerak emas.
  */
-export const soonGames = new Set(['mardu', 'turnir']);
+export const soonGames = new Set(['turnir']);
 
 /** Shu bo'lim hali yopiqmi. */
 export const isSoon = (id: string): boolean => soonGames.has(id);
