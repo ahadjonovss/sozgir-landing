@@ -75,10 +75,19 @@ export const links = {
   donate: '/qollab',
   /** O'yinchining ochiq profili — `/oyinchi/{uid}`. */
   player: '/oyinchi',
+  /** So'zTop — kodsiz ochilganda so'z yashirish bo'limi. */
+  soztop: '/soztop',
 };
 
 /** Ochiq profil havolasi — reyting, natija va donatchilar ro'yxatidan. */
 export const playerLink = (uid: string) => `${links.player}/${encodeURIComponent(uid)}`;
+
+/** Yashirilgan so'zning havolasi — ulashish uchun to'liq manzil.
+ *
+ *  Nisbiy emas: bu havola nusxalanib boshqa joyga tashlanadi va
+ *  u yerda `sozgir.uz` ni hech kim o'zi qo'shmaydi. */
+export const challengeLink = (code: string) =>
+  `${site}${links.soztop}/${encodeURIComponent(code)}`;
 
 /* Sonlar lug'atning o'zidan olingan (`dictionaries/uz_{4..7}`,
    `categories`) va vaqti-vaqti bilan tekshirilishi kerak: lug'at

@@ -23,6 +23,7 @@ import UpdatesPage from './components/UpdatesPage';
 import BadgesPage from './components/BadgesPage';
 import BattlePage from './components/BattlePage';
 import ChallengePage from './components/ChallengePage';
+import HideWordPage from './components/HideWordPage';
 import GameHub from './components/GameHub';
 import GunchaBattlePage from './components/GunchaBattlePage';
 import MarduPage from './components/MarduPage';
@@ -49,7 +50,7 @@ import { useReveal } from './lib/useReveal';
 import AccountDeletion from './components/AccountDeletion';
 import { startMetrika, trackPage } from './lib/metrika';
 import { trackVisit, watchErrors, watchLinks } from './lib/track';
-import { useRoute } from './lib/useRoute';
+import { routeParam, useRoute } from './lib/useRoute';
 
 /** O'yin ekranlari — pastdagi footer shu yerda bir qatorga tushadi.
  *
@@ -202,8 +203,10 @@ export default function App() {
         {/* `/shikoyat/soz/{SO'Z}` va `/shikoyat/oyinchi/{uid}` — jang
             natijasidan ochiladi, oyna emas, o'z sahifasi. */}
         {route === '/shikoyat' && <ReportPage />}
-        {/* `/soztop/{KOD}` — do'sti yashirgan so'z, shu yerda o'ynaladi. */}
-        {route === '/soztop' && <ChallengePage />}
+        {/* `/soztop/{KOD}` — do'sti yashirgan so'z, shu yerda o'ynaladi.
+            Kodsiz esa ikkinchi tomoni: o'zi so'z yashiradigan bo'lim. */}
+        {route === '/soztop' &&
+          (routeParam() ? <ChallengePage /> : <HideWordPage />)}
       </main>
 
       <Footer slim={GAME_ROUTES.has(route)} />

@@ -7707,3 +7707,118 @@
   padding-top: 14px;
   border-top: 1px solid var(--divider);
 }
+
+/* ── So'z yashirish (`/soztop`) ──────────────────────────────────────
+   So'z lug'atdan tanlanadi, ya'ni ekranning yarmi — bosiladigan
+   so'zlar ro'yxati. Ular tugma bo'lgani uchun katakcha ko'rinishida:
+   odam ro'yxatni o'qimaydi, ichidan bittasini **tanlaydi**. */
+.hide__pick {
+  display: grid;
+  gap: 12px;
+}
+
+.hide__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.hide__label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-2);
+}
+
+.hide__words {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.hide__chip {
+  padding: 8px 14px;
+  border: 1px solid var(--tile-border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.hide__chip:hover {
+  border-color: var(--green);
+  color: var(--green);
+}
+
+/* Tanlangan so'z ro'yxat o'rnini butunlay egallaydi: tanlov
+   qilingandan keyin qolgan yuzta so'z faqat chalg'itadi. */
+.hide__picked {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.hide__picked-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-2);
+}
+
+.hide__word {
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Kod — ulashiladigan narsa, shuning uchun katta va ajralib
+   turadi: odam uni ko'chirib yozishi ham mumkin. */
+.hide__code {
+  margin: 10px 0;
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-align: center;
+  color: var(--green);
+}
+
+.hide__list {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hide__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+.hide__item-main {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.hide__meta {
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+.hide__item-acts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
