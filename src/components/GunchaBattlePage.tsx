@@ -484,8 +484,12 @@ function Playing({ game }: { game: GunchaJang }) {
       )}
 
       <div className={`guncha__typed${game.shake ? ' guncha__typed--shake' : ''}`}>
+        {/* Xabar maslahatning o'rnida chiqadi — `GunchaBoard` dagi
+            bilan bir xil qoida. */}
         {game.typed.length === 0 ? (
-          <span className="guncha__hint">Harflarni bosing yoki yozing</span>
+          game.praise || game.message ? null : (
+            <span className="guncha__hint">Harflarni bosing yoki yozing</span>
+          )
         ) : (
           game.typed.map((unit, index) => (
             <span

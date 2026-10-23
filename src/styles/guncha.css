@@ -301,15 +301,27 @@
   line-height: var(--unit-line);
 }
 
-/* Ball va xabar so'zning ustida chiqadi — joyni egallamaydi. */
+/* Ball va xabar — qatorning **o'rtasida**, maslahat turgan joyda.
+   Ilgari ikkalasi burchakka mixlangan edi (`right: 8px`,
+   `left: 8px`, `top: -6px`): ko'z yozuv maydonining o'rtasida
+   turadi va chetdagi kichkina yozuvni payqamay qolardi — ayniqsa
+   ball, ya'ni o'yindagi eng kerakli javob.
+
+   O'rni mutlaq qoladi, chunki `translateY` animatsiyasi oqimdagi
+   elementda qatorni cho'zib yuborardi. Shu sababli markazlash ham
+   `transform` orqali va u animatsiyalarning har kadrida
+   takrorlanadi — aks holda kalit kadr markazlashni o'chirardi. */
 .guncha__praise,
 .guncha__msg {
   position: absolute;
-  top: -6px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   padding: 3px 10px;
   border-radius: 999px;
   font-size: 12.5px;
   font-weight: 800;
+  white-space: nowrap;
   animation: guncha-pop 0.24s ease;
 }
 
@@ -322,41 +334,39 @@
 
 @keyframes guncha-praise {
   0% {
-    transform: translateY(8px) scale(0.9);
+    transform: translate(-50%, calc(-50% + 8px)) scale(0.9);
     opacity: 0;
   }
   14% {
-    transform: translateY(0) scale(1.06);
+    transform: translate(-50%, -50%) scale(1.06);
     opacity: 1;
   }
   24% {
-    transform: translateY(0) scale(1);
+    transform: translate(-50%, -50%) scale(1);
   }
   72% {
-    transform: translateY(-4px);
+    transform: translate(-50%, calc(-50% - 4px));
     opacity: 1;
   }
   100% {
-    transform: translateY(-18px);
+    transform: translate(-50%, calc(-50% - 18px));
     opacity: 0;
   }
 }
 
 .guncha__praise {
-  right: 8px;
   background: var(--green-soft);
   color: var(--green-deep, var(--green));
 }
 
 .guncha__msg {
-  left: 8px;
   background: var(--surface-2);
   color: var(--text-2);
 }
 
 @keyframes guncha-pop {
-  from { transform: translateY(6px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from { transform: translate(-50%, calc(-50% + 6px)); opacity: 0; }
+  to { transform: translate(-50%, -50%); opacity: 1; }
 }
 
 .guncha__controls {

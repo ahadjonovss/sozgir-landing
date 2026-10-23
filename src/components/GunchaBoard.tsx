@@ -150,8 +150,17 @@ export function GunchaBoard({
         {puzzle && (
           <>
             <div className={`guncha__typed${shake ? ' guncha__typed--shake' : ''}`}>
+              {/* Xabar maslahatning **o'rnini** egallaydi. So'z
+                  yuborilganda `typed` baribir bo'shaydi
+                  (`useGuncha`), ya'ni bu yerda har doim yo maslahat,
+                  yo xabar turadi — ikkalasi hech qachon to'qnashmaydi.
+                  Ilgari ball o'ng burchakda, xabar chap burchakda
+                  chiqardi: ko'z qatorning o'rtasida turgan bo'lsa
+                  ularni butunlay payqamay qolardi. */}
               {typed.length === 0 ? (
-                <span className="guncha__hint">Harflarni bosing yoki yozing</span>
+                praise || message ? null : (
+                  <span className="guncha__hint">Harflarni bosing yoki yozing</span>
+                )
               ) : (
                 typed.map((unit, index) => (
                   <span
