@@ -61,13 +61,23 @@ export default function SideAds() {
    *  aylanadigan reklama tarmoq qoidasida alohida cheklangan va
    *  bu yerdagi maqsad ham u emas. */
   const [key, setKey] = useState(0);
-  /** Oxirgi talab qachon ketgani. Boshlang'ich qiymati —
-   *  o'rnashish payti: birinchi effekt ham sanoqqa tushadi, aks
-   *  holda banner o'rnashgan zahoti ikkinchi marta so'ralardi. */
-  const last = useRef(Date.now());
+  /** Oxirgi talab qachon ketgani.
+   *
+   *  `null` — hali hech narsa so'ralmagan. Vaqt render paytida
+   *  emas, effekt ichida olinadi: `Date.now()` har chaqiruvda
+   *  boshqa javob beradi va uni render ichiga qo'yish komponentni
+   *  oldindan aytib bo'lmaydigan qiladi. */
+  const last = useRef<number | null>(null);
 
   useEffect(() => {
     const now = Date.now();
+    /* Birinchi o'rnashish faqat vaqtni belgilaydi: banner shu
+       zahoti chizilyapti, uni darhol ikkinchi marta so'rash
+       ortiqcha talab bo'lardi. */
+    if (last.current === null) {
+      last.current = now;
+      return;
+    }
     if (now - last.current < COOLDOWN) return;
     last.current = now;
     setKey((n) => n + 1);
