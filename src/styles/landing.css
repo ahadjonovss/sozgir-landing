@@ -1112,6 +1112,50 @@
   line-height: 1.4;
 }
 
+/* ── So'zTop: shu so'zning sonlari ─────────────────────────────────── */
+
+/* «Topdingiz» ning o'zi hech narsa aytmasdi: odam o'z natijasini
+   nima bilan taqqoslashini bilmasdi. Bu yerda — shu so'zni nechta
+   odam o'ynagani, nechtasi topgani va qo'ldagi natijaning o'rni.
+   Ismlar yo'q: ular faqat so'z egasiga ochiq. */
+.result__stats {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+}
+
+/* O'rin — bo'lakning eng baland ovozli qatori: odam avval shuni
+   qidiradi. */
+.result__rank {
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.result__nums {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 8px;
+  list-style: none;
+  padding: 0;
+}
+
+.result__nums li {
+  display: grid;
+  gap: 1px;
+}
+
+.result__nums strong {
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.result__nums span {
+  color: var(--text-2);
+  font-size: 11.5px;
+}
+
 .result__actions {
   display: flex;
   /* Uchta tugma tor kartochkada bitta qatorga sig'masdi va oxirgisi
@@ -1593,17 +1637,23 @@
 
 /* ── Savollar ─────────────────────────────────────────────────────────── */
 
+/* Savollar sahifaning **o'rtasida**: bo'lim boshqa bo'limlarga
+   o'xshab chap chetga tirab qo'yilgan edi va 1160px lik varaqda
+   o'ng tomoni butunlay bo'sh qolardi. Sarlavha ham markazda
+   (`section__head--center`). */
 .faq {
   display: grid;
   gap: 8px;
   max-width: 780px;
+  margin-inline: auto;
 }
 
-/* «Yana N ta savol» — ro'yxatning ostida, chapda.
-   Ro'yxat bilan bir chiziqda turadi: u ro'yxatning davomi, alohida
-   amal emas. */
+/* «Yana N ta savol» — ro'yxatning ostida, markazda: ro'yxatning
+   o'zi ham markazda turadi va chapda qolgan tugma undan uzilib
+   ko'rinardi. */
 .faq__more {
-  margin-top: 14px;
+  display: block;
+  margin: 14px auto 0;
 }
 
 .faq__item {

@@ -100,6 +100,46 @@ export async function openChallenge(input: {
   };
 }
 
+/** So'zning ochiq sonlari — o'yin tugagach ko'rsatiladi.
+ *
+ *  Ismlar yo'q: kim o'ynagani faqat so'z egasiga ochiq
+ *  (`/challenges/:code/board`, server). Bu yerdan faqat raqamlar
+ *  keladi, ya'ni yo'l tokensiz va mehmonga ham ishlaydi.
+ *
+ *  `attempts` mijozdan uzatiladi, chunki mehmonning serverda yozuvi
+ *  yo'q va uni boshqa yo'l bilan tanib bo'lmaydi. */
+export interface ChallengeStats {
+  players: number;
+  solved: number;
+  best: number | null;
+  rank: number | null;
+}
+
+export async function challengeStats(input: {
+  code: string;
+  attempts?: number;
+}): Promise<ChallengeStats> {
+  const query = input.attempts ? `?attempts=${input.attempts}` : '';
+  const data = await api.get<{
+    players?: unknown;
+    solved?: unknown;
+    best?: unknown;
+    rank?: unknown;
+  }>(`/v1/public/challenges/${encodeURIComponent(input.code)}/stats${query}`);
+
+  const count = (value: unknown): number =>
+    typeof value === 'number' && Number.isFinite(value) ? value : 0;
+  const maybe = (value: unknown): number | null =>
+    typeof value === 'number' && Number.isFinite(value) ? value : null;
+
+  return {
+    players: count(data.players),
+    solved: count(data.solved),
+    best: maybe(data.best),
+    rank: maybe(data.rank),
+  };
+}
+
 /** Kirmasdan ochish — `/v1/public`, tokensiz.
  *
  *  Havolani bosgan odamda hisob bo'lmasligi mumkin va o'yin aynan

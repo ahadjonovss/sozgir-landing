@@ -7678,10 +7678,18 @@
   display: none;
 }
 
-/* Joy faqat shu kenglikdan boshlab yetadi: o'rtadagi ustun 980px,
-   ikki yonda banner uchun 240px va hoshiya uchun 32px kerak. Tor
-   ekranda — telefon, planshet, oddiy noutbuk — umuman chizilmaydi. */
-@media (min-width: 1560px) {
+/* Joy faqat shu kenglikdan boshlab yetadi.
+   
+   O'lchov kontentning **eng keng** holatidan olinadi: varaq
+   (`--page`) 1160px va banner unga tegmasligi kerak. Ya'ni
+   1160 + 2 × (240 banner + 2 × 20 hoshiya) = 1720px.
+   
+   Ilgari chegara 1560px edi va hisob o'yin taxtasining eniga
+   (980px) tayanardi. Bosh sahifadagi bo'limlar esa taxtadan
+   ancha keng va banner ularning ustiga chiqib, matnni to'sib
+   qo'yardi. Tor ekranda — telefon, planshet, oddiy noutbuk —
+   chekka umuman chizilmaydi. */
+@media (min-width: 1720px) {
   .rails {
     display: block;
   }
@@ -7733,14 +7741,21 @@
        edi va endi u pastdagi bannerlarni butunlay kesib tashlardi. */
   }
 
-  /* Markazdan hisoblanadi: o'rtadagi ustunning chekkasi `50% - 490px`,
-     undan 32px hoshiya va banner enining o'zi. */
+  /* Varaqning **burchagiga** yopishadi, markazdan hisoblanmaydi.
+     
+     Markazdan o'lchash o'yin taxtasi uchun to'g'ri edi, lekin
+     bosh sahifadagi keng bo'limlar ustiga chiqardi. Chetga
+     tiralgan banner esa kontentga hech qachon tegmaydi:
+     chegara (`1720px`) aynan shu hisobda qo'yilgan.
+     
+     20px hoshiya — ekranning o'z chekkasiga yopishib qolmasligi
+     uchun. */
   .rails__one--left {
-    right: calc(50% + 490px + 24px);
+    left: 20px;
   }
 
   .rails__one--right {
-    left: calc(50% + 490px + 24px);
+    right: 20px;
   }
 
   /* Chetdagi banner **baland** bo'ladi.
@@ -7763,16 +7778,16 @@
    reklamaning eng ko'p uchraydigan ikki o'lchami, ya'ni ularga talab
    240px likdan sezilarli ko'p va narxi ham yuqoriroq.
 
-   Chegaralar o'lchovdan chiqqan: ustun markazdan 514px da boshlanadi
-   (490px taxta + 24px hoshiya), shuning uchun 300px ga ekran yarmi
-   814px, 336px ga esa 850px bo'lishi kerak. */
-@media (min-width: 1640px) {
+   Chegaralar o'sha hisobdan: banner varaqqa tegmasligi kerak, ya'ni
+   300px ga 1160 + 2 × 340 = 1840px, 336px ga esa 1160 + 2 × 376 =
+   1912px ekran kerak. */
+@media (min-width: 1840px) {
   .rails__one {
     width: 300px;
   }
 }
 
-@media (min-width: 1710px) {
+@media (min-width: 1920px) {
   .rails__one {
     width: 336px;
   }

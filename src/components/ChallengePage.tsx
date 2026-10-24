@@ -15,7 +15,7 @@ import { useEffect, useState, type CSSProperties } from 'react';
 import { links, playerLink } from '../data/site';
 import { useAuth } from '../lib/auth';
 import { askAppPromo } from '../lib/appPromo';
-import { isChallengeCode } from '../lib/challenge';
+import { challengeStats, isChallengeCode, type ChallengeStats } from '../lib/challenge';
 import { useChallenge } from '../lib/useChallenge';
 import { routeParam } from '../lib/useRoute';
 import { Board, Keyboard } from './Board';
@@ -26,10 +26,13 @@ import DownloadPromo from './DownloadPromo';
  *  «so'z falon edi» deyishning yagona yo'li — so'rab olish, u esa
  *  yashirgan odamda. */
 function Result({
+  code,
   won,
   attempts,
   guest,
 }: {
+  /** Sonlarni so'rash uchun — ular shu so'zga tegishli. */
+  code: string;
   won: boolean;
   attempts: number;
   guest: boolean;
@@ -39,6 +42,11 @@ function Result({
       <p className="result__title">
         {won ? `Topdingiz — ${attempts} urinishda!` : 'Topilmadi'}
       </p>
+      {/* Natijaning o'rniga — **shu so'zning sonlari**.
+          «Topdingiz» ning o'zi hech narsa aytmasdi: odam o'z
+          natijasini nima bilan taqqoslashini bilmasdi. Endi
+          ostida o'ynaganlar soni va o'z o'rni turadi. */}
+      <Stats code={code} attempts={attempts} won={won} />
       <p className="result__def">
         {won
           ? guest
@@ -58,6 +66,68 @@ function Result({
       </p>
       {/* Yashirish faqat ilovada: so'z lug'atdan qidirib tanlanadi. */}
       <DownloadPromo />
+    </div>
+  );
+}
+
+/** Shu so'zni nechta odam o'ynagani va qo'lidagi natijaning o'rni.
+ *
+ *  Ismlar yo'q — ular faqat so'z egasiga ochiq (`site/challenges.ts`
+ *  serverda). Shu sabab yo'l tokensiz va mehmonda ham ishlaydi.
+ *
+ *  Sonlar kelmasa hech narsa chizilmaydi: natija sahifasida «yuklanmoqda»
+ *  yoki «xato» yozuvi turgani o'yinning oxirgi ekranini buzardi. */
+function Stats({
+  code,
+  attempts,
+  won,
+}: {
+  code: string;
+  attempts: number;
+  won: boolean;
+}) {
+  const [stats, setStats] = useState<ChallengeStats | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    /* O'rin faqat topgan odamga so'raladi: topolmagan odam
+       topganlar qatorida turmaydi va unga «siz 9-o'rindasiz»
+       deyish noto'g'ri bo'lardi. */
+    void challengeStats({ code, attempts: won ? attempts : undefined })
+      .then((next) => {
+        if (alive) setStats(next);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [code, attempts, won]);
+
+  if (!stats || stats.players === 0) return null;
+
+  return (
+    <div className="result__stats">
+      <p className="result__rank">
+        {won && stats.rank
+          ? `Siz ${stats.rank}-o‘rindasiz`
+          : `${stats.solved} kishi topgan`}
+      </p>
+      <ul className="result__nums">
+        <li>
+          <strong>{stats.players}</strong>
+          <span>o‘ynagan</span>
+        </li>
+        <li>
+          <strong>{stats.solved}</strong>
+          <span>topgan</span>
+        </li>
+        {stats.best !== null && (
+          <li>
+            <strong>{stats.best}</strong>
+            <span>eng kam urinish</span>
+          </li>
+        )}
+      </ul>
     </div>
   );
 }
@@ -226,6 +296,7 @@ export default function ChallengePage() {
         {valid && over && (
           <div className="oyin__board">
             <Result
+              code={code}
               won={game.phase === 'won'}
               attempts={game.attempts}
               guest={game.guest}

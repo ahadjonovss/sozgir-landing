@@ -23,7 +23,7 @@ export default function Faq() {
   return (
     <section className="section" id="savollar">
       <div className="wrap">
-        <div className="section__head reveal">
+        <div className="section__head section__head--center reveal">
           <span className="section__kicker">Savollar</span>
           <h2>Ko‘p so‘raladigan savollar</h2>
         </div>
