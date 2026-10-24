@@ -90,7 +90,11 @@ const FALLBACK: AdPlacement = 'hub';
  *  joyida turaveradi va hech narsani buzmaydi. */
 const UNITS: Record<AdPlacement, string> = {
   hub: 'R-A-20055999-1',
-  game: '',
+  /* Panelda «So'ztop» deb nomlangan blok — o'yin sahifasi uchun
+     ochilgan va shu yerga ulandi. Ilgari u hech qayerda
+     ishlatilmasdi: hamma joylashuv `hub` blokiga tushardi va
+     hisobotda sahifalar bo'yicha daromad ajralmasdi. */
+  game: 'R-A-20055999-2',
   guncha: '',
   battle: '',
   arena: '',
