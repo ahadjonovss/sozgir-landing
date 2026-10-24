@@ -34,7 +34,7 @@ import {
 } from '../lib/premium';
 import { pretty } from '../lib/uz';
 import { playerLink } from '../data/site';
-import { DONOR_TIERS, donorLabel, donorTier, forgetDonorTotals, nextDonorTier } from '../lib/donor';
+import { donorLabel, donorTier, forgetDonorTotals, nextDonorTier } from '../lib/donor';
 import YouTag from './YouTag';
 
 export function Balance({ balance }: { balance: SupportBalance }) {
@@ -245,13 +245,6 @@ export function DonateForm({
             : `Shu hissa bilan «${donorLabel(after)}» bo‘lasiz`}
         </p>
       )}
-      {valid && !after && (
-        <p className="donate__result">
-          <i aria-hidden="true" />
-          Homiylik darajasi {formatSum(DONOR_TIERS[DONOR_TIERS.length - 1].min)} so‘mdan boshlanadi — lekin har bir so‘m loyihaga ketadi.
-        </p>
-      )}
-
       {signedIn ? (
         <>
           <button className="btn btn--lg" onClick={pay} disabled={!valid || busy}>
