@@ -12,10 +12,16 @@
  *  davomi va ilovaning eng o'rinli taklif qilinadigan payti: odam
  *  o'yinni endigina o'ynab ko'rdi. */
 import { useEffect, useState, type CSSProperties } from 'react';
-import { links, playerLink } from '../data/site';
+import { challengeLink, links, playerLink } from '../data/site';
 import { useAuth } from '../lib/auth';
 import { askAppPromo } from '../lib/appPromo';
-import { challengeStats, isChallengeCode, type ChallengeStats } from '../lib/challenge';
+import {
+  challengeOwnerBoard,
+  challengeStats,
+  isChallengeCode,
+  type BoardEntry,
+  type ChallengeStats,
+} from '../lib/challenge';
 import { useChallenge } from '../lib/useChallenge';
 import { warmSounds } from '../lib/sounds';
 import { routeParam } from '../lib/useRoute';
@@ -67,6 +73,93 @@ function Result({
       </p>
       {/* Yashirish faqat ilovada: so'z lug'atdan qidirib tanlanadi. */}
       <DownloadPromo />
+    </div>
+  );
+}
+
+/** So'zning **egasi** ko'radigan ko'rinish.
+ *
+ *  Odam o'z yashirgan so'zining havolasini bosishi tabiiy: u kim
+ *  o'ynaganini ko'rmoqchi (ilovada ham aynan shu ochiladi —
+ *  `ChallengeStatsPage`). Saytda esa server «O'z so'zingizni
+ *  o'ynay olmaysiz» deb qaytarardi va ekranda xato turardi: to'g'ri
+ *  javob, lekin noto'g'ri ekran.
+ *
+ *  Kimligi **so'rov bilan** aniqlanadi, xato matniga qarab emas:
+ *  jadval yo'li faqat egasiga ochiq (server 403), ya'ni javob
+ *  kelgan bo'lsa — bu o'sha odam. Matn bo'yicha taqqoslash
+ *  serverdagi bitta so'z o'zgarishi bilan jim buzilardi.
+ *
+ *  Kelmasa hech narsa chizilmaydi va odam oddiy xato ekranini
+ *  ko'raveradi. */
+function OwnerView({
+  code,
+  title,
+  board,
+}: {
+  code: string;
+  title: string;
+  board: BoardEntry[];
+}) {
+  const [copied, setCopied] = useState(false);
+  const solved = board.filter((row) => row.won).length;
+
+  return (
+    <div className="panel panel--call">
+      <h3>{title || 'Sizning so‘zingiz'}</h3>
+      <p className="panel__note">
+        Bu — o‘zingiz yashirgan so‘z, shuning uchun o‘ynalmaydi.
+        Havolani do‘stlaringizga tashlang: kim necha urinishda
+        topgani shu yerda ko‘rinadi.
+      </p>
+
+      <div className="result__nums">
+        <div>
+          <strong>{board.length}</strong>
+          <span>o‘ynagan</span>
+        </div>
+        <div>
+          <strong>{solved}</strong>
+          <span>topgan</span>
+        </div>
+      </div>
+
+      {board.length > 0 && (
+        <ul className="owner__list">
+          {board.map((row, index) => (
+            <li key={`${row.uid}-${index}`}>
+              <span>{row.nickname || 'Mehmon'}</span>
+              {/* Uch holat: topdi, topolmadi va hali o'ynayapti —
+                  oxirgisida urinish soni hali yakuniy emas. */}
+              <strong>
+                {row.won
+                  ? `${row.attempts} urinish`
+                  : row.finished
+                    ? 'topolmadi'
+                    : 'o‘ynayapti'}
+              </strong>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="result__actions">
+        <button
+          type="button"
+          className="btn btn--sm"
+          onClick={() => {
+            void navigator.clipboard
+              ?.writeText(challengeLink(code))
+              .then(() => setCopied(true))
+              .catch(() => {});
+          }}
+        >
+          {copied ? 'Nusxalandi' : 'Havolani nusxalash'}
+        </button>
+        <a className="btn btn--sm btn--ghost" href={links.soztop}>
+          Yana so‘z yashirish
+        </a>
+      </div>
     </div>
   );
 }
@@ -159,6 +252,34 @@ function SaveCall({ won }: { won: boolean }) {
   );
 }
 
+/** So'z shu odamniki bo'lsa — uning jadvali, bo'lmasa `null`.
+ *
+ *  Savol so'rov bilan hal qilinadi: jadval yo'li faqat egasiga
+ *  ochiq (server 403 qaytaradi). Serverning xato **matniga** qarab
+ *  taqqoslash ham mumkin edi, lekin u bitta so'z o'zgarishi bilan
+ *  jim buzilardi. */
+function useOwnerBoard(code: string, active: boolean): BoardEntry[] | null {
+  const { account } = useAuth();
+  const uid = account?.uid;
+  const [board, setBoard] = useState<BoardEntry[] | null>(null);
+
+  useEffect(() => {
+    // Hisobsiz odamda yashirgan so'z ham yo'q — so'rov yubormaymiz.
+    if (!active || !uid) return;
+    let alive = true;
+    void challengeOwnerBoard(code)
+      .then((rows) => {
+        if (alive) setBoard(rows);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [active, code, uid]);
+
+  return active ? board : null;
+}
+
 export default function ChallengePage() {
   // Manzil o'zgarganda `App` qayta chiziladi, ya'ni kodni shu yerda
   // o'qish yetarli — alohida holat kerak emas.
@@ -202,6 +323,10 @@ export default function ChallengePage() {
    *  «bunday kod topilmadi» turganda «so'zni toping» deyishning ma'nosi
    *  yo'q. Sarlavha esa qoladi — odam qayerga tushganini bilsin. */
   const broken = !valid || game.phase === 'error';
+
+  /* O'z havolasini bosgan odamga xato emas, jadval kerak: ilovada
+     ham aynan shu ochiladi (`ChallengeStatsPage`). */
+  const owned = useOwnerBoard(code, valid && game.phase === 'error');
 
   return (
     <section className="oyin">
@@ -262,9 +387,16 @@ export default function ChallengePage() {
           </div>
         )}
 
+        {/* So'z o'zinikimi — shuni avval tekshiramiz: o'z havolasini
+            bosgan odamga xato emas, jadval kerak. Javob kelmasa bu
+            blok hech narsa chizmaydi va quyidagi xato qolaveradi. */}
+        {owned !== null && (
+          <OwnerView code={code} title={game.title} board={owned} />
+        )}
+
         {/* Serverning izohi o'zbekcha va aniq: «Bunday kod topilmadi»,
             «Bu so'z yopilgan», «Bu so'zni o'zingiz yashirgansiz». */}
-        {valid && game.phase === 'error' && (
+        {valid && game.phase === 'error' && owned === null && (
           <div className="panel panel--call" role="alert">
             <h3>{game.error}</h3>
             <p className="panel__note">
@@ -362,7 +494,7 @@ export default function ChallengePage() {
             Kod noto'g'ri bo'lsa chizilmaydi: u yerda o'z taklifi
             bor («Bugungi so'zni o'ynash») va ikkita yo'nalish
             odamni ikkiga bo'lardi. */}
-        {valid && (
+        {valid && owned === null && (
           <aside className="panel panel--call soztop__own">
             <h3>Siz ham so‘z yashiring</h3>
             <p className="panel__note">

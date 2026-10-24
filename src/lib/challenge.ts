@@ -355,6 +355,40 @@ export async function myChallenges(): Promise<MyChallenge[]> {
   return (Array.isArray(data.mine) ? data.mine : []).map(asRow);
 }
 
+/** So'z egasi ko'radigan jadval — kim o'ynadi va nechta urinishda.
+ *
+ *  Ilovadagi `ChallengeStatsPage` ning veb ulushi, qisqartirilgani:
+ *  u yerda sonlar, jadval va izohlar uchta yorliqda turadi, bu
+ *  yerda esa bitta ro'yxat.
+ *
+ *  Yo'l **faqat egasiga** ochiq (server 403 qaytaradi): ro'yxatda
+ *  o'ynagan odamlarning ismi turadi va uni begonaga ko'rsatish
+ *  uchun sabab yo'q. Shu sababli bu yerdagi xato ham ushlanadi:
+ *  egasi bo'lmagan odam oddiy xato ekranini ko'radi. */
+export interface BoardEntry {
+  uid: string;
+  nickname: string;
+  attempts: number;
+  won: boolean;
+  finished: boolean;
+}
+
+export async function challengeOwnerBoard(code: string): Promise<BoardEntry[]> {
+  const data = await api.get<{ board?: unknown }>(
+    `/v1/web/challenges/${encodeURIComponent(code)}/board`,
+  );
+  return (Array.isArray(data.board) ? data.board : []).map((value) => {
+    const row = (value ?? {}) as Record<string, unknown>;
+    return {
+      uid: String(row.uid ?? ''),
+      nickname: String(row.nickname ?? ''),
+      attempts: Number(row.attempts ?? 0) || 0,
+      won: row.won === true,
+      finished: row.finished === true,
+    };
+  });
+}
+
 /** Muddatidan oldin yopish — havola endi yangi o'yinchini olmaydi.
  *
  *  O'chirish emas: o'ynab bo'lganlarning natijasi joyida qoladi va

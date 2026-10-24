@@ -1141,7 +1141,10 @@
   padding: 0;
 }
 
-.result__nums li {
+/* Bolasi `li` ham, `div` ham bo'lishi mumkin: sonlar natija
+   ostida ro'yxat sifatida, so'z egasining ko'rinishida esa oddiy
+   blok sifatida chiziladi. */
+.result__nums > * {
   display: grid;
   gap: 1px;
 }

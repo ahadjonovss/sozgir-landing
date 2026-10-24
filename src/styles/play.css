@@ -995,6 +995,23 @@
    bo'sh qolardi; `wrap` ning kengligi esa taxtani keraksiz yoyardi. */
 .oyin__solo {
   max-width: 460px;
+  /* Ichidagi bloklar orasida bo'shliq.
+     
+     Ilgari bu yerda faqat en chegarasi turardi va panellar
+     bir-biriga **yopishib** qolardi: so'z tanlash kartochkasi
+     bilan «Yashirgan so'zlarim» orasida chegara ko'rinmay,
+     ikkisi bitta uzun blokka qo'shilib ketardi. */
+  display: grid;
+  gap: 16px;
+  /* Bloklar o'z bo'yicha: aks holda ular ustunni teng bo'lib
+     olardi va kalta kartochka cho'zilib ketardi. */
+  align-content: start;
+}
+
+/* Sarlavhaning o'z pastki hoshiyasi bu yerda ortiqcha: ustun
+   bo'shliqni o'zi beradi (yuqoridagi `gap`). */
+.oyin__solo .section__head {
+  margin-bottom: 0;
 }
 
 /* So'zTop sahifasining siqilgan sarlavhasi.
@@ -1029,8 +1046,37 @@
    Taklif o'yinning davomi emas, keyingi qadam: shuning uchun u
    taxtaga yopishib turmaydi. */
 .soztop__own {
-  margin-top: 22px;
   text-align: center;
+}
+
+/* So'z egasi ko'radigan ro'yxat: kim o'ynadi va nechta urinishda.
+   Ismlar chapda, natija o'ngda — ko'z ikkala ustunni alohida
+   o'qiydi va qatorlar bir-biriga qo'shilib ketmaydi. */
+.owner__list {
+  margin-top: 12px;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 1px;
+  text-align: start;
+}
+
+.owner__list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  font-size: 13.5px;
+}
+
+.owner__list strong {
+  flex: 0 0 auto;
+  color: var(--text-2);
+  font-size: 12.5px;
+  font-weight: 800;
 }
 
 @media (max-width: 900px) {
