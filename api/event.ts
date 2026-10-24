@@ -138,26 +138,48 @@ function body(rows: unknown): string[] {
 
 /** Odam qayerdan ulangan — shahar va davlat.
  *
- *  Sarlavhalarni Vercel chekkasi o'zi qo'yadi: mijoz hech narsa
- *  yubormaydi va yubora ham olmaydi (bu sarlavhalar tashqaridan
- *  kelsa ham ustidan yoziladi). Shuning uchun bu qator xabardagi
- *  yagona ishonchli ma'lumot.
+ *  Sarlavhalarni chekka o'zi qo'yadi: mijoz hech narsa yubormaydi
+ *  va yubora ham olmaydi (bu sarlavhalar tashqaridan kelsa ham
+ *  ustidan yoziladi). Shuning uchun bu qator xabardagi eng
+ *  ishonchli ma'lumot.
+ *
+ *  **Avval Cloudflare, keyin Vercel** — va tartib shu sababdan:
+ *  sozgir.uz Cloudflare orqali o'tadi (`server: cloudflare`,
+ *  nom serverlari ham o'shaniki). Ya'ni zanjir uch bo'g'inli —
+ *  brauzer, Cloudflare, Vercel — va Vercel mehmonning emas,
+ *  **Cloudflare'ning** IP'sini ko'radi. `x-vercel-ip-city` esa
+ *  o'sha IP bo'yicha hisoblanadi va natijada Toshkentdan kirgan
+ *  odam ham «Warsaw, PL» bo'lib yozilardi: Varshava — O'zbekiston
+ *  trafigi o'tadigan Cloudflare markazi, mehmonning shahri emas.
+ *
+ *  Cloudflare esa haqiqiy mehmonni biladi va uni o'z
+ *  sarlavhalarida yuboradi. `cf-ipcountry` har doim keladi;
+ *  `cf-ipcity` esa Cloudflare panelida «Add visitor location
+ *  headers» yoqilgan bo'lsa qo'shiladi. Yoqilmagan bo'lsa davlat
+ *  baribir to'g'ri chiqadi, shahar esa Vercel'nikiga tushadi —
+ *  shuning uchun ular alohida tanlanadi, juft bo'lib emas.
  *
  *  IP yozilmaydi — u shaxsiy ma'lumot va xabarni o'qiyotgan odamga
  *  hech narsa bermaydi. Shahar va davlat «kimlar kiryapti» degan
  *  savolga yetarli javob.
  *
- *  Shahar nomi foizli kodlangan holda keladi (`Tashkent`,
+ *  Shahar nomi foizli kodlangan holda kelishi mumkin (`Tashkent`,
  *  `Nukus`, lekin `San%20Francisco` ham) — ochib beriladi. */
 function place(request: Request): string {
   const head = (name: string) => request.headers.get(name) ?? '';
-  let city = head('x-vercel-ip-city');
+
+  let city = head('cf-ipcity') || head('x-vercel-ip-city');
   try {
     city = decodeURIComponent(city);
   } catch {
     // Kodlash buzuq — borini olamiz.
   }
-  const country = head('x-vercel-ip-country');
+
+  // `XX` — Cloudflare «bilmadim» degani (masalan robot yoki
+  // yopiq tarmoq). Bunday javob Vercel'nikidan yaxshiroq emas.
+  const cf = head('cf-ipcountry');
+  const country = cf && cf !== 'XX' ? cf : head('x-vercel-ip-country');
+
   return [city, country].filter(Boolean).join(', ');
 }
 
