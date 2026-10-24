@@ -69,7 +69,7 @@ export default function GameHub({ game }: { game: HubGame }) {
           {/* Yon ustunlar taxtaning yonida, oqimdan tashqarida
               chiziladi — markaz qimirlamaydi. Ular shu o'ramda, taxtaning
               o'zida emas: o'yin turi almashganda joyida qolishi kerak. */}
-          <GameAside current={choice.mode === 'endless' ? 'cheksiz' : 'soztop'} />
+          <GameAside />
           {flower ? (
             <GunchaBoard guncha={guncha} onSwap={swap.toggle} />
           ) : (

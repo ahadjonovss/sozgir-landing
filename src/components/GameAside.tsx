@@ -1,78 +1,105 @@
-/** O'yin maydonining yonidagi taklif ustunlari — «yana nima bor».
+/** O'yin maydonining yonidagi ustunlar — **ochiq turnirlar**.
  *
  *  Keng ekranda taxta ekran o'rtasida tor ustunda turadi va chap-o'ng
- *  tomoni butunlay bo'sh qoladi. Mehmon uchun o'yin chegarasi olib
- *  tashlanganidan keyin odam shu holatda uzoq o'tiradi — ya'ni o'sha
- *  bo'shliq bizning boshqa o'yinlarimizni ko'rsatadigan yagona
- *  tabiiy joy. Bu reklama emas: yonida turgan taklif, saytning o'z
- *  kartochkalari tilida.
+ *  tomoni butunlay bo'sh qoladi. O'sha bo'shliqda ilgari boshqa
+ *  o'yinlarimizning kartochkalari turardi: «Turnir», «Mardu
+ *  maydon» va hokazo. Ular bo'limga olib borardi, lekin bo'limda
+ *  odam yana qidirishi kerak edi — hozir kimdir yig'ilayaptimi,
+ *  yo'qmi.
  *
- *  Ikki muhim shart:
+ *  Endi o'sha joyda **hozir yig'ilayotgan turnirlar** turadi: chapda
+ *  So'zjang, o'ngda G'uncha. Farqi bitta bosishda emas, javobda —
+ *  kartochka «turnir bor» deb emas, «mana shu turnirga hozir
+ *  qo'shilish mumkin» deb turadi. O'ynab o'tirgan odam uchun bu
+ *  aynan o'sha paytda foydali: u allaqachon o'ynayapti, demak
+ *  keyingi o'yinga tayyor.
+ *
+ *  Ro'yxat bo'sh bo'lsa — turnir ochishga taklif. Bo'sh ustun
+ *  qoldirilmaydi: u nosozlikka o'xshaydi.
+ *
+ *  Ikki muhim shart o'zgarmadi:
  *
  *  1. **Markaz qimirlamaydi.** Ustunlar `position: absolute` bilan
  *     taxtaning yonidagi bo'shliqqa chiziladi, ya'ni ular paydo
  *     bo'lgani bilan taxta ham, klaviatura ham joyidan siljimaydi.
  *  2. **Faqat keng ekranda.** Ko'rsatish qarorini CSS qiladi
  *     (`@media`), JS emas: telefonda va planshetda ustun umuman
- *     chizilmaydi, shuning uchun o'lchovchi hook ham, qayta render
- *     ham kerak emas.
- *
- *  `aria-hidden` emas, lekin `aria-label` bor: bular haqiqiy
- *  havolalar, klaviatura bilan ham ochiladi. */
-import { gameLinks, isSoon } from '../data/site';
+ *     chizilmaydi. */
+import { useEffect, useState } from 'react';
+import { links } from '../data/site';
+import { turnirPath, watchOpenTurnirList, type TurnirRow } from '../lib/turnir';
 import AdBanner from './AdBanner';
 
-export default function GameAside({ current }: { current: string }) {
-  // Joriy o'yin chiqarib tashlanadi: o'ynab turgan odamga o'sha
-  // o'yinni taklif qilishning ma'nosi yo'q.
-  const items = gameLinks.filter((item) => item.id !== current);
-  // Qolganlari ikkiga bo'linadi: birinchi yarmi chapga, ikkinchisi
-  // o'ngga — ikki tomon ham teng to'ladi, bitta tomon uzun bo'lib
-  // qolmaydi.
-  const half = Math.ceil(items.length / 2);
+/** Ustunga shuncha turnir sig'adi. Ortig'i kesiladi: yonidagi ustun
+ *  taxtadan baland bo'lib ketmasligi kerak — u yordamchi, asosiy
+ *  narsa emas. */
+const LIMIT = 3;
+
+export default function GameAside() {
+  const [open, setOpen] = useState<TurnirRow[]>([]);
+
+  useEffect(() => watchOpenTurnirList(setOpen), []);
 
   return (
     <>
-      <Column items={items.slice(0, half)} side="left" />
-      <Column items={items.slice(half)} side="right" />
+      <Column
+        side="left"
+        title="So‘zjang turnirlari"
+        rows={open.filter((row) => row.game === 'soztop').slice(0, LIMIT)}
+      />
+      <Column
+        side="right"
+        title="G‘uncha turnirlari"
+        rows={open.filter((row) => row.game === 'guncha').slice(0, LIMIT)}
+      />
     </>
   );
 }
 
-function Column({ items, side }: { items: typeof gameLinks; side: 'left' | 'right' }) {
+function Column({
+  side,
+  title,
+  rows,
+}: {
+  side: 'left' | 'right';
+  title: string;
+  rows: TurnirRow[];
+}) {
   return (
-    <aside className={`aside-games aside-games--${side}`} aria-label="Boshqa o‘yinlar">
-      {items.map((item) => {
-        /* Yopiq bo'lim kartochkasi — havola **emas**: bosiladigan
-           narsa bosilganda hech qayerga olib bormasa, u nosozlikka
-           o'xshaydi. Ro'yxatdan butunlay olinmadi, chunki bo'lim
-           ilovada bor va bu yerda «tez orada» deb turgani rost. */
-        const soon = isSoon(item.id);
-        const inner = (
-          <>
+    <aside className={`aside-games aside-games--${side}`} aria-label={title}>
+      <h3 className="aside-games__title">{title}</h3>
+
+      {rows.length === 0 ? (
+        /* Hech kim yig'ilmayotgan bo'lsa — o'zing ochishga taklif.
+           Bo'sh ustun qoldirilmaydi. */
+        <a className="aside-game" href={links.turnir}>
+          <span className="aside-game__emoji" aria-hidden="true">
+            🥇
+          </span>
+          <span className="aside-game__text">
+            <strong>Hozir yig‘ilayotgani yo‘q</strong>
+            <span>O‘zingiz ochsangiz, kod bilan do‘st chaqirasiz.</span>
+          </span>
+        </a>
+      ) : (
+        rows.map((row) => (
+          <a className="aside-game" key={row.code} href={turnirPath(row.code)}>
             <span className="aside-game__emoji" aria-hidden="true">
-              {item.emoji}
+              🥇
             </span>
             <span className="aside-game__text">
-              <strong>
-                {item.name}
-                {soon && <span className="aside-game__soon">Tez orada</span>}
-              </strong>
-              <span>{item.tagline}</span>
+              <strong>{row.title || 'Turnir'}</strong>
+              <span>
+                {row.players} / {row.capacity} kishi
+                {row.capacity - row.players > 0
+                  ? ` · yana ${row.capacity - row.players} o‘rin`
+                  : ' · to‘ldi'}
+              </span>
             </span>
-          </>
-        );
-
-        return soon ? (
-          <span className="aside-game aside-game--soon" key={item.id}>
-            {inner}
-          </span>
-        ) : (
-          <a className="aside-game" key={item.id} href={item.href}>
-            {inner}
           </a>
-        );
-      })}
+        ))
+      )}
+
       {/* Kartochkalardan keyin — ustunning qolgan qismi baribir bo'sh
           qolardi. Taxtadan 28px narida va undan pastroqda: o'ynayotgan
           odamning ko'zi oldida emas, lekin surilganda ko'rinadi.

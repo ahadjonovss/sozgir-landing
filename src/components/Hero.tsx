@@ -133,7 +133,7 @@ export default function Hero() {
                 almashganda ham joyida qolishi kerak. Ilgari ular
                 `Play` ichida edi va g'unchaga o'tilganda butunlay
                 yo'qolardi. */}
-            <GameAside current={choice.mode === 'endless' ? 'cheksiz' : 'soztop'} />
+            <GameAside />
 
             {/* Belgi bilan almashadigan taxta: g'uncha ham shu
                 yerda ochiladi, sahifa esa o'zgarmaydi. */}

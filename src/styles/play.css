@@ -7286,6 +7286,18 @@
 /* Chap chetiga tekislanadi: bosh sahifada hamma narsa markazga
    tekislangan (`.hero__inner`), lekin bu yerda qisqa sarlavha va ikki
    satrlik tavsif — markazdan ularni o'qish qiyin. */
+/* Ustun sarlavhasi — qaysi o'yinning turnirlari ekanini aytadi.
+   Ikkala ustun bir xil kartochkalardan iborat, ya'ni ularni faqat
+   sarlavha ajratadi. */
+.aside-games__title {
+  margin-bottom: 8px;
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 .aside-games {
   display: none;
   text-align: left;
