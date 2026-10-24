@@ -4984,6 +4984,22 @@
   font-weight: 700;
 }
 
+/* Zinadagi aqcha. Ro'yxatdagi qator bilan bitta klass, lekin bu
+   yerda markazda va o'z rangini saqlashi kerak: `.podium__step span`
+   kuchliroq tanlagich va u hammasini kulrang qilib qo'yardi. */
+.podium__step .standings__delta {
+  min-width: 0;
+  text-align: center;
+}
+
+.podium__step .standings__delta--up {
+  color: var(--green);
+}
+
+.podium__step .standings__delta--down {
+  color: var(--danger);
+}
+
 .podium__step i {
   display: grid;
   place-items: center;
