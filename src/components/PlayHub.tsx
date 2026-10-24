@@ -34,6 +34,7 @@ import BattleStats from './BattleStats';
 import TurnirPage from './TurnirPage';
 import AdBanner from './AdBanner';
 import { isSoon, links } from '../data/site';
+import { Flower, Swords, Trophy, Users } from './Icons';
 import { routeParam } from '../lib/useRoute';
 import { useStage } from '../lib/stage';
 import { useAuth } from '../lib/auth';
@@ -44,16 +45,17 @@ import { useAuth } from '../lib/auth';
  *  saytda hamma joyda `/maydon` deb ataladi (`links.arena`), ichkarida
  *  esa `mardu` nomi ishlatiladi. Manzilga odam ko'radigan nom chiqadi. */
 const TABS = [
-  { id: 'sozjang', slug: 'sozjang', name: 'So‘zjang' },
-  { id: 'guncha', slug: 'guncha', name: 'G‘uncha' },
-  { id: 'mardu', slug: 'maydon', name: 'Mardu maydon' },
-  { id: 'turnir', slug: 'turnir', name: 'Turnir' },
+  { id: 'turnir', slug: 'turnir', name: 'Turnir', icon: Trophy },
+  { id: 'sozjang', slug: 'sozjang', name: 'So‘zjang', icon: Swords },
+  { id: 'guncha', slug: 'guncha', name: 'G‘uncha', icon: Flower },
+  { id: 'mardu', slug: 'maydon', name: 'Mardu maydon', icon: Users },
 ] as const;
 
 type TabId = (typeof TABS)[number]['id'];
 
-/** Ochiq turadigani — birinchisi: So'zjang bu sahifadagi eng ko'p
- *  bosiladigan o'yin. */
+/** Ochiq turadigani — birinchisi: Turnir. U bo'limdagi eng katta
+ *  shakl va unga kirishda vaqt muhim — xona yig'ilib turgan
+ *  bo'lishi mumkin. Qolgan uchtasi bir bosishda ochiladi. */
 const FIRST = TABS[0];
 
 /** Tabning manzili. Birinchisi `/oynash` ning o'zi: bo'lak qo'shilsa
@@ -123,6 +125,11 @@ export default function PlayHub() {
                   if (tab === item.id) event.preventDefault();
                 }}
               >
+                {/* Nom yonida ikonka — ilovadagi bilan bir xil
+                    belgi. Bir qarashda ajratadi: to'rtta o'zbekcha
+                    nom bir-biriga o'xshab ketadi va odam ularni
+                    o'qib chiqishga majbur bo'lardi. */}
+                <item.icon size={16} />
                 {item.name}
                 {/* Yopiq bo'lim tanlovdan olinmadi: u ilovada bor va
                     ro'yxatdan yo'qolsa «o'chirib tashlabdi» degan

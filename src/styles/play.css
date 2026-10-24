@@ -3460,6 +3460,24 @@
      matnning o'rtaga tenglanishi va tagidagi chiziqning yo'qligi. */
   text-align: center;
   text-decoration: none;
+  /* Ikonka nom bilan bir qatorda: `inline-flex` emas, `flex` —
+     tab allaqachon o'z enini oladi (`flex: 1 1 auto`). */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Ikonka nomdan past ovozda: u belgisi, sarlavhasi emas. Tanlangan
+   tabda esa nom bilan teng — o'sha yerda u holatni ham aytadi. */
+.hub-tab svg {
+  flex: none;
+  opacity: 0.7;
+}
+
+.hub-tab--on svg {
+  opacity: 1;
+  color: var(--tone);
 }
 
 .hub-tab:hover {
