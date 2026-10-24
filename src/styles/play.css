@@ -5062,6 +5062,75 @@
    joyga **sig'dirib** chiziladi: nisbati `--cols / --rows` (`Board.tsx`
    beradi), ya'ni u ham eniga, ham balandligiga qarab kichrayadi va
    kataklar kvadrat bo'lib qolaveradi. */
+/* ── Jang ekrani telefonda ───────────────────────────────────────────
+   So'ztopda taxta ekranga sig'dirib chiziladi (`.oyin__board--fit`),
+   jangda esa bu byudjet umuman berilmagandi: taxta o'z o'lchamida
+   chizilib, ustiga taymer, raqib qatori, klaviatura va footer
+   qo'shilardi. 375×812 telefonda jami 1130px chiqardi — ya'ni
+   ekrandan 318px oshib ketardi va o'ynash uchun surish kerak edi.
+
+   Uchta joydan kesiladi va to'rtinchisi sig'diriladi:
+
+     footer         97px  — jang ketayotganda u o'qiladigan narsa emas
+     pastki havo    44px  — tugaganda qaytadi
+     qatorlar orasi ~20px
+     taxta          qolgan joyga sig'adi
+
+   Shart `:has(.jang__keys)` — klaviatura faqat o'ynash paytida
+   chiziladi. Lobbi, qidiruv va natija ekranlariga tegmaydi: u
+   yerda surish me'yor, ularda o'qiladigan matn bor. */
+@media (max-width: 900px) {
+  /* Jang ketayotganda ekran butunlay o'yinniki. */
+  body:has(.jang__keys) .footer--slim {
+    display: none;
+  }
+
+  .jang:has(.jang__keys) {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  /* Qatorlar orasidagi havo qisqaradi. Butunlay olib tashlanmaydi:
+     taymer, taxta va klaviatura bir-biriga yopishib qolsa, ekran
+     to'liq bo'lsa ham o'qib bo'lmaydigan bo'lardi. */
+  .jang:has(.jang__keys) .jang__wrap {
+    gap: 8px;
+  }
+
+  .jang:has(.jang__keys) .stage--fight {
+    gap: 8px;
+  }
+
+  .jang:has(.jang__keys) .fight {
+    gap: 10px;
+  }
+
+  /* Taxta kengligi **balandlikdan** chiqariladi — `.oyin__board--fit`
+     dagi hisobning o'zi, faqat `--cols` va `--rows` bu yerda
+     taxtaning o'zida turadi (`Board.tsx`), ya'ni o'lcham shu
+     elementda beriladi.
+
+         katak = (bo'sh joy − qatorlar orasidagi tirqishlar) / qatorlar
+         eni   = ustunlar × katak + ustunlar orasidagi tirqishlar
+
+     Ayiriluvchi son o'lchab chiqilgan: sarlavha, taymer, raqib
+     qatori, klaviatura, pastki qator va havo. Kam baholansa taxta
+     bir oz kichik chiqadi (zarari yo'q), oshirib yuborilsa ekran
+     yana suriladi — shuning uchun ehtiyot tomonga. */
+  .jang:has(.jang__keys) .game__board {
+    --fit: calc(100dvh - var(--header-h) - 482px);
+    width: min(
+      100%,
+      calc(
+        (var(--fit) - (var(--rows) - 1) * 6px) / var(--rows) * var(--cols) +
+          (var(--cols) - 1) * 6px
+      )
+    );
+    margin-inline: auto;
+    margin-bottom: 8px;
+  }
+}
+
 @media (max-width: 900px) {
   .oyin__board--fit {
     --gap: 6px;
