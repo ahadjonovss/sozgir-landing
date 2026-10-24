@@ -31,9 +31,8 @@ import { punchline } from '../lib/shareLines';
 import { shareCardImage } from '../lib/shareCard';
 import { pretty } from '../lib/uz';
 import type { BattleGame } from '../lib/battle';
-import ArenaHistory from './ArenaHistory';
+import Leaderboard from './Leaderboard';
 import AccountCall from './AccountCall';
-import AdBanner from './AdBanner';
 import { Aqcha, AqchaDelta } from './Units';
 import { playerLink } from '../data/site';
 import Avatar from './Avatar';
@@ -84,165 +83,157 @@ function Hub({ turnir }: { turnir: Turnir }) {
   const active = turnir.active;
 
   return (
-    <div className="lobby">
-      <div className="lobby__main">
-        <GameIntro
-          tone="yellow"
-          icon={<Trophy size={16} />}
-          title="Ketma-ket bir necha maydon"
-          note="Har davrada o‘zingizga teng ochkodagilar bilan o‘ynaysiz, oxirida birinchi ikki o‘rin finalga chiqadi."
-        />
+    /* Bo'lim bitta ustun: ilgari u ikkiga bo'lingan edi va o'ngdagi
+       tor yon ustunda uchta ro'yxat ustma-ust tizilgandi — ularni
+       o'qish uchun chapdagi forma yonidan pastga surish kerak
+       bo'lardi. Endi har narsa butun enni oladi va tartib savol
+       bo'yicha: «hozir qayerga qo'shilsam bo'ladi» → «o'zim
+       ochaman yoki kod bilan kiraman» → «kim yuqorida, men
+       qanday o'ynadim». */
+    <div className="tnr-hub">
+      <GameIntro
+        tone="yellow"
+        icon={<Trophy size={16} />}
+        title="Ketma-ket bir necha maydon"
+        note="Har davrada o‘zingizga teng ochkodagilar bilan o‘ynaysiz, oxirida birinchi ikki o‘rin finalga chiqadi."
+      />
 
-        {/* Tugamagan turniri bor odamga — birinchi navbatda o'sha.
-            Uchala yo'l (ochish, tezkor, kod) unga baribir yopiq:
-            serverda bir vaqtda bitta turnir (`requireOneTurnir`) va
-            tugmani bosgan odam xatodan boshqa narsa ko'rmasdi. */}
-        {active && (
-          <div className="panel panel--call">
-            <h3>Sizning turniringiz</h3>
-            <p className="panel__note">
-              {active.doc.status === 'gathering'
-                ? `Yig‘ilmoqda — ${playerCount(active.doc)} / ${active.doc.capacity ?? 8} kishi.`
-                : `${active.doc.round ?? 1}-davra ketyapti.`}{' '}
-              Bir vaqtda bitta turnir: shunisi tugagach, yangisini
-              ochasiz.
-            </p>
-            <a className="btn btn--sm" href={turnirPath(active.code)}>
-              Turnirga qaytish
-            </a>
-          </div>
-        )}
-
-        {!active && (
-        <div className="panel lobby__card">
-          <div className="panel__head">
-            <h3>Turnir ochish</h3>
-            <span className="panel__tag">8, 16 yoki 32 kishi</span>
-          </div>
-
-          <div className="play__modes" role="tablist" aria-label="Turnirdagi o‘yin">
-            {GAMES.map((item) => (
-              <button
-                key={item.id}
-                role="tab"
-                aria-selected={turnir.game === item.id}
-                className={`play__mode${turnir.game === item.id ? ' play__mode--on' : ''}`}
-                onClick={() => turnir.setGame(item.id)}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-
-          <div className="lengths">
-            <span className="lengths__label">Nechta kishi</span>
-            <div className="lengths__row">
-              {TURNIR_SIZES.map((item) => (
-                <button
-                  key={item}
-                  className={`chip${turnir.size === item ? ' chip--on' : ''}`}
-                  onClick={() => turnir.setSize(item as TurnirCapacity)}
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Va'da darhol ko'rinadi: odam «necha davra o'ynayman»
-              degan savolga tugmani bosmasdan javob olsin — va
-              chiqarib yuborilmasligini ham bilsin. */}
-          <p className="panel__note lobby__hint">
-            {rounds} davra · hamma oxirigacha o‘ynaydi
-          </p>
-
-          <label className="field tnr__title">
-            <span>Nomi (ixtiyoriy)</span>
-            <input
-              value={turnir.title}
-              onChange={(event) => turnir.setTitle(event.target.value.slice(0, 40))}
-              placeholder="So‘zgir Kubogi"
-              maxLength={40}
-            />
-          </label>
-
-          <button
-            className="btn btn--lg lobby__quick"
-            onClick={turnir.create}
-            disabled={turnir.busy}
-          >
-            <Trophy size={20} />
-            {turnir.busy ? 'Ochilmoqda…' : 'Turnir ochish'}
-          </button>
-
-          {/* Tezkor turnir hajm va nomni e'tiborsiz qoldiradi: ochiq
-              xona sakkiz kishilik va nomsiz. Shuning uchun u
-              sozlamalardan keyin turadi — tanlovlar unga tegishli
-              emasligi shundan ko'rinadi. */}
-          <button
-            className="btn btn--lg btn--outline"
-            onClick={turnir.quick}
-            disabled={turnir.busy}
-          >
-            <Swords size={20} />
-            Tezkor turnir
-          </button>
+      {/* Tugamagan turniri bor odamga — birinchi navbatda o'sha.
+          Qolgan ikkala yo'l (ochish, kod) unga baribir yopiq:
+          serverda bir vaqtda bitta turnir (`requireOneTurnir`) va
+          tugmani bosgan odam xatodan boshqa narsa ko'rmasdi. */}
+      {active && (
+        <div className="panel panel--call">
+          <h3>Sizning turniringiz</h3>
           <p className="panel__note">
-            Notanish odamlar bilan, 8 kishilik — qatnashchilar uch
-            daqiqa davomida yig‘iladi.
+            {active.doc.status === 'gathering'
+              ? `Yig‘ilmoqda — ${playerCount(active.doc)} / ${active.doc.capacity ?? 8} kishi.`
+              : `${active.doc.round ?? 1}-davra ketyapti.`}{' '}
+            Bir vaqtda bitta turnir: shunisi tugagach, yangisini
+            ochasiz.
           </p>
+          <a className="btn btn--sm" href={turnirPath(active.code)}>
+            Turnirga qaytish
+          </a>
+        </div>
+      )}
 
-          <div className="lobby__friend">
-            <span className="panel__label">
-              <Users size={14} /> Kod bilan kirish
-            </span>
-            <div className="lobby__friend-row">
-              <CodeInput
-                value={code}
-                onChange={setCode}
-                onSubmit={() => turnir.join(code)}
-                disabled={turnir.busy}
-              />
+      {!active && (
+        <>
+          {/* Eng tepada — hozir yig'ilayotganlar. Odam bu yerga
+              ko'pincha «o'ynasam bo'ladimi» deb keladi, va agar
+              xona allaqachon ochiq bo'lsa, javob turnir ochishdan
+              ham, kod so'rashdan ham tez. */}
+          <OpenRow turnir={turnir} />
+
+          <div className="tnr-hub__row">
+            <div className="panel tnr-hub__make">
+              <div className="panel__head">
+                <h3>Turnir ochish</h3>
+                <span className="panel__tag">8, 16 yoki 32 kishi</span>
+              </div>
+
+              <div className="play__modes" role="tablist" aria-label="Turnirdagi o‘yin">
+                {GAMES.map((item) => (
+                  <button
+                    key={item.id}
+                    role="tab"
+                    aria-selected={turnir.game === item.id}
+                    className={`play__mode${turnir.game === item.id ? ' play__mode--on' : ''}`}
+                    onClick={() => turnir.setGame(item.id)}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="lengths">
+                <span className="lengths__label">Nechta kishi</span>
+                <div className="lengths__row">
+                  {TURNIR_SIZES.map((item) => (
+                    <button
+                      key={item}
+                      className={`chip${turnir.size === item ? ' chip--on' : ''}`}
+                      onClick={() => turnir.setSize(item as TurnirCapacity)}
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Va'da darhol ko'rinadi: odam «necha davra o'ynayman»
+                  degan savolga tugmani bosmasdan javob olsin. */}
+              <p className="panel__note lobby__hint">
+                {rounds} davra · hamma oxirigacha o‘ynaydi
+              </p>
+
+              <label className="field tnr__title">
+                <span>Nomi (ixtiyoriy)</span>
+                <input
+                  value={turnir.title}
+                  onChange={(event) => turnir.setTitle(event.target.value.slice(0, 40))}
+                  placeholder="So‘zgir Kubogi"
+                  maxLength={40}
+                />
+              </label>
+
               <button
-                className="btn btn--ghost"
-                onClick={() => code.length === 6 && turnir.join(code)}
-                disabled={turnir.busy || code.length !== 6}
+                className="btn btn--lg lobby__quick"
+                onClick={turnir.create}
+                disabled={turnir.busy}
               >
-                Qo‘shilish
+                <Trophy size={20} />
+                {turnir.busy ? 'Ochilmoqda…' : 'Turnir ochish'}
               </button>
+              <p className="panel__note">
+                Havolani do‘stlaringizga tashlaysiz — xona siz
+                boshlagunicha ochiq turadi.
+              </p>
+            </div>
+
+            <div className="panel tnr-hub__join">
+              <div className="panel__head">
+                <h3>Qo‘shilish</h3>
+                <span className="panel__tag">
+                  <Users size={14} /> Kod bilan
+                </span>
+              </div>
+              <p className="panel__note">
+                Do‘stingiz ochgan turnirning olti belgili kodini
+                kiriting — havolasini ochsangiz ham bo‘ladi.
+              </p>
+              <div className="lobby__friend-row">
+                <CodeInput
+                  value={code}
+                  onChange={setCode}
+                  onSubmit={() => turnir.join(code)}
+                  disabled={turnir.busy}
+                />
+                <button
+                  className="btn"
+                  onClick={() => code.length === 6 && turnir.join(code)}
+                  disabled={turnir.busy || code.length !== 6}
+                >
+                  Qo‘shilish
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-        )}
+        </>
+      )}
 
+      {/* Pastki qator: bir tomonda kim yuqorida, ikkinchisida —
+          o'zimning o'tgan turnirlarim. Ikkisi ham o'qiladigan
+          narsa, ya'ni formadan keyin turadi. */}
+      <div className="tnr-hub__row">
+        <Leaderboard />
+        <HistoryList turnir={turnir} />
       </div>
 
-      {/* Ro'yxatlar yon ustunda: chap tomonda bitta ish bor — turnir
-          ochish yoki kod bilan kirish. Ilgari hammasi bitta tor
-          ustunga tizilgan edi va o'ngdagi butun maydon bo'sh
-          turardi; o'qiladigan narsa (ochiq turnirlar, tarix,
-          qoidalar) esa tugmalarning ostida qolib ketgandi. */}
-      <aside className="lobby__side">
-        <OpenList turnir={turnir} />
-        <HistoryList turnir={turnir} />
-
-        {/* Janglar tarixi — qolgan uchta o'yinda ham shu yerda.
-            Yuqoridagi ikkala ro'yxat bo'sh bo'lsa umuman chizilmaydi
-            (ochiq turnir yo'q, o'zi ham hali o'ynamagan), ya'ni usiz
-            yon ustun butunlay bo'sh qolardi.
-
-            Qoidalar ro'yxati bu yerda bor edi va olib tashlandi: olti
-            bandlik matnni turnir ochmoqchi bo'lgan odam o'qimaydi,
-            o'ynagani esa allaqachon biladi — qoida o'yinning o'zida
-            ko'rinadi, davra jadvalida va natijada. */}
-        <ArenaHistory />
-
-        {/* Telegram banneri vaqtincha olib turildi. */}
-        {/* Faqat turnirga kirishdan oldin. Turnirning o'zi — zinapoya,
-            jang va natija — reklamasiz: u yerda vaqt sanab turadi va
-            yonidagi banner bevosita xalaqit beradi. */}
-        <AdBanner placement="turnir" />
-      </aside>
+      {/* Banner bu yerda yo'q: bo'lim `PlayHub` ichida ochiladi va
+          u sahifaning eng oxiriga bittasini o'zi qo'yadi. Ikkitasi
+          bitta ekranda ortiqcha bo'lardi. */}
     </div>
   );
 }
@@ -400,43 +391,60 @@ function Standing({ turnir }: { turnir: Turnir }) {
 
 /* ── Bo'limdagi ro'yxatlar ───────────────────────────────────────────── */
 
-/** Hozir yig'ilayotgan turnirlar.
+/** Hozir yig'ilayotgan turnirlar — bo'limning eng tepasida, **qator**
+ *  bo'lib.
  *
- *  Kod bilan kirish yonida turadi va o'sha savolga javob beradi:
- *  «kodim yo'q, shunchaki qo'shilsam bo'ladimi?». Ro'yxat jonli —
- *  xonaga odam qo'shilgani sayin son o'zi yangilanadi. */
-function OpenList({ turnir }: { turnir: Turnir }) {
+ *  Ilgari ro'yxat yon ustunda, tik tizilgan holda turardi va
+ *  turnir ochish formasining yonida qolib ketardi. Holbuki odam bu
+ *  yerga ko'pincha «hozir qayerga qo'shilsam bo'ladi» degan savol
+ *  bilan keladi — javobi esa forma to'ldirishdan ham, kod
+ *  so'rashdan ham tez.
+ *
+ *  Har kartochkada **to'lish chizig'i** bor va u tirik: xona
+ *  yig'ilayotgani shundan bilinadi, son o'qilmasdan oldin ham.
+ *  Ro'yxatning o'zi jonli — odam qo'shilgani sayin chiziq o'sadi. */
+function OpenRow({ turnir }: { turnir: Turnir }) {
   if (turnir.open.length === 0) return null;
 
   return (
-    <div className="panel tnr-list">
-      <h3>Ochiq turnirlar</h3>
-      <ul className="tnr-list__items">
-        {turnir.open.map((row) => (
-          <li key={row.code}>
-            <a className="tnr-list__row" href={turnirPath(row.code)}>
-              <span className={`tnr-list__icon tnr-list__icon--${row.game}`}>
-                {row.game === 'guncha' ? <Flower size={16} /> : <Swords size={16} />}
-              </span>
-              {/* Sarlavhada o'yin nomi — tarixdagi bilan bir xil
-                  qoida. Ilgari u pastki satrda turardi va tepada
-                  hech narsa aytmaydigan «Turnir» qolardi. */}
-              <span className="tnr-list__main">
-                <b>
-                  {row.title || (row.game === 'guncha' ? 'G‘uncha' : 'So‘zjang')}
-                </b>
-                <span>
+    <div className="panel tnr-open">
+      <div className="panel__head">
+        <h3>Ochiq turnirlar</h3>
+        {/* Yonidagi nuqta — «ro'yxat tirik» degani: jimgina
+            yangilanadigan sonlar odatda eski deb o'ylanadi. */}
+        <span className="tnr-open__live">
+          <i aria-hidden="true" /> yig‘ilmoqda
+        </span>
+      </div>
+
+      <ul className="tnr-open__row">
+        {turnir.open.map((row) => {
+          const free = row.capacity - row.players;
+          return (
+            <li key={row.code}>
+              <a className="tnr-open__card" href={turnirPath(row.code)}>
+                <span className={`tnr-list__icon tnr-list__icon--${row.game}`}>
+                  {row.game === 'guncha' ? <Flower size={16} /> : <Swords size={16} />}
+                </span>
+                <b>{row.title || (row.game === 'guncha' ? 'G‘uncha' : 'So‘zjang')}</b>
+                <span className="tnr-open__count">
                   {row.players} / {row.capacity} kishi
                 </span>
-              </span>
-              <span className="tnr-list__free">
-                {row.capacity - row.players > 0
-                  ? `yana ${row.capacity - row.players} o‘rin`
-                  : 'to‘ldi'}
-              </span>
-            </a>
-          </li>
-        ))}
+                {/* Chiziq ikki qavat: ostidagi — bo'sh o'rinlar
+                    bo'ylab yuguradigan yorug'lik, ustidagi — rost
+                    to'lish. Animatsiya faqat joy qolganda: to'lgan
+                    xonada yugurib turadigan chiziq «hali kutilyapti»
+                    deb aldardi. */}
+                <span className={`tnr-open__bar${free > 0 ? ' tnr-open__bar--live' : ''}`}>
+                  <i style={{ width: `${(row.players / row.capacity) * 100}%` }} />
+                </span>
+                <span className="tnr-open__free">
+                  {free > 0 ? `yana ${free} o‘rin` : 'to‘ldi'}
+                </span>
+              </a>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

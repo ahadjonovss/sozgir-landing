@@ -183,7 +183,11 @@ export default function PlayHub() {
       {!live && (
         <section className="oyin hub__after">
           <div className="wrap hub">
-            <Leaderboard />
+            {/* Turnir tabida reyting o'z qatorida turadi — turnirlar
+                tarixi bilan yonma-yon (`TurnirPage`). Bu yerda ham
+                chizilsa, bitta sahifada ikkita bir xil jadval
+                bo'lardi. */}
+            {tab !== 'turnir' && <Leaderboard />}
             {/* Sahifaning eng oxiri: taxta ham, raqib qidirish ham
                 ancha yuqorida qoladi. */}
             <AdBanner placement="hub" />

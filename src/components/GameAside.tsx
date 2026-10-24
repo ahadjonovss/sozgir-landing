@@ -85,23 +85,46 @@ function Column({
           egallardi va hech narsa aytmasdi. */}
       {rows.length > 0 && (
         <>
-          <h3 className="aside-games__title">Ochiq turnirlar</h3>
-          {rows.map((row) => (
-            <a className="aside-game aside-game--sub" key={row.code} href={turnirPath(row.code)}>
-              <span className="aside-game__emoji" aria-hidden="true">
-                🥇
-              </span>
-              <span className="aside-game__text">
-                <strong>{row.title || 'Turnir'}</strong>
-                <span>
-                  {row.players} / {row.capacity} kishi
-                  {row.capacity - row.players > 0
-                    ? ` · yana ${row.capacity - row.players} o‘rin`
-                    : ' · to‘ldi'}
+          <h3 className="aside-games__title">
+            Ochiq turnirlar
+            {/* Tirik nuqta: ro'yxat o'zi yangilanadi, jim turgan
+                sonlar esa odatda eski deb o'ylanadi. */}
+            <span className="tnr-open__live">
+              <i aria-hidden="true" />
+            </span>
+          </h3>
+          {rows.map((row) => {
+            const free = row.capacity - row.players;
+            return (
+              <a
+                className="aside-game aside-game--sub"
+                key={row.code}
+                href={turnirPath(row.code)}
+              >
+                <span className="aside-game__emoji" aria-hidden="true">
+                  🥇
                 </span>
-              </span>
-            </a>
-          ))}
+                <span className="aside-game__text">
+                  <strong>{row.title || 'Turnir'}</strong>
+                  <span>
+                    {row.players} / {row.capacity} kishi
+                    {free > 0 ? ` · yana ${free} o‘rin` : ' · to‘ldi'}
+                  </span>
+                  {/* To'lish chizig'i — turnir bo'limidagining o'zi
+                      (`tnr-open__bar`). Sonning o'zi xona
+                      yig'ilayotganini aytmasdi: odam uni bir marta
+                      o'qiydi va u qimirlamaydigan yozuvga
+                      o'xshaydi. Joy qolmaganda yorug'lik
+                      yugurmaydi. */}
+                  <span
+                    className={`tnr-open__bar${free > 0 ? ' tnr-open__bar--live' : ''}`}
+                  >
+                    <i style={{ width: `${(row.players / row.capacity) * 100}%` }} />
+                  </span>
+                </span>
+              </a>
+            );
+          })}
         </>
       )}
 
