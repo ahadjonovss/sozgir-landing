@@ -9,7 +9,6 @@ import { guideOf } from './data/guides';
 import { lugatPageOf } from './data/lugat';
 import { lengthPageOf } from './data/lengths';
 import Alphabet from './components/Alphabet';
-import Categories from './components/Categories';
 import Contact from './components/Contact';
 import Download from './components/Download';
 import Faq from './components/Faq';
@@ -36,7 +35,6 @@ import SideAds from './components/SideAds';
 import { StageProvider } from './lib/stage';
 import Hero from './components/Hero';
 import InviteOverlay from './components/InviteOverlay';
-import Modules from './components/Modules';
 import PlayHub from './components/PlayHub';
 import PlayerPage from './components/PlayerPage';
 import ReportPage from './components/ReportPage';
@@ -138,15 +136,21 @@ export default function App() {
         {route === '/' && (
           <>
             <Hero />
-            {/* O'yin ostidagi birinchi blok — «yana nima bor»: odam
-                taxtani ko'rdi, endi qolgan o'yinlarni ko'rsatamiz.
-                Qoida va alifbo undan keyin: ular birinchi marta kelgan
-                odamga kerak, lekin taxtaning o'zi ularsiz ham
-                tushunarli. */}
-            <Modules />
+            {/* Taxtadan keyin — qoida va alifbo: ular birinchi marta
+                kelgan odamga kerak.
+
+                Ilgari ularning oldida o'yinlar ro'yxati, ostida esa
+                kategoriyalar turardi (`Modules`, `Categories`).
+                Ikkisi ham olib tashlandi: o'yinlarga havola endi
+                taxtaning ikki yonidagi ustunlarda (`GameAside`) va
+                tepadagi «O'ynash» da, ya'ni ro'yxat o'sha narsani
+                uchinchi marta takrorlardi.
+
+                Matnning o'zi yo'qolmadi: robot va moderator
+                ko'radigan statik HTML ro'yxatlarni avvalgidek
+                yozadi (`vite/prerender.ts`, `home()`). */}
             <Rules />
             <Alphabet />
-            <Categories />
             <Faq />
             <Download />
           </>
