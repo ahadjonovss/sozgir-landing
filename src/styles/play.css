@@ -997,6 +997,34 @@
   max-width: 460px;
 }
 
+/* So'zTop sahifasining siqilgan sarlavhasi.
+ *
+ *  Bu yerdagi `h1` — sahifa nomi emas, **odam yozgan matn**:
+ *  «Hayotimizni egallab olgan» kabi uzun jumla bo'lishi mumkin.
+ *  To'liq o'lchamda u uch qatorga yoyilib, taxta bilan klaviaturani
+ *  ekrandan tashqariga chiqarib yuborardi — o'ynash uchun ochilgan
+ *  sahifada avval surish kerak bo'lardi.
+ *
+ *  Shuning uchun bu yerda sarlavha boshqa sahifalardagidan kichik va
+ *  ostidagi bo'shliq ham kam: birinchi ekranda taxta turishi kerak. */
+.section__head--tight {
+  margin-bottom: 16px;
+}
+
+.section__head--tight h1 {
+  font-size: clamp(21px, 5.4vw, 28px);
+  line-height: 1.2;
+}
+
+.section__head--tight .section__kicker {
+  margin-bottom: 10px;
+}
+
+.section__head--tight .section__lead {
+  margin-top: 8px;
+  font-size: 14px;
+}
+
 @media (max-width: 900px) {
   .oyin__grid {
     grid-template-columns: minmax(0, 1fr);

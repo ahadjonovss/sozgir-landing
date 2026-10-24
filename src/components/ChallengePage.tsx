@@ -130,7 +130,18 @@ export default function ChallengePage() {
   return (
     <section className="oyin">
       <div className="wrap oyin__solo">
-        <div className="section__head section__head--center">
+        {/* O'ynaladigan holatda sarlavha **siqiladi**.
+            Yashirilgan so'zning nomini odam o'zi yozadi va u
+            uch qatorli jumla bo'lishi mumkin — oddiy `h1`
+            o'lchamida u butun birinchi ekranni egallab, taxtani
+            ham, klaviaturani ham pastga surib yuborardi. Xato
+            holatda esa taxta yo'q, ya'ni sarlavha to'liq
+            o'lchamida qolaveradi. */}
+        <div
+          className={`section__head section__head--center${
+            broken ? '' : ' section__head--tight'
+          }`}
+        >
           <span className="section__kicker">So‘zTop</span>
           <h1>{game.title || 'Yashirilgan so‘z'}</h1>
           {!broken && (
