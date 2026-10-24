@@ -274,6 +274,30 @@ export default function ChallengePage() {
             </div>
           </div>
         )}
+
+        {/* Sahifaning oxiri — **teskari taklif**.
+            Bu yerga odam do'stining havolasi orqali tushadi, ya'ni
+            o'yinni endigina ko'rdi va eng tabiiy keyingi qadam —
+            o'zi ham bitta so'z yashirib, havolani boshqasiga
+            tashlash. Shusiz sahifa boshi berk ko'cha edi: o'yin
+            tugaydi va hech qayerga olib bormaydi.
+
+            Kod noto'g'ri bo'lsa chizilmaydi: u yerda o'z taklifi
+            bor («Bugungi so'zni o'ynash») va ikkita yo'nalish
+            odamni ikkiga bo'lardi. */}
+        {valid && (
+          <aside className="panel panel--call soztop__own">
+            <h3>Siz ham so‘z yashiring</h3>
+            <p className="panel__note">
+              Lug‘atdan bitta so‘z tanlang va havolasini do‘stlaringizga
+              tashlang. Ular xuddi shu sahifadagidek topadi, siz esa kim
+              necha urinishda topganini ko‘rib turasiz.
+            </p>
+            <a className="btn btn--sm" href={links.soztop}>
+              So‘z yashirish
+            </a>
+          </aside>
+        )}
       </div>
     </section>
   );

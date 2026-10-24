@@ -1025,6 +1025,14 @@
   font-size: 14px;
 }
 
+/* «Siz ham so'z yashiring» — taxtadan keyin, undan ajratilgan holda.
+   Taklif o'yinning davomi emas, keyingi qadam: shuning uchun u
+   taxtaga yopishib turmaydi. */
+.soztop__own {
+  margin-top: 22px;
+  text-align: center;
+}
+
 @media (max-width: 900px) {
   .oyin__grid {
     grid-template-columns: minmax(0, 1fr);
