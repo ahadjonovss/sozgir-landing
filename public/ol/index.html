@@ -21,7 +21,7 @@
      yo'naltiriladi (`/t/ol` → Telegram, `/x/ol` → X, `/th/ol` →
      Threads, `/i/ol` → Instagram, `/tt/ol` → TikTok, `/y/ol` →
      YouTube, `/f/ol` → Facebook, `/ln/ol` → LinkedIn, `/ak/ol` →
-     Kulgili ovozlar kanalidagi reklama). Brauzerdagi manzil
+     Kulgili ovozlar kanalidagi reklama, `/sb/ol` → SB). Brauzerdagi manzil
      o'zgarmaydi, shuning uchun manba `location.pathname` dan olinadi —
      sahifa nusxalanmaydi.
 
@@ -262,7 +262,8 @@
       y: 'youtube',
       f: 'facebook',
       ln: 'linkedin',
-      ak: 'kulgili'
+      ak: 'kulgili',
+      sb: 'sb'
     };
 
     var parts = location.pathname.split('/').filter(Boolean);

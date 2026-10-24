@@ -16,7 +16,7 @@
       "destination": "/ol/index.html"
     },
     {
-      "source": "/:channel(t|x|th|i|tt|y|f|ln|ak)/ol",
+      "source": "/:channel(t|x|th|i|tt|y|f|ln|ak|sb)/ol",
       "destination": "/ol/index.html"
     },
     {

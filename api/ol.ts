@@ -61,6 +61,7 @@ const SOURCES: Record<string, { name: string; emoji: string }> = {
   facebook: { name: 'Facebook', emoji: '📘' },
   linkedin: { name: 'LinkedIn', emoji: '💼' },
   kulgili: { name: 'Kulgili ovozlar (reklama)', emoji: '😂' },
+  sb: { name: 'SB', emoji: '📣' },
   jarchi_telegram: { name: 'Jarchi · Telegram', emoji: '✈️' },
   jarchi_instagram: { name: 'Jarchi · Instagram', emoji: '📸' },
   jarchi_x: { name: 'Jarchi · X', emoji: '🐦' },
