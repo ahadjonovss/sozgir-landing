@@ -107,30 +107,49 @@ export default function SideAds() {
    *  Oraliq bitta ekran bo'yi: surilayotgan odamning ko'z oldida
    *  bir vaqtning o'zida bittadan ortiq banner turmaydi. */
   const [slots, setSlots] = useState(1);
-  /** Ustunning bo'yi — sahifanikiga teng (pastda bir oz hoshiya).
-   *  Bannerlar shu bo'y bo'ylab teng taqsimlanadi, ya'ni oxirgisi
-   *  sahifaning oxirida turadi, hammasi tepada to'planib qolmaydi. */
-  const [tall, setTall] = useState(0);
+  /** Ustunning joyi va bo'yi — **kontentning** o'ziga tenglashtiriladi.
+   *
+   *  Ilgari o'lchov `document.scrollHeight` dan olinardi va bu
+   *  o'zini-o'zi quvadigan halqa yasardi: ustun `absolute`, ya'ni
+   *  uning bo'yi ham sahifaning surilish bo'yiga qo'shiladi.
+   *  Har o'lchov sahifani uzaytirardi, uzaygan sahifa esa keyingi
+   *  o'lchovda yana balandroq ustun berardi. Natijada ekranda
+   *  uzun bo'm-bo'sh joy paydo bo'lardi va reklama footerning
+   *  ostiga tushib ketardi, vaholanki tepada joy bo'sh turardi.
+   *
+   *  `<main>` esa reklamani o'z ichiga olmaydi, ya'ni o'lchov
+   *  barqaror: ustun qayerda boshlanib qayerda tugashini kontent
+   *  hal qiladi. */
+  const [box, setBox] = useState<{ top: number; height: number } | null>(null);
 
   useEffect(() => {
+    const main = document.querySelector('main');
+    if (!main) return;
+
     const measure = () => {
-      const page = document.documentElement.scrollHeight;
-      const step = window.innerHeight;
-      setTall(Math.max(0, page - TOP - FOOT));
-      /* `TOP` — birinchi bannergacha bo'lgan masofa (`play.css`).
-         Qolgan bo'yga nechta oraliq sig'sa — shuncha banner, lekin
-         `MAX` dan oshmaydi: uzun sahifada reklama soni kontentdan
-         oshib ketishi Yandex moderatsiyasida rad etish sabablaridan
-         biri. */
-      const fit = Math.floor((page - TOP) / step);
+      const rect = main.getBoundingClientRect();
+      const top = Math.round(rect.top + window.scrollY) + TOP;
+      /* Pastda ham hoshiya: oxirgi banner footerga yonma-yon
+         turmasligi kerak. */
+      const height = Math.max(0, Math.round(rect.height) - TOP - FOOT);
+      setBox({ top, height });
+      /* Nechta banner sig'adi: oraliq bitta ekran bo'yi, ya'ni
+         surilayotgan odamning ko'z oldida bir vaqtda bittadan
+         ortiq reklama turmaydi. `MAX` dan oshmaydi — uzun
+         sahifada reklama soni kontentdan oshib ketishi Yandex
+         moderatsiyasida rad etish sabablaridan biri. */
+      const fit = Math.floor(height / window.innerHeight);
       setSlots(Math.max(1, Math.min(MAX, fit)));
     };
+
     measure();
     window.addEventListener('resize', measure);
-    /* Sahifaning bo'yi keyin ham o'zgaradi: ro'yxatlar yuklanadi,
-       jang boshlanadi, tab almashadi. */
+    /* Kontentning bo'yi keyin ham o'zgaradi: ro'yxatlar yuklanadi,
+       jang boshlanadi, tab almashadi. Kuzatiladigani — faqat
+       `<main>`: `body` ni kuzatish reklamaning o'z bo'yini ham
+       hisobga olib, yuqoridagi halqani qaytarardi. */
     const watch = new ResizeObserver(measure);
-    watch.observe(document.body);
+    watch.observe(main);
     return () => {
       window.removeEventListener('resize', measure);
       watch.disconnect();
@@ -141,12 +160,12 @@ export default function SideAds() {
 
   return (
     <div className="rails">
-      <div className="rails__one rails__one--left" style={{ height: tall || undefined }}>
+      <div className="rails__one rails__one--left" style={box ? { top: box.top, height: box.height } : undefined}>
         {list.map((index) => (
           <AdBanner key={`l${key}-${index}`} placement="game" />
         ))}
       </div>
-      <div className="rails__one rails__one--right" style={{ height: tall || undefined }}>
+      <div className="rails__one rails__one--right" style={box ? { top: box.top, height: box.height } : undefined}>
         {list.map((index) => (
           <AdBanner key={`r${key}-${index}`} placement="guncha" />
         ))}
