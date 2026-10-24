@@ -171,7 +171,7 @@ function Gate() {
  *  tushadi — shu sabab telefon klaviaturasi ham ishlaydi. */
 /** Lobbi: bitta asosiy tugma («Raqib qidirish»), ostida do'st bilan
  *  o'ynash yo'li, o'z o'ljasi va yonida So'zjang jadvali. */
-function Lobby({ game }: { game: Sozjang }) {
+function Lobby({ game, inHub }: { game: Sozjang; inHub: boolean }) {
   const [code, setCode] = useState(codeFromUrl);
   const joined = useRef(false);
   const quickStarted = useRef(false);
@@ -245,7 +245,12 @@ function Lobby({ game }: { game: Sozjang }) {
           </div>
         </div>
 
-        {game.account && <BattleStats uid={game.account.uid} compact />}
+        {/* `/oynash` ichida kartochka tablarning **ustida** turadi va
+            butun kenglikni egallaydi (`PlayHub`) — bu yerda yana
+            chizilsa, bitta ekranda bir xil son ikki marta
+            ko'rinardi. Alohida `/sozjang` sahifasida esa u o'z
+            joyida qoladi: u yerda tab ham, ustki qator ham yo'q. */}
+        {!inHub && game.account && <BattleStats uid={game.account.uid} compact />}
         <Rules />
       </div>
 
@@ -1259,7 +1264,7 @@ function Result({ game }: { game: Sozjang }) {
   );
 }
 
-export default function BattlePage() {
+export default function BattlePage({ inHub = false }: { inHub?: boolean } = {}) {
   const game = useSozjang();
   const intro = useIntro(game.phase, game.battleId);
   /** Turnir davrasimi. Kutish kartochkasidagi tugma shunga qarab
@@ -1313,7 +1318,7 @@ export default function BattlePage() {
               </p>
             )}
 
-            {game.phase === 'lobby' && <Lobby game={game} />}
+            {game.phase === 'lobby' && <Lobby game={game} inHub={inHub} />}
             {game.phase === 'searching' && <Searching game={game} />}
             {game.phase === 'loading' && <Loading />}
             {game.phase === 'waiting' && <Waiting game={game} />}

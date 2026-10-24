@@ -30,11 +30,13 @@ import Leaderboard from './Leaderboard';
 import MarduPage from './MarduPage';
 import SoonPage from './SoonPage';
 import PlaysLeft from './PlaysLeft';
+import BattleStats from './BattleStats';
 import TurnirPage from './TurnirPage';
 import AdBanner from './AdBanner';
 import { isSoon, links } from '../data/site';
 import { routeParam } from '../lib/useRoute';
 import { useStage } from '../lib/stage';
+import { useAuth } from '../lib/auth';
 
 /** Tanlov ro'yxati — tartibi yuqorida aytilgan.
  *
@@ -73,6 +75,7 @@ export default function PlayHub() {
    *  sahifa qayta yuklanmaydi va `PlayHub` daraxtda qolaveradi:
    *  faqat markazdagi o'yin almashadi. Noma'lum bo'lak — birinchi
    *  tab: qo'lda yozilgan manzil bo'sh ekran bermasligi kerak. */
+  const { account } = useAuth();
   const slug = routeParam();
   const tab: TabId = (TABS.find((item) => item.slug === slug) ?? FIRST).id;
   /* Jang ketayotganda tanlov yashiriladi: taxtaning ustida boshqa
@@ -84,11 +87,17 @@ export default function PlayHub() {
     <>
       <section className={`oyin hub__top${live ? ' hub__top--off' : ''}`}>
         <div className="wrap hub hub--pick">
-          {/* Aqcha kartochkasi bu yerda yo'q: tanlangan o'yinning
-              sahifasida «Jang aqchasi» allaqachon turibdi va
-              ikkalasi bir ekranda ikki marta bir xil sonni
-              ko'rsatardi. Tanlovdan oldin faqat qolgan o'yinlar
-              soni — u bir qatorlik. */}
+          {/* Aqcha va jang sanog'i — tablarning **ustida**, butun
+              kenglikda. Ilgari u So'zjang lobbisining ichida, chap
+              ustunning pastida turardi: faqat bitta tabda
+              ko'rinardi va uni ko'rish uchun surish kerak edi,
+              holbuki son uchala tabga ham tegishli — aqcha
+              So'zjangda ham, g'unchada ham, maydonda ham o'sha.
+
+              Endi u sahifaning sarlavhasi bo'lib turadi va tanlovdan
+              oldin javob beradi: qancha aqcham bor, nechta jang
+              o'ynadim. */}
+          {account && <BattleStats uid={account.uid} compact />}
           <PlaysLeft />
 
           <div className="hub__tabs" role="tablist" aria-label="O‘yinlar">
@@ -135,7 +144,7 @@ export default function PlayHub() {
           `section.oyin > .wrap` i bilan keladi va uni yana bir
           o'ramga solish ikki qavat hoshiya degani bo'lardi. */}
       <div className="hub__stage" id={`hub-panel-${tab}`} role="tabpanel" aria-labelledby={`hub-tab-${tab}`}>
-        {tab === 'sozjang' && <BattlePage />}
+        {tab === 'sozjang' && <BattlePage inHub />}
         {/* G'unchaning **onlayn** ko'rinishi: bu sahifadagi to'rttala
             tab ham birovlar bilan o'ynash haqida (So'zjang, maydon,
             turnir). Kunlik g'uncha va mashq yolg'iz o'ynaladi —
