@@ -15,7 +15,7 @@
  *  Telegram'ga ketadi; sarlavha, mavzu va ovozni ham o'sha funksiya
  *  hal qiladi. Sabab oddiy: brauzerga tushgan token ochiq matn va
  *  uni istagan odam o'qiydi. */
-import { adUnit, type AdPlacement } from './ads';
+import { adUnit, type AdFailure, type AdPlacement } from './ads';
 import { compactLogin } from './loginId';
 
 /** Hodisa turlari — `api/event.ts` dagi jadval bilan bir xil. */
@@ -225,7 +225,10 @@ export function watchErrors(): void {
  *  Joylashuv ham, blok ham yoziladi: bitta blok bir necha joylashuvga
  *  xizmat qilishi mumkin (`ads.ts` dagi `FALLBACK`) va qaysi sahifada
  *  to'ldirish yo'qligini faqat shu ikkisidan bilinadi. */
-export function trackAd(placement: AdPlacement, result: 'so‘raldi' | 'keldi' | 'to‘ldirish yo‘q'): void {
+export function trackAd(
+  placement: AdPlacement,
+  result: 'so‘raldi' | 'keldi' | AdFailure,
+): void {
   trackOnce(`ad:${placement}:${result}`, 'ad', [
     ['Holat', result],
     ['Joy', placement],

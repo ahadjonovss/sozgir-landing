@@ -32,6 +32,7 @@ import { isVerifiedAsync } from '../lib/verified';
 import { trackAd } from '../lib/track';
 import {
   adUnit,
+  type AdFailure,
   adsEnabled,
   adsSupported,
   nextAdLabel,
@@ -152,15 +153,24 @@ export default function AdBanner({
       // o'lchamdagi sinov ramkasi turadi.
       if (!adsSupported) return finish('shown');
 
-      /** Joy bo'shatiladi: na reklama, na xato keldi. */
-      const giveUp = () => {
+      /** Joy bo'shatiladi va sabab yoziladi.
+       *
+       *  Sabab muhim: «reklama chiqmayapti» degan savolga javob
+       *  aynan shundan chiqadi. Yandex to'ldirish topmagani —
+       *  odatiy hol va kutish kerak; skript umuman yuklanmagani
+       *  esa butunlay boshqa gap (bloklagich, tarmoq) va u
+       *  kutish bilan tuzalmaydi. Ilgari ikkalasi bitta
+       *  «to'ldirish yo'q» bo'lib chiqardi. */
+      const giveUp = (reason: AdFailure = 'to‘ldirish yo‘q') => {
         finish('gone');
-        trackAd(placement, 'to‘ldirish yo‘q');
+        trackAd(placement, reason);
       };
 
       // Joy shu yerda band qilinadi — reklama kelishidan oldin.
       setPhase('asked');
-      timer = window.setTimeout(giveUp, LOAD_TIMEOUT);
+      // Skript yuklanishini ham kutamiz: bu muddat tugasa, talab
+      // Yandex'ga umuman yetib bormagan.
+      timer = window.setTimeout(() => giveUp('skript'), LOAD_TIMEOUT);
 
       /* Guruhga uchta holat ham yoziladi: so'ralgani, kelgani va
          to'ldirish topilmagani. Faqat kelganini yozish yetmaydi —
@@ -178,7 +188,7 @@ export default function AdBanner({
         onSent: () => {
           if (!alive) return;
           window.clearTimeout(timer);
-          timer = window.setTimeout(giveUp, TIMEOUT);
+          timer = window.setTimeout(() => giveUp('to‘ldirish yo‘q'), TIMEOUT);
         },
         // Yandex «chizdim» deydi, lekin balandligi nol bo'lishi mumkin.
         // Bunda ham joy bo'shatiladi: bo'sh ramka reklamadan yomonroq.
@@ -195,7 +205,7 @@ export default function AdBanner({
               trackAd(placement, 'keldi');
               return;
             }
-            if (Date.now() >= until) return giveUp();
+            if (Date.now() >= until) return giveUp('bo‘sh');
             timer = window.setTimeout(measure, 100);
           };
           requestAnimationFrame(measure);

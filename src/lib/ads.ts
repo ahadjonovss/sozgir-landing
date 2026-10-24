@@ -264,9 +264,29 @@ export interface AdRequest {
    *  muddat shu chaqiruvdan boshlanadi — ya'ni faqat auksion vaqti
    *  sanaladi. */
   onSent?: () => void;
-  /** To'ldirish topilmadi yoki xato — joy bo'shatiladi. */
-  onFailed: () => void;
+  /** To'ldirish topilmadi yoki xato — joy bo'shatiladi.
+   *
+   *  [reason] nima bo'lganini aytadi. Ilgari hamma holat bitta
+   *  «to'ldirish yo'q» bo'lib chiqardi va guruhdagi xabardan
+   *  sababni ajratib bo'lmasdi: reklama rostdan topilmadimi,
+   *  Yandex skripti umuman yuklanmadimi (reklama bloklagich,
+   *  tarmoq) yoki xato qaytdimi — uchalasi bir xil ko'rinardi.
+   *  Birinchisi odatiy hol, ikkinchisi esa butunlay boshqa gap. */
+  onFailed: (reason: AdFailure) => void;
 }
+
+/** Reklama nega chiqmadi. */
+export type AdFailure =
+  /** Yandex skripti yuklanmadi — bloklagich yoki tarmoq. */
+  | 'skript'
+  /** Yandex xato qaytardi. */
+  | 'xato'
+  /** Chizilgan, lekin yopildi (fullscreen va shunga o'xshash). */
+  | 'yopildi'
+  /** Chizildi, lekin balandligi nol — bo'sh ramka. */
+  | 'bo‘sh'
+  /** Javob kelmadi: auksionda to'ldirish topilmagan. */
+  | 'to‘ldirish yo‘q';
 
 /** Bannerni so'raydi. Skript yiqilsa ham chaqiruvchi javobsiz
  *  qolmaydi: [AdRequest.onFailed] chaqiriladi.
@@ -282,7 +302,7 @@ export function requestAd({
   onSent,
 }: AdRequest): void {
   void loadAds().then((ready) => {
-    if (!ready) return onFailed();
+    if (!ready) return onFailed('skript');
     window.yaContextCb?.push(() => {
       try {
         onSent?.();
@@ -296,17 +316,17 @@ export function requestAd({
           // keyin ham `onRender` kelishi mumkin, shuning uchun faqat
           // xato joyni bo'shatadi. Qolganini kutish muddati yopadi.
           onError: (data?: { type?: string }) => {
-            if (data?.type !== 'warning') onFailed();
+            if (data?.type !== 'warning') onFailed('xato');
           },
           // Yopiladigan formatlarda (fullscreen, Top Ad, Floor Ad) —
           // yopilgach ajratilgan joy ham qaytariladi.
-          onClose: onFailed,
+          onClose: () => onFailed('yopildi'),
           // Yandex hujjatida `onRender` oxirgi parametr bo'lishi
           // aytilgan, shuning uchun u ro'yxat oxirida turadi.
           onRender,
         });
       } catch {
-        onFailed();
+        onFailed('xato');
       }
     });
   });
