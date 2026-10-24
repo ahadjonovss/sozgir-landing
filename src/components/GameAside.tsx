@@ -1,21 +1,19 @@
-/** O'yin maydonining yonidagi ustunlar — **ochiq turnirlar**.
+/** O'yin maydonining yonidagi ustunlar.
  *
  *  Keng ekranda taxta ekran o'rtasida tor ustunda turadi va chap-o'ng
- *  tomoni butunlay bo'sh qoladi. O'sha bo'shliqda ilgari boshqa
- *  o'yinlarimizning kartochkalari turardi: «Turnir», «Mardu
- *  maydon» va hokazo. Ular bo'limga olib borardi, lekin bo'limda
- *  odam yana qidirishi kerak edi — hozir kimdir yig'ilayaptimi,
- *  yo'qmi.
+ *  tomoni butunlay bo'sh qoladi. O'sha bo'shliqda ikkita o'yin
+ *  turadi: chapda So'zjang, o'ngda G'uncha jangi. Har birining
+ *  ostida — **o'sha o'yinning hozir yig'ilayotgan turnirlari**.
  *
- *  Endi o'sha joyda **hozir yig'ilayotgan turnirlar** turadi: chapda
- *  So'zjang, o'ngda G'uncha. Farqi bitta bosishda emas, javobda —
- *  kartochka «turnir bor» deb emas, «mana shu turnirga hozir
- *  qo'shilish mumkin» deb turadi. O'ynab o'tirgan odam uchun bu
- *  aynan o'sha paytda foydali: u allaqachon o'ynayapti, demak
- *  keyingi o'yinga tayyor.
+ *  Tartib shu sababdan: kartochka «bunday o'yin bor» deydi, ostidagi
+ *  ro'yxat esa «mana shunga hozir qo'shilish mumkin». Ikkinchisi
+ *  birinchisisiz ma'nosiz — odam turnir nima ekanini bilmasa,
+ *  «0 / 8 kishi» unga hech narsa aytmaydi.
  *
- *  Ro'yxat bo'sh bo'lsa — turnir ochishga taklif. Bo'sh ustun
- *  qoldirilmaydi: u nosozlikka o'xshaydi.
+ *  Ilgari bu yerda beshta o'yin ikki ustunga bo'lib tashlanardi
+ *  (Turnir, Mardu maydon, Cheksiz ham). Ular bo'limga olib borardi,
+ *  lekin bo'limda odam yana qidirishi kerak edi: hozir kimdir
+ *  yig'ilayaptimi yoki yo'qmi.
  *
  *  Ikki muhim shart o'zgarmadi:
  *
@@ -26,7 +24,7 @@
  *     (`@media`), JS emas: telefonda va planshetda ustun umuman
  *     chizilmaydi. */
 import { useEffect, useState } from 'react';
-import { links } from '../data/site';
+import { gameLinks } from '../data/site';
 import { turnirPath, watchOpenTurnirList, type TurnirRow } from '../lib/turnir';
 import AdBanner from './AdBanner';
 
@@ -44,12 +42,12 @@ export default function GameAside() {
     <>
       <Column
         side="left"
-        title="So‘zjang turnirlari"
+        id="sozjang"
         rows={open.filter((row) => row.game === 'soztop').slice(0, LIMIT)}
       />
       <Column
         side="right"
-        title="G‘uncha turnirlari"
+        id="guncha"
         rows={open.filter((row) => row.game === 'guncha').slice(0, LIMIT)}
       />
     </>
@@ -58,55 +56,58 @@ export default function GameAside() {
 
 function Column({
   side,
-  title,
+  id,
   rows,
 }: {
   side: 'left' | 'right';
-  title: string;
+  /** Ustun boshidagi o'yin — `data/site.ts` dagi ro'yxatdan. */
+  id: string;
   rows: TurnirRow[];
 }) {
-  return (
-    <aside className={`aside-games aside-games--${side}`} aria-label={title}>
-      <h3 className="aside-games__title">{title}</h3>
+  const game = gameLinks.find((item) => item.id === id);
+  if (!game) return null;
 
-      {rows.length === 0 ? (
-        /* Hech kim yig'ilmayotgan bo'lsa — o'zing ochishga taklif.
-           Bo'sh ustun qoldirilmaydi. */
-        <a className="aside-game" href={links.turnir}>
-          <span className="aside-game__emoji" aria-hidden="true">
-            🥇
-          </span>
-          <span className="aside-game__text">
-            <strong>Hozir yig‘ilayotgani yo‘q</strong>
-            <span>O‘zingiz ochsangiz, kod bilan do‘st chaqirasiz.</span>
-          </span>
-        </a>
-      ) : (
-        rows.map((row) => (
-          <a className="aside-game" key={row.code} href={turnirPath(row.code)}>
-            <span className="aside-game__emoji" aria-hidden="true">
-              🥇
-            </span>
-            <span className="aside-game__text">
-              <strong>{row.title || 'Turnir'}</strong>
-              <span>
-                {row.players} / {row.capacity} kishi
-                {row.capacity - row.players > 0
-                  ? ` · yana ${row.capacity - row.players} o‘rin`
-                  : ' · to‘ldi'}
+  return (
+    <aside className={`aside-games aside-games--${side}`} aria-label={game.name}>
+      <a className="aside-game" href={game.href}>
+        <span className="aside-game__emoji" aria-hidden="true">
+          {game.emoji}
+        </span>
+        <span className="aside-game__text">
+          <strong>{game.name}</strong>
+          <span>{game.tagline}</span>
+        </span>
+      </a>
+
+      {/* Turnirlar o'yin kartochkasining ostida. Hech kim
+          yig'ilmayotgan bo'lsa hech narsa chizilmaydi: «turnir yo'q»
+          degan bo'sh qator kartochkaning o'zidan ko'ra ko'proq joy
+          egallardi va hech narsa aytmasdi. */}
+      {rows.length > 0 && (
+        <>
+          <h3 className="aside-games__title">Ochiq turnirlar</h3>
+          {rows.map((row) => (
+            <a className="aside-game aside-game--sub" key={row.code} href={turnirPath(row.code)}>
+              <span className="aside-game__emoji" aria-hidden="true">
+                🥇
               </span>
-            </span>
-          </a>
-        ))
+              <span className="aside-game__text">
+                <strong>{row.title || 'Turnir'}</strong>
+                <span>
+                  {row.players} / {row.capacity} kishi
+                  {row.capacity - row.players > 0
+                    ? ` · yana ${row.capacity - row.players} o‘rin`
+                    : ' · to‘ldi'}
+                </span>
+              </span>
+            </a>
+          ))}
+        </>
       )}
 
       {/* Kartochkalardan keyin — ustunning qolgan qismi baribir bo'sh
           qolardi. Taxtadan 28px narida va undan pastroqda: o'ynayotgan
-          odamning ko'zi oldida emas, lekin surilganda ko'rinadi.
-
-          Ustun `position: absolute`, ya'ni banner kelgani bilan taxta
-          ham, klaviatura ham joyidan qimirlamaydi. Tor ekranda butun
-          ustun chizilmaydi — banner ham u bilan birga yo'qoladi. */}
+          odamning ko'zi oldida emas, lekin surilganda ko'rinadi. */}
       <AdBanner placement={side === 'left' ? 'game' : 'guncha'} />
     </aside>
   );

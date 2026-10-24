@@ -129,6 +129,84 @@ function read(): Route {
   return known(path) ?? '/';
 }
 
+/** Routerning **yagona** nusxasi.
+ *
+ *  Ilgari har bir `useRoute()` o'zining `document` dagi bosish
+ *  tinglovchisini qo'yardi va ulardan faqat **birinchisi** ishlardi:
+ *  u `pushState` qilgandan keyin manzil allaqachon yangi bo'lardi,
+ *  qolganlari esa `url.pathname === window.location.pathname`
+ *  tekshiruvidan o'tolmay chiqib ketardi — ya'ni ularning holati
+ *  yangilanmasdi.
+ *
+ *  Buning oqibati ko'rinib turardi: chetdagi reklama ustuni
+ *  (`SideAds`) `App` ning ichida, ya'ni uning effekti **oldinroq**
+ *  ishga tushadi va tinglovchisi birinchi bo'lib qoladi. Natijada
+ *  o'ynash sahifasidagi tab bosilganda manzil o'zgarardi-yu, `App`
+ *  qayta chizilmasdi: tab faqat ikkinchi bosishdan keyin, boshqa
+ *  sabab bilan kelgan renderda almashardi.
+ *
+ *  Endi tinglovchi bitta va u barcha obunachilarni birdan
+ *  xabardor qiladi. */
+const subs = new Set<() => void>();
+let bound = false;
+
+function notify() {
+  for (const fn of subs) fn();
+}
+
+function onClick(event: MouseEvent) {
+  if (event.defaultPrevented || event.button !== 0) return;
+  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+  const link = (event.target as Element | null)?.closest('a');
+  if (!link || link.target === '_blank' || link.hasAttribute('download')) return;
+
+  const url = new URL(link.href, window.location.href);
+  if (url.origin !== window.location.origin) return;
+  if (url.hash || url.pathname === window.location.pathname) return;
+  // Ilova bilmagan manzil — brauzerning o'ziga qoldiriladi. Aks holda
+  // `/ol` bosilganda manzil o'zgarib, ekranda bosh sahifa qolardi.
+  if (!known(url.pathname.replace(/\/+$/, '') || '/')) return;
+
+  event.preventDefault();
+  window.history.pushState(null, '', url.pathname);
+  pushes += 1;
+  notify();
+
+  /* Odatda yangi sahifa tepadan boshlanadi. Ba'zi havolalar esa
+     sahifani emas, uning **o'rtasidagi narsani** almashtiradi —
+     masalan So'ztop taxtasi ustidagi «g'unchaga o'tish» belgisi:
+     ikkala sahifa ham bir xil ramkada va taxta o'sha joyda qoladi.
+     Bunday havolada sakrash xalaqit beradi, shuning uchun u
+     `data-scroll="keep"` bilan belgilanadi.
+
+     `instant` — silliq surilish yangi sahifa chizilganda uzilib
+     qolardi. */
+  if (link.dataset.scroll !== 'keep') {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }
+}
+
+/* Orqaga qaytish sanoqdan ayiriladi — aks holda bir marta qaytgan
+   odamda ham «ortga» tugmasi qolib, keyingi bosishda uni saytdan
+   chiqarib yuborardi. */
+function onPop() {
+  if (pushes > 0) pushes -= 1;
+  notify();
+}
+
+function subscribe(fn: () => void): () => void {
+  subs.add(fn);
+  if (!bound) {
+    bound = true;
+    window.addEventListener('popstate', onPop);
+    document.addEventListener('click', onClick);
+  }
+  return () => {
+    subs.delete(fn);
+  };
+}
+
 /** Bir necha sahifa uchun kichik router — paket qo'shmasdan.
  *  `/oynash` — nimani o'ynashni tanlash; `/oyin`, `/sozjang`, `/guncha` va
  *  `/gunchajang` — o'yinlar.
@@ -145,39 +223,8 @@ export function useRoute(): Route {
       setRoute(read());
       setPath(window.location.pathname);
     };
-
-    const onClick = (event: MouseEvent) => {
-      if (event.defaultPrevented || event.button !== 0) return;
-      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-
-      const link = (event.target as Element | null)?.closest('a');
-      if (!link || link.target === '_blank' || link.hasAttribute('download')) return;
-
-      const url = new URL(link.href, window.location.href);
-      if (url.origin !== window.location.origin) return;
-      if (url.hash || url.pathname === window.location.pathname) return;
-      // Ilova bilmagan manzil — brauzerning o'ziga qoldiriladi. Aks holda
-      // `/ol` bosilganda manzil o'zgarib, ekranda bosh sahifa qolardi.
-      if (!known(url.pathname.replace(/\/+$/, '') || '/')) return;
-
-      event.preventDefault();
-      window.history.pushState(null, '', url.pathname);
-      pushes += 1;
-      sync();
-
-      /* Odatda yangi sahifa tepadan boshlanadi. Ba'zi havolalar esa
-         sahifani emas, uning **o'rtasidagi narsani** almashtiradi —
-         masalan So'ztop taxtasi ustidagi «g'unchaga o'tish» belgisi:
-         ikkala sahifa ham bir xil ramkada va taxta o'sha joyda qoladi.
-         Bunday havolada sakrash xalaqit beradi, shuning uchun u
-         `data-scroll="keep"` bilan belgilanadi.
- 
-         `instant` — silliq surilish yangi sahifa chizilganda uzilib
-         qolardi. */
-      if (link.dataset.scroll !== 'keep') {
-        window.scrollTo({ top: 0, behavior: 'instant' });
-      }
-    };
+    // Obuna qo'yilgunicha manzil o'zgargan bo'lishi mumkin.
+    sync();
 
     // Sahifa `/#qoida` bilan ochilganda brauzer langarni topolmaydi — o'sha
     // paytda `#root` hali bo'sh bo'ladi. Shuning uchun o'zimiz suramiz.
@@ -186,21 +233,7 @@ export function useRoute(): Route {
       : null;
     target?.scrollIntoView({ behavior: 'instant' });
 
-    /* Orqaga qaytish sanoqdan ayiriladi — aks holda bir marta qaytgan
-       odamda ham «ortga» tugmasi qolib, keyingi bosishda uni saytdan
-       chiqarib yuborardi. Ayirish aynan shu yerda: `sync` ni bosilgan
-       havola ham chaqiradi va u yerda sanoq o'sishi kerak. */
-    const onPop = () => {
-      if (pushes > 0) pushes -= 1;
-      sync();
-    };
-
-    window.addEventListener('popstate', onPop);
-    document.addEventListener('click', onClick);
-    return () => {
-      window.removeEventListener('popstate', onPop);
-      document.removeEventListener('click', onClick);
-    };
+    return subscribe(sync);
   }, []);
 
   return route;

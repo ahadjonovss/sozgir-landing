@@ -7286,16 +7286,22 @@
 /* Chap chetiga tekislanadi: bosh sahifada hamma narsa markazga
    tekislangan (`.hero__inner`), lekin bu yerda qisqa sarlavha va ikki
    satrlik tavsif — markazdan ularni o'qish qiyin. */
-/* Ustun sarlavhasi — qaysi o'yinning turnirlari ekanini aytadi.
-   Ikkala ustun bir xil kartochkalardan iborat, ya'ni ularni faqat
-   sarlavha ajratadi. */
+/* O'yin kartochkasi bilan uning turnirlari orasidagi sarlavha.
+   Ikkisini ajratadi: tepasidagi — o'yin, ostidagilar — o'sha
+   o'yinga hozir qo'shilish mumkin bo'lgan xonalar. */
 .aside-games__title {
-  margin-bottom: 8px;
+  margin-top: 6px;
   color: var(--text-2);
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 800;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+
+/* Turnir kartochkasi o'yinnikidan bir oz past ovozda: u ostidagi
+   ro'yxat, ustidagi kartochkaning davomi. */
+.aside-game--sub strong {
+  font-size: 13.5px;
 }
 
 .aside-games {
@@ -7660,7 +7666,12 @@
   }
 
   .rails__one {
-    position: fixed;
+    /* `absolute`, `fixed` emas: ustun **sahifa bilan birga suriladi**
+       va pastga tushganda matn bilan birga ketadi. Ilgari u ekranga
+       yopishtirilgan edi — qayerga surilmasin, ikki chekkada o'sha
+       banner turardi va u sahifaning bir qismiga emas, ekranning
+       ustiga qo'yilgan qatlamga o'xshardi. */
+    position: absolute;
     /* Kontent boshlanadigan chiziqda: sarlavha 80px, undan keyin
        sahifaning o'z hoshiyasi. Ilgari ustun varaq o'rtasiga
        tenglashtirilgan edi va o'yin tepada turganda reklama undan
