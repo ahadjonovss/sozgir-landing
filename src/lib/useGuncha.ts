@@ -37,6 +37,7 @@ import {
   saveRound,
 } from './gunchaProgress';
 import { shuffled } from './daily';
+import { play, unlockSounds } from './sounds';
 import { keyAction, normalize, split } from './uz';
 import { gameKey } from './useScript';
 
@@ -217,6 +218,9 @@ export function useGuncha(
 
   const bump = useCallback(
     (text: string) => {
+      /* Ilovadagi `Sounds.reject()`: qabul qilinmagan so'zning
+         barcha sabablari shu yerdan o'tadi. */
+      play('reject');
       setMessage(text);
       setShake(true);
       later(() => setShake(false), 420);
@@ -247,7 +251,11 @@ export function useGuncha(
     // qanday sanoqda qolmaydi (`lib/badges.ts`).
     markPlayedAt();
 
-    // Pangramma — o'yinning cho'qqisi, u alohida aytiladi.
+    /* Pangramma — o'yinning cho'qqisi, u alohida aytiladi: ekranda
+       ham, quloqqa ham. Ilovadagi taqsimotning o'zi (`pangram`
+       va `wordFound`): oddiy so'z bir o'yinda o'nlab marta
+       topiladi, pangramma esa bir-ikki marta. */
+    play(entry.pangram ? 'pangram' : 'word_found');
     setPraise(
       entry.pangram ? 'Pangramma! +' + entry.score : `+${entry.score}`,
     );
@@ -277,18 +285,24 @@ export function useGuncha(
   const press = useCallback(
     (unit: string) => {
       if (!puzzle) return;
+      // Brauzer sahifaga tegilmaguncha ovozga ruxsat bermaydi.
+      unlockSounds();
       if (unit === 'enter') {
         submit();
         return;
       }
       if (unit === 'back') {
         hush();
-        setTyped((units) => units.slice(0, -1));
+        setTyped((units) => {
+          if (units.length > 0) play('backspace');
+          return units.slice(0, -1);
+        });
         return;
       }
       // Faqat g'unchadagi harflar — boshqasi shunchaki bosilmaydi.
       if (!lettersOf(puzzle).includes(unit)) return;
       hush();
+      play('key_tap');
       setTyped((units) => (units.length >= 12 ? units : [...units, unit]));
     },
     [hush, puzzle, setTyped, submit],
@@ -296,6 +310,7 @@ export function useGuncha(
 
   /** Barglarni aralashtirish — faqat ko'rinish, o'yin mantig'iga tegmaydi. */
   const shuffle = useCallback(() => {
+    play('shuffle');
     setOrder((petals) => shuffled(petals, Date.now() % 100000));
   }, [setOrder]);
 

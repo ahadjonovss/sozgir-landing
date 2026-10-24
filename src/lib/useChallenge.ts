@@ -24,6 +24,7 @@ import {
 } from './challenge';
 import { attemptsFor } from './modes';
 import { useSettings } from './settings';
+import { play, playRow, unlockSounds } from './sounds';
 import type { BoardRow } from './useSozjang';
 import { keyAction, lengthOf, normalize, split, type Verdict } from './uz';
 import { gameKey } from './useScript';
@@ -233,6 +234,10 @@ export function useChallenge(code: string): Challenge {
 
   const bump = useCallback(
     (text: string) => {
+      /* Ilovadagi `Sounds.reject()`: lug'atda yo'q so'z, harf
+         yetishmasligi va to'lgan katak — uchalasi ham shu yerdan
+         o'tadi, ya'ni ovoz bitta joyda turadi. */
+      play('reject');
       setMessage(text);
       setShake(true);
       later(() => setShake(false), 420);
@@ -314,6 +319,17 @@ export function useChallenge(code: string): Challenge {
       );
       setFlip({ key, row: myRows.length });
       setTyped({ row: myRows.length + 1, units: [] });
+
+      /* Kataklar ketma-ket ochilib kichik kuy chaladi — odam ekranga
+         qaramay ham nechtasi to'g'ri kelganini eshitadi. Yakuniy
+         ohang kataklar ag'darilib bo'lgach: ikkisi ustma-ust tushsa
+         quloq na birini, na ikkinchisini ajratardi. */
+      const verdicts = verdictsOf(reply.row ?? '');
+      playRow(verdicts);
+      if (over) {
+        const won = reply.won === true;
+        later(() => play(won ? 'win' : 'lose'), 250 + 130 * length);
+      }
     } catch (raw) {
       bump(apiError(raw));
     } finally {
@@ -326,6 +342,7 @@ export function useChallenge(code: string): Challenge {
     current,
     guest,
     key,
+    later,
     length,
     maxAttempts,
     myRows.length,
@@ -335,6 +352,9 @@ export function useChallenge(code: string): Challenge {
   const press = useCallback(
     (key: string) => {
       if (phase !== 'playing' || busy) return;
+      // Brauzer sahifaga tegilmaguncha ovozga ruxsat bermaydi:
+      // birinchi tugma o'sha teginish bo'ladi.
+      unlockSounds();
       if (key === 'enter') {
         void submit();
         return;
@@ -343,6 +363,7 @@ export function useChallenge(code: string): Challenge {
         edit((units) => {
           const index = lastTyped(units);
           if (index === -1) return units;
+          play('backspace');
           const next = [...units];
           next[index] = '';
           return next;
@@ -354,6 +375,7 @@ export function useChallenge(code: string): Challenge {
         bump('Katak to‘lgan');
         return;
       }
+      play('key_tap');
       edit((units) => {
         const next = [...units];
         next[slot] = key;

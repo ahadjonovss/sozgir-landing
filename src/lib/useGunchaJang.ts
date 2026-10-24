@@ -35,6 +35,7 @@ import {
   type BattlePlayer,
 } from './battle';
 import { shuffled } from './daily';
+import { countdown, play, unlockSounds, warmSounds } from './sounds';
 import {
   gunchaFromLetters,
   type GunchaPuzzle,
@@ -123,6 +124,13 @@ export function useGunchaJang() {
     return id ? read<string[]>(wordsKey(id), []) : [];
   });
   const [left, setLeft] = useState(GUNCHA_SECONDS);
+
+  /* Oxirgi o'n soniya — har soniyada bitta «tik», `useSozjang`
+     dagi bilan bir xil qoida (`lib/sounds.ts`). */
+  const tick = useRef(countdown());
+  useEffect(() => {
+    tick.current(left);
+  }, [left]);
   const [searching, setSearching] = useState(false);
   const [seconds, setSeconds] = useState(0);
   const [message, setMessage] = useState<string | null>(null);
@@ -531,8 +539,35 @@ export function useGunchaJang() {
 
   const maxScore = useMemo(() => (puzzle ? maxScoreOf(puzzle) : 0), [puzzle]);
 
+  /* Jang ovozlari — `useSozjang` dagi bilan bir xil uchta lahza.
+     
+     Oldingi holat `useRef` da: `phase` har sekundda qayta
+     hisoblanadi (taymer) va shartning o'zi har renderda rost
+     bo'lib turardi, ya'ni ovoz takrorlanib ketardi.
+     
+     Yakun g'unchada **ball bo'yicha** aniqlanadi: bu yerda
+     g'olibning hisobi alohida kelmaydi, ikki tomonning ochkosi
+     esa taxtaning o'zida turadi. */
+  const sounded = useRef<GunchaPhase | null>(null);
+  useEffect(() => {
+    const was = sounded.current;
+    sounded.current = phase;
+    if (was === null || was === phase) return;
+    if (phase === 'playing') {
+      warmSounds('guncha');
+      play('battle_start');
+      return;
+    }
+    if (phase !== 'finished' || restored.current) return;
+    const theirs = opponent?.score ?? 0;
+    play(score === theirs ? 'draw' : score > theirs ? 'win' : 'lose');
+  }, [opponent?.score, phase, score]);
+
+
   const bump = useCallback(
     (text: string) => {
+      // Qabul qilinmagan so'zning barcha sabablari shu yerdan o'tadi.
+      play('reject');
       setMessage(text);
       setShake(true);
       later(() => setShake(false), 420);
@@ -599,6 +634,10 @@ export function useGunchaJang() {
            yettala harf ishlatilgan bo'lsa o'sha. */
         const entry = puzzle ? wordOf(puzzle, word) : null;
         const points = reply.score ?? entry?.score ?? 0;
+        /* Pangramma alohida eshitiladi: u bir g'unchada bir-ikki
+           marta uchraydi va eng ko'p ball beradi, oddiy so'z esa
+           o'nlab marta topiladi (ilovadagi taqsimotning o'zi). */
+        play(entry?.pangram ? 'pangram' : 'word_found');
         setPraise(entry?.pangram ? `Pangramma! +${points}` : `+${points}`);
         later(() => setPraise(null), 1400);
       })
@@ -628,17 +667,23 @@ export function useGunchaJang() {
   const press = useCallback(
     (unit: string) => {
       if (phase !== 'playing') return;
+      // Brauzer sahifaga tegilmaguncha ovozga ruxsat bermaydi.
+      unlockSounds();
       if (unit === 'enter') {
         submit();
         return;
       }
       if (unit === 'back') {
         hush();
-        setTyped((units) => units.slice(0, -1));
+        setTyped((units) => {
+          if (units.length > 0) play('backspace');
+          return units.slice(0, -1);
+        });
         return;
       }
       if (!letters.includes(unit)) return;
       hush();
+      play('key_tap');
       setTyped((units) => (units.length >= 12 ? units : [...units, unit]));
     },
     [hush, letters, phase, submit],
@@ -672,6 +717,7 @@ export function useGunchaJang() {
   }, [hush, letters, press, typed]);
 
   const shuffle = useCallback(() => {
+    play('shuffle');
     setOrder((current) => shuffled(current, Date.now() % 100000));
   }, []);
 

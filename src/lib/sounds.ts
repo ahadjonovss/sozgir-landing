@@ -33,7 +33,16 @@ export type Cue =
   | 'win'
   | 'lose'
   | 'hint'
-  | 'coin';
+  | 'coin'
+  /* G'uncha: so'z qabul qilindi, pangramma, barglar aralashtirildi. */
+  | 'word_found'
+  | 'pangram'
+  | 'shuffle'
+  /* Jang: boshlanishi, durang va vaqt ogohlantirishi. */
+  | 'battle_start'
+  | 'draw'
+  | 'tick'
+  | 'time_warning';
 
 /** Tez-tez va zich chalinadigan, kichkina fayllar — taxta ochilishi
  *  bilan oldindan yuklanadi (jami ~65 KB). Birinchi harfning o'zi
@@ -48,9 +57,24 @@ const EAGER: Cue[] = [
   'reject',
 ];
 
+/** G'uncha taxtasining o'z ro'yxati: u yerda katak ham, qator ham
+ *  yo'q — so'z butunligicha qabul qilinadi. Shuning uchun taxta
+ *  ovozlari o'rniga shular oldindan yuklanadi. */
+const GUNCHA: Cue[] = ['key_tap', 'backspace', 'reject', 'word_found', 'shuffle'];
+
 /** Kam uchraydigan va og'irroqlari — ular birinchi bosishdan keyin
  *  yuklanadi: o'yin yakuniga hali vaqt bor. */
-const LAZY: Cue[] = ['win', 'lose', 'hint', 'coin'];
+const LAZY: Cue[] = [
+  'win',
+  'lose',
+  'hint',
+  'coin',
+  'draw',
+  'pangram',
+  'battle_start',
+  'tick',
+  'time_warning',
+];
 
 let context: AudioContext | null = null;
 const buffers = new Map<Cue, AudioBuffer>();
@@ -94,11 +118,11 @@ function preload(ctx: AudioContext, cues: Cue[]): void {
  *
  *  Bo'sh vaqtda: sahifa ochilishi va lug'at yuklanishi ovozdan
  *  muhimroq. */
-export function warmSounds(): void {
+export function warmSounds(board: 'soztop' | 'guncha' = 'soztop'): void {
   if (!currentSettings().sound) return;
   const ctx = audio();
   if (!ctx) return;
-  const start = () => preload(ctx, EAGER);
+  const start = () => preload(ctx, board === 'guncha' ? GUNCHA : EAGER);
   // Safari `requestIdleCallback` ni yaqinda qo'shdi — eskisida taymer.
   if (typeof window.requestIdleCallback === 'function') {
     window.requestIdleCallback(start, { timeout: 2000 });
@@ -115,6 +139,7 @@ export function unlockSounds(): void {
   if (!ctx) return;
   if (ctx.state === 'suspended') void ctx.resume();
   preload(ctx, EAGER);
+  preload(ctx, GUNCHA);
   preload(ctx, LAZY);
 }
 
@@ -163,4 +188,31 @@ export function playRow(verdicts: readonly string[]): () => void {
     ),
   );
   return () => timers.forEach((timer) => window.clearTimeout(timer));
+}
+
+/** O'yin tugashiga sanoq — oxirgi soniyalarda har soniyada bitta «tik».
+ *
+ *  Ilovadagi `EndingCountdown` ning aynan o'zi va bir xil qoida bilan:
+ *  **faqat pasayganda** chalinadi.
+ *
+ *  Ikki narsadan qo'riqlaydi. Soat server bilan sinxronlanadi va qolgan
+ *  vaqt bir lahzaga oshib ketishi mumkin; taymer esa aniq bir soniyada
+ *  kelmaydi, ya'ni bitta soniya ikki marta ko'rinishi ham mumkin.
+ *  Ikkalasida ham ovoz qaytarilmasligi kerak — bir xil soniyani ikki
+ *  marta aytgandan ko'ra, bittasini o'tkazib yuborgan yaxshi.
+ *
+ *  Nol — «tugadi», sanoq emas: o'sha paytda o'yinning o'z ovozi
+ *  (g'alaba yoki mag'lubiyat) chalinadi va tik uning ustiga
+ *  tushmasligi kerak.
+ *
+ *  Ishlatish: komponentda bir marta yasaladi (`useRef(countdown())`)
+ *  va taymerning har qadamida chaqiriladi. */
+export function countdown(from = 10): (left: number) => void {
+  let last = Infinity;
+  return (left: number) => {
+    if (left <= 0 || left > from) return;
+    if (left >= last) return;
+    last = left;
+    play('tick');
+  };
 }

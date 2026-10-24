@@ -42,6 +42,7 @@ import {
 } from './reactions';
 import { EMOJI, keyAction, lengthOf, normalize, split, type Verdict } from './uz';
 import { useSettings } from './settings';
+import { countdown, play, playRow, unlockSounds, warmSounds } from './sounds';
 import { gameKey } from './useScript';
 import { links, site } from '../data/site';
 import { stampSeconds } from './stamp';
@@ -343,6 +344,14 @@ export function useSozjang() {
   }, [endsAt]);
   const left = endsAt ? Math.max(0, Math.ceil(endsAt - now / 1000)) : 0;
 
+  /* Oxirgi o'n soniya — har soniyada bitta «tik» (ilovadagi
+     `EndingCountdown`). Sanoq faqat jang ketayotganda yuradi:
+     lobbida ham, natija ekranida ham `left` nol. */
+  const tick = useRef(countdown());
+  useEffect(() => {
+    tick.current(left);
+  }, [left]);
+
   // Jang hujjati hali kelmagan bo'lsa holat noma'lum — «yuklanmoqda».
   // Ilgari bu payt ham 'playing' deb hisoblanardi: jang ochilishi bilan
   // holat qisqa vaqt 'playing' bo'lib, hujjat kelgach 'waiting' ga
@@ -363,6 +372,32 @@ export function useSozjang() {
         : battle.status === 'waiting'
           ? 'waiting'
           : 'playing';
+
+  /* Jang ovozlari — ilovadagi `battle_page.dart` bilan bir xil
+     uchta lahza: boshlanish signali, yakun va yakunning turi.
+     
+     Oldingi holat `useRef` da saqlanadi, chunki ovoz **o'tish**
+     paytida chalinadi: `phase` har sekundda qayta hisoblanadi
+     (taymer `now` ni yangilaydi) va shartning o'zi har renderda
+     rost bo'lib turardi. */
+  const sounded = useRef<Phase | null>(null);
+  useEffect(() => {
+    const was = sounded.current;
+    sounded.current = phase;
+    if (was === null || was === phase) return;
+    if (phase === 'playing') {
+      warmSounds();
+      play('battle_start');
+      return;
+    }
+    if (phase !== 'finished') return;
+    /* Tiklangan jang allaqachon tugagan bo'lsa ovoz chalinmaydi:
+       odam natijani emas, lobbini ko'radi (quyidagi effekt uni
+       yopadi). */
+    if (restored.current) return;
+    const winner = battle?.winnerUid;
+    play(!winner ? 'draw' : winner === uid ? 'win' : 'lose');
+  }, [battle?.winnerUid, phase, uid]);
 
   /* Jang tugadi — reyting kartochkasi darhol qayta so'raladi.
    *
@@ -456,6 +491,9 @@ export function useSozjang() {
 
   const bump = useCallback(
     (text: string) => {
+      // Ilovadagi `Sounds.reject()` — qabul qilinmagan taxminning
+      // barcha sabablari shu yerdan o'tadi.
+      play('reject');
       setMessage(text);
       setShake(true);
       later(() => setShake(false), 420);
@@ -516,6 +554,9 @@ export function useSozjang() {
       // qatorga o'tadi (topilgan harflar o'zi tushadi).
       setFlipRow(next.length - 1);
       setTyped({ row: next.length, units: [] });
+      // Kataklar ketma-ket ochilib kichik kuy chaladi — odam
+      // ekranga qaramay ham nechtasi to'g'ri kelganini eshitadi.
+      if (pattern) playRow(verdictsOf(pattern));
       if (reply.hint) {
         setHint(reply.hint);
         bump(`Maslahat: ${reply.hint.index + 1}-katak`);
@@ -530,6 +571,8 @@ export function useSozjang() {
   const press = useCallback(
     (key: string) => {
       if (phase !== 'playing' || finished || busy) return;
+      // Brauzer sahifaga tegilmaguncha ovozga ruxsat bermaydi.
+      unlockSounds();
       if (key === 'enter') {
         void submit();
         return;
@@ -538,6 +581,7 @@ export function useSozjang() {
         edit((units) => {
           const index = lastTyped(units);
           if (index === -1) return units;
+          play('backspace');
           const next = [...units];
           next[index] = '';
           return next;
@@ -551,6 +595,7 @@ export function useSozjang() {
         bump('Katak to‘lgan');
         return;
       }
+      play('key_tap');
       edit((units) => {
         const next = [...units];
         next[slot] = key;

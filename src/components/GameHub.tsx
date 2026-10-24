@@ -21,6 +21,7 @@ import { useAuth } from '../lib/auth';
 import { dailyNumber } from '../lib/daily';
 import { useGameChoice } from '../lib/useGameChoice';
 import { useGameSwap } from '../lib/useGameSwap';
+import { warmSounds } from '../lib/sounds';
 import { useSozTop } from '../lib/useSozTop';
 import AdBanner from './AdBanner';
 import ArenaHistory from './ArenaHistory';
@@ -48,6 +49,12 @@ export default function GameHub({ game }: { game: HubGame }) {
   const soztop = useSozTop(choice, shown === 'soztop');
   const guncha = swap.guncha;
   const flower = swap.flower;
+
+  /* Ovoz fayllari taxta chiqishi bilan bo'sh vaqtda yuklanadi.
+     Qaysi ro'yxat — ko'rinib turgan o'yinga qarab: g'unchada katak
+     ham, qator ham yo'q, ya'ni taxta ohanglari u yerda kerak emas
+     (`lib/sounds.ts`). */
+  useEffect(() => warmSounds(flower ? 'guncha' : 'soztop'), [flower]);
 
   /* Ikkinchi o'yinning lug'ati fonda tayyorlanadi — almashganda
      «Lug'at yuklanmoqda…» chiqmasligi uchun. Ikkalasi ham bir marta

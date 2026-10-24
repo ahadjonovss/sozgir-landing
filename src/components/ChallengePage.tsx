@@ -17,6 +17,7 @@ import { useAuth } from '../lib/auth';
 import { askAppPromo } from '../lib/appPromo';
 import { challengeStats, isChallengeCode, type ChallengeStats } from '../lib/challenge';
 import { useChallenge } from '../lib/useChallenge';
+import { warmSounds } from '../lib/sounds';
 import { routeParam } from '../lib/useRoute';
 import { Board, Keyboard } from './Board';
 import DownloadPromo from './DownloadPromo';
@@ -176,6 +177,11 @@ export default function ChallengePage() {
    *  soniya ag'dariladi va ular 130 ms oralab boshlanadi
    *  (`landing.css`), ya'ni oxirgisi shuncha vaqtdan keyin
    *  tugaydi. */
+  /* Ovoz fayllari taxta chiqishi bilan bo'sh vaqtda yuklanadi —
+     shunda birinchi bosilgan harf ham ovozli bo'ladi
+     (`lib/sounds.ts`). */
+  useEffect(() => warmSounds(), []);
+
   const [over, setOver] = useState(false);
   useEffect(() => {
     if (!done) return setOver(false);
