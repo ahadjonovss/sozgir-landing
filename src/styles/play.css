@@ -6993,8 +6993,29 @@
    ustiga qo'yilgan va u ustun kengligini oladi; bu yerda esa qator
    `flex`, shuning uchun nuqtalar siqilib ketmasin deb aniq
    aytiladi. */
+/* Nuqtalar matn qatorining o'rtasida tursin.
+   Konteynerdagi `align-items: center` ham, `align-self: center`
+   ham yetmadi: nuqtalar ichida matn yo'q va quti baribir
+   matnning tayanch chizig'iga tiralardi — ular pastga tushib,
+   harflarga taqilib qolardi.
+
+   Shuning uchun boshqa yo'l: quti qatorning **butun balandligini**
+   oladi (`stretch`) va nuqtalar o'sha qutining ichida markazga
+   qo'yiladi. Bu hisobga emas, qutining o'lchamiga tayanadi —
+   shrift yoki qator balandligi o'zgarsa ham joyida qoladi. */
 .tnr-list__row .marks {
   flex: none;
+  display: inline-flex;
+  align-items: center;
+  align-self: center;
+  /* Qayerdandir tushayotgan tepa chekka nolga tushiriladi:
+     u 7 pikselli qutini qator ichida pastga suradi va nuqtalar
+     harflarga taqilib qolardi. */
+  margin: 0;
+  /* Quti matn qatori balandligida — nuqtalar uning o'rtasida.
+     Hisobga emas, o'lchamga tayanadi: shrift o'zgarsa ham
+     markazda qoladi. */
+  height: 1.4em;
 }
 
 .tnr-list__prize {
