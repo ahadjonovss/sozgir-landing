@@ -38,7 +38,8 @@ import ScoreRules from './ScoreRules';
 import SendInvite, { type InviteTarget } from './SendInvite';
 import { battleAqchaDelta } from '../lib/aqcha';
 import { AqchaDelta } from './Units';
-import { seriesOf, turnirPath } from '../lib/turnir';
+import { turnirPath } from '../lib/turnir';
+import { useSeries } from '../lib/useSeries';
 import { TurnirGroups, TurnirNext, TurnirWaiting } from './TurnirSide';
 import { useTurnirHop } from '../lib/useTurnir';
 import AdBanner from './AdBanner';
@@ -329,7 +330,7 @@ function Waiting({ game }: { game: GunchaJang }) {
   // Turnir guruhida kod ham, chaqiradigan odam ham yo'q — u yerda
   // butunlay boshqa ekran turadi. Tekshiruv **hook'lardan keyin**:
   // erta qaytish ularning tartibini buzardi.
-  const series = seriesOf(game.battle);
+  const series = useSeries(game.battle, game.battleId);
 
   const copy = async () => {
     if (!link) return;
@@ -408,7 +409,7 @@ function TurnirStage({
   game: GunchaJang;
   children: React.ReactNode;
 }) {
-  const series = seriesOf(game.battle);
+  const series = useSeries(game.battle, game.battleId);
   if (!series || !game.battleId) return <>{children}</>;
 
   return (
@@ -606,7 +607,7 @@ function Result({ game }: { game: GunchaJang }) {
   const place = game.arena.find((row) => row.mine)?.rank ?? 0;
   /** Turnir guruhi bo'lsa — o'z turniriga qaytish yo'li. Umumiy maydon
    *  bo'limi bu yerda noto'g'ri manzil: odam keyingi davrani kutyapti. */
-  const series = seriesOf(game.battle);
+  const series = useSeries(game.battle, game.battleId);
 
   /* Tugagan jang — Telegram guruhiga, So'zjangdagidek. Kalit jang
      raqami: natija ekrani qayta chizilsa ikkinchi xabar ketmaydi. */
@@ -858,7 +859,7 @@ function Result({ game }: { game: GunchaJang }) {
         {series ? (
           <a className="btn btn--sm" href={turnirPath(series)}>
             <Trophy size={14} />
-            Turnirga qaytish
+            Turnir jadvali
           </a>
         ) : (
           <button className="btn btn--sm btn--outline" onClick={game.again}>

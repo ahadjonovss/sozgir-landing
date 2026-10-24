@@ -23,14 +23,26 @@ function figure(
 ): { value: string; note: string } {
   if (game === 'guncha') {
     const score = row.player.score ?? 0;
-    // Poygaga xizmat qiladigan izoh: o'z kartochkamda **yetakchidan
-    // farq** turadi — o'yin davomidagi eng kerakli son shu. Raqibnikida
-    // esa topgan so'zlari soni: so'zning o'zi tayyor javob bo'lardi.
+    /* Poygaga xizmat qiladigan izoh: o'z kartochkamda **yetakchidan
+       farq** turadi — o'yin davomidagi eng kerakli son shu.
+       Raqibnikida esa topgan so'zlari soni: so'zning o'zi tayyor
+       javob bo'lardi.
+
+       Izoh so'z bilan yoziladi. Ilgari u sof son edi — «−5» — va
+       yonidagi kartochkalarda «14 so'z» turardi: ko'z ikkalasini
+       bir turkum deb o'qib, «minus besh so'z» degan ma'no
+       chiqarardi. Endi ikkalasi ham bir shaklda: son va uning
+       nimaligi.
+
+       «Yetakchisiz» ham almashtirildi: u ikki xil o'qilardi —
+       «siz yetakchisiz» ham, «yetakchi yo'q» ham. */
     if (row.mine) {
-      const delta = score - leader;
+      // Farq hech qachon musbat bo'lmaydi: `leader` — jadvaldagi
+      // birinchi odamning bali, ya'ni eng kattasi.
+      const behind = Math.max(0, leader - score);
       return {
         value: String(score),
-        note: delta === 0 ? 'yetakchisiz' : `${delta > 0 ? '+' : ''}${delta}`,
+        note: behind === 0 ? 'yetakchi' : `${behind} ortda`,
       };
     }
     return { value: String(score), note: `${row.player.wordCount ?? 0} so‘z` };
