@@ -41,6 +41,20 @@ import { useRoute } from '../lib/useRoute';
  *  chiqishi mumkin — ya'ni chegara kerak. */
 const COOLDOWN = 30_000;
 
+/** Birinchi banner sahifaning tepasidan shuncha pastda boshlanadi —
+ *  `play.css` dagi `.rails__one { top }` bilan bir xil. */
+const TOP = 100;
+
+/** Ustunning oxiri sahifaning tagidan shuncha yuqorida tugaydi:
+ *  pastdagi banner footer bilan yonma-yon turmasligi kerak. */
+const FOOT = 520;
+
+/** Bitta ustunda shuncha bannerdan ortiq chizilmaydi.
+ *
+ *  Chegara moderatsiya uchun: sahifa qancha uzun bo'lmasin,
+ *  reklama soni kontentdan oshib ketmasligi kerak. */
+const MAX = 4;
+
 export default function SideAds() {
   const route = useRoute();
 
@@ -83,13 +97,59 @@ export default function SideAds() {
     setKey((n) => n + 1);
   }, [route]);
 
+  /* Nechta banner chiziladi — **sahifaning bo'yiga** qarab.
+   *
+   *  Ustun endi ekranga yopishtirilmagan, sahifa bilan birga
+   *  suriladi: bitta banner tepada qolib, undan pastdagi butun
+   *  bo'shliq — ba'zi sahifalarda bir necha ekran bo'yi — quruq
+   *  qolardi. Shuning uchun ular pastga qarab taqsimlanadi.
+   *
+   *  Oraliq bitta ekran bo'yi: surilayotgan odamning ko'z oldida
+   *  bir vaqtning o'zida bittadan ortiq banner turmaydi. */
+  const [slots, setSlots] = useState(1);
+  /** Ustunning bo'yi — sahifanikiga teng (pastda bir oz hoshiya).
+   *  Bannerlar shu bo'y bo'ylab teng taqsimlanadi, ya'ni oxirgisi
+   *  sahifaning oxirida turadi, hammasi tepada to'planib qolmaydi. */
+  const [tall, setTall] = useState(0);
+
+  useEffect(() => {
+    const measure = () => {
+      const page = document.documentElement.scrollHeight;
+      const step = window.innerHeight;
+      setTall(Math.max(0, page - TOP - FOOT));
+      /* `TOP` — birinchi bannergacha bo'lgan masofa (`play.css`).
+         Qolgan bo'yga nechta oraliq sig'sa — shuncha banner, lekin
+         `MAX` dan oshmaydi: uzun sahifada reklama soni kontentdan
+         oshib ketishi Yandex moderatsiyasida rad etish sabablaridan
+         biri. */
+      const fit = Math.floor((page - TOP) / step);
+      setSlots(Math.max(1, Math.min(MAX, fit)));
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    /* Sahifaning bo'yi keyin ham o'zgaradi: ro'yxatlar yuklanadi,
+       jang boshlanadi, tab almashadi. */
+    const watch = new ResizeObserver(measure);
+    watch.observe(document.body);
+    return () => {
+      window.removeEventListener('resize', measure);
+      watch.disconnect();
+    };
+  }, [route]);
+
+  const list = Array.from({ length: slots }, (_, index) => index);
+
   return (
     <div className="rails">
-      <div className="rails__one rails__one--left">
-        <AdBanner key={`l${key}`} placement="game" />
+      <div className="rails__one rails__one--left" style={{ height: tall || undefined }}>
+        {list.map((index) => (
+          <AdBanner key={`l${key}-${index}`} placement="game" />
+        ))}
       </div>
-      <div className="rails__one rails__one--right">
-        <AdBanner key={`r${key}`} placement="guncha" />
+      <div className="rails__one rails__one--right" style={{ height: tall || undefined }}>
+        {list.map((index) => (
+          <AdBanner key={`r${key}-${index}`} placement="guncha" />
+        ))}
       </div>
     </div>
   );

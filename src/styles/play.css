@@ -7681,23 +7681,30 @@
     /* Taxtadan past: markazdagi ustun bilan hech qachon
        to'qnashmaydi. */
     z-index: 1;
-    /* Blok **lenta** formatida bo'lishi mumkin: bitta banner o'rniga
-       uch-to'rtta reklamani ustma-ust chizadi va ustun ekrandan ikki
-       tomonga toshib ketadi. Balandlik varaq bo'yiga cheklanadi,
-       sig'magani esa kesiladi — chetdagi ustun sahifani boshqarmasligi
-       kerak. */
-    max-height: calc(100vh - 124px);
-    overflow: hidden;
+    /* Bannerlar pastga qarab taqsimlanadi (`SideAds`), oralari esa
+       bitta ekran bo'yi: surilayotgan odamning ko'z oldida bir
+       vaqtda bittadan ortiq reklama turmaydi. */
+    display: grid;
+    /* Qatorlar teng taqsimlanadi: ustunning bo'yi sahifanikiga teng
+       qilib berilgan (`SideAds`), ya'ni oxirgi banner sahifaning
+       oxirida turadi. `auto` qatorlar — har biri o'z bo'yicha. */
+    grid-auto-rows: max-content;
+    align-content: space-between;
+    /* Eng kam oraliq: ikkita banner bir ekranga tushib qolmasin. */
+    gap: 320px;
+    /* Ustun endi sahifa bilan suriladi, ya'ni uni ekran bo'yiga
+       cheklash shart emas: avvalgi `max-height` `fixed` holat uchun
+       edi va endi u pastdagi bannerlarni butunlay kesib tashlardi. */
   }
 
   /* Markazdan hisoblanadi: o'rtadagi ustunning chekkasi `50% - 490px`,
      undan 32px hoshiya va banner enining o'zi. */
   .rails__one--left {
-    right: calc(50% + 490px + 32px);
+    right: calc(50% + 490px + 24px);
   }
 
   .rails__one--right {
-    left: calc(50% + 490px + 32px);
+    left: calc(50% + 490px + 24px);
   }
 
   /* Chetdagi banner **baland** bo'ladi.
@@ -7716,14 +7723,22 @@
   }
 }
 
-/* Katta monitorda en ham oshadi: 300px — vertikal bannerning eng
-   ko'p uchraydigan o'lchami va unga talab 240px likdan sezilarli
-   ko'p. Chegara shu kenglikdan boshlanadi, chunki ustun markazdan
-   522px da boshlanadi va 300px ga joy aynan shundan keyin yetadi
-   (880 − 522 = 358). */
-@media (min-width: 1760px) {
+/* Keng monitorda banner ham kengayadi: 300px va 336px — vertikal
+   reklamaning eng ko'p uchraydigan ikki o'lchami, ya'ni ularga talab
+   240px likdan sezilarli ko'p va narxi ham yuqoriroq.
+
+   Chegaralar o'lchovdan chiqqan: ustun markazdan 514px da boshlanadi
+   (490px taxta + 24px hoshiya), shuning uchun 300px ga ekran yarmi
+   814px, 336px ga esa 850px bo'lishi kerak. */
+@media (min-width: 1640px) {
   .rails__one {
     width: 300px;
+  }
+}
+
+@media (min-width: 1710px) {
+  .rails__one {
+    width: 336px;
   }
 }
 
