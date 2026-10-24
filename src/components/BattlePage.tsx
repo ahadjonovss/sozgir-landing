@@ -45,7 +45,8 @@ import OpponentBoard from './OpponentBoard';
 import ArenaStandings from './ArenaStandings';
 import ArenaTiles from './ArenaTiles';
 import { routeCode } from '../lib/useRoute';
-import { seriesOf, turnirPath } from '../lib/turnir';
+import { turnirPath } from '../lib/turnir';
+import { useSeries } from '../lib/useSeries';
 import { TurnirGroups, TurnirNext, TurnirWaiting } from './TurnirSide';
 import { useTurnirHop } from '../lib/useTurnir';
 import { useLiveStage } from '../lib/stage';
@@ -388,7 +389,7 @@ function Waiting({ game }: { game: Sozjang }) {
   // Turnir guruhida kod ham, chaqiradigan odam ham yo'q — u yerda
   // butunlay boshqa ekran turadi. Tekshiruv **hook'lardan keyin**:
   // erta qaytish ularning tartibini buzardi.
-  const series = seriesOf(game.battle);
+  const series = useSeries(game.battle, game.battleId);
 
   async function copyCode() {
     try {
@@ -489,7 +490,7 @@ function TurnirStage({
   game: Sozjang;
   children: React.ReactNode;
 }) {
-  const series = seriesOf(game.battle);
+  const series = useSeries(game.battle, game.battleId);
   if (!series || !game.battleId) return <>{children}</>;
 
   return (
@@ -873,7 +874,7 @@ function Result({ game }: { game: Sozjang }) {
   /** Turnir guruhi bo'lsa — o'z turniriga qaytish yo'li. Umumiy maydon
    *  bo'limi bu yerda noto'g'ri manzil: odam turnirning keyingi
    *  davrasini kutyapti. */
-  const series = seriesOf(game.battle);
+  const series = useSeries(game.battle, game.battleId);
 
   /* Tugagan jang — Telegram guruhiga. Yakka o'yinni `Play` yozadi,
      onlayn o'yinlar esa shu paytgacha umuman yozilmasdi: guruhda
@@ -1176,7 +1177,7 @@ function Result({ game }: { game: Sozjang }) {
         {series && (
           <a className="btn" href={turnirPath(series)}>
             <Trophy size={16} />
-            Turnirga qaytish
+            Turnir jadvali
           </a>
         )}
         {game.mardu && !series && (
@@ -1261,6 +1262,10 @@ function Result({ game }: { game: Sozjang }) {
 export default function BattlePage() {
   const game = useSozjang();
   const intro = useIntro(game.phase, game.battleId);
+  /** Turnir davrasimi. Kutish kartochkasidagi tugma shunga qarab
+   *  o'zgaradi: turnirda «keyingi jang» degan narsa yo'q — davrani
+   *  turnirning o'zi ochadi. */
+  const series = useSeries(game.battle, game.battleId);
   // Turnir guruhida o'ynagan odamni keyingi davra o'zi olib ketadi:
   // natija ekranida o'tirgan odam turnir hujjatini kuzatmaydi.
   useTurnirHop(game.battleId, game.battle);
@@ -1348,16 +1353,28 @@ export default function BattlePage() {
                       {game.me.won ? 'Topdingiz!' : 'Urinishlar tugadi.'} Raqib o‘ynab
                       bo‘lishini kutamiz…
                     </p>
-                    {/* Kutishni to'xtatib, darhol yangi jangga o'tish.
-                        Bu yerda odamning qiladigan ishi qolmagan:
-                        urinishlari tugagan yoki so'zni topgan, natija
-                        esa raqibga bog'liq. Kutishni xohlamasa — ketsin;
-                        jangning natijasi baribir yoziladi va janglar
-                        tarixida chiqadi. */}
-                    <button className="btn btn--sm" onClick={() => void game.again()}>
-                      <Swords size={16} />
-                      Keyingi jang
-                    </button>
+                    {/* Turnirda «Keyingi jang» noto'g'ri javob: keyingi
+                        jangni odam tanlamaydi, uni davra ochadi. O'rniga
+                        jadval — o'zining o'rni, boshqa guruhlardagi
+                        holat va keyingi davragacha qancha qolgani
+                        o'sha yerda turadi.
+
+                        Turnirdan tashqarida esa tugma o'z ma'nosida:
+                        odamning qiladigan ishi qolmagan — urinishlari
+                        tugagan yoki so'zni topgan, natija esa raqibga
+                        bog'liq. Kutishni xohlamasa ketsin; jang
+                        natijasi baribir yoziladi. */}
+                    {series ? (
+                      <a className="btn btn--sm" href={turnirPath(series)}>
+                        <Trophy size={16} />
+                        Turnir jadvali
+                      </a>
+                    ) : (
+                      <button className="btn btn--sm" onClick={() => void game.again()}>
+                        <Swords size={16} />
+                        Keyingi jang
+                      </button>
+                    )}
                   </div>
                 ) : (
                   <div className="jang__keys">
