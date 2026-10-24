@@ -7040,12 +7040,64 @@
 }
 
 /* Tarixdagi kubok ham o'sha rangda. */
+/* ── Telefon: o'ynash bo'limining birinchi ekrani ──────────────────── */
+
+/* Muammo o'lchangan: 375px lik ekranda birinchi qiladigan ish —
+   turnir ochish formasi yoki ochiq xonalar — 540px dan pastda
+   boshlanardi, ya'ni odam sahifani ochib, avval **surishi** kerak
+   edi. Ustidagi uch qavat (aqcha kartochkasi, tablar, bo'lim
+   tanishtiruvi) hech narsa qildirmaydi: ular aytadi, xolos.
+   
+   Shuning uchun telefonda uchalasi ham siqiladi. Hech narsa
+   olib tashlanmadi — faqat ovozi pasaydi. */
+@media (max-width: 560px) {
+  .rating--compact {
+    gap: 12px;
+    padding: 12px 14px;
+  }
+
+  .rating--compact .rating__value {
+    font-size: 24px;
+  }
+
+  .rating--compact .rating__stats li {
+    padding: 8px 4px;
+  }
+
+  /* To'rtta tab ikki qatorga tushadi — bu joyida: nomlar uzun va
+     bitta qatorga sig'dirsak, ularni o'qib bo'lmasdi. Lekin har
+     biri pastroq bo'lishi mumkin. */
+  .hub-tab {
+    padding: 9px 12px;
+    font-size: 14px;
+    gap: 6px;
+  }
+
+  .lobby__head h1 {
+    font-size: 22px;
+  }
+
+  .lobby__note {
+    font-size: 13.5px;
+  }
+}
+
 /* ── Turnir bo'limi: bitta ustun, ichida qatorlar ───────────────────── */
 
 .tnr-hub {
   display: grid;
   gap: 18px;
   padding-top: 4px;
+}
+
+/* Grid bolasining eng kichik eni odatda **ichidagi narsa** bilan
+   belgilanadi (`min-width: auto`). Ochiq turnirlar qatori esa
+   suriladigan qilingan, ya'ni uning ichi ekrandan kengroq bo'lishi
+   mumkin — va shu kenglik butun ustunni, u orqali sahifani
+   cho'zib yuborardi: telefonda varaq 940px bo'lib, hamma narsa
+   yon tomonga surilardi. */
+.tnr-hub > * {
+  min-width: 0;
 }
 
 /* Ikki teng yarim: chapda qiladigan ish, o'ngda — ikkinchisi.
@@ -7055,6 +7107,11 @@
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 16px;
   align-items: start;
+  min-width: 0;
+}
+
+.tnr-hub__row > * {
+  min-width: 0;
 }
 
 @media (max-width: 860px) {
@@ -7074,6 +7131,7 @@
 /* ── Ochiq turnirlar qatori ─────────────────────────────────────────── */
 
 .tnr-open__row {
+  min-width: 0;
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: minmax(210px, 1fr);
