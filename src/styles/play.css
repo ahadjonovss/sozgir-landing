@@ -6939,6 +6939,15 @@
   white-space: nowrap;
 }
 
+/* Davralar izi tarix qatorida ham — yakuniy jadvaldagi
+   nuqtalarning o'zi. `.marks` o'sha yerda `.standings__score`
+   ustiga qo'yilgan va u ustun kengligini oladi; bu yerda esa qator
+   `flex`, shuning uchun nuqtalar siqilib ketmasin deb aniq
+   aytiladi. */
+.tnr-list__row .marks {
+  flex: none;
+}
+
 .tnr-list__prize {
   color: var(--yellow);
   font-size: 13px;

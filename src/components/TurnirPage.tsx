@@ -447,9 +447,24 @@ function HistoryList({ turnir }: { turnir: Turnir }) {
   return (
     <div className="panel tnr-list">
       <h3>Turnirlar tarixi</h3>
+      {/* Qatorda **o'z** natijam turadi, g'olibning ismi emas.
+          Ilgari «8 kishi · g'olib: Alisher Rasulov» yozilardi va
+          odam o'z tarixini ochib birovning ismini o'qirdi: o'zi
+          nechanchi bo'lgani, qancha ishlagani va turnirni qanday
+          o'tgani ko'rinmasdi. G'olib esa jadvalning o'zida,
+          birinchi qatorda turibdi — ro'yxatda takrorlashning
+          ma'nosi yo'q.
+
+          Uch narsa: o'rin, davralar izi (yakuniy jadvaldagi
+          nuqtalarning o'zi) va ishlangan aqcha. */}
       <ul className="tnr-list__items">
         {turnir.history.map((row) => {
-          const mine = row.winnerUid && row.winnerUid === turnir.mine;
+          const uid = turnir.mine;
+          /* O'rin — yakuniy tartibdan (`order`). Tugamagan yoki
+             tashlab ketilgan turnirda u bo'lmaydi; o'shanda
+             o'rin ham yozilmaydi. */
+          const place = uid ? (row.doc.order ?? []).indexOf(uid) + 1 : 0;
+          const earned = uid ? (earnedBy(row.doc, uid) ?? 0) : 0;
           return (
             <li key={row.code}>
               <a className="tnr-list__row" href={turnirPath(row.code)}>
@@ -457,12 +472,15 @@ function HistoryList({ turnir }: { turnir: Turnir }) {
                 <span className="tnr-list__main">
                   <b>{row.title || 'Turnir'}</b>
                   <span>
-                    {row.players} kishi ·{' '}
-                    {mine ? 'siz g‘olib' : `g‘olib: ${row.winnerName}`}
+                    {row.players} kishi
+                    {place > 0 && ` · ${place}-o‘rin`}
                   </span>
                 </span>
-                {mine && row.prize > 0 && (
-                  <span className="tnr-list__prize">+{row.prize} aqcha</span>
+                {uid && <RoundMarks doc={row.doc} uid={uid} />}
+                {earned !== 0 && (
+                  <span className="tnr-list__prize">
+                    <AqchaDelta value={earned} />
+                  </span>
                 )}
               </a>
             </li>
