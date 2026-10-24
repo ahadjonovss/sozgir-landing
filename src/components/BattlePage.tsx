@@ -44,12 +44,13 @@ import Modal from './Modal';
 import OpponentBoard from './OpponentBoard';
 import ArenaStandings from './ArenaStandings';
 import ArenaTiles from './ArenaTiles';
-import { routeParam } from '../lib/useRoute';
+import { routeCode } from '../lib/useRoute';
 import { seriesOf, turnirPath } from '../lib/turnir';
 import { TurnirGroups, TurnirNext, TurnirWaiting } from './TurnirSide';
 import { useTurnirHop } from '../lib/useTurnir';
 import { useLiveStage } from '../lib/stage';
 import { trackOnce } from '../lib/track';
+import { stampMs, type Stamp } from '../lib/stamp';
 
 /** Havoladagi kod — chaqiruvni bosib kelgan odam uchun.
  *
@@ -58,7 +59,7 @@ import { trackOnce } from '../lib/track';
  *  esa shu sahifani) va saytning o'z `?kod=AB12CD` si. */
 function codeFromUrl(): string {
   const value =
-    routeParam() || (new URLSearchParams(window.location.search).get('kod') ?? '');
+    routeCode() || (new URLSearchParams(window.location.search).get('kod') ?? '');
   return value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
 }
 
@@ -345,8 +346,8 @@ const FUSE_URGENT_AT = 20;
  *  oxirgi 20 soniyada qizaradi — tugab borayotganini rang va shakl bilan
  *  aytadi. Muddat jang hujjatidagi `expiresAt` dan: server bilan bir xil
  *  soat, sahifa yangilansa ham to'g'ri joydan davom etadi. */
-function JoinFuse({ expiresAt }: { expiresAt?: { seconds?: number } | null }) {
-  const endsAt = expiresAt?.seconds ? expiresAt.seconds * 1000 : null;
+function JoinFuse({ expiresAt }: { expiresAt?: Stamp }) {
+  const endsAt = stampMs(expiresAt);
   // Soat sekundlab yuradi, qolgan vaqt esa renderda hisoblanadi — muddat
   // (hujjatdan kelgan `expiresAt`) o'zgarsa ham alohida holat kerak emas.
   const [now, setNow] = useState(() => Date.now());

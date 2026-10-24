@@ -12,7 +12,7 @@
  *  esa o'sha turnir kuzatiladi. Manzildagi kod ikkisini ajratadi. */
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../lib/auth';
-import { routeParam } from '../lib/useRoute';
+import { routeCode } from '../lib/useRoute';
 import { useTurnir, type Turnir } from '../lib/useTurnir';
 import {
   cleanCode,
@@ -49,7 +49,7 @@ const GAMES: { id: BattleGame; label: string }[] = [
 export default function TurnirPage() {
   // Manzil o'zgarganda `App` qayta chiziladi, ya'ni kod shu yerda
   // o'qilsa yetadi — alohida holat kerak emas.
-  const code = cleanCode(routeParam());
+  const code = cleanCode(routeCode());
   const turnir = useTurnir(code);
   const { account } = useAuth();
 

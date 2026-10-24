@@ -18,7 +18,7 @@ import { useAuth } from '../lib/auth';
 import { useMardu, type Mardu } from '../lib/useMardu';
 import { marduLink, MARDU_CAPACITY, MARDU_MIN_PLAYERS } from '../lib/mardu';
 import type { BattleGame } from '../lib/battle';
-import { routeParam } from '../lib/useRoute';
+import { routeCode } from '../lib/useRoute';
 import AccountCall from './AccountCall';
 import AdBanner from './AdBanner';
 import ArenaHistory from './ArenaHistory';
@@ -31,7 +31,7 @@ import { Check, Copy, Swords, Users } from './Icons';
 
 /** Havoladagi kod: `/maydon/AB12CD` — ilova ulashadigan manzil. */
 function codeFromUrl(): string {
-  const fromPath = routeParam();
+  const fromPath = routeCode();
   const fromQuery = new URLSearchParams(window.location.search).get('kod') ?? '';
   return (fromPath || fromQuery)
     .toUpperCase()

@@ -29,13 +29,13 @@ const routes: readonly string[] = PAGES.map((page) => page.path);
  *  Har birining `vercel.json` da o'z qoidasi bor: aks holda manzil
  *  bo'sh `index.html` ni olib, robotga bosh sahifaning matnini
  *  ko'rsatardi. */
-const PARAM_ROUTES: { prefix: string; route: Route }[] = [
+const PARAM_ROUTES: { prefix: string; route: Route; tab?: boolean }[] = [
   { prefix: '/oyinchi/', route: '/oyinchi' },
   /* Tanlangan o'yin — `/oynash/maydon`. Sahifa o'sha bo'lib qoladi,
      parametr esa qaysi tab ochiqligini aytadi (`PlayHub`). Shu sababli
      «ortga» tugmasi tabni qaytaradi va tanlangan o'yinga havola
      yuborish mumkin. */
-  { prefix: '/oynash/', route: '/oynash' },
+  { prefix: '/oynash/', route: '/oynash', tab: true },
   /* Shikoyatning ikki turi bitta sahifada: `ReportPage` turini
      yo'lning o'zidan o'qiydi (`/shikoyat/soz/...` yoki
      `/shikoyat/oyinchi/...`). Uzunroq prefiks oldinroq turadi —
@@ -49,13 +49,15 @@ const PARAM_ROUTES: { prefix: string; route: Route }[] = [
   { prefix: '/soztop/', route: '/soztop' },
 ];
 
-function paramRouteOf(path: string): { route: Route; value: string } | null {
-  for (const { prefix, route } of PARAM_ROUTES) {
+function paramRouteOf(
+  path: string,
+): { route: Route; value: string; tab?: boolean } | null {
+  for (const { prefix, route, tab } of PARAM_ROUTES) {
     if (!path.startsWith(prefix) || path.length <= prefix.length) continue;
     try {
-      return { route, value: decodeURIComponent(path.slice(prefix.length)) };
+      return { route, value: decodeURIComponent(path.slice(prefix.length)), tab };
     } catch {
-      return { route, value: '' };
+      return { route, value: '', tab };
     }
   }
   return null;
@@ -65,6 +67,29 @@ function paramRouteOf(path: string): { route: Route; value: string } | null {
 export function routeParam(): string {
   const path = window.location.pathname.replace(/\/+$/, '') || '/';
   return paramRouteOf(path)?.value ?? '';
+}
+
+/** Manzildagi **kod yoki hisob raqami** — chaqiriq havolalaridan
+ *  (`/maydon/AB12CD`, `/turnir/4N3GS`, `/jang/XY7Q2`).
+ *
+ *  `routeParam` dan farqi bitta, lekin u qimmatga tushdi: tab
+ *  manzilida (`/oynash/turnir`) bo'sh qaytaradi.
+ *
+ *  Sabab shu edi: `/oynash/{o'yin}` ham parametrli manzil va undagi
+ *  parametr — **tab nomi**, kod emas. Tab ichida ochiladigan
+ *  sahifalar (`MarduPage`, `TurnirPage`, `BattlePage`) esa o'sha
+ *  parametrni o'qib, uni chaqiriq kodi deb olardi. Nomlar uzunligi
+ *  ham xuddi kodnikidek: «maydon» va «turnir» — oltita harf, ya'ni
+ *  tekshiruvdan ham o'tib ketardi. Natijada `/oynash/turnir`
+ *  ochilganda ekranda «Bu kod bilan turnir topilmadi» chiqardi va
+ *  odamning o'z turniri ko'rinmay qolardi.
+ *
+ *  Kod kutayotgan har joy shu funksiyani chaqiradi, `routeParam` ni
+ *  emas. */
+export function routeCode(): string {
+  const path = window.location.pathname.replace(/\/+$/, '') || '/';
+  const found = paramRouteOf(path);
+  return found && found.tab !== true ? found.value : '';
 }
 
 /** Ilova ulashadigan kunlik havola — o'sha o'yin sahifasi.
