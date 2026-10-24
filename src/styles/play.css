@@ -6911,6 +6911,34 @@
   flex: none;
 }
 
+/* O'yin rangi — saytning qolgan joyidagi bilan bir xil
+   (`data/site.ts` dagi modullar: So'zjang to'q sariq, G'uncha
+   ko'kimtir yashil). Ikkala ro'yxatda ham turnirlar bir xil
+   ko'rinardi va ularni faqat matnni o'qib ajratish mumkin edi. */
+.tnr-list__dot--soztop {
+  background: var(--orange);
+}
+
+.tnr-list__dot--guncha {
+  background: var(--teal);
+}
+
+/* Tarixdagi kubok ham o'sha rangda. */
+.tnr-list__icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  color: var(--text-2);
+}
+
+.tnr-list__icon--soztop {
+  color: var(--orange);
+}
+
+.tnr-list__icon--guncha {
+  color: var(--teal);
+}
+
 .tnr-list__main {
   display: grid;
   gap: 2px;

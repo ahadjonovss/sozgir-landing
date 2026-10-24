@@ -415,7 +415,10 @@ function OpenList({ turnir }: { turnir: Turnir }) {
         {turnir.open.map((row) => (
           <li key={row.code}>
             <a className="tnr-list__row" href={turnirPath(row.code)}>
-              <span className="tnr-list__dot" aria-hidden="true" />
+              <span
+                className={`tnr-list__dot tnr-list__dot--${row.game}`}
+                aria-hidden="true"
+              />
               <span className="tnr-list__main">
                 <b>{row.title || 'Turnir'}</b>
                 <span>
@@ -468,7 +471,13 @@ function HistoryList({ turnir }: { turnir: Turnir }) {
           return (
             <li key={row.code}>
               <a className="tnr-list__row" href={turnirPath(row.code)}>
-                <Trophy size={16} />
+                {/* Kubok o'yin rangida: So'zjang va G'uncha ikkala
+                    ro'yxatda ham bir xil ko'rinardi va ularni faqat
+                    matnni o'qib ajratish mumkin edi. Rang bir
+                    qarashda aytadi. */}
+                <span className={`tnr-list__icon tnr-list__icon--${row.game}`}>
+                  <Trophy size={16} />
+                </span>
                 <span className="tnr-list__main">
                   <b>{row.title || 'Turnir'}</b>
                   <span>

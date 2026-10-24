@@ -296,6 +296,14 @@ interface ApiFull {
   seeds?: unknown;
   order?: unknown;
   points?: unknown;
+  /** Har kim turnirda ishlagan aqcha — guruh janglari yig'indisi. */
+  aqcha?: unknown;
+  /** Sovrinli uchlik va ularning ustamasi. */
+  runnerUpUid?: unknown;
+  thirdUid?: unknown;
+  prize?: unknown;
+  runnerUpPrize?: unknown;
+  thirdPrize?: unknown;
   isFinalRound?: unknown;
   groups?: unknown;
   ladder?: unknown;
@@ -339,6 +347,18 @@ function docOf(full: ApiFull): TurnirDoc {
     seeds: strings(full.seeds),
     order: strings(full.order),
     points: (full.points ?? {}) as Record<string, number>,
+    /* Aqcha va ustamalar. Ular ro'yxatdan tushib qolgan edi: server
+       ularni `turnirFull` da baribir yuboradi, bu yerdagi mapper
+       esa maydonlarni qo'lda sanaydi va nomi aytilmagani o'tmaydi.
+       Natijada `earnedBy` har doim `null` qaytarardi — yakuniy
+       jadvalda ham, tarixda ham aqcha o'rnida «—» turardi. */
+    aqcha: (full.aqcha ?? {}) as Record<string, number>,
+    runnerUpUid: typeof full.runnerUpUid === 'string' ? full.runnerUpUid : undefined,
+    thirdUid: typeof full.thirdUid === 'string' ? full.thirdUid : undefined,
+    prize: typeof full.prize === 'number' ? full.prize : undefined,
+    runnerUpPrize:
+      typeof full.runnerUpPrize === 'number' ? full.runnerUpPrize : undefined,
+    thirdPrize: typeof full.thirdPrize === 'number' ? full.thirdPrize : undefined,
     final: full.isFinalRound === true,
     groups: list(full.groups).map((row) => {
       const group = row as { battleId?: unknown; uids?: unknown; done?: unknown };
