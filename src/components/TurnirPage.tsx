@@ -23,6 +23,9 @@ import {
   playerCount,
   turnirPath,
   type TurnirCapacity,
+  roundMarksOf,
+  type RoundMark,
+  type TurnirDoc,
 } from '../lib/turnir';
 import { punchline } from '../lib/shareLines';
 import { shareCardImage } from '../lib/shareCard';
@@ -526,6 +529,36 @@ function Winner({ turnir }: { turnir: Turnir }) {
   );
 }
 
+/** Davralar izi — har davra uchun bitta nuqta.
+ *
+ *  Yashil — guruhini yutdi, qizil — oxirgi bo'ldi, kulrang —
+ *  oralig'ida. So'lg'uni o'ynamagan davra: nuqta baribir qoladi,
+ *  aks holda qatorlar bir-biriga nisbatan qisqarib ketardi va
+ *  davralarni ko'z bilan solishtirib bo'lmasdi. */
+function RoundMarks({ doc, uid }: { doc: TurnirDoc | null | undefined; uid: string }) {
+  const marks = roundMarksOf(doc, uid);
+  if (marks.length === 0) return <span className="standings__score" />;
+
+  const TITLE: Record<RoundMark, string> = {
+    won: 'guruhida birinchi',
+    mid: 'o‘rtada',
+    lost: 'guruhida oxirgi',
+    none: 'o‘ynamadi',
+  };
+
+  return (
+    <span className="standings__score marks">
+      {marks.map((mark, index) => (
+        <i
+          key={index}
+          className={`marks__dot marks__dot--${mark}`}
+          title={`${index + 1}-davra — ${TITLE[mark]}`}
+        />
+      ))}
+    </span>
+  );
+}
+
 /** Yakuniy jadval — turnirning **javobi**.
  *
  *  To'r har davrani alohida ko'rsatadi, lekin «men nechanchi
@@ -562,9 +595,13 @@ function FinalTable({ turnir }: { turnir: Turnir }) {
                   <PlayerName uid={uid} name={memberName(doc, uid)} size={14} />
                 </span>
               </a>
-              <span className="standings__score">
-                {doc?.points?.[uid] ?? 0} ochko
-              </span>
+              {/* Ochko o'rniga **davralar izi** — ilovadagidek.
+                  Ochko chalg'itardi: o'rinni yakunda final
+                  belgilaydi, ya'ni ikkinchi qatordagi odamning
+                  ochkosi birinchinikidan ko'p bo'lib chiqishi
+                  mumkin. Iz esa «bu odam turnirni qanday o'tdi»
+                  degan savolga bir qarashda javob beradi. */}
+              <RoundMarks doc={doc} uid={uid} />
               {/* Ikkala katak **har doim** chiziladi, hatto bo'sh
                   bo'lsa ham: biri tushib qolsa qolgan ustunlar
                   siljib, jadval zinapoyaga aylanardi. */}

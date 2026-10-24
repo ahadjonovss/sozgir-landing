@@ -519,6 +519,45 @@ export const turnirPath = (code: string) => `/turnir/${code.toUpperCase()}`;
 export const cleanCode = (value: string) =>
   value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, TURNIR_CODE_LENGTH);
 
+/** Davralar izidagi bitta nuqta. */
+export type RoundMark =
+  /** Guruhini yutdi. */
+  | 'won'
+  /** O'rtada tugatdi — na birinchi, na oxirgi. */
+  | 'mid'
+  /** Guruhida oxirgi bo'ldi. */
+  | 'lost'
+  /** Shu davrada o'ynamagan: guruhi yozilmagan yoki o'tkazib
+   *  yuborilgan. Nuqta qoladi, lekin so'lg'un — qatorlar
+   *  bir-biriga nisbatan qisqarib ketmasin. */
+  | 'none';
+
+/** Odamning davralar bo'yicha izi — ilovadagi `_marksOf` ning o'zi.
+ *
+ *  Uch kishilik guruhda o'rta qator ham bo'ladi, ikki kishilikda esa
+ *  faqat yashil va qizil: o'rta o'rin yo'q. Shuning uchun qoida
+ *  o'rinning **chekkaligi** bo'yicha, qat'iy songa emas.
+ *
+ *  Oxirgi o'rin guruh o'lchamidan emas, eng katta `rank` dan
+ *  olinadi: teng natijada ikki kishi bitta o'rinni bo'lishadi va
+ *  o'shanda hech kim oxirgi bo'lmaydi. */
+export function roundMarksOf(doc: TurnirDoc | null | undefined, uid: string): RoundMark[] {
+  const marks: RoundMark[] = [];
+  for (const round of doc?.ladder ?? []) {
+    let mark: RoundMark = 'none';
+    for (const group of round.groups ?? []) {
+      const standings = group.standings ?? [];
+      const seat = standings.find((row) => row.uid === uid);
+      if (!seat) continue;
+      const last = standings.reduce((top, row) => (row.rank > top ? row.rank : top), 0);
+      mark = seat.rank === 1 ? 'won' : seat.rank === last ? 'lost' : 'mid';
+      break;
+    }
+    marks.push(mark);
+  }
+  return marks;
+}
+
 // ── Zinapoya ───────────────────────────────────────────────────────────
 
 /** Turnir necha davradan iborat (8 → 3, 16 → 4, 32 → 5).

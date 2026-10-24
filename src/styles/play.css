@@ -4964,6 +4964,42 @@
   white-space: nowrap;
 }
 
+/* Davralar izi — har davra uchun bitta nuqta.
+   Ochkoning o'rnida turadi, shuning uchun `.standings__score`
+   ustiga qo'yiladi: ustunning kengligi va joylashuvi o'sha. */
+.marks {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.marks__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  /* Kulrang — oraliq o'rin. Qolgan uchtasi shuning ustiga yoziladi. */
+  background: var(--text-2);
+  opacity: 0.55;
+}
+
+.marks__dot--won {
+  background: var(--green);
+  opacity: 1;
+}
+
+.marks__dot--lost {
+  background: var(--danger);
+  opacity: 1;
+}
+
+/* O'ynamagan davra: nuqta qoladi, lekin deyarli ko'rinmaydi —
+   qatorlar bir-biriga nisbatan qisqarib ketmasin va davralarni
+   ko'z bilan solishtirish mumkin bo'lsin. */
+.marks__dot--none {
+  background: var(--divider);
+  opacity: 1;
+}
+
 .standings__delta {
   min-width: 34px;
   color: var(--text-2);
@@ -7666,7 +7702,7 @@
 }
 
 .h2h__mark--l {
-  background: var(--red, #e5484d);
+  background: var(--danger);
 }
 
 .h2h__mark--d {
