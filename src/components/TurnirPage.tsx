@@ -489,15 +489,28 @@ function HistoryList({ turnir }: { turnir: Turnir }) {
                       o'yin nomidan ham aniqroq, o'yinni ikonka
                       aytib turibdi. */}
                   <b>{row.title || (row.game === 'guncha' ? 'G‘uncha' : 'So‘zjang')}</b>
-                  {/* Davralar izi o'rindan **oldin**: odam avval
-                      qanday o'ynaganini, keyin shu nima bilan
-                      tugaganini o'qiydi. Ilgari iz qatorning
-                      o'ng chekkasida, aqchaning yonida turardi —
-                      ya'ni sabab natijadan keyin kelardi. */}
+                  {/* Ikkinchi satr ikki bo'lakdan, uchta emas.
+                      Ilgari «8 kishi», iz va «7-o'rin» teng vazn
+                      bilan yonma-yon turardi va o'rtadagi nuqtalar
+                      tasodifan tushib qolganday ko'rinardi.
+
+                      Endi matn bitta bo'lak: sharoit va natija
+                      («8 kishi · 7-o'rin»), o'rin esa ichida
+                      ajralib turadi — savol «men nechanchi
+                      bo'ldim», javob shu. Davralar izi undan
+                      keyin, kengroq oraliq bilan: u izoh, ya'ni
+                      «qanday o'tdim». */}
                   <span className="tnr-list__meta">
-                    <span>{row.players} kishi</span>
+                    <span>
+                      {row.players} kishi
+                      {place > 0 && (
+                        <>
+                          {' · '}
+                          <b>{place}-o‘rin</b>
+                        </>
+                      )}
+                    </span>
                     {uid && <RoundMarks doc={row.doc} uid={uid} />}
-                    {place > 0 && <span>{place}-o‘rin</span>}
                   </span>
                 </span>
                 {/* Rang yakuniy jadvaldagi bilan bitta qoidadan:

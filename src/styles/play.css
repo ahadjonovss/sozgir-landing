@@ -6974,7 +6974,18 @@
 .tnr-list__meta {
   display: flex;
   align-items: center;
-  gap: 8px;
+  /* Matn bilan iz orasidagi oraliq matnning o'z bo'shliqlaridan
+     kengroq: ular bir turkum emas, ikkinchisi birinchisining
+     izohi. */
+  gap: 12px;
+}
+
+/* O'rin — qatorning javobi, shuning uchun u matnning qolganidan
+   ajralib turadi. Rang bilan: o'lcham oshirilsa qator balandligi
+   o'zgarib, ro'yxat notekis bo'lardi. */
+.tnr-list__meta b {
+  color: var(--text);
+  font-weight: 900;
 }
 
 /* Davralar izi tarix qatorida ham — yakuniy jadvaldagi
