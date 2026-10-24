@@ -88,6 +88,13 @@ export interface BattleDoc {
   /** Do'st bilan jangda raqib kirishi kerak bo'lgan muddat (2 daqiqa) —
    *  kutish ekranidagi «pilik» shundan hisoblanadi. */
   expiresAt?: Stamp;
+  /** Turnir davrasi bo'lsa — o'sha turnirning **kodi**.
+   *
+   *  Maydonning o'zida emas, har qanday jangda bo'lishi mumkin:
+   *  turnir guruhi odatda maydon shaklida o'ynaladi, lekin bog'lanish
+   *  jangning turiga emas, `turnir_groups` jadvaliga tayanadi.
+   *  Shu sabab u `MarduDoc` dan shu yerga ko'chdi. */
+  seriesId?: string | null;
   /** Hujjat o'qilgan paytdagi **server** soati (ms).
    *
    *  Qolgan vaqt `endsAt - serverNow` dan chiqadi. Qurilma soatiga
@@ -435,6 +442,13 @@ export async function readBattle(battleId: string): Promise<BattleDoc | null> {
        joyida qoladi. Mijozda saqlab qo'yish ikkinchi haqiqat
        yasardi. */
     inviteCode: typeof battle.code === 'string' && battle.code ? battle.code : undefined,
+    /* Turnir davrasi bo'lsa — o'sha turnirning kodi.
+       Server uni `turnir_groups` dan oladi va bog'lanish guruh
+       yopilgandan keyin ham qoladi, ya'ni natija ekranida ham
+       to'g'ri keladi. Maydon ro'yxatdan tushib qolgan edi:
+       obyekt bu yerda qo'lda yig'iladi va nomi aytilmagan narsa
+       o'tmaydi. */
+    seriesId: typeof battle.seriesId === 'string' ? battle.seriesId : null,
     players,
     winnerUid: typeof battle.winnerUid === 'string' ? battle.winnerUid : null,
     /* Javob so'zi — server uni **faqat tugagan jangda** qo'shadi

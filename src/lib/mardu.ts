@@ -60,11 +60,10 @@ export interface MarduDoc extends BattleDoc {
    *  ikki versiyasi ikki xil jadval ko'rsatishi mumkin edi. */
   standings?: ArenaStanding[];
 
-  /** Turnir guruhi bo'lsa — qaysi turnirning qaysi davrasi
-   *  (`docs/mardu_turnir.md` §2.2). Maydonning o'zida bu maydonlar
-   *  yo'q, ya'ni ularning borligi «bu jang turnirniki» degani: natija
-   *  ekranida «Turnirga qaytish» shundan chiqadi. */
-  seriesId?: string;
+  /* `seriesId` endi `BattleDoc` da: u maydonga emas, har qanday
+     jangga tegishli bo'lishi mumkin. */
+  /** Turnir guruhi bo'lsa — qaysi davra
+   *  (`docs/mardu_turnir.md` §2.2). */
   round?: number;
   groupIndex?: number;
 }
