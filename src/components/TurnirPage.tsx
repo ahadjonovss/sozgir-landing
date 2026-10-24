@@ -42,7 +42,7 @@ import PlayerName from './PlayerName';
 import TurnirLadder from './TurnirLadder';
 import TurnirLobby from './TurnirLobby';
 import GameIntro from './GameIntro';
-import { Send, Swords, Trophy, Users } from './Icons';
+import { Flower, Send, Swords, Trophy, Users } from './Icons';
 
 const GAMES: { id: BattleGame; label: string }[] = [
   { id: 'guncha', label: 'G‘uncha' },
@@ -415,10 +415,9 @@ function OpenList({ turnir }: { turnir: Turnir }) {
         {turnir.open.map((row) => (
           <li key={row.code}>
             <a className="tnr-list__row" href={turnirPath(row.code)}>
-              <span
-                className={`tnr-list__dot tnr-list__dot--${row.game}`}
-                aria-hidden="true"
-              />
+              <span className={`tnr-list__icon tnr-list__icon--${row.game}`}>
+                {row.game === 'guncha' ? <Flower size={16} /> : <Swords size={16} />}
+              </span>
               <span className="tnr-list__main">
                 <b>{row.title || 'Turnir'}</b>
                 <span>
@@ -471,12 +470,13 @@ function HistoryList({ turnir }: { turnir: Turnir }) {
           return (
             <li key={row.code}>
               <a className="tnr-list__row" href={turnirPath(row.code)}>
-                {/* Kubok o'yin rangida: So'zjang va G'uncha ikkala
-                    ro'yxatda ham bir xil ko'rinardi va ularni faqat
-                    matnni o'qib ajratish mumkin edi. Rang bir
-                    qarashda aytadi. */}
+                {/* O'yinning o'z ikonkasi va o'z rangi. Ilgari
+                    hamma qatorda bir xil kubok turardi va So'zjang
+                    bilan G'unchani faqat matnni o'qib ajratish
+                    mumkin edi. Kubok esa hech narsa aytmasdi: bu
+                    ro'yxatning hammasi turnir. */}
                 <span className={`tnr-list__icon tnr-list__icon--${row.game}`}>
-                  <Trophy size={16} />
+                  {row.game === 'guncha' ? <Flower size={16} /> : <Swords size={16} />}
                 </span>
                 <span className="tnr-list__main">
                   <b>{row.title || 'Turnir'}</b>
@@ -486,8 +486,16 @@ function HistoryList({ turnir }: { turnir: Turnir }) {
                   </span>
                 </span>
                 {uid && <RoundMarks doc={row.doc} uid={uid} />}
+                {/* Rang yakuniy jadvaldagi bilan bitta qoidadan:
+                    ishlangani yashil, yo'qotilgani qizil.
+                    `.tnr-list__prize` yaramaydi — u sariqni
+                    majburlaydi va manfiy son ham sariq chiqardi. */}
                 {earned !== 0 && (
-                  <span className="tnr-list__prize">
+                  <span
+                    className={`standings__delta standings__delta--${
+                      earned > 0 ? 'up' : 'down'
+                    }`}
+                  >
                     <AqchaDelta value={earned} />
                   </span>
                 )}

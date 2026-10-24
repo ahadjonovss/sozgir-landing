@@ -53,6 +53,22 @@ export const Swords = svg(
 export const Trophy = svg(
   'M7 4h10v5a5 5 0 01-10 0zM7 6H4v1a3 3 0 003 3M17 6h3v1a3 3 0 01-3 3M9 20h6M12 14v6',
 );
+/** G'uncha — oltita barg va o'rtadagi yurak katak.
+ *
+ *  O'yinning o'z shakli (`GunchaFlower`) olti qirrali: markaz va
+ *  uni o'rab turgan barglar. Ikonka o'shaning soddalashtirilgani —
+ *  ro'yxatda G'unchani So'zjangdan bir qarashda ajratadi. */
+export const Flower = svg(
+  'M12 9.5a2.5 2.5 0 100 5 2.5 2.5 0 000-5' +
+    'M12 9.5V7a2.5 2.5 0 10-2.2-3.7' +
+    'M12 7a2.5 2.5 0 012.2-3.7' +
+    'M9.8 10.8L7.6 9.5a2.5 2.5 0 10-3.4 1.3' +
+    'M14.2 10.8l2.2-1.3a2.5 2.5 0 113.4 1.3' +
+    'M9.8 13.2l-2.2 1.3a2.5 2.5 0 11-3.4-1.3' +
+    'M14.2 13.2l2.2 1.3a2.5 2.5 0 103.4-1.3' +
+    'M12 14.5V17a2.5 2.5 0 102.2 3.7M12 17a2.5 2.5 0 01-2.2 3.7',
+);
+
 export const Chart = svg('M5 20V10M12 20V4M19 20v-6');
 export const Home = svg('M4 10.5L12 4l8 6.5V20a1 1 0 01-1 1h-4v-6H9v6H5a1 1 0 01-1-1z');
 export const Category = svg(
