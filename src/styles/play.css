@@ -7676,6 +7676,32 @@
   .rails__one--right {
     left: calc(50% + 490px + 32px);
   }
+
+  /* Chetdagi banner **baland** bo'ladi.
+     
+     Umumiy ramka 100px joy band qiladi — u oqimdagi gorizontal
+     banner uchun o'lchangan. Chetda esa butun ustun bo'sh turadi
+     va 100px lik quti o'sha bo'shliqning uchdan birini ham
+     egallamasdi: Yandex konteyner o'lchamiga qarab format
+     tanlaydi, ya'ni past qutiga past banner keladi.
+
+     600px — vertikal bannerning standart bo'yi. Varaqdan
+     oshmasligi uchun ekran bo'yiga ham cheklanadi: past
+     monitorda reklama pastki chekkadan chiqib ketmaydi. */
+  .rails .ad {
+    --ad-h: min(600px, calc(100vh - 160px));
+  }
+}
+
+/* Katta monitorda en ham oshadi: 300px — vertikal bannerning eng
+   ko'p uchraydigan o'lchami va unga talab 240px likdan sezilarli
+   ko'p. Chegara shu kenglikdan boshlanadi, chunki ustun markazdan
+   522px da boshlanadi va 300px ga joy aynan shundan keyin yetadi
+   (880 − 522 = 358). */
+@media (min-width: 1760px) {
+  .rails__one {
+    width: 300px;
+  }
 }
 
 /* Past ekranda (masalan yonboshlatilgan planshet) banner sarlavha
