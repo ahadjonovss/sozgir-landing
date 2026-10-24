@@ -7632,6 +7632,21 @@
     display: block;
   }
 
+  /* Joy yetadigan ekranda reklama **faqat chetda** turadi: oqimdagi
+     banner yashiriladi. Shunda kontent ustuni toza qoladi va
+     ekrandagi banner soni ikkitadan oshmaydi.
+
+     Yashirilgan banner so'rov ham yubormaydi: talab banner
+     ko'rinishga yaqinlashganda ketadi (`AdBanner`), `display: none`
+     esa hech qachon ko'rinmaydi. */
+  .ad {
+    display: none;
+  }
+
+  .rails .ad {
+    display: block;
+  }
+
   .rails__one {
     position: fixed;
     /* Kontent boshlanadigan chiziqda: sarlavha 80px, undan keyin

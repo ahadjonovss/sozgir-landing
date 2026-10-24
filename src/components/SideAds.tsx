@@ -15,15 +15,23 @@
  *    ustun ulardan baland `z-index` bilan ajratilmagan — ular unga
  *    yetmaydi.
  *
- *  Jang tugab lobbiga qaytilganda ikkalasi ham yo'qoladi: lobbining o'z
- *  banneri bor va uchtasi bir ekranda ortiqcha bo'lardi. */
+ *  **Keng ekranda reklama faqat shu yerda.** Ilgari chekka faqat jang
+ *  paytida chizilardi, lobbida esa banner sahifaning o'rtasida,
+ *  kontent ustunining ichida turardi — va o'sha paytda ikki yonda
+ *  yuzlab piksel bo'sh qolardi. Endi teskari: joy yetadigan ekranda
+ *  banner chetga chiqadi, o'rtadagisi esa yashiriladi (`play.css`,
+ *  `1560px`).
+ *
+ *  Shu bilan ekrandagi banner soni ikkitadan oshmaydi — «kontentga
+ *  nisbatan reklama ko'p» Yandex moderatsiyasida rad etish
+ *  sabablaridan biri.
+ *
+ *  Tor ekranda — telefon, planshet, oddiy noutbuk — chekka umuman
+ *  chizilmaydi va o'rtadagi banner o'z joyida qoladi. Trafikning
+ *  ko'pi o'sha yerdan keladi, ya'ni asosiy banner o'zgarmadi. */
 import AdBanner from './AdBanner';
-import { useStage } from '../lib/stage';
 
 export default function SideAds() {
-  const live = useStage();
-  if (!live) return null;
-
   return (
     <div className="rails">
       <div className="rails__one rails__one--left">
