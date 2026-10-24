@@ -44,6 +44,7 @@ import { EMOJI, keyAction, lengthOf, normalize, split, type Verdict } from './uz
 import { useSettings } from './settings';
 import { gameKey } from './useScript';
 import { links, site } from '../data/site';
+import { stampSeconds } from './stamp';
 
 export type Phase = 'lobby' | 'searching' | 'loading' | 'waiting' | 'playing' | 'finished';
 
@@ -331,7 +332,7 @@ export function useSozjang() {
    *  besh daqiqalik chegara qo'ygani uchun. Vaqti tugagan jangni
    *  server o'zi yopadi, demak sanoqni yashirish odamni
    *  ogohlantirishsiz uzish degani bo'lardi. */
-  const endsAt = battle?.endsAt?.seconds;
+  const endsAt = stampSeconds(battle?.endsAt);
   // Soat holatda, qolgan vaqt esa **hisoblanadi**: shunda muddat
   // o'zgarganda sanoq bir render kechikmaydi.
   const [now, setNow] = useState(() => Date.now());

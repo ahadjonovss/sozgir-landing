@@ -14,6 +14,7 @@ import { apiError } from '../api/errors';
 import { showBattle } from './activeBattle';
 import type { BattleGame } from './battle';
 import type { Unsubscribe } from '../api/poll';
+import { stampSeconds } from './stamp';
 import {
   createMardu,
   joinMardu,
@@ -121,7 +122,7 @@ export function useMardu() {
   // Sanoq. Faqat tezkor maydonda bo'ladi va u **ikkinchi** odamdan
   // boshlanadi: yolg'iz kutgan odam uchun sanoq yolg'on bo'lardi — nol
   // bo'lganda o'ynaydigan hech kim yo'q.
-  const startsAt = battle?.startsAt?.seconds;
+  const startsAt = stampSeconds(battle?.startsAt);
   const ticking = !!startsAt && status === 'waiting';
 
   // Soat holatda, qolgan vaqt esa **hisoblanadi** — sanoq bir render

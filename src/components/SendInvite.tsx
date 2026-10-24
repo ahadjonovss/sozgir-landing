@@ -30,6 +30,7 @@ import { showBattle } from '../lib/activeBattle';
 import { pretty } from '../lib/uz';
 import Avatar from './Avatar';
 import { Close } from './Icons';
+import { stampMs } from '../lib/stamp';
 
 export interface InviteTarget {
   uid: string;
@@ -101,7 +102,8 @@ export default function SendInvite({
     let alive = true;
     const stop: Unsubscribe = watchInvite(inviteId, (invite) => {
       if (!alive || !invite) return;
-      if (invite.expiresAt?.seconds) setExpiresAt(invite.expiresAt.seconds * 1000);
+      const until = stampMs(invite.expiresAt);
+      if (until !== null) setExpiresAt(until);
       if (invite.status === 'accepted' && invite.battleId) {
         if (closed.current) return;
         closed.current = true;

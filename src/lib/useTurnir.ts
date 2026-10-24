@@ -16,6 +16,7 @@ import { showBattle } from './activeBattle';
 import { gameOf, type BattleDoc, type BattleGame } from './battle';
 import { watchMardu, type MarduDoc } from './mardu';
 import type { Unsubscribe } from '../api/poll';
+import { stampSeconds } from './stamp';
 import {
   buildLadder,
   createTurnir,
@@ -227,8 +228,9 @@ export function useTurnir(code: string) {
   // Ikkalasi ham **ko'rsatuvchi**, boshqaruvchi emas — davrani
   // hujjatdagi `groups` ochadi, turnirni esa server o'z soati bilan
   // boshlaydi.
-  const nextAt =
-    doc?.status === 'gathering' ? doc?.startsAt?.seconds : doc?.nextRoundAt?.seconds;
+  const nextAt = stampSeconds(
+    doc?.status === 'gathering' ? doc?.startsAt : doc?.nextRoundAt,
+  );
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
@@ -246,7 +248,7 @@ export function useTurnir(code: string) {
         .map(([id, member]) => ({
           uid: id,
           nickname: member.nickname ?? 'Mehmon',
-          joinedAt: member.joinedAt?.seconds ?? 0,
+          joinedAt: stampSeconds(member.joinedAt) ?? 0,
           mine: id === uid,
         }))
         // Kirish tartibi — `seeds` ham shundan olinadi, ya'ni ro'yxatdagi

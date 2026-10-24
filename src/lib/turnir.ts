@@ -59,7 +59,11 @@ export const TURNIR_GAP_SECONDS = 20;
 /** Kod uzunligi — mardudagi chaqiruv kodi bilan bir xil shaklda. */
 export const TURNIR_CODE_LENGTH = 6;
 
-type Stamp = { seconds?: number } | null;
+/* Vaqt belgisi — shakli serverga qarab o'zgaradi, shuning uchun
+   `lib/stamp.ts` dagi umumiy tur. Ilgari bu yerda faqat
+   `{ seconds }` turardi va u yangi serverning ISO satriga to'g'ri
+   kelmasdi: sanoq jimgina yo'qolgandi. */
+import type { Stamp } from './stamp';
 
 export type TurnirStatus = 'gathering' | 'running' | 'finished' | 'expired';
 

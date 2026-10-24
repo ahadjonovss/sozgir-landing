@@ -24,6 +24,7 @@ import { api } from '../api/client';
 import { refreshPlays } from './plays';
 import { poll, type Unsubscribe } from '../api/poll';
 import { readBattle, type BattleGame, type BattleDoc, type BattlePlayer } from './battle';
+import type { Stamp } from './stamp';
 
 /** Bir maydonga sig'adigan eng ko'p o'yinchi (serverdagi `MARDU_CAPACITY`).
  *
@@ -52,7 +53,7 @@ export interface MarduDoc extends BattleDoc {
   host?: string;
   capacity?: number;
   /** Tezkor maydonda sanoq shu paytda tugaydi (serverning soati). */
-  startsAt?: { seconds?: number } | null;
+  startsAt?: Stamp;
   /** Yakuniy jadval — server bir marta hisoblaydi va saqlaydi.
    *
    *  Mijoz uni har ochilganda qayta tartiblasa, saytning va ilovaning

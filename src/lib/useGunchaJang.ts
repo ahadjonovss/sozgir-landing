@@ -62,6 +62,7 @@ import {
 } from './reactions';
 import { keyAction, normalize } from './uz';
 import { gameKey } from './useScript';
+import { stampSeconds } from './stamp';
 
 export type GunchaPhase =
   | 'lobby'
@@ -444,7 +445,7 @@ export function useGunchaJang() {
    *
    *  `sync` o'zi ham qo'riqlaydi: vaqt faqat qisqaradi, ya'ni hujjat
    *  kech kelgani sanoqni orqaga sakratmaydi. */
-  const endsAtSeconds = battle?.endsAt?.seconds ?? 0;
+  const endsAtSeconds = stampSeconds(battle?.endsAt) ?? 0;
   const serverNow = battle?.serverNow ?? 0;
   useEffect(() => {
     if (!endsAtSeconds) return;

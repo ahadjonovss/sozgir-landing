@@ -15,6 +15,7 @@ import { api } from '../api/client';
 import { refreshPlays } from './plays';
 import { poll, type Unsubscribe } from '../api/poll';
 import { split, type Verdict } from './uz';
+import type { Stamp } from './stamp';
 
 export type BattleStatus = 'waiting' | 'running' | 'finished' | 'expired';
 /** Jang qanday yig'ilgan.
@@ -83,10 +84,10 @@ export interface BattleDoc {
   /** G'uncha jangida — harflar. */
   guncha?: BattleGuncha;
   /** G'uncha jangi tugaydigan payt (serverning soati bo'yicha). */
-  endsAt?: { seconds?: number } | null;
+  endsAt?: Stamp;
   /** Do'st bilan jangda raqib kirishi kerak bo'lgan muddat (2 daqiqa) —
    *  kutish ekranidagi «pilik» shundan hisoblanadi. */
-  expiresAt?: { seconds?: number } | null;
+  expiresAt?: Stamp;
   /** Hujjat o'qilgan paytdagi **server** soati (ms).
    *
    *  Qolgan vaqt `endsAt - serverNow` dan chiqadi. Qurilma soatiga
@@ -117,7 +118,7 @@ export interface InviteDoc {
   battleId?: string;
   /** Qaysi o'yinga chaqirilgan — qabul qilingach shu ekran ochiladi. */
   game?: BattleGame;
-  expiresAt?: { seconds?: number } | null;
+  expiresAt?: Stamp;
 }
 
 export interface GuessReply {
