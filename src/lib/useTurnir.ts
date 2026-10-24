@@ -231,15 +231,45 @@ export function useTurnir(code: string) {
   const nextAt = stampSeconds(
     doc?.status === 'gathering' ? doc?.startsAt : doc?.nextRoundAt,
   );
+
+  /** Joriy davra qachon tugaydi — hali o'ynayotgan guruhlar bo'yicha.
+   *
+   *  Davra hamma guruh tugagach yakunlanadi, ya'ni eng kech
+   *  tugaydigani butun davrani ushlab turadi: shuning uchun eng
+   *  kattasi olinadi, eng kichigi emas.
+   *
+   *  Nega kerak: o'z guruhi tugagan odam jadval oldida qolardi va
+   *  ekranda «qolgan guruhlar o'ynayapti» degan yozuvdan boshqa
+   *  hech narsa yo'q edi — qancha kutishini bilmasdi. Muddat esa
+   *  bor: har jangning o'z tugash vaqti (`endsAt`). */
+  const roundEndsAt = useMemo(() => {
+    if (doc?.status !== 'running') return null;
+    let latest: number | null = null;
+    for (const group of doc?.groups ?? []) {
+      if (group.done === true) continue;
+      const battle = group.battleId ? live[group.battleId] : null;
+      const ends = stampSeconds(battle?.endsAt);
+      if (ends !== null && (latest === null || ends > latest)) latest = ends;
+    }
+    return latest;
+  }, [doc?.groups, doc?.status, live]);
+
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
-    if (!nextAt) return;
+    // Sanoqlardan biri ham bo'lmasa soat yurmaydi: har yarim
+    // soniyada bekorga qayta chizishning ma'nosi yo'q.
+    if (!nextAt && !roundEndsAt) return;
     const timer = window.setInterval(() => setNow(Date.now()), 500);
     return () => window.clearInterval(timer);
-  }, [nextAt]);
+  }, [nextAt, roundEndsAt]);
 
-  const nextIn = nextAt ? Math.max(0, Math.ceil((nextAt * 1000 - now) / 1000)) : null;
+  const secondsTo = (at: number | null): number | null =>
+    at === null ? null : Math.max(0, Math.ceil((at * 1000 - now) / 1000));
+
+  const nextIn = nextAt ? secondsTo(nextAt) : null;
+  /** Davra tugashiga qancha qolgani. */
+  const roundIn = secondsTo(roundEndsAt);
 
   // ── Ro'yxatlar ───────────────────────────────────────────────────────
   const members = useMemo(
@@ -369,6 +399,7 @@ export function useTurnir(code: string) {
     /** Joriy davrada o'z jangim bor-yo'qligi — «Jangga qaytish» uchun. */
     myBattle,
     nextIn,
+    roundIn,
     busy,
     error,
     /* Bo'limdagi tanlovlar. */

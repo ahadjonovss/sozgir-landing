@@ -335,12 +335,20 @@ function Standing({ turnir }: { turnir: Turnir }) {
     );
   }
 
+  /** `125` → `2:05`. Nol va yo'q — ikkalasi ham `null`. */
+  const mmss = (seconds: number | null): string | null =>
+    seconds === null || seconds <= 0
+      ? null
+      : `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+
   // Sanoq kuzatuvchiga ham ko'rsatiladi: u ham keyingi davra qachon
   // boshlanishini bilishni xohlaydi — tomosha ham o'yin.
-  const clock =
-    nextIn === null || nextIn <= 0
-      ? null
-      : `${Math.floor(nextIn / 60)}:${String(nextIn % 60).padStart(2, '0')}`;
+  const clock = mmss(nextIn);
+  /** Hali o'ynayotgan guruhlar qachon tugaydi. */
+  const roundClock = mmss(turnir.roundIn);
+
+  /** Turnir ketyaptimi — tugagan turnirda «keyingi davra» yo'q. */
+  const running = turnir.doc?.status === 'running';
 
   // Guruhim tugadi, lekin davra tugamadi: qolgan guruhlar hali
   // o'ynayapti. Ilgari bu yerda «Keyingi davra: 0:00» turardi —
@@ -363,14 +371,28 @@ function Standing({ turnir }: { turnir: Turnir }) {
             ? `${round.round}-davra ketyapti`
             : 'Turnir ketyapti'}
       </strong>
+      {/* Kutayotgan odamga har doim **muddat** aytiladi.
+          Ilgari bu yerda uchta jumlaning biri turardi va hech
+          birida son yo'q edi: «qolgan guruhlar o'ynayapti»,
+          «kuzatib turishingiz mumkin». Odam nimani, qancha
+          kutayotganini bilmasdi.
+
+          Endi ikkita sanoq bor: hali o'ynayotgan guruhlarning
+          tugashi (eng kech tugaydigani butun davrani ushlab
+          turadi) va shundan keyingi tanaffus. Muddat kelmagan
+          bir lahzada eski jumlalar zaxirada qoladi. */}
       <span>
         {left > 0
-          ? `${left} guruh hali o‘ynayapti — davra hamma guruh tugagach yakunlanadi.`
+          ? roundClock
+            ? `${left} guruh o‘ynayapti — tugashiga ${roundClock}`
+            : `${left} guruh hali o‘ynayapti — davra hamma guruh tugagach yakunlanadi.`
           : clock
             ? `Keyingi davra: ${clock}`
-            : place.playing
-              ? 'Davra ochilishi bilan jang o‘zi boshlanadi.'
-              : 'Davralarni kuzatib turishingiz mumkin.'}
+            : running
+              ? 'Keyingi davra boshlanmoqda…'
+              : place.playing
+                ? 'Davra ochilishi bilan jang o‘zi boshlanadi.'
+                : 'Davralarni kuzatib turishingiz mumkin.'}
       </span>
     </div>
   );
