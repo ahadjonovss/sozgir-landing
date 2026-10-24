@@ -418,10 +418,14 @@ function OpenList({ turnir }: { turnir: Turnir }) {
               <span className={`tnr-list__icon tnr-list__icon--${row.game}`}>
                 {row.game === 'guncha' ? <Flower size={16} /> : <Swords size={16} />}
               </span>
+              {/* Sarlavhada o'yin nomi — tarixdagi bilan bir xil
+                  qoida. Ilgari u pastki satrda turardi va tepada
+                  hech narsa aytmaydigan «Turnir» qolardi. */}
               <span className="tnr-list__main">
-                <b>{row.title || 'Turnir'}</b>
+                <b>
+                  {row.title || (row.game === 'guncha' ? 'G‘uncha' : 'So‘zjang')}
+                </b>
                 <span>
-                  {row.game === 'guncha' ? 'G‘uncha' : 'So‘zjang'} ·{' '}
                   {row.players} / {row.capacity} kishi
                 </span>
               </span>
@@ -479,13 +483,23 @@ function HistoryList({ turnir }: { turnir: Turnir }) {
                   {row.game === 'guncha' ? <Flower size={16} /> : <Swords size={16} />}
                 </span>
                 <span className="tnr-list__main">
-                  <b>{row.title || 'Turnir'}</b>
-                  <span>
-                    {row.players} kishi
-                    {place > 0 && ` · ${place}-o‘rin`}
+                  {/* Sarlavhada o'yinning nomi — «Turnir» hech narsa
+                      aytmasdi, ro'yxatning hammasi turnir. Nomi
+                      qo'yilgan turnirda esa o'sha nom qoladi: u
+                      o'yin nomidan ham aniqroq, o'yinni ikonka
+                      aytib turibdi. */}
+                  <b>{row.title || (row.game === 'guncha' ? 'G‘uncha' : 'So‘zjang')}</b>
+                  {/* Davralar izi o'rindan **oldin**: odam avval
+                      qanday o'ynaganini, keyin shu nima bilan
+                      tugaganini o'qiydi. Ilgari iz qatorning
+                      o'ng chekkasida, aqchaning yonida turardi —
+                      ya'ni sabab natijadan keyin kelardi. */}
+                  <span className="tnr-list__meta">
+                    <span>{row.players} kishi</span>
+                    {uid && <RoundMarks doc={row.doc} uid={uid} />}
+                    {place > 0 && <span>{place}-o‘rin</span>}
                   </span>
                 </span>
-                {uid && <RoundMarks doc={row.doc} uid={uid} />}
                 {/* Rang yakuniy jadvaldagi bilan bitta qoidadan:
                     ishlangani yashil, yo'qotilgani qizil.
                     `.tnr-list__prize` yaramaydi — u sariqni

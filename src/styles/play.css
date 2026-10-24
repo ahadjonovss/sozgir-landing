@@ -6967,6 +6967,16 @@
   white-space: nowrap;
 }
 
+/* Tarix qatoridagi ikkinchi satr: kishilar soni, davralar izi va
+   o'rin — bitta qatorda, oralarida havo. Nuqta-ajratgich yo'q:
+   uchta bo'lakning o'rtasidagisi matn emas, ularni chiziqcha bilan
+   ajratish ko'zni chalg'itardi. */
+.tnr-list__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 /* Davralar izi tarix qatorida ham — yakuniy jadvaldagi
    nuqtalarning o'zi. `.marks` o'sha yerda `.standings__score`
    ustiga qo'yilgan va u ustun kengligini oladi; bu yerda esa qator
