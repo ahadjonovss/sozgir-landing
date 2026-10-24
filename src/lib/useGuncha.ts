@@ -258,6 +258,22 @@ export function useGuncha(
     }
   }, [account, bump, found, later, puzzle, setFound, setTyped, typed]);
 
+  /** Ball va xabarni darhol o'chiradi.
+   *
+   *  Ikkalasi ham yozuv qatorining **o'rtasida**, maslahat turgan
+   *  joyda chiqadi va o'z muddatini kutib turadi (1,4 va 1,8
+   *  soniya). Odam o'sha paytda yangi so'z tera boshlasa, harflar
+   *  xabarning ostida qolardi: ekranda ikki narsa ustma-ust
+   *  turardi va terilayotgani o'qilmasdi.
+   *
+   *  Shuning uchun yozuvning birinchi harfi xabarni o'chiradi:
+   *  xabar o'tgan voqea haqida, harf esa hozirgisi — ekranda
+   *  hozirgisi turishi kerak. */
+  const hush = useCallback(() => {
+    setMessage((text) => (text === null ? text : null));
+    setPraise((text) => (text === null ? text : null));
+  }, []);
+
   const press = useCallback(
     (unit: string) => {
       if (!puzzle) return;
@@ -266,14 +282,16 @@ export function useGuncha(
         return;
       }
       if (unit === 'back') {
+        hush();
         setTyped((units) => units.slice(0, -1));
         return;
       }
       // Faqat g'unchadagi harflar — boshqasi shunchaki bosilmaydi.
       if (!lettersOf(puzzle).includes(unit)) return;
+      hush();
       setTyped((units) => (units.length >= 12 ? units : [...units, unit]));
     },
-    [puzzle, setTyped, submit],
+    [hush, puzzle, setTyped, submit],
   );
 
   /** Barglarni aralashtirish — faqat ko'rinish, o'yin mantig'iga tegmaydi. */
@@ -315,6 +333,10 @@ export function useGuncha(
       }
       else if (puzzle && lettersOf(puzzle).includes(action.unit)) {
         // Qo'shma harf oldingi katak bilan birikadi (`s` + `h` → `sh`).
+        // Bu yo'l `press` dan o'tmaydi, shuning uchun xabar shu yerda
+        // ham o'chiriladi — aks holda `sh` bilan boshlangan so'z
+        // xabarning ostida qolardi.
+        hush();
         setTyped((units) => [...units.slice(0, -1), action.unit]);
       }
     };
@@ -322,7 +344,7 @@ export function useGuncha(
     if (!active) return;
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [active, press, puzzle, setTyped, typed]);
+  }, [active, hush, press, puzzle, setTyped, typed]);
 
   return {
     account,

@@ -612,6 +612,19 @@ export function useGunchaJang() {
     [center, petals],
   );
 
+  /** Ball va xabarni darhol o'chiradi — yakka g'unchadagi `hush` ning
+   *  o'zi (`useGuncha`).
+   *
+   *  Ikkalasi yozuv qatorining o'rtasida, maslahat turgan joyda
+   *  chiqadi va o'z muddatini kutadi. Odam o'sha paytda yangi so'z
+   *  tera boshlasa, harflar xabarning ostida qolardi. Birinchi harf
+   *  xabarni o'chiradi: xabar o'tgan voqea haqida, harf esa
+   *  hozirgisi. */
+  const hush = useCallback(() => {
+    setMessage((text) => (text === null ? text : null));
+    setPraise((text) => (text === null ? text : null));
+  }, []);
+
   const press = useCallback(
     (unit: string) => {
       if (phase !== 'playing') return;
@@ -620,13 +633,15 @@ export function useGunchaJang() {
         return;
       }
       if (unit === 'back') {
+        hush();
         setTyped((units) => units.slice(0, -1));
         return;
       }
       if (!letters.includes(unit)) return;
+      hush();
       setTyped((units) => (units.length >= 12 ? units : [...units, unit]));
     },
-    [letters, phase, submit],
+    [hush, letters, phase, submit],
   );
 
   useEffect(() => {
@@ -645,13 +660,16 @@ export function useGunchaJang() {
       else if (action.kind === 'back') press('back');
       else if (action.kind === 'letter') press(unitOfKey(letters, action.unit));
       else if (letters.includes(action.unit)) {
+        // Qo'shma harf `press` dan o'tmaydi — xabar shu yerda ham
+        // o'chiriladi.
+        hush();
         setTyped((units) => [...units.slice(0, -1), action.unit]);
       }
     };
 
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [letters, press, typed]);
+  }, [hush, letters, press, typed]);
 
   const shuffle = useCallback(() => {
     setOrder((current) => shuffled(current, Date.now() % 100000));
