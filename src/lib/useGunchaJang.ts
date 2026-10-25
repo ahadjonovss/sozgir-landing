@@ -710,6 +710,9 @@ export function useGunchaJang() {
         hush();
         setTyped((units) => [...units.slice(0, -1), action.unit]);
       }
+      // Birikma bu g'unchada yo'q — bosilgan harfning o'zi qo'yiladi
+      // (`useGuncha` dagi bilan bir xil qoida).
+      else press(action.unit.slice(-1));
     };
 
     window.addEventListener('keydown', onKey);

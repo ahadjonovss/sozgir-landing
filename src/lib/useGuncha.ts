@@ -354,6 +354,11 @@ export function useGuncha(
         hush();
         setTyped((units) => [...units.slice(0, -1), action.unit]);
       }
+      // Birikma bu g'unchada yo'q (masalan `sh` yo'q, `s` bilan `h`
+      // alohida turibdi) — unda bosilgan harfning o'zi qo'yiladi.
+      // Ilgari u jimgina yo'qolardi va `mashhur` dagi ikkinchi `h`
+      // ham shunga uchrardi.
+      else press(action.unit.slice(-1));
     };
 
     if (!active) return;

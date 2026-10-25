@@ -132,6 +132,10 @@ export function keyAction(key: string, last: string | undefined): KeyAction | nu
 
   // `ch` allaqachon tushgan bo'lsa, ketidan kelgan `h` yutiladi — odam
   // «ch» deb terganda ikkinchi belgi qo'shimcha harf bo'lib qolmasin.
+  //
+  // `sh` bunday **emas**: `mashhur` da `sh` dan keyin rost `h`
+  // keladi va uni yutib yuborish so'zni terib bo'lmaydigan
+  // qilardi. `chh` birikmasi esa o'zbekchada yo'q.
   if (char === 'h' && last === 'ch') return null;
 
   if (char === 'h' && last === 's') {

@@ -113,12 +113,22 @@ export interface GunchaPuzzle {
  *  qiladi. Ya'ni birikish boshlanmasdan to'xtardi va o'sha ikki
  *  harfni faqat sichqoncha bilan kiritish mumkin edi.
  *
- *  Endi oddiy harf g'unchada bo'lmasa-yu, tutuqli juftligi bo'lsa —
- *  o'shanisi olinadi. Ikkalasi ham bo'lsa oddiysi qoladi va tutuq
- *  avvalgidek birikadi. Keyin bosilgan tutuq o'z-o'zidan e'tiborsiz
- *  qoladi: g'unchada yolg'iz tutuq harfi yo'q. */
+ *  Endi oddiy harf g'unchada bo'lmasa-yu, juftligi bo'lsa —
+ *  o'shanisi olinadi. Ikkalasi ham bo'lsa oddiysi qoladi va
+ *  ikkinchi bosish avvalgidek birikadi.
+ *
+ *  **`SH` ham shu qoidaga qo'shildi.** Ilgari u yo'qolib ketardi:
+ *  `s` bosilganda g'unchada `s` bo'lmasa taxta uni rad etardi,
+ *  keyingi `h` esa birikadigan harf topolmasdi — ya'ni bargda
+ *  `SH` turgan bo'lsa ham, uni faqat sichqoncha bilan kiritish
+ *  mumkin edi. Qoida `c` → `ch` dagi bilan bir xil mantiqda:
+ *  yolg'iz `s` bu g'unchada bo'lmasa, odam `s` bosib boshqa
+ *  narsani nazarda tutgan bo'lishi mumkin emas. */
 export function unitOfKey(letters: readonly string[], unit: string): string {
   if (letters.includes(unit)) return unit;
+  // `s` → `sh`, `c` → `ch`: ikki belgili harfning birinchi yarmi.
+  const digraph = `${unit}h`;
+  if (letters.includes(digraph)) return digraph;
   const paired = `${unit}${TOVUSH}`;
   return letters.includes(paired) ? paired : unit;
 }
