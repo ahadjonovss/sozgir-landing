@@ -38,6 +38,8 @@ export type Cue =
   | 'word_found'
   | 'pangram'
   | 'shuffle'
+  /* Turnir yakunlandi — natija ekraniga o'tishdan oldingi ohang. */
+  | 'fanfare'
   /* Jang: boshlanishi, durang va vaqt ogohlantirishi. */
   | 'battle_start'
   | 'draw'
@@ -74,6 +76,7 @@ const LAZY: Cue[] = [
   'battle_start',
   'tick',
   'time_warning',
+  'fanfare',
 ];
 
 let context: AudioContext | null = null;

@@ -707,6 +707,13 @@ function FinalTable({ turnir }: { turnir: Turnir }) {
                 <span>
                   <PlayerName uid={uid} name={memberName(doc, uid)} size={14} />
                 </span>
+                {/* Robot belgisi. Usiz jadval o'zini-o'zi inkor
+                    qilgandek ko'rinardi: birinchi o'rinda ustama
+                    yo'q, ikkinchisida bor — sabab esa aytilmagan.
+                    Server sovrinni robotga to'lamaydi (`paid`). */}
+                {doc?.members?.[uid]?.bot === true && (
+                  <i className="tnr__bot">bot</i>
+                )}
               </a>
               {/* Ochko o'rniga **davralar izi** — ilovadagidek.
                   Ochko chalg'itardi: o'rinni yakunda final

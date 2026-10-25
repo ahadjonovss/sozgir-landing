@@ -195,6 +195,25 @@ function onPop() {
   notify();
 }
 
+/** Sahifani kod bilan almashtirish — bosilgan havola o'rniga.
+ *
+ *  Hamma o'tish havola orqali bo'lgani ma'qul: u o'ng tugma bilan
+ *  ochiladi, ko'chiriladi va robot ham ko'radi. Lekin ba'zi o'tishni
+ *  odam boshlamaydi — masalan turnir tugagach natija ekrani o'zi
+ *  ochiladi. O'shanda shu funksiya ishlatiladi.
+ *
+ *  `location.assign` yaramaydi: u butun varaqni qaytadan yuklaydi
+ *  va ochilgan holat (ovoz ruxsati, keshdagi lug'at, soket)
+ *  yo'qoladi. Bu yerda esa oddiy `pushState` va obunachilarga
+ *  xabar — xuddi havola bosilgandek. */
+export function navigate(path: string): void {
+  if (path === window.location.pathname) return;
+  window.history.pushState(null, '', path);
+  pushes += 1;
+  notify();
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
 function subscribe(fn: () => void): () => void {
   subs.add(fn);
   if (!bound) {

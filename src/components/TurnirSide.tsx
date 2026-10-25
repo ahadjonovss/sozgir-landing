@@ -10,7 +10,10 @@
  *  Ma'lumot turnir hujjatidan keladi (`useTurnir`): u joriy
  *  davraning guruh janglarini ham kuzatadi, ya'ni jadval jonli
  *  — qo'shni guruhda kim yetakchi ekani shu zahoti ko'rinadi. */
+import { useEffect, useRef } from 'react';
 import { groupName, turnirPath } from '../lib/turnir';
+import { navigate } from '../lib/useRoute';
+import { play } from '../lib/sounds';
 import { useTurnir } from '../lib/useTurnir';
 import { pretty } from '../lib/uz';
 import Avatar from './Avatar';
@@ -183,6 +186,28 @@ export function TurnirWaiting({ code, battleId }: { code: string; battleId: stri
 export function TurnirNext({ code }: { code: string }) {
   const turnir = useTurnir(code);
   const doc = turnir.doc;
+  const over = doc?.status === 'finished';
+
+  /* Turnir tugadi — natija ekrani **o'zi** ochiladi.
+   *
+   *  Oxirgi jangdan keyin odam shu ekranda qolib ketardi: ostida
+   *  «yakuniy jadvalni turnir sahifasida ko'ring» degan yozuv
+   *  turardi va uni bosish kerak edi. Holbuki turnir tugaganda
+   *  qiladigan boshqa ishning o'zi yo'q.
+   *
+   *  Besh soniya — oxirgi jangning natijasini o'qishga yetadi va
+   *  kutib qolishga uzun emas. Ohang o'zgarishni oldindan aytadi:
+   *  ekran o'z-o'zidan almashsa, odam nima bo'lganini tushunmay
+   *  qoladi. */
+  const jumped = useRef(false);
+  useEffect(() => {
+    if (!over || jumped.current) return;
+    jumped.current = true;
+    play('fanfare');
+    const timer = window.setTimeout(() => navigate(turnirPath(code)), 5000);
+    return () => window.clearTimeout(timer);
+  }, [code, over]);
+
   if (!doc) return null;
 
   const round = doc.round ?? 0;
@@ -207,7 +232,7 @@ export function TurnirNext({ code }: { code: string }) {
       </span>
       <span className="tnr-next__what">
         {finished ? (
-          'Turnir tugadi — yakuniy jadvalni turnir sahifasida ko‘ring.'
+          'Turnir tugadi — yakuniy jadval hozir ochiladi…'
         ) : playing > 0 ? (
           <>
             Yana <b>{playing} guruh</b> o‘ynayapti — davra hamma guruh
