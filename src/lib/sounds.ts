@@ -216,3 +216,31 @@ export function countdown(from = 10): (left: number) => void {
     play('tick');
   };
 }
+
+/** Nomlangan sanoq — bitta voqea uchun **bitta** tik.
+ *
+ *  `countdown` har chaqirilgan joyda o'z holatini yuritadi va bu
+ *  jangda to'g'ri: taymer bitta joyda. Turnirda esa boshqacha —
+ *  bitta sahifada `useTurnir` bir necha marta chaqiriladi (jadval,
+ *  bosqich tasmasi, «endi nima bo'ladi»), ya'ni har nusxa o'z
+ *  sanog'ini chalib, bitta soniyada uch-to'rtta tik eshitilardi.
+ *
+ *  Shuning uchun holat **kalit bo'yicha** umumiy: kim birinchi
+ *  chaqirsa o'sha chaladi, qolganlari o'sha soniyani ikkinchi marta
+ *  aytmaydi. Qoida o'zgarmadi — faqat pasayganda chalinadi.
+ *
+ *  Sanoq qaytadan boshlanganda (masalan keyingi davra) holat o'zi
+ *  tozalanadi: `left` chegaradan yuqoriga chiqishi shuni bildiradi. */
+const ticks = new Map<string, number>();
+
+export function tickFor(key: string, left: number, from = 10): void {
+  if (left > from) {
+    ticks.delete(key);
+    return;
+  }
+  if (left <= 0) return;
+  const last = ticks.get(key);
+  if (last !== undefined && left >= last) return;
+  ticks.set(key, left);
+  play('tick');
+}

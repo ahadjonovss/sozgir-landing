@@ -4816,8 +4816,21 @@
 
 .tiles__row {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  /* Ustun soni kartochkaga qarab (`ArenaTiles` `--n` ni beradi).
+     Qat'iy uchta bo'lganda ikki kishilik guruh — turnir finali —
+     chapga tiqilib qolardi va o'ng tomoni bo'sh turardi. */
+  grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr));
   gap: 8px;
+}
+
+/* Ikki kishilik guruhda joy ko'p: kartochka kengayadi va ichidagi
+   sonlar ham kattaroq bo'ladi — bu yuzma-yuz jang, ro'yxat emas. */
+.tiles__row:has(> :nth-child(2):last-child) .atile {
+  padding: 13px 10px 11px;
+}
+
+.tiles__row:has(> :nth-child(2):last-child) .atile__value {
+  font-size: 26px;
 }
 
 .atile {
@@ -6814,7 +6827,9 @@
 
 @media (min-width: 1180px) {
   .tnr-stage {
-    grid-template-columns: minmax(0, 1fr) 260px;
+    /* Ikkinchi ustun ham qisqara olsin: qat'iy `260px` tor joyda
+       o'ramdan toshib, yon ustun ekran chetida kesilib qolardi. */
+    grid-template-columns: minmax(0, 1fr) minmax(0, 260px);
     align-items: start;
   }
 

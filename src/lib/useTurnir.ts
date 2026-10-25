@@ -17,6 +17,7 @@ import { gameOf, type BattleDoc, type BattleGame } from './battle';
 import { watchMardu, type MarduDoc } from './mardu';
 import type { Unsubscribe } from '../api/poll';
 import { stampSeconds } from './stamp';
+import { tickFor } from './sounds';
 import {
   buildLadder,
   createTurnir,
@@ -268,6 +269,21 @@ export function useTurnir(code: string) {
     at === null ? null : Math.max(0, Math.ceil((at * 1000 - now) / 1000));
 
   const nextIn = nextAt ? secondsTo(nextAt) : null;
+
+  /* Oxirgi o'n soniya — quloq bilan ham bilinadi.
+   *
+   *  Odam bu paytda ekranga qaramasligi mumkin: davra tugagan,
+   *  natija o'qilgan va u boshqa oynaga o'tgan. Jangda shu qoida
+   *  allaqachon bor (`EndingCountdown`), turnirning tanaffusi esa
+   *  jim o'tardi va jang to'satdan ochilardi.
+   *
+   *  Kalit turnir kodi bo'yicha: bitta sahifada bu hook bir necha
+   *  marta chaqiriladi va har nusxa o'z tikini chalsa, bitta
+   *  soniyada bir nechtasi eshitilardi (`tickFor`). */
+  useEffect(() => {
+    if (nextIn === null) return;
+    tickFor(`turnir:${code}`, nextIn);
+  }, [code, nextIn]);
   /** Davra tugashiga qancha qolgani. */
   const roundIn = secondsTo(roundEndsAt);
 

@@ -12,6 +12,7 @@
  *  faqat raqamda. */
 import type { ArenaRow } from '../lib/mardu';
 import type { BattleGame } from '../lib/battle';
+import type { CSSProperties } from 'react';
 import Avatar from './Avatar';
 import PlayerName from './PlayerName';
 
@@ -76,7 +77,14 @@ export default function ArenaTiles({
 }) {
   return (
     <div className="tiles">
-      <div className="tiles__row">
+      {/* Ustunlar soni kartochkaga qarab. Ilgari u qat'iy uchta edi
+          va ikki kishilik guruhda (turnir finali!) o'ngdagi uchinchi
+          ustun bo'm-bo'sh qolardi: ikki kartochka chapga tiqilib,
+          ekran qiyshiq ko'rinardi. */}
+      <div
+        className="tiles__row"
+        style={{ '--n': Math.max(1, tiles.length) } as CSSProperties}
+      >
         {tiles.map((row) => {
           const { value, note } = figure(row, game, leader);
           const spent = game === 'soztop' && row.player.won !== true && row.player.finished;
