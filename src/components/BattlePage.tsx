@@ -47,7 +47,7 @@ import ArenaTiles from './ArenaTiles';
 import { routeCode } from '../lib/useRoute';
 import { turnirPath } from '../lib/turnir';
 import { useSeries } from '../lib/useSeries';
-import { TurnirGroups, TurnirNext, TurnirWaiting } from './TurnirSide';
+import { TurnirGroups, TurnirNext, TurnirStageBar, TurnirWaiting } from './TurnirSide';
 import { useTurnirHop } from '../lib/useTurnir';
 import { useLiveStage } from '../lib/stage';
 import { trackOnce } from '../lib/track';
@@ -500,7 +500,13 @@ function TurnirStage({
 
   return (
     <div className="tnr-stage">
-      <div className="tnr-stage__main">{children}</div>
+      <div className="tnr-stage__main">
+        {/* Bosqich nomi taxtaning **ustida**: yon ustun tor ekranda
+            chizilmaydi va telefonda o'ynayotgan odam finalni oddiy
+            jangdan ajrata olmasdi. */}
+        <TurnirStageBar code={series} battleId={game.battleId} />
+        {children}
+      </div>
       <TurnirGroups code={series} battleId={game.battleId} />
     </div>
   );

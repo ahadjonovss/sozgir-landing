@@ -665,8 +665,14 @@ function FinalTable({ turnir }: { turnir: Turnir }) {
   const order = doc?.order ?? [];
   if (order.length === 0) return null;
 
+  /* Umumiy hisob ustuni faqat kerak bo'lganda chiziladi. Server uni
+     har doim ham yubormaydi va o'shanda jadvalning o'ng chekkasida
+     ellik piksellik bo'sh ustun qolib, sonlar o'rtada osilib
+     turardi. */
+  const money = order.some((uid) => doc?.balance?.[uid] !== undefined);
+
   return (
-    <div className="standings tnr__final">
+    <div className={`standings tnr__final${money ? ' tnr__final--money' : ''}`}>
       <h3>Yakuniy jadval</h3>
       <ol className="standings__list">
         {order.map((uid, index) => {
@@ -674,6 +680,21 @@ function FinalTable({ turnir }: { turnir: Turnir }) {
           // olgan sonini ko'rsin.
           const delta = earnedBy(doc, uid) ?? 0;
           const balance = doc?.balance?.[uid];
+          /* Sovrinli o'rin ustamasi — alohida ko'rsatiladi.
+             `earnedBy` uni allaqachon qo'shib beradi, ya'ni ekranda
+             rost son turadi; lekin «nega menda +7 va unda +1?»
+             degan savolga javob yo'q edi. Ilovada javobni qisqa
+             «+N ustama» yozuvi beradi (`TurnirEarned`) — bu yerda
+             ham o'shanday, faqat animatsiyasiz: jadval tinch
+             turishi kerak. */
+          const bonus =
+            uid === doc?.winnerUid
+              ? (doc?.prize ?? 0)
+              : uid === doc?.runnerUpUid
+                ? (doc?.runnerUpPrize ?? 0)
+                : uid === doc?.thirdUid
+                  ? (doc?.thirdPrize ?? 0)
+                  : 0;
           const mine = uid === turnir.mine;
           return (
             <li
@@ -694,6 +715,12 @@ function FinalTable({ turnir }: { turnir: Turnir }) {
                   mumkin. Iz esa «bu odam turnirni qanday o'tdi»
                   degan savolga bir qarashda javob beradi. */}
               <RoundMarks doc={doc} uid={uid} />
+              {/* Katak har doim turadi: ustamasiz qatorlarda ham
+                  joyi band bo'lsin, aks holda yonidagi sonlar
+                  qatordan qatorga siljirdi. */}
+              <span className="standings__bonus">
+                {bonus > 0 ? `+${bonus} ustama` : ''}
+              </span>
               {/* Ikkala katak **har doim** chiziladi, hatto bo'sh
                   bo'lsa ham: biri tushib qolsa qolgan ustunlar
                   siljib, jadval zinapoyaga aylanardi. */}
@@ -710,9 +737,11 @@ function FinalTable({ turnir }: { turnir: Turnir }) {
               </span>
               {/* Umumiy hisob o'zgarishning yonida: odam «qancha
                   ishladim» bilan «qancham qoldi» ni birga ko'radi. */}
-              <span className="standings__total">
-                {balance === undefined ? '' : <Aqcha value={balance} size="sm" />}
-              </span>
+              {money && (
+                <span className="standings__total">
+                  {balance === undefined ? '' : <Aqcha value={balance} size="sm" />}
+                </span>
+              )}
             </li>
           );
         })}

@@ -16,6 +16,57 @@ import { pretty } from '../lib/uz';
 import Avatar from './Avatar';
 import { Trophy } from './Icons';
 
+/** Taxta ustidagi tasma: **hozir qaysi bosqich**.
+ *
+ *  Ilovada bu savolga app bar javob beradi — turnir davrasida u
+ *  o'yin nomi o'rniga bosqichni yozadi (`battle_page.dart`,
+ *  `turnirStageName`). Saytda esa javob faqat yon ustunda turardi
+ *  (`TurnirGroups`) va u tor ekranda umuman chizilmaydi: telefonda
+ *  o'ynayotgan odam oddiy jangni ko'rardi, finalda ham, birinchi
+ *  davrada ham bir xil.
+ *
+ *  Nom guruhning o'zidan chiqadi (`groupName`): oxirgi davrada
+ *  birinchi guruh — final, qolganlari aniq o'rin uchun, undan
+ *  oldingilari esa guruh. «Chorak final» yo'q — turnirda chiqarib
+ *  yuborish yo'q va bunday bosqichlar ham yo'q.
+ *
+ *  Yonida davra sanog'i: «2/3-davra» — odam turnirning qayerida
+ *  turganini ham bilsin. */
+export function TurnirStageBar({
+  code,
+  battleId,
+}: {
+  code: string;
+  battleId: string;
+}) {
+  const turnir = useTurnir(code);
+  const round = turnir.rounds.find((item) => item.current);
+  if (!round) return null;
+
+  const index = round.groups.findIndex((group) => group.battleId === battleId);
+  const name =
+    index < 0
+      ? null
+      : groupName({
+          round: round.round,
+          rounds: round.rounds,
+          sizes: round.groups.map((group) => group.seats.length),
+          index,
+        });
+
+  return (
+    <a className="tnr-bar" href={turnirPath(code)}>
+      <Trophy size={14} />
+      {/* Guruhsiz odamda (oxirgi davrada raqib qolmagan) nom yo'q,
+          davra raqami esa rost qoladi — ilovadagi qoidaning o'zi. */}
+      <b>{name ?? 'Turnir'}</b>
+      <span>
+        {round.round}/{round.rounds}-davra
+      </span>
+    </a>
+  );
+}
+
 /** O'yin paytidagi yon ustun: boshqa guruhlarning jadvali.
  *
  *  O'z guruhim bu yerda yo'q — u ekranning o'rtasida, hisobi bilan
