@@ -342,6 +342,18 @@ function docOf(full: ApiFull): TurnirDoc {
     round: typeof turnir.round === 'number' ? turnir.round : 1,
     rounds: typeof turnir.rounds === 'number' ? turnir.rounds : undefined,
     winnerUid: typeof turnir.winnerUid === 'string' ? turnir.winnerUid : undefined,
+    /* Ikkita sanoq. Ular ro'yxatdan tushib qolgan edi va oqibati
+       jim bo'ldi: `useTurnir` ularni `stampSeconds` bilan o'qiydi,
+       maydon yo'q bo'lgani uchun `null` chiqardi va **hech qayerda
+       sanoq ko'rinmasdi** — na yig'ilishda, na davralar orasida.
+       Ekranda «hozir boshlanadi» turardi, holbuki server tanaffus
+       muddatini (`next_round_at`) yozib qo'yadi.
+
+       Shakl ikki xil bo'lishi mumkin (ISO satr yoki `{seconds}`),
+       shuning uchun ular `Stamp` bo'lib o'tadi — `stamp.ts` ikkisini
+       ham tushunadi. */
+    startsAt: (turnir.startsAt ?? undefined) as Stamp,
+    nextRoundAt: (turnir.nextRoundAt ?? undefined) as Stamp,
     members,
     uids: Object.keys(members),
     seeds: strings(full.seeds),
