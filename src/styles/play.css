@@ -805,6 +805,12 @@
   transform: translateY(-1px);
 }
 
+/* Sahifaning eng boshida: ustida sarlavha yo'q, oraliq ham kerakmas. */
+.promo--top {
+  margin-top: 0;
+  margin-bottom: 4px;
+}
+
 /* Qurilmaning do'koni — to'q tugma. */
 .promo__store--first {
   background: var(--text);

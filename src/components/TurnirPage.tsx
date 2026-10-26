@@ -38,6 +38,7 @@ import { playerLink } from '../data/site';
 import Avatar from './Avatar';
 import CodeInput from './CodeInput';
 import PlayerName from './PlayerName';
+import DownloadPromo from './DownloadPromo';
 import TurnirLadder from './TurnirLadder';
 import TurnirLobby from './TurnirLobby';
 import GameIntro from './GameIntro';
@@ -579,6 +580,14 @@ function Winner({ turnir }: { turnir: Turnir }) {
 
   return (
     <div className="tnr">
+      {/* Ilovaga taklif eng tepada: turnir tugagan payt — odam
+          sahifada eng uzoq turadigan, keyingi turnirni kutayotgan
+          payt. Pastda, jadval ortida bo'lsa hech kim ko'rmasdi. */}
+      <DownloadPromo
+        top
+        title="Turnirlar ilovada qulayroq"
+        text="Yangi turnir boshlanishidan xabar keladi, davra tugashini kutib o‘tirmaysiz."
+      />
       <div className="tnr__crown">
         <Trophy size={28} />
         <Avatar name={name} uid={winnerUid} size={78} />

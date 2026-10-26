@@ -12,7 +12,21 @@ function isIos(): boolean {
   return /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
 }
 
-export default function DownloadPromo() {
+/** `title`/`text` — chaqiruvchi matnni almashtiradi.
+ *
+ *  Sukutdagi matn mehmonga qaratilgan («natijalar saqlanadi»), turnir
+ *  esa hisobsiz o'ynalmaydi: u yerda o'sha gap yolg'on bo'lib
+ *  chiqardi. `top` — kartochka sahifaning eng boshida tursa, ustidagi
+ *  oraliq keraksiz. */
+export default function DownloadPromo({
+  title,
+  text,
+  top = false,
+}: {
+  title?: string;
+  text?: string;
+  top?: boolean;
+} = {}) {
   const ios = isIos();
   const stores = [
     { href: links.appStore, label: 'App Store', icon: <AppleIcon size={18} />, first: ios },
@@ -20,12 +34,12 @@ export default function DownloadPromo() {
   ].sort((a, b) => Number(b.first) - Number(a.first));
 
   return (
-    <div className="promo">
+    <div className={`promo${top ? ' promo--top' : ''}`}>
       <div className="promo__text">
-        <strong>Ilovada davom eting</strong>
+        <strong>{title ?? 'Ilovada davom eting'}</strong>
         <span>
-          Natijalar saqlanadi, kunlik eslatma keladi. Yangso‘z, kategoriyalar
-          va g‘uncha — internetsiz ham.
+          {text ??
+            'Natijalar saqlanadi, kunlik eslatma keladi. Yangso‘z, kategoriyalar va g‘uncha — internetsiz ham.'}
         </span>
       </div>
       <div className="promo__stores">
