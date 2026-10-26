@@ -70,11 +70,6 @@ export type TurnirStatus = 'gathering' | 'running' | 'finished' | 'expired';
 export interface TurnirMember {
   nickname?: string;
   joinedAt?: Stamp;
-  /** Robotmi. Jadvalda belgisi bilan turadi va **ustama olmaydi**:
-   *  server sovrinni robotga to'lamaydi (`paid`, `rewardTurnir`).
-   *  Belgisiz bu qarama-qarshilikka o'xshardi — birinchi o'rinda
-   *  ustama yo'q, ikkinchisida bor. */
-  bot?: boolean;
 }
 
 /** Joriy davradagi bitta maydon. */
@@ -293,7 +288,6 @@ async function turnirIdOf(code: string): Promise<string> {
 interface ApiPlayer {
   uid?: unknown;
   nickname?: unknown;
-  isBot?: unknown;
 }
 
 interface ApiFull {
@@ -333,7 +327,6 @@ function docOf(full: ApiFull): TurnirDoc {
     if (!uid) continue;
     members[uid] = {
       nickname: String(player.nickname ?? '').trim(),
-      bot: player.isBot === true,
     };
   }
 
