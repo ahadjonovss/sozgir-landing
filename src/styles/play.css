@@ -805,6 +805,54 @@
   transform: translateY(-1px);
 }
 
+/* QR bilan: matn va tugmalar chapda, kod o'ng chekkada. */
+.promo__body {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.promo--qr {
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 16px;
+}
+
+.promo__qr {
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+  padding: 7px 7px 6px;
+  border-radius: 10px;
+  background: var(--bg);
+  box-shadow: inset 0 0 0 1.5px var(--divider);
+}
+
+.promo__qr svg {
+  display: block;
+  width: 84px;
+  height: 84px;
+  border-radius: 4px;
+}
+
+.promo__qr span {
+  color: var(--text-2);
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+/* Telefonda QR bekor: o'z ekranini o'zi o'qiy olmaydi, joyni esa
+   do'kon tugmalaridan tortib olardi. */
+@media (max-width: 640px) {
+  .promo--qr {
+    grid-template-columns: 1fr;
+  }
+
+  .promo__qr {
+    display: none;
+  }
+}
+
 /* Sahifaning eng boshida: ustida sarlavha yo'q, oraliq ham kerakmas. */
 .promo--top {
   margin-top: 0;

@@ -585,6 +585,7 @@ function Winner({ turnir }: { turnir: Turnir }) {
           payt. Pastda, jadval ortida bo'lsa hech kim ko'rmasdi. */}
       <DownloadPromo
         top
+        qr
         title="Turnirlar ilovada qulayroq"
         text="Yangi turnir boshlanishidan xabar keladi, davra tugashini kutib o‘tirmaysiz."
       />
