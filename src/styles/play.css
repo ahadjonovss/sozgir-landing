@@ -4345,13 +4345,15 @@
     gap: 4px;
   }
   .key {
-    height: 48px;
-    border-radius: 6px;
-    font-size: 14px;
+    /* 54: ilgari 48 edi va tugma barmoqqa tor kelardi — ilovadagi
+       klaviatura bilan bir xil o'lcham. */
+    height: 54px;
+    border-radius: 7px;
+    font-size: 16px;
   }
   .key--action svg {
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
   }
   .stage {
     padding: 16px 12px;
@@ -8613,6 +8615,35 @@
 .hide__meta {
   font-size: 13px;
   color: var(--text-2);
+}
+
+/* Holat yorlig'i: ochiq — yashil, yopilgan — kulrang. Nuqta rangning
+   o'zini takrorlaydi — rangni ajratmaydigan ko'zga ham yetadi. */
+.hide__state {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: var(--divider);
+  color: var(--text-2);
+  font-size: 11px;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+.hide__state::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.hide__state--open {
+  background: var(--green-soft);
+  color: var(--green-deep);
 }
 
 .hide__item-acts {

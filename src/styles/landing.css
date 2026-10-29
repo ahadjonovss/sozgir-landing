@@ -963,7 +963,9 @@
 .key {
   flex: 1 1 0;
   min-width: 0;
-  height: 40px;
+  /* 44: ilgari 40 edi — kompyuterda ham tugma salgina kattaroq,
+     telefondagi o'lcham `play.css` da alohida. */
+  height: 44px;
   padding: 0 2px;
   border: none;
   border-radius: 7px;
@@ -973,7 +975,7 @@
   box-shadow: 0 2px 0 rgba(0, 0, 0, 0.16);
   color: var(--text);
   font: inherit;
-  font-size: 12.5px;
+  font-size: 13.5px;
   font-weight: 800;
   cursor: pointer;
   /* Telefonda: ikki bosishda kattalashtirish kutilmaydi (bosish darrov

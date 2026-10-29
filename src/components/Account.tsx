@@ -290,7 +290,7 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
     return (
       <Modal
         title="Telegram orqali kirish"
-        lead="Robot bergan olti xonali kodni kiriting. Kod uch daqiqa yashaydi."
+        lead="Telegram bergan olti xonali kodni kiriting. Kod uch daqiqa yashaydi."
         onClose={close}
       >
         <form className="form" onSubmit={submit}>
@@ -320,7 +320,7 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
 
         <div className="modal__tabs">
           <a className="link" href={links.loginBot} target="_blank" rel="noreferrer">
-            Robotni qayta ochish
+            Telegramni qayta ochish
           </a>
           <button
             className="link"
@@ -432,7 +432,7 @@ function AuthDialog({ mode }: { mode: AuthPrompt }) {
         Telegram orqali kirish
       </a>
       <p className="modal__hint modal__hint--quiet">
-        Parol kerak emas: robot raqamingizni tasdiqlaydi va olti xonali
+        Parol kerak emas: Telegram raqamingizni tasdiqlaydi va olti xonali
         kod beradi. Hisobingiz bo‘lmasa, o‘zi ochib beradi.
       </p>
 

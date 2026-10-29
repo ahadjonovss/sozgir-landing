@@ -26,24 +26,21 @@ import { MIN_QUERY, hideWords, rankWords, suggestWords } from '../lib/hideWord';
 import { toLatin } from '../lib/useScript';
 import { lengthOf, normalize, pretty } from '../lib/uz';
 
-/** Bir odamdagi ochiq so'zlar chegarasi — ilovadagi
- *  `ChallengeRules.openMax` ning nusxasi.
- *
- *  Nusxa ataylab: ro'yxat tepasida «beshtadan oshmaydi» deb yozib
- *  turish kerak va tugmani oldindan o'chirish mumkin. Serverda bu
- *  qoida hozircha yo'q (`CHALLENGE_OPEN_MAX` e'lon qilingan, lekin
- *  tekshirilmaydi), ya'ni bu yerdagisi yagona to'siq. */
-const OPEN_MAX = 5;
+/* Ochiq so'zlar soni va havolaning muddati **chegaralanmaydi**
+ *  (2026-10-29). Ilgari beshta ochiq so'z va bir kunlik muddat bor
+ *  edi: ro'yxat to'lib qolar, do'stlar havolani kech ochib yopilgan
+ *  so'zga duch kelardi. Endi so'z egasi yopmaguncha ochiq turadi;
+ *  eski yozuvlardagi muddat (`expiresAt`) hali hisobga olinadi. */
 
 const isOpen = (item: MyChallenge) =>
   item.status === 'open' && (item.expiresAt === 0 || item.expiresAt > Date.now());
 
-/** «5 soat qoldi» — ilovadagi `challengeLeftShort` ning o'zi. */
+/** «5 soat qoldi» — faqat muddatli eski so'zlarda. */
 function leftShort(expiresAt: number): string {
   const left = expiresAt - Date.now();
-  if (left <= 0) return 'Muddati tugadi';
+  if (left <= 0) return 'yopiladi';
   const minutes = Math.floor(left / 60000);
-  if (minutes < 1) return 'Muddati tugadi';
+  if (minutes < 1) return 'yopiladi';
   const hours = Math.floor(minutes / 60);
   const days = Math.floor(hours / 24);
   if (days >= 1) return `${days} kun qoldi`;
@@ -225,15 +222,26 @@ function MyList({
       {items.map((item) => (
         <li key={item.code} className="hide__item">
           <div className="hide__item-main">
-            <strong>{item.title || `${item.length} harfli so‘z`}</strong>
+            <strong>
+              {item.title || `${item.length} harfli so‘z`}
+              {/* Holat yorliq bo'lib turadi, izoh qatorining oxirida
+                  emas: ro'yxatda ochiq so'z yopilganidan bir qarashda
+                  ajralsin. Ikki holat — muddati o'tgan eski so'z ham
+                  «yopilgan». */}
+              <span
+                className={`hide__state ${isOpen(item) ? 'hide__state--open' : ''}`}
+              >
+                {isOpen(item) ? 'Ochiq' : 'Yopilgan'}
+              </span>
+            </strong>
             <span className="hide__meta">
               {/* Sanoq ikki sondan: nechta odam o'ynadi va nechtasi
                   topdi. Uchinchisi («topolmadi») ortiqcha — u
                   ayirmaning o'zi. */}
               Kod: {item.code} · {item.plays} o‘ynadi · {item.solved} topdi
-              {isOpen(item)
-                ? item.expiresAt > 0 && ` · ${leftShort(item.expiresAt)}`
-                : ' · yopilgan'}
+              {isOpen(item) &&
+                item.expiresAt > 0 &&
+                ` · ${leftShort(item.expiresAt)}`}
             </span>
           </div>
           <div className="hide__item-acts">
@@ -291,9 +299,6 @@ export default function HideWordPage() {
       alive = false;
     };
   }, [account]);
-
-  const openCount = (items ?? []).filter(isOpen).length;
-  const full = openCount >= OPEN_MAX;
 
   async function hide() {
     if (!selected || busy) return;
@@ -363,8 +368,7 @@ export default function HideWordPage() {
                 <h3>So‘z yashirildi</h3>
                 <p className="panel__note">
                   Havolani yuboring — kim o‘ynaganini quyidagi ro‘yxatda
-                  ko‘rasiz. So‘z bir kundan keyin yangi o‘yinchini qabul
-                  qilmaydi.
+                  ko‘rasiz. So‘z siz yopmaguningizcha ochiq turadi.
                 </p>
                 <p className="hide__code">{created}</p>
                 <div className="hide__item-acts">
@@ -406,14 +410,8 @@ export default function HideWordPage() {
                     </label>
 
                     {problem && <p className="form__err">{problem}</p>}
-                    {full && (
-                      <p className="form__err">
-                        Ochiq so‘zlar {OPEN_MAX} tadan oshmaydi — bittasini
-                        yoping yoki muddati tugashini kuting.
-                      </p>
-                    )}
 
-                    <button className="btn" onClick={hide} disabled={busy || full}>
+                    <button className="btn" onClick={hide} disabled={busy}>
                       {busy ? 'Yashirilmoqda…' : 'Yashirish'}
                     </button>
                   </div>

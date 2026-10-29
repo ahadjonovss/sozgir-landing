@@ -151,7 +151,7 @@ function authMessage(error: unknown): string {
       // Kodning muddati uch daqiqa va u bir martalik. Uchala sabab —
       // noto'g'ri terilgan, eskirgan, ishlatilgan — serverda bitta
       // kodga tushadi, shuning uchun matn ham bitta.
-      return 'Kod xato yoki eskirgan — robotdan yangisini oling';
+      return 'Kod xato yoki eskirgan — Telegramdan yangisini oling';
     case 'no_session':
       return 'Kirish muddati tugadi — qaytadan kiring';
     default:

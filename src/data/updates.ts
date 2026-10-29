@@ -30,6 +30,24 @@ export interface Update {
 
 export const UPDATES: Update[] = [
   {
+    date: '2026-10-29',
+    title: 'So‘z yashirish cheklovsiz, turnir va reyting yangi ko‘rinishda',
+    where: 'ikkisi',
+    body:
+      'Yashirilgan so‘z endi siz yopmaguningizcha ochiq turadi va ochiq so‘zlar soni chegaralanmaydi — ilgari beshta va bir kun edi. Reyting podiumi va turnir ochish oynasi qayta chizildi, klaviatura tugmalari kattalashdi.',
+    items: [
+      'Yashirilgan so‘z: muddat yo‘q, ochiq so‘zlar soni cheklanmaydi, holat yorliq bilan',
+      'Yarmida qoldirilgan so‘zga qaytganda tergan harflar ko‘rinadi, javob natija ekranida ochiladi',
+      'Reyting podiumi bitta sahnada: o‘rin nishoni avatarda, g‘olibda kubok',
+      'Turnir ochish oynasi: o‘yin va sig‘im plitkalari, har sig‘imda necha davra',
+      'Turnir ustamalari 5 / 10 / 15 aqcha — kunlik so‘z va Yangso‘z bilan bir shkalada',
+      'Odam ochgan turnir ham ochiq lentada chiqadi va to‘ladi',
+      'G‘unchada rad etilgan so‘zni taklif qilish ishlaydi: o‘yin lug‘atida bor so‘z ham qabul qilinadi',
+      'Ijtimoiy tarmoq havolangizni kim bosganini «Ko‘rganlar» da ko‘rasiz (ilova)',
+      'Klaviatura tugmalari kattaroq — ilovada ham, saytda ham',
+    ],
+  },
+  {
     date: '2026-10-10',
     title: 'Hisob yagona: o‘lja ham aqcha bo‘ldi',
     where: 'sayt',
@@ -75,8 +93,8 @@ export const UPDATES: Update[] = [
     body:
       'Yigirmata nishon: kunlik ketma-ketlik, topilgan so‘zlar, jangdagi g‘alabalar va o‘yinning boshqa burchaklari uchun. Nishon bir marta olingach qaytarib olinmaydi.',
     items: [
-      'Robot jangi: kunlik reyting chegarasi olib tashlandi',
-      'Robotning soati o‘yinchi bilan birga boshlanadi',
+      'Jang: kunlik reyting chegarasi olib tashlandi',
+      'Raqibning soati o‘yinchi bilan birga boshlanadi',
       'Taslim bo‘lgan odam raqibni kutib o‘tirmaydi',
     ],
   },
