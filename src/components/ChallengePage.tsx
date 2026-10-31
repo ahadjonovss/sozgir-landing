@@ -324,6 +324,11 @@ export default function ChallengePage() {
    *  yo'q. Sarlavha esa qoladi — odam qayerga tushganini bilsin. */
   const broken = !valid || game.phase === 'error';
 
+  /* Taxta ekrandami — ostidagi bloklar shunga qarab chiziladi.
+     Shart taxtaning o'z sharti bilan bir xil: ikki joyda ikki xil
+     yozilsa, biri o'zgarganda ikkinchisi orqada qolardi. */
+  const playing = valid && !over && (game.phase === 'playing' || done);
+
   /* O'z havolasini bosgan odamga xato emas, jadval kerak: ilovada
      ham aynan shu ochiladi (`ChallengeStatsPage`). */
   const owned = useOwnerBoard(code, valid && game.phase === 'error');
@@ -442,7 +447,7 @@ export default function ChallengePage() {
           </div>
         )}
 
-        {valid && !over && (game.phase === 'playing' || done) && (
+        {playing && (
           <div className="oyin__board oyin__board--fit">
             {/* Taxta, klaviatura va tepadagi qator bitta enni baham
                 ko'radi — `Play` dagidek. */}
@@ -493,8 +498,14 @@ export default function ChallengePage() {
 
             Kod noto'g'ri bo'lsa chizilmaydi: u yerda o'z taklifi
             bor («Bugungi so'zni o'ynash») va ikkita yo'nalish
-            odamni ikkiga bo'lardi. */}
-        {valid && owned === null && (
+            odamni ikkiga bo'lardi.
+
+            **O'yin ketayotganda ham chizilmaydi.** «Keyingi qadam»
+            o'yin tugagach o'rinli; taxta ekranda turganda esa u
+            klaviatura ostidan turtib chiqib, telefonda sahifani
+            surilsa bo'ladigan qilib qo'yardi — barmoq esa aynan
+            o'sha yerda harf teradi. */}
+        {valid && owned === null && !playing && (
           <aside className="panel panel--call soztop__own">
             <h3>Siz ham so‘z yashiring</h3>
             <p className="panel__note">
