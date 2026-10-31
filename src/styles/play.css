@@ -1133,6 +1133,68 @@
   font-weight: 800;
 }
 
+/* Telefonda yig'ilgan qism — ochiladigan tugma bilan.
+
+   `display: none`, `visibility` emas: yig'ilgan blok hujjatda qoladi
+   (qidiruv `h1` ni ko'radi), lekin na joy egallaydi, na surilishga
+   sabab bo'ladi. O'yin ekrani shunda aynan bitta ekran bo'ladi. */
+.oyin__side--off {
+  display: none;
+}
+
+/* Yig'ilgan holatda footer ham ko'rinmaydi. U global — `App.tsx` da,
+   `main` dan keyin — shuning uchun shart `main` ning ichidagi
+   belgidan o'qiladi. Footer o'zi past, lekin o'yin ekrani aynan
+   o'shaning bo'yicha ekrandan oshib ketardi; ochilganda esa yana
+   joyiga qaytadi. */
+#root > main:has(.oyin__side--off) + .footer {
+  display: none;
+}
+
+/* Bo'limning pastki hoshiyasi keyingi blokni ajratish uchun edi —
+   yig'ilgan holda ajratadigan narsaning o'zi yo'q, u esa o'yin
+   ekranini aynan o'sha ellik piksel bilan ekrandan chiqarardi. */
+.oyin:has(.oyin__side--off) {
+  padding-bottom: 12px;
+}
+
+.oyin__more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  min-height: 42px;
+  margin-top: 10px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-2);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Tugmaning o'ng chekkasidagi strelka — ochiq holda teskari. Belgi
+   CSS dan: bitta burchak uchun alohida ikonka ortiqcha. */
+.oyin__more::after {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform 0.16s ease;
+}
+
+.oyin__more--open::after {
+  transform: translateY(1px) rotate(-135deg);
+}
+
 @media (max-width: 900px) {
   .oyin__grid {
     grid-template-columns: minmax(0, 1fr);
@@ -5369,7 +5431,7 @@
     --gap: 6px;
     /* Ekrandan sarlavha, tepadagi qator, klaviatura va havo ayirilgani:
        taxtaning eni shundan hisoblanadi (pastdagi qoidaga qarang). */
-    --fit: calc(100svh - var(--header-h) - 250px);
+    --fit: calc(100svh - var(--header-h) - 300px);
     display: flex;
     flex-direction: column;
     /* `svh`, `dvh` emas. `dvh` manzil qatori yig'ilib-ochilganda
@@ -5380,7 +5442,10 @@
        demak taxta ham qimirlamaydi. To'liq bo'y ishlatilmagani
        uchun pastda bir oz havo qoladi, lekin tinch turgan taxta
        har qanday havodan afzal. */
-    min-height: calc(100svh - var(--header-h) - 34px);
+    /* Ayiriluvchi son — sarlavha ostidagi havo, «yana» tugmasi va
+       pastdagi havo: kartochka aynan shularni qoldirib, qolgan
+       ekranni to'ldiradi. */
+    min-height: calc(100svh - var(--header-h) - 110px);
     /* Sig'ib turgan ekranni rezinadek tortib, manzil qatorini
        yig'ib yuborish ham shu jitterni qo'zg'atardi. */
     overscroll-behavior: contain;

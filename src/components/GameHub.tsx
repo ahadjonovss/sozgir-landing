@@ -15,12 +15,13 @@
  *  **Klaviatura** faqat ko'rinib turgan o'yinga bog'lanadi
  *  (`useSozTop(..., active)`, `useGuncha(active)`): ikkalasi ham
  *  eshitsa, bitta bosilgan harf ikkala taxtaga ham tushardi. */
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { links } from '../data/site';
 import { useAuth } from '../lib/auth';
 import { dailyNumber } from '../lib/daily';
 import { useGameChoice } from '../lib/useGameChoice';
 import { useGameSwap } from '../lib/useGameSwap';
+import { useNarrow } from '../lib/useNarrow';
 import { warmSounds } from '../lib/sounds';
 import { useSozTop } from '../lib/useSozTop';
 import AdBanner from './AdBanner';
@@ -39,6 +40,21 @@ export type HubGame = 'soztop' | 'guncha';
 export default function GameHub({ game }: { game: HubGame }) {
   const { account, openPrompt } = useAuth();
   const choice = useGameChoice();
+
+  /* Telefonda taxtadan pastdagi hamma narsa yig'ib qo'yiladi.
+     Ilgari o'yin ekrani to'rt ming piksel edi: taxta birinchi
+     ekranga sig'sa ham, ostida statistika, nishonlar, tarix,
+     bannerlar va reklama turardi. O'ynayotgan odamga ularning
+     bittasi ham o'sha daqiqada kerak emas, lekin barmoq ekranni
+     surishi bilan brauzerning manzil qatori yig'ilib, sahifa
+     qayta o'lchanardi — taxta o'yin o'rtasida siljirdi.
+     Yig'ilgan holda surish uchun joyning o'zi qolmaydi.
+
+     Kompyuterda yig'ish keraksiz: u yerda yon ustun taxtaning
+     **yonida** turadi va hech narsaga xalaqit bermaydi. */
+  const narrow = useNarrow();
+  const [more, setMore] = useState(false);
+  const open = !narrow || more;
 
   /* Almashtirgich va g'uncha holati — `lib/useGameSwap.ts` da:
      o'sha mexanizm uzunlik sahifalarida va bosh sahifadagi taxtada
@@ -84,7 +100,17 @@ export default function GameHub({ game }: { game: HubGame }) {
           )}
         </div>
 
-        <aside className="oyin__side">
+        {narrow && (
+          <button
+            className={`oyin__more${more ? ' oyin__more--open' : ''}`}
+            onClick={() => setMore((was) => !was)}
+            aria-expanded={more}
+          >
+            {more ? 'Yopish' : 'Statistika, nishonlar va boshqasi'}
+          </button>
+        )}
+
+        <aside className={`oyin__side${open ? '' : ' oyin__side--off'}`}>
           {!account && (
             <div className="panel panel--call">
               <h3>Natijangiz saqlanmayapti</h3>
@@ -174,7 +200,9 @@ export default function GameHub({ game }: { game: HubGame }) {
 
       {/* Sarlavha va izoh taxtadan keyin: sahifa nima ekanini
           tushuntiradi va `h1` ni ham shu yerda qoldiradi. */}
-      <div className="wrap oyin__about">
+      {/* Sarlavha ham o'sha yig'mada: `h1` hujjatda qoladi (qidiruv
+          uni ko'radi), lekin o'ynayotgan ekranda joy egallamaydi. */}
+      <div className={`wrap oyin__about${open ? '' : ' oyin__side--off'}`}>
         <span className="section__kicker">
           {flower ? 'G‘uncha' : `So‘ztop №${dailyNumber()}`}
         </span>
