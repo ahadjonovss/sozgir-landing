@@ -31,6 +31,7 @@
  *  qo'shishga arzimaydi. */
 import { adsConfig, DEFAULT_STEPS, fullscreenReady, showFullscreen } from './ads';
 import { isAdFree } from './donor';
+import { trackGate } from './track';
 import { isVerifiedAsync } from './verified';
 
 /** Shuncha o'yin o'ynamagan odamga darvoza umuman chiqmaydi.
@@ -221,13 +222,28 @@ export function gateBeforeOnlineGame(uid: string | undefined): Promise<boolean> 
 async function run(uid: string | undefined): Promise<boolean> {
   if (!(await due(uid))) return true;
 
-  if ((await ask()) === 'closed') return false;
+  /* Guruhga xabar — har qadamda alohida. Uchala javob ham kerak:
+     «so'raldi» bilan «yopildi» orasidagi nisbat darvoza o'yinchini
+     quvib yubormayotganini ko'rsatadi, «to'ldirish yo'q» esa
+     blokning hali jonlanmaganini aytadi (Yandex yangi blokka
+     to'ldirishni darrov bermaydi). */
+  const info = { total: read(KEY_TOTAL), every: currentEvery };
+  trackGate('so‘raldi', info);
+
+  if ((await ask()) === 'closed') {
+    trackGate('yopildi', info);
+    return false;
+  }
 
   const shown = await showFullscreen();
   // Reklama kelmadi — odam to'xtatib qolinmaydi va sanoq ham joyida
   // qoladi: keyingi qulay paytda yana uriniladi.
-  if (!shown) return true;
+  if (!shown) {
+    trackGate('to‘ldirish yo‘q', info);
+    return true;
+  }
 
+  trackGate('ko‘rildi', info);
   write(KEY_GAMES, 0);
   write(KEY_LAST, Date.now());
   return true;

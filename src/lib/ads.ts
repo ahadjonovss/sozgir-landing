@@ -148,6 +148,13 @@ const FULLSCREEN_UNITS: Record<'desktop' | 'touch', string> = {
 export const fullscreenReady = (): boolean =>
   adsSupported ? FULLSCREEN_UNITS[adPlatform()] !== '' : true;
 
+/** Shu qurilmada ishlatiladigan to'liq ekranli blok — kuzatuv uchun.
+ *
+ *  Guruhdagi xabarda blok id turishi kerak: ikkita blok bor va
+ *  «to'ldirish yo'q» degan xabar qaysi biriga tegishli ekani
+ *  aks holda bilinmasdi. */
+export const fullscreenUnit = (): string => FULLSCREEN_UNITS[adPlatform()];
+
 /**
  * Mukofotli bloklar — har mukofotga alohida.
  *

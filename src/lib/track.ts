@@ -15,7 +15,7 @@
  *  Telegram'ga ketadi; sarlavha, mavzu va ovozni ham o'sha funksiya
  *  hal qiladi. Sabab oddiy: brauzerga tushgan token ochiq matn va
  *  uni istagan odam o'qiydi. */
-import { adUnit, type AdFailure, type AdPlacement } from './ads';
+import { adUnit, fullscreenUnit, type AdFailure, type AdPlacement } from './ads';
 import { compactLogin } from './loginId';
 
 /** Hodisa turlari — `api/event.ts` dagi jadval bilan bir xil. */
@@ -234,6 +234,32 @@ export function trackAd(
     ['Joy', placement],
     ['Blok', adUnit(placement)],
     ['Sahifa', location.pathname],
+  ]);
+}
+
+/** Darvoza — onlayn o'yin oldidagi to'liq ekranli reklama.
+ *
+ *  Bannerdan alohida funksiya, chunki savollar boshqa: bannerda
+ *  «to'ldirish bormi», bu yerda esa **odam nima qildi** — oynani
+ *  yopdimi yoki ko'rdimi. O'sha ikkisi orasidagi nisbat darvozaning
+ *  o'yinchini quvib yubormayotganini ko'rsatadi.
+ *
+ *  Kalitga o'yin sanog'i kiradi: har darvoza alohida yoziladi, lekin
+ *  bitta darvozaning o'zi ikki marta xabar yubormaydi. `trackOnce`
+ *  ni sanoqsiz ishlatish sinov rejimida ikkinchi darvozani jim
+ *  qoldirardi. */
+export function trackGate(
+  result: 'so‘raldi' | 'yopildi' | 'ko‘rildi' | 'to‘ldirish yo‘q',
+  info: { total: number; every: number },
+): void {
+  trackOnce(`gate:${result}:${info.total}`, 'ad', [
+    ['Holat', result],
+    ['Joy', 'darvoza'],
+    ['Qadam', `har ${info.every} o‘yinda`],
+    ['Jami o‘yin', info.total],
+    ['Blok', fullscreenUnit()],
+    ['Sahifa', location.pathname],
+    ['Qurilma', device()],
   ]);
 }
 
