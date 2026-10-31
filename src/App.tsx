@@ -34,6 +34,7 @@ import { useAuth } from './lib/auth';
 import SideAds from './components/SideAds';
 import { StageProvider } from './lib/stage';
 import Hero from './components/Hero';
+import PhoneFold from './components/PhoneFold';
 import InviteOverlay from './components/InviteOverlay';
 import PlayHub from './components/PlayHub';
 import PlayerPage from './components/PlayerPage';
@@ -149,10 +150,17 @@ export default function App() {
                 Matnning o'zi yo'qolmadi: robot va moderator
                 ko'radigan statik HTML ro'yxatlarni avvalgidek
                 yozadi (`vite/prerender.ts`, `home()`). */}
-            <Rules />
-            <Alphabet />
-            <Faq />
-            <Download />
+            {/* Telefonda bularning hammasi yig'ilgan turadi: bosh
+                sahifaga kelgan odam avval **o'ynaydi**, qoidalarni
+                keyin o'qiydi. Yig'ilmaganda sahifa besh ming piksel
+                bo'lib, surish paytida manzil qatori yig'ilib taxtani
+                qayta o'lchardi. Kompyuterda hammasi avvalgidek. */}
+            <PhoneFold>
+              <Rules />
+              <Alphabet />
+              <Faq />
+              <Download />
+            </PhoneFold>
           </>
         )}
         {route === '/oynash' && <PlayHub />}

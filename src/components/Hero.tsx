@@ -95,7 +95,11 @@ export default function Hero() {
               bosib borib, kirish ekraniga urilish uchun chaqirardi.
               Ilova esa hisobsiz ham ishlaydi va natijani o'zi
               saqlaydi — ya'ni bu yerda taklif qilinadigan eng
-              foydali narsa o'sha. Bosh sahifadagi taxta esa
+              foydali narsa o'sha. Telefonda esa bu qator umuman
+              chizilmaydi (CSS, `daily-card--get`): u yerda o'yin
+              tugagach `AppPopup` o'zi chiqadi va ayni gapni
+              takrorlardi, ustiga taxtani ekrandan pastga surib
+              tushirardi. Bosh sahifadagi taxta esa
               ikkalasiga ham ochiq: u cheksiz rejim. */}
           {account ? (
             <a className="daily-card" href={links.play}>
@@ -110,7 +114,7 @@ export default function Hero() {
             </a>
           ) : (
             <a
-              className="daily-card"
+              className="daily-card daily-card--get"
               href={storeLink()}
               target="_blank"
               rel="noreferrer"

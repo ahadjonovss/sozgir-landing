@@ -1142,12 +1142,27 @@
   display: none;
 }
 
+/* Ochiq holda o'ram **yo'q**: bolalar to'g'ridan-to'g'ri ota
+   elementga tushadi, ya'ni grid va boshqa qoidalar o'zgarmaydi. */
+.fold {
+  display: contents;
+}
+
+/* Ikkala sinf bitta elementda turadi, shuning uchun bu yerda ikkitasi
+   ham yoziladi: `.fold--off` yolg'iz qolsa yuqoridagi `.fold` bilan
+   og'irligi teng bo'lib, keyin turgani — ya'ni `contents` — g'olib
+   chiqardi va yig'ish umuman ishlamasdi. */
+.fold.fold--off {
+  display: none;
+}
+
 /* Yig'ilgan holatda footer ham ko'rinmaydi. U global — `App.tsx` da,
    `main` dan keyin — shuning uchun shart `main` ning ichidagi
    belgidan o'qiladi. Footer o'zi past, lekin o'yin ekrani aynan
    o'shaning bo'yicha ekrandan oshib ketardi; ochilganda esa yana
    joyiga qaytadi. */
-#root > main:has(.oyin__side--off) + .footer {
+#root > main:has(.oyin__side--off) + .footer,
+#root > main:has(.fold--off) + .footer {
   display: none;
 }
 
@@ -1158,7 +1173,8 @@
   padding-bottom: 12px;
 }
 
-.oyin__more {
+.oyin__more,
+.fold__btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1181,7 +1197,8 @@
 
 /* Tugmaning o'ng chekkasidagi strelka — ochiq holda teskari. Belgi
    CSS dan: bitta burchak uchun alohida ikonka ortiqcha. */
-.oyin__more::after {
+.oyin__more::after,
+.fold__btn::after {
   content: '';
   width: 7px;
   height: 7px;
@@ -1191,8 +1208,17 @@
   transition: transform 0.16s ease;
 }
 
-.oyin__more--open::after {
+.oyin__more--open::after,
+.fold__btn--open::after {
   transform: translateY(1px) rotate(-135deg);
+}
+
+/* Bosh sahifada tugma `wrap` dan tashqarida turadi — chekkaga
+   yopishib qolmasin. */
+.fold__btn {
+  max-width: calc(var(--page) - 24px);
+  margin-inline: auto;
+  margin-bottom: 4px;
 }
 
 @media (max-width: 900px) {

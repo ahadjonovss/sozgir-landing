@@ -450,6 +450,16 @@
   }
 }
 
+/* Ilova taklifi telefonda chizilmaydi: u yerda o'yin tugagach
+   `AppPopup` o'zi chiqadi va ayni gapni takrorlardi, ustiga
+   taxtani ekrandan pastga surib tushirardi. Kirgan odamning
+   kunlik so'z qatori esa qoladi — u taklif emas, havola. */
+@media (max-width: 900px) {
+  .daily-card--get {
+    display: none;
+  }
+}
+
 /* Taxta va klaviatura **har qanday ekranda** birinchi ekranga sig'adi.
    O'yin sahifasidagi `--fit` bilan bir xil hisob (`play.css`): bo'sh
    joy taxtaga beriladi, klaviatura o'z o'lchamida qoladi (barmoq uchun
@@ -737,8 +747,29 @@
     max-width: none;
   }
   .hero__board {
-    --reserve: 300px;
+    --reserve: 395px;
     min-height: calc(100svh - var(--header-h) - 150px);
+  }
+}
+
+/* Yig'ilgan holatda bosh sahifada faqat o'yin qoladi.
+
+   Sarlavha, izoh va tugmalar taxtadan **pastda** turadi — ya'ni
+   telefonda ularni ko'rish uchun o'yindan voz kechib pastga surish
+   kerak edi. Bosh sahifaga kelgan odam esa avval o'ynaydi. Shart
+   yig'ma tugmaning holatidan o'qiladi (`PhoneFold`): «Qoidalar…»
+   bosilsa, matn ham qoidalar bilan birga qaytadi.
+
+   `display: none`, ya'ni `h1` hujjatda qoladi — qidiruv uni
+   avvalgidek ko'radi. */
+@media (max-width: 900px) {
+  main:has(.fold--off) .hero__copy,
+  main:has(.fold--off) .hero__playnote {
+    display: none;
+  }
+
+  main:has(.fold--off) .hero {
+    padding-bottom: 10px;
   }
 }
 
