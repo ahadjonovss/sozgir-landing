@@ -385,10 +385,11 @@
   display: grid;
   gap: 14px;
   width: 100%;
-  /* Taxta ekran eniga cho'zilmaydi: kataklarni kattalashtirish o'yinni
-     yaxshilamaydi, faqat sahifani uzaytiradi va ostidagi matnni birinchi
-     ekrandan itarib yuboradi. Chegara — o'qish uchun qulay o'lcham. */
-  max-width: 460px;
+  /* Taxta ekran eniga cho'zilmaydi: kataklarni cheksiz kattalashtirish
+     o'yinni yaxshilamaydi, faqat sahifani uzaytiradi. Lekin 460 kichik
+     edi — keng monitorda taxta ekranning o'rtasida kichkina bo'lib
+     qolardi, atrofida esa qarich-qarich bo'sh joy turardi. */
+  max-width: 560px;
 }
 
 /* Kunlik so'z banneri — taxtaning tepasida, bitta qatorda: belgi, ikki
@@ -478,11 +479,10 @@
      Ekranga sig'dirishning maqsadi — o'yinni ko'rsatish, ya'ni
      sig'maydigan joyda sig'dirishdan voz kechib surishga ruxsat
      berish to'g'ri: kichik taxtadan ko'ra surilgan sahifa afzal.
-     480 — katak 75 piksel, ya'ni eng past chegarada ham taxta
-     telefondagidan kichik emas. Oddiy noutbukda (900 piksel bo'y)
-     hisobning o'zi baribir kattaroq chiqadi, ya'ni chegara faqat
-     past oynada ishga tushadi. */
-  --fit: max(480px, calc(100svh - var(--header-h) - var(--reserve)));
+     560 — katak 88 piksel. Past oynada sahifa biroz suriladi, lekin
+     kompyuterda surish arzon: u yerda sichqoncha ham, klaviatura ham
+     bor, taxtaning kichikligi esa har bir yurishda bilinadi. */
+  --fit: max(560px, calc(100svh - var(--header-h) - var(--reserve)));
   /* So'ztop taxtasining odatdagi o'lchovi — g'uncha uchun zaxira.
      `--rows` bilan `--cols` ni `Play` o'z uslubida beradi, lekin
      g'uncha ko'ringanda `.play` umuman yo'q va hisob ularsiz
@@ -547,17 +547,24 @@
   );
 }
 
-/* Tepadagi qator, taxta va klaviatura — bitta en. Ilgari klaviatura
-   butun enni olar, taxta esa balandlikka qarab kichrayardi: ekranda uch
-   xil kenglikdagi uch blok turar va bir chetida ko'p, ikkinchisida kam
-   joy qolardi. */
+/* Tepadagi qator va taxta — bitta en.
+
+   Klaviatura esa **har doim butun enda**. Ilgari u ham `--board-w`
+   ga bog'langan edi va taxta balandlikka qarab kichrayganda u ham
+   birga kichrayardi: tugmalar torayib, barmoq qo'shni harfga
+   tegadigan bo'lib qolardi. Taxtaning kichrayishi — kataklarning
+   ishi, tugmalarning bunga aloqasi yo'q: ular qancha keng bo'lsa,
+   shuncha yaxshi. */
 .hero__board .play__top,
 .hero__board .game__board,
-.hero__board .keyboard,
 .hero__board .guncha {
   width: 100%;
   max-width: var(--board-w);
   margin-inline: auto;
+}
+
+.hero__board .keyboard {
+  width: 100%;
 }
 
 .hero__board .keyboard {

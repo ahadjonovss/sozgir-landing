@@ -1023,7 +1023,7 @@
   /* Taxta belgilangan kenglikda: kataklar juda kattalashib ketmasligi
      kerak. Yonidagi ustun ham cheklanadi, aks holda reyting jadvali
      keraksiz cho'zilib ketardi. */
-  grid-template-columns: minmax(0, 420px) minmax(0, 420px);
+  grid-template-columns: minmax(0, 520px) minmax(0, 420px);
   gap: 30px;
   align-items: start;
   max-width: 900px;
@@ -5451,7 +5451,7 @@
      bir oz kichik chiqadi (zarari yo'q), oshirib yuborilsa ekran
      yana suriladi — shuning uchun ehtiyot tomonga. */
   .jang:has(.jang__keys) .game__board {
-    --fit: max(480px, calc(100svh - var(--header-h) - 482px));
+    --fit: max(560px, calc(100svh - var(--header-h) - 482px));
     width: min(
       100%,
       calc(
@@ -5587,11 +5587,19 @@
   /* Tepadagi qator, taxta va klaviatura — bitta en, chekkalari bir
      chiziqda. */
   .oyin__board--fit .play__top,
-  .oyin__board--fit .game__board,
-  .oyin__board--fit .keyboard {
+  .oyin__board--fit .game__board {
     width: 100%;
     max-width: var(--board-w);
     margin-inline: auto;
+  }
+
+  /* Klaviatura **hech qachon** kichraymaydi: u taxta bilan bitta
+     enda turardi va taxta balandlikka qarab torayganda tugmalar ham
+     torayib, barmoq qo'shni harfga tegadigan bo'lib qolardi.
+     Kataklarning kichrayishi tugmalarga aloqador emas. */
+  .oyin__board--fit .keyboard {
+    width: 100%;
+    max-width: none;
   }
 
   /* Klaviatura pastda qoladi. */
