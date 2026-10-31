@@ -15,15 +15,20 @@ import type { ReactNode } from 'react';
 import { useState } from 'react';
 import { useNarrow } from '../lib/useNarrow';
 
-/** `silent` — tugmasiz va **har qanday ekranda** yopiq.
+/** `silent` — tugmasiz: telefonda bo'lim butunlay yopiladi.
  *
- *  Bosh sahifada aynan shunday, kompyuterda ham. Bosh sahifaga odam
- *  o'ynagani keladi: taxta ekranni to'ldirib tursa, ostidagi
- *  matnni surib izlashning hojati yo'q — qoidalar menyuda va
- *  `/qollanma` da, o'yinlar esa `/oynash` da. Ochadigan tugma ham
- *  o'sha sababdan yo'q: u taxtadan joy yerdi. Matn hujjatdan
- *  yo'qolmaydi (`display: none`) — qidiruv uni avvalgidek
- *  ko'radi. */
+ *  Bosh sahifada aynan shunday. Ochadigan tugma ham yo'q: u o'yin
+ *  bilan bir ekranda turib taxtadan joy yerdi, qoidalar esa menyuda
+ *  va `/qollanma` da bor. Matn hujjatdan yo'qolmaydi
+ *  (`display: none`) — qidiruv uni avvalgidek ko'radi.
+ *
+ *  **Kompyuterda hech narsa yig'ilmaydi.** Bir paytlar u yerda ham
+ *  yopib ko'rilgandi va sayt o'sha zahoti «ekranga cho'zilgan mobil
+ *  ilova» ga o'xshab qoldi: keng monitorda o'rtada tor ustun, uning
+ *  atrofida qarich-qarich bo'sh joy, na sarlavha, na matn, na
+ *  footer. Kompyuterda joy yetarli — taxta baribir birinchi ekranni
+ *  to'ldiradi (`useScreenFill`), qolgani esa ostida, odatdagidek
+ *  turaveradi. */
 export default function PhoneFold({
   label = 'Qoidalar, savollar va boshqasi',
   silent = false,
@@ -35,7 +40,7 @@ export default function PhoneFold({
 }) {
   const narrow = useNarrow();
   const [open, setOpen] = useState(false);
-  const shown = silent ? false : !narrow || open;
+  const shown = narrow ? (silent ? false : open) : true;
 
   return (
     <>

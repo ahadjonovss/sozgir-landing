@@ -315,12 +315,14 @@
 
 /* ── Hero ─────────────────────────────────────────────────────────────── */
 
-/* Hoshiya kichik: bo'lim ostidagi matn yig'ilgan (`PhoneFold`), ya'ni
-   ajratadigan narsa yo'q, bo'sh joy esa taxtadan olinadi — u qancha
-   katta bo'lsa, shuncha yaxshi. */
+/* Tepadagi hoshiya kichik: taxta birinchi ekranni to'ldirishi kerak
+   va bo'sh joy undan olinadi. Pastdagisi esa qoladi — u yerda bo'lim
+   tugab, keyingisi boshlanadi va ularni ajratadigan narsa kerak.
+   Telefonda ostida hech narsa yo'q (`PhoneFold`), shuning uchun u
+   yerda pastki hoshiya ham qisqaradi. */
 .hero {
   position: relative;
-  padding: 16px 0;
+  padding: 16px 0 clamp(48px, 6vw, 88px);
   overflow: hidden;
 }
 
