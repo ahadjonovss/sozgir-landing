@@ -1170,7 +1170,8 @@
    yig'ilgan holda ajratadigan narsaning o'zi yo'q, u esa o'yin
    ekranini aynan o'sha ellik piksel bilan ekrandan chiqarardi. */
 .oyin:has(.oyin__side--off) {
-  padding-bottom: 12px;
+  padding-top: 8px;
+  padding-bottom: 0;
 }
 
 .oyin__more,
@@ -1233,10 +1234,15 @@
 }
 
 @media (max-width: 560px) {
+  /* Telefonda taxta kartochkadan chiqadi: sahifaning o'zi o'yin,
+     ya'ni ramkaning ishi yo'q edi, hoshiyasi esa taxtaning enidan
+     yigirma sakkiz piksel olib, kataklarni kichraytirardi. */
   .oyin__board {
     max-width: none;
-    padding: 14px 12px;
-    border-radius: var(--radius);
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
   }
 
   /* Kartochkaning o'z hoshiyasi ham qisqaradi — `wrap` nikidan keyin
@@ -5465,7 +5471,7 @@
        taxtaning eni shundan hisoblanadi (pastdagi qoidaga qarang). */
     /* Pastki chegara — `landing.css` dagi bilan bitta sabab: past
        oynada hisob taxtani nuqtaga aylantirardi. */
-    --fit: max(480px, calc(100svh - var(--header-h) - 372px));
+    --fit: calc(100svh - var(--header-h) - 248px);
     display: flex;
     flex-direction: column;
     /* `svh`, `dvh` emas. `dvh` manzil qatori yig'ilib-ochilganda
@@ -5544,7 +5550,38 @@
      birga kataklarning **ichki** kengligiga tushib qolardi, u esa nol
      (`flex: 1 1 0`) — taxta 24 piksel bo'lib g'oyib bo'lardi. */
   .oyin__board--fit .play {
-    --board-w: 100%;
+    --board-w: min(
+      100%,
+      calc(
+        (var(--fit) - (var(--rows) - 1) * var(--gap)) / var(--rows) * var(--cols) +
+          (var(--cols) - 1) * var(--gap)
+      )
+    );
+  }
+
+  /* Yashirilgan so'z sahifasida (`/soztop/{kod}`) taxtadan tepada
+     yana bir blok bor: bo'lim nomi, sarlavha va «falonchi bitta
+     so'z yashirdi» degan izoh. Kompyuterda ular o'rinli, telefonda
+     esa ikki yuz piksel yeb, klaviaturani ekrandan chiqarib
+     yuborardi — odam o'ynashdan oldin surishi kerak bo'lardi.
+
+     O'ynayotgan payt ulardan faqat sarlavha qoladi: kim yashirgani
+     va qancha urinish borligi o'yinning o'zidan ham ko'rinadi
+     (taxta qatorlari), xato holatda esa blok to'liq qolaveradi —
+     u yerda taxta yo'q va tushuntirish kerak. */
+  .oyin:has(.oyin__board--fit) .section__head--tight .section__kicker,
+  .oyin:has(.oyin__board--fit) .section__head--tight .section__lead {
+    display: none;
+  }
+
+  .oyin:has(.oyin__board--fit) .section__head--tight h1 {
+    font-size: 19px;
+  }
+
+  /* Qolgan sarlavhaning balandligi zaxiraga qo'shiladi: boshqa
+     o'yin sahifalarida bu qator umuman yo'q. */
+  .oyin:has(.section__head--tight) .oyin__board--fit {
+    --fit: calc(100svh - var(--header-h) - 292px);
   }
 
   /* Tepadagi qator, taxta va klaviatura — bitta en, chekkalari bir

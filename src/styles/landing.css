@@ -756,23 +756,31 @@
   .hero__play {
     max-width: none;
   }
-  /* Telefonda taxta **balandlikdan emas, endan** o'lchanadi.
+  /* Telefondagi zaxira **o'lchab chiqilgan**: sarlavha qatori (32),
+     klaviatura (174), bo'lim hoshiyalari (14 + 10) va bloklar
+     orasidagi havo — jami 248, `--header-h` dan tashqari. Shuncha
+     ayrilganda taxta ekranga aynan sig'adi va kataklar enning
+     deyarli hammasini oladi (369 dan 362): ilgarigi o'ttiz besh
+     piksellik bo'sh yo'lak qolmaydi.
 
-     Balandlikdan chiqarilganda u ekranga aynan sig'ardi, lekin
-     kataklar ikki yondan o'ttiz besh piksel ichkarida qolib,
-     chekkalarda bo'sh yo'lak turardi — telefonda bu xunuk va
-     barmoqqa noqulay. Endi kataklar butun enni oladi; evaziga
-     sahifa bir oz suriladi. Surilish o'zi muammo emas edi:
-     muammo `dvh` bilan birga kelgan qayta o'lchanish edi, u esa
-     `svh` bilan yopilgan. */
+     Tepadagi qator telefonda **ko'pincha yo'q** (kirmagan odamda
+     `daily-card--get` chizilmaydi), shuning uchun asosiy hisob
+     unsiz yuritiladi — aks holda yo'q narsaning balandligi ham
+     ayrilib, taxta keraksiz kichrayardi.
+
+     Eng kichik chegara (`max()`) bu yerda **yo'q**: u past va keng
+     oyna uchun edi, telefonda esa aksincha, taxtani ekrandan
+     chiqarib yuborardi. */
   .hero__board {
-    --reserve: 272px;
+    --reserve: 248px;
+    --fit: calc(100svh - var(--header-h) - var(--reserve));
     min-height: calc(100svh - var(--header-h) - 150px);
   }
 
-  .hero__board,
-  .hero__board .play {
-    --board-w: 100%;
+  /* Kirgan odamda qator bor — o'shanda zaxira o'sha qator
+     balandligicha kattalashadi. */
+  .hero__play:has(.daily-card:not(.daily-card--get)) .hero__board {
+    --reserve: 326px;
   }
 }
 
