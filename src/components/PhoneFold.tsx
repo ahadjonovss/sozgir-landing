@@ -15,14 +15,15 @@ import type { ReactNode } from 'react';
 import { useState } from 'react';
 import { useNarrow } from '../lib/useNarrow';
 
-/** `silent` — tugmasiz: telefonda bo'lim **butunlay** yopiladi.
+/** `silent` — tugmasiz va **har qanday ekranda** yopiq.
  *
- *  Bosh sahifada aynan shunday. U yerda ochiladigan tugma ham o'yin
- *  bilan bir ekranda turardi va taxtadan ellik piksel yeb, o'zi
- *  hech kimga kerak bo'lmasdi: bosh sahifaga odam o'ynagani
- *  keladi, qoidalar esa menyuda va `/qollanma` da bor. Matn
- *  hujjatdan yo'qolmaydi (`display: none`) — qidiruv uni
- *  avvalgidek ko'radi. */
+ *  Bosh sahifada aynan shunday, kompyuterda ham. Bosh sahifaga odam
+ *  o'ynagani keladi: taxta ekranni to'ldirib tursa, ostidagi
+ *  matnni surib izlashning hojati yo'q — qoidalar menyuda va
+ *  `/qollanma` da, o'yinlar esa `/oynash` da. Ochadigan tugma ham
+ *  o'sha sababdan yo'q: u taxtadan joy yerdi. Matn hujjatdan
+ *  yo'qolmaydi (`display: none`) — qidiruv uni avvalgidek
+ *  ko'radi. */
 export default function PhoneFold({
   label = 'Qoidalar, savollar va boshqasi',
   silent = false,
@@ -34,7 +35,7 @@ export default function PhoneFold({
 }) {
   const narrow = useNarrow();
   const [open, setOpen] = useState(false);
-  const shown = !narrow || (open && !silent);
+  const shown = silent ? false : !narrow || open;
 
   return (
     <>

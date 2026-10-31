@@ -328,7 +328,13 @@ export function useChallenge(code: string): Challenge {
       playRow(verdicts);
       if (over) {
         const won = reply.won === true;
-        later(() => play(won ? 'win' : 'lose'), 250 + 130 * length);
+        /* Aniq o'sha lahza: oxirgi katak (length − 1) × 130 da
+           ag'darila boshlaydi va 500 ms da tugaydi — sakrash ham
+           shundan boshlanadi (`board__row--win`). Ilgari bu yerda
+           `250 + 130 × length` turardi, ya'ni ohang animatsiyadan
+           120 ms oldin kelib, ko'z bilan quloq bir-biriga mos
+           kelmasdi. */
+        later(() => play(won ? 'win' : 'lose'), 130 * (length - 1) + 500);
       }
     } catch (raw) {
       bump(apiError(raw));

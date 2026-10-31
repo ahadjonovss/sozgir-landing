@@ -315,9 +315,12 @@
 
 /* ── Hero ─────────────────────────────────────────────────────────────── */
 
+/* Hoshiya kichik: bo'lim ostidagi matn yig'ilgan (`PhoneFold`), ya'ni
+   ajratadigan narsa yo'q, bo'sh joy esa taxtadan olinadi — u qancha
+   katta bo'lsa, shuncha yaxshi. */
 .hero {
   position: relative;
-  padding: clamp(28px, 5vw, 64px) 0 clamp(64px, 8vw, 104px);
+  padding: 16px 0;
   overflow: hidden;
 }
 
@@ -471,7 +474,6 @@
   /* Ekrandan sarlavha, kunlik banner, holat qatori, klaviatura va havo
      ayirilgani. Kam baholansa taxta bir oz kichik chiqadi (zarari yo'q),
      oshirib yuborilsa klaviatura birinchi ekrandan chiqib ketardi. */
-  --reserve: 326px;
   --gap: 6px;
   /* Pastki chegara — `max()`. Hisobning o'zi past oynada manfiyga
      yaqinlashadi: 520 pikselli noutbuk oynasida taxtaga 118 piksel
@@ -479,10 +481,17 @@
      Ekranga sig'dirishning maqsadi — o'yinni ko'rsatish, ya'ni
      sig'maydigan joyda sig'dirishdan voz kechib surishga ruxsat
      berish to'g'ri: kichik taxtadan ko'ra surilgan sahifa afzal.
-     560 — katak 88 piksel. Past oynada sahifa biroz suriladi, lekin
-     kompyuterda surish arzon: u yerda sichqoncha ham, klaviatura ham
-     bor, taxtaning kichikligi esa har bir yurishda bilinadi. */
-  --fit: max(560px, calc(100svh - var(--header-h) - var(--reserve)));
+     Zaxira o'lchab chiqilgan: sarlavha (80), kunlik so'z qatori (65),
+     holat qatori (32), klaviatura (142), ostidagi izoh (40), bo'lim
+     hoshiyalari (16 + 16) va bloklar orasidagi havo — `--header-h`
+     dan tashqari jami 361. Qolgan hamma joy taxtaga ketadi, ya'ni u
+     ekranni **to'ldirib** turadi va sahifa surilmaydi.
+
+     300 — eng past chegara: juda past oynada sig'dirishdan voz
+     kechib surishga ruxsat beriladi, aks holda kataklar nuqtaga
+     aylanardi. */
+  --reserve: 403px;
+  --fit: max(300px, calc(100svh - var(--header-h) - var(--reserve)));
   /* So'ztop taxtasining odatdagi o'lchovi — g'uncha uchun zaxira.
      `--rows` bilan `--cols` ni `Play` o'z uslubida beradi, lekin
      g'uncha ko'ringanda `.play` umuman yo'q va hisob ularsiz
@@ -801,8 +810,14 @@
 
    `display: none`, ya'ni `h1` hujjatda qoladi — qidiruv uni
    avvalgidek ko'radi. */
+main:has(.fold--off) .hero__copy {
+  display: none;
+}
+
+/* Taxta ostidagi bir qatorlik izoh telefonda ham ketadi: u yerda
+   har piksel taxtaga kerak. Kompyuterda qoladi — joy bor va u
+   «bu haqiqiy o'yin» degan savolga javob beradi. */
 @media (max-width: 900px) {
-  main:has(.fold--off) .hero__copy,
   main:has(.fold--off) .hero__playnote {
     display: none;
   }
