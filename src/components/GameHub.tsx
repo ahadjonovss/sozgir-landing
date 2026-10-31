@@ -22,6 +22,7 @@ import { dailyNumber } from '../lib/daily';
 import { useGameChoice } from '../lib/useGameChoice';
 import { useGameSwap } from '../lib/useGameSwap';
 import { useNarrow } from '../lib/useNarrow';
+import { useScreenFill } from '../lib/useBoardFit';
 import { warmSounds } from '../lib/sounds';
 import { useSozTop } from '../lib/useSozTop';
 import AdBanner from './AdBanner';
@@ -57,6 +58,9 @@ export default function GameHub({ game }: { game: HubGame }) {
      Kompyuterda yopish keraksiz: u yerda yon ustun taxtaning
      **yonida** turadi va hech narsaga xalaqit bermaydi. */
   const narrow = useNarrow();
+  /* Taxta o'rami ekranning qolganini to'ldiradi. G'unchada kerak
+     emas: u o'zi ixcham va cho'zilishi shart emas. */
+  const fill = useScreenFill<HTMLDivElement>(620);
   const open = !narrow;
 
   /* Almashtirgich va g'uncha holati — `lib/useGameSwap.ts` da:
@@ -91,7 +95,10 @@ export default function GameHub({ game }: { game: HubGame }) {
         {/* `--fit`: telefonda taxta va klaviatura bitta ekranga sig'adi —
             o'ynash uchun surish kerak emas (ilovadagidek). G'unchada
             bunday chegara yo'q: u o'zi ixcham. */}
-        <div className={`oyin__board game-slot${flower ? '' : ' oyin__board--fit'}`}>
+        <div
+          className={`oyin__board game-slot${flower ? '' : ' oyin__board--fit'}`}
+          ref={flower ? undefined : fill}
+        >
           {/* Yon ustunlar taxtaning yonida, oqimdan tashqarida
               chiziladi — markaz qimirlamaydi. Ular shu o'ramda, taxtaning
               o'zida emas: o'yin turi almashganda joyida qolishi kerak. */}

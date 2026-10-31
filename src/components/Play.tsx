@@ -10,6 +10,7 @@
 import { useEffect, useState, type CSSProperties } from 'react';
 import { untilNextWord } from '../lib/daily';
 import { useAuth } from '../lib/auth';
+import { useBoardFit } from '../lib/useBoardFit';
 import { trackGame, trackShare } from '../lib/track';
 import { askAppPromo } from '../lib/appPromo';
 import { countShare } from '../lib/badges';
@@ -106,6 +107,9 @@ function PlayBoard({
   skipped: string | null;
   onSkip: (word: string | null) => void;
 }) {
+  /* Taxtaga qolgan joy shu o'ramning balandligidan o'lchanadi. */
+  const fit = useBoardFit<HTMLDivElement>();
+
   const auth = useAuth();
   /* Ovoz fayllari taxta chiqishi bilan bo'sh vaqtda yuklanadi — shunda
      birinchi bosilgan harf ham ovozli bo'ladi (`lib/sounds.ts`). */
@@ -384,7 +388,7 @@ function PlayBoard({
       {!needsAccount && game.puzzle && game.phase !== 'loading' && game.phase !== 'error' && (
         <>
           {!elsewhere && (
-            <div className="play__area">
+            <div className="play__area" ref={fit}>
               <Board
                 rows={game.rows}
                 length={game.puzzle.length}

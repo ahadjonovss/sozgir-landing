@@ -7,6 +7,7 @@ import { useSozTop } from '../lib/useSozTop';
 import { useAuth } from '../lib/auth';
 import { dailyNumber } from '../lib/daily';
 import { Download, Today } from './Icons';
+import { useScreenFill } from '../lib/useBoardFit';
 import { links } from '../data/site';
 
 /** Qurilmaning do'koni.
@@ -56,6 +57,10 @@ const CONFETTI: { unit: string; verdict: 'correct' | 'present' | 'absent' }[] = 
  *  «ilovaning ko'rinishi» qilib ko'rsatardi, holbuki u shu yerda,
  *  brauzerda o'ynaladigan haqiqiy o'yin. */
 export default function Hero() {
+  /* Ustun ekranning qolganini to'ldiradi — taxta esa ichidagi
+     bo'sh joyni (`useBoardFit`). */
+  const fill = useScreenFill<HTMLDivElement>();
+
   // Bosh sahifa **cheksiz** rejimdan boshlanadi. Sabab ikkita: kunlik
   // so'z endi hisob talab qiladi (u reytingga tushadi), ya'ni birinchi
   // marta kelgan odam bosh sahifada darrov to'siqqa urilardi; ikkinchidan
@@ -82,7 +87,7 @@ export default function Hero() {
       </div>
 
       <div className="wrap hero__inner">
-        <div className="hero__play">
+        <div className="hero__play" ref={fill}>
           {/* Taxtaning tepasidagi qator — sahifaning eng muhim
               havolasi. Lekin u kimga nima ko'rsatishi hisobga
               bog'liq.

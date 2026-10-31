@@ -14,6 +14,7 @@
 import { useEffect, useState, type CSSProperties } from 'react';
 import { challengeLink, links, playerLink } from '../data/site';
 import { useAuth } from '../lib/auth';
+import { useBoardFit, useScreenFill } from '../lib/useBoardFit';
 import { askAppPromo } from '../lib/appPromo';
 import {
   challengeOwnerBoard,
@@ -342,6 +343,10 @@ export default function ChallengePage() {
    *  yo'q. Sarlavha esa qoladi — odam qayerga tushganini bilsin. */
   const broken = !valid || game.phase === 'error';
 
+  /* Taxtaga qolgan joy shu o'ramning balandligidan o'lchanadi. */
+  const fit = useBoardFit<HTMLDivElement>();
+  const fill = useScreenFill<HTMLDivElement>(620);
+
   /* Taxta ekrandami — ostidagi bloklar shunga qarab chiziladi.
      Shart taxtaning o'z sharti bilan bir xil: ikki joyda ikki xil
      yozilsa, biri o'zgarganda ikkinchisi orqada qolardi. */
@@ -470,7 +475,7 @@ export default function ChallengePage() {
         )}
 
         {playing && (
-          <div className="oyin__board oyin__board--fit">
+          <div className="oyin__board oyin__board--fit" ref={fill}>
             {/* Taxta, klaviatura va tepadagi qator bitta enni baham
                 ko'radi — `Play` dagidek. */}
             <div
@@ -479,7 +484,7 @@ export default function ChallengePage() {
                 { '--cols': game.length, '--rows': game.rows.length } as CSSProperties
               }
             >
-              <div className="play__area">
+              <div className="play__area" ref={fit}>
                 <Board
                   rows={game.rows}
                   length={game.length}

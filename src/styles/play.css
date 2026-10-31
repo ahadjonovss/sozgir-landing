@@ -1030,6 +1030,20 @@
   margin-inline: auto;
 }
 
+/* Kompyuterda taxta **joyida qoladi**: yon ustun uzun (statistika,
+   nishonlar, kunlik ball, janglar tarixi…) va u surilganda chap
+   tomon bo'shab qolardi — ekranning yarmi bo'm-bo'sh qora maydon
+   bo'lib, taxta esa allaqachon tepada ko'rinmay ketgan bo'lardi.
+   Endi u yopishib turadi: o'ng tomon surilaveradi, o'yin ko'z
+   oldida qoladi. Telefonda ustun bitta — yopishtiradigan narsa
+   yo'q. */
+@media (min-width: 901px) {
+  .oyin__board {
+    position: sticky;
+    top: calc(var(--header-h) + 12px);
+  }
+}
+
 /* Taxta kartochkada turadi — telefon ramkasi bu yerda ortiqcha, sahifaning
    o'zi o'yin uchun. */
 .oyin__board {
@@ -5471,7 +5485,9 @@
        taxtaning eni shundan hisoblanadi (pastdagi qoidaga qarang). */
     /* Pastki chegara — `landing.css` dagi bilan bitta sabab: past
        oynada hisob taxtani nuqtaga aylantirardi. */
-    --fit: calc(100svh - var(--header-h) - 248px);
+    /* `--fit` ni `useBoardFit` o'lchab beradi; bu — o'lchov
+       kelgunicha turadigan zaxira. */
+    --fit: 420px;
     display: flex;
     flex-direction: column;
     /* `svh`, `dvh` emas. `dvh` manzil qatori yig'ilib-ochilganda
@@ -5549,7 +5565,8 @@
      `width` aniq berilishi shart: `auto` chekka `margin` lar bilan
      birga kataklarning **ichki** kengligiga tushib qolardi, u esa nol
      (`flex: 1 1 0`) — taxta 24 piksel bo'lib g'oyib bo'lardi. */
-  .oyin__board--fit .play {
+  .oyin__board--fit .play,
+  .oyin__board--fit .play__area {
     --board-w: min(
       100%,
       calc(
@@ -5586,7 +5603,6 @@
 
   /* Tepadagi qator, taxta va klaviatura — bitta en, chekkalari bir
      chiziqda. */
-  .oyin__board--fit .play__top,
   .oyin__board--fit .game__board {
     width: 100%;
     max-width: var(--board-w);

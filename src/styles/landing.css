@@ -384,8 +384,13 @@
 
 /* O'yin bloki taxtaning o'z kengligida qoladi — keng ekranda ham u
    markazda, ya'ni sahifa ochilishi bilan ko'z taxtaga tushadi. */
+/* Ustun ekranning qolganini to'ldiradi (balandlikni `useScreenFill`
+   o'lchab beradi), ichidagilar esa ustun bo'ylab taqsimlanadi:
+   taxta o'rami qolgan hamma joyni oladi (`play__area { flex: 1 }`),
+   klaviatura va qatorlar o'z o'lchamida qoladi. */
 .hero__play {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 14px;
   width: 100%;
   /* Taxta ekran eniga cho'zilmaydi: kataklarni cheksiz kattalashtirish
@@ -490,8 +495,10 @@
      300 — eng past chegara: juda past oynada sig'dirishdan voz
      kechib surishga ruxsat beriladi, aks holda kataklar nuqtaga
      aylanardi. */
-  --reserve: 403px;
-  --fit: max(300px, calc(100svh - var(--header-h) - var(--reserve)));
+  /* `--fit` endi CSS da hisoblanmaydi: uni `useBoardFit` o'lchab,
+     `.play__area` ning o'z balandligidan beradi. Bu yerdagi son —
+     o'sha o'lchov kelgunicha (birinchi kadrda) turadigan zaxira. */
+  --fit: 420px;
   /* So'ztop taxtasining odatdagi o'lchovi — g'uncha uchun zaxira.
      `--rows` bilan `--cols` ni `Play` o'z uslubida beradi, lekin
      g'uncha ko'ringanda `.play` umuman yo'q va hisob ularsiz
@@ -545,8 +552,11 @@
    `--rows` bilan `--cols` `.play` ning o'z uslubida turadi (zaxirasi
    `.hero__board` da), shuning uchun hisob shu yerda bir marta
    bajariladi va pastdagi bloklar uni tayyor holda oladi. */
+/* Hisob `.play__area` da: `--fit` o'sha yerda, o'lchangan holda
+   turadi. */
 .hero__board,
-.hero__board .play {
+.hero__board .play,
+.hero__board .play__area {
   --board-w: min(
     100%,
     calc(
@@ -554,6 +564,27 @@
         (var(--cols) - 1) * var(--gap)
     )
   );
+}
+
+/* O'ram ustunning qolgan joyini oladi, taxta esa uning ichida
+   markazda. */
+.hero__board,
+.hero__board .play {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.hero__board .play,
+.hero__board .play__area {
+  flex: 1;
+  min-height: 0;
+}
+
+.hero__board .play__area {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 /* Tepadagi qator va taxta — bitta en.
@@ -564,7 +595,8 @@
    tegadigan bo'lib qolardi. Taxtaning kichrayishi — kataklarning
    ishi, tugmalarning bunga aloqasi yo'q: ular qancha keng bo'lsa,
    shuncha yaxshi. */
-.hero__board .play__top,
+/* Faqat **taxta** torayadi. Tepadagi qator ham, klaviatura ham
+   butun enda qoladi: ularning kengligi kataklarga bog'liq emas. */
 .hero__board .game__board,
 .hero__board .guncha {
   width: 100%;
