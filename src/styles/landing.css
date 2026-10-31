@@ -1216,11 +1216,16 @@ main:has(.fold--off) .hero__copy {
    nima bilan taqqoslashini bilmasdi. Bu yerda — shu so'zni nechta
    odam o'ynagani, nechtasi topgani va qo'ldagi natijaning o'rni.
    Ismlar yo'q: ular faqat so'z egasiga ochiq. */
+/* Kartochka ichida yana bitta kartochka emas — ingichka chiziq.
+   Kulrang qutiga solinganda sonlar natijadan ajralib, alohida blok
+   bo'lib ko'rinardi: ekranda bir nechta «kartochka» ustma-ust
+   turib, qaysi biri asosiy ekani bilinmasdi. Chiziq esa shunchaki
+   bo'ladi: bitta kartochka, ichida bir nechta qavat. Kirish
+   taklifi (`result__save`) ham aynan shunday ajratiladi. */
 .result__stats {
-  margin-top: 12px;
-  padding: 12px;
-  border-radius: var(--radius);
-  background: var(--surface-2);
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--divider);
 }
 
 /* O'rin — bo'lakning eng baland ovozli qatori: odam avval shuni

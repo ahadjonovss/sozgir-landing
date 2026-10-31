@@ -44,6 +44,18 @@ function Result({
   attempts: number;
   guest: boolean;
 }) {
+  /* Ekranda **uchta** narsa: natija, sonlar va bitta keyingi qadam.
+     Ilgari bu yerda beshta blok ustma-ust turardi — natija, sonlar,
+     uch qatorli izoh, kirish taklifi, «endi o'zingiz yashiring»
+     yozuvi va ikkita do'kon tugmasi, ostida esa o'sha «yashiring»
+     ni takrorlaydigan yana bitta kartochka. Odam nimani bosishini
+     bilmasdi: oltita gapning hammasi bir xil ovozda gapirardi.
+
+     Shuning uchun: izoh bir qatorga tushdi, «endi o'zingiz
+     yashiring» butunlay olib tashlandi (u pastdagi kartochkada
+     tugmasi bilan birga turibdi va o'sha yerda o'rinli), do'kon
+     tugmalari ham — telefonda o'yin tugagach `AppPopup` o'zi
+     chiqadi, kompyuterda esa ilovaning hozir keragi yo'q. */
   return (
     <div className={`result result--${won ? 'won' : 'lost'}`} role="status">
       <p className="result__title">
@@ -54,25 +66,21 @@ function Result({
           natijasini nima bilan taqqoslashini bilmasdi. Endi
           ostida o'ynaganlar soni va o'z o'rni turadi. */}
       <Stats code={code} attempts={attempts} won={won} />
-      <p className="result__def">
-        {won
-          ? guest
-            ? 'Yashirgan odam sizni ismsiz ko‘radi — «kimdir topdi» deb. Kirsangiz, o‘yiningiz shu zahoti uning statistikasiga ismingiz bilan yoziladi.'
-            : 'Yashirgan odam buni darhol ko‘radi: uning statistikasida siz necha urinishda topganingiz yoziladi.'
-          : 'So‘z serverda qoladi va uni faqat yashirgan odam biladi — so‘rab ko‘ring.'}
-      </p>
+      {/* Mehmonda bu gap kirish taklifining o'ziga ko'chgan —
+          ikki marta aytilmasin. */}
+      {!guest && (
+        <p className="result__def">
+          {won
+            ? 'Yashirgan odam buni darhol ko‘radi.'
+            : 'So‘zni faqat yashirgan odam biladi — so‘rab ko‘ring.'}
+        </p>
+      )}
 
       {/* Taklif aynan shu yerda: odam endigina o'ynab bo'ldi va
           natijasi qo'lida. Kirish o'yinni boshidan boshlatmaydi —
           tergan so'zlari serverga ko'chiriladi va ekranda o'sha
           o'yinning o'zi qoladi (`useChallenge`). */}
       {guest && <SaveCall won={won} />}
-      <p className="result__next">
-        Bitta so‘z bir marta o‘ynaladi. Endi o‘zingiz so‘z yashiring va
-        do‘stlaringizga tashlang.
-      </p>
-      {/* Yashirish faqat ilovada: so'z lug'atdan qidirib tanlanadi. */}
-      <DownloadPromo />
     </div>
   );
 }
@@ -237,8 +245,8 @@ function SaveCall({ won }: { won: boolean }) {
     <div className="result__save">
       <p className="panel__note">
         {won
-          ? 'Ismingiz bilan yozilsinmi?'
-          : 'Qatnashganingiz yozilsinmi? Yashirgan odam kim urinib ko‘rganini ko‘radi.'}
+          ? 'Hozir yashirgan odam sizni «kimdir topdi» deb ko‘radi. Kirsangiz — ismingiz bilan.'
+          : 'Kirsangiz, yashirgan odam kim urinib ko‘rganini ko‘radi.'}
       </p>
       {/* Bitta tugma: kirish va hisob ochish bitta oqim — oynaning
           o'zida «Hisobim yo'q» havolasi bor va ilovada ham shunday
@@ -360,7 +368,11 @@ export default function ChallengePage() {
         >
           <span className="section__kicker">So‘zTop</span>
           <h1>{game.title || 'Yashirilgan so‘z'}</h1>
-          {!broken && (
+          {/* «Uni toping» — o'yin **oldidan** aytiladigan gap. Natija
+              ekranida u topib bo'lgan odamga topishni buyurib
+              turardi va yuqoridagi «Topdingiz» bilan qarama-qarshi
+              tushardi. */}
+          {!broken && !over && (
             <p className="section__lead">
               {/* Ism bosiladigan: havolani tashlagan odam ko'pincha
                   notanish bo'ladi va «bu kim?» degan savol o'sha
@@ -519,9 +531,8 @@ export default function ChallengePage() {
           <aside className="panel panel--call soztop__own">
             <h3>Siz ham so‘z yashiring</h3>
             <p className="panel__note">
-              Lug‘atdan bitta so‘z tanlang va havolasini do‘stlaringizga
-              tashlang. Ular xuddi shu sahifadagidek topadi, siz esa kim
-              necha urinishda topganini ko‘rib turasiz.
+              Bitta so‘z tanlang va havolasini do‘stlaringizga tashlang —
+              kim necha urinishda topganini ko‘rib turasiz.
             </p>
             <a className="btn btn--sm" href={links.soztop}>
               So‘z yashirish
