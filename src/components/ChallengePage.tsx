@@ -306,10 +306,20 @@ export default function ChallengePage() {
   const [over, setOver] = useState(false);
   useEffect(() => {
     if (!done) return setOver(false);
-    const wait = 500 + 130 * Math.max(0, game.length - 1);
+    const cells = Math.max(0, game.length - 1);
+    /* Ag'darilish tugaydigan payt: har katak 0,5 soniya ag'dariladi
+       va ular 130 ms oralab boshlanadi (`landing.css`). */
+    let wait = 500 + 130 * cells;
+    /* Topilgan bo'lsa — ustiga **sakrash**. U aynan ag'darilish
+       tugagan payt boshlanadi (`board__row--win`: shu kechikish,
+       ustiga har katak 85 ms oralab) va 0,58 soniya davom etadi.
+       Ilgari taxta o'sha boshlanish lahzasida yopilardi, ya'ni
+       o'yinning eng yoqimli qismi — topilgan so'zning sakrashi —
+       bitta kadr ham ko'rinmasdi. */
+    if (game.phase === 'won') wait += 85 * cells + 580;
     const timer = window.setTimeout(() => setOver(true), wait);
     return () => window.clearTimeout(timer);
-  }, [done, game.length]);
+  }, [done, game.length, game.phase]);
 
   /* O'yin tugadi — telefonda ilova taklifi chiqadi va u yerda do'kon
      besh soniyadan keyin o'zi ochiladi (`AppPopup`, `soztop` sababi).
