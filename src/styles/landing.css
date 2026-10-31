@@ -478,9 +478,11 @@
      Ekranga sig'dirishning maqsadi — o'yinni ko'rsatish, ya'ni
      sig'maydigan joyda sig'dirishdan voz kechib surishga ruxsat
      berish to'g'ri: kichik taxtadan ko'ra surilgan sahifa afzal.
-     390 — telefondagi odatdagi o'lcham, ya'ni eng past chegara
-     ham o'ynasa bo'ladigan taxta. */
-  --fit: max(390px, calc(100svh - var(--header-h) - var(--reserve)));
+     480 — katak 75 piksel, ya'ni eng past chegarada ham taxta
+     telefondagidan kichik emas. Oddiy noutbukda (900 piksel bo'y)
+     hisobning o'zi baribir kattaroq chiqadi, ya'ni chegara faqat
+     past oynada ishga tushadi. */
+  --fit: max(480px, calc(100svh - var(--header-h) - var(--reserve)));
   /* So'ztop taxtasining odatdagi o'lchovi — g'uncha uchun zaxira.
      `--rows` bilan `--cols` ni `Play` o'z uslubida beradi, lekin
      g'uncha ko'ringanda `.play` umuman yo'q va hisob ularsiz

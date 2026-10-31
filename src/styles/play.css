@@ -5445,7 +5445,7 @@
      bir oz kichik chiqadi (zarari yo'q), oshirib yuborilsa ekran
      yana suriladi — shuning uchun ehtiyot tomonga. */
   .jang:has(.jang__keys) .game__board {
-    --fit: max(330px, calc(100svh - var(--header-h) - 482px));
+    --fit: max(480px, calc(100svh - var(--header-h) - 482px));
     width: min(
       100%,
       calc(
@@ -5465,7 +5465,7 @@
        taxtaning eni shundan hisoblanadi (pastdagi qoidaga qarang). */
     /* Pastki chegara — `landing.css` dagi bilan bitta sabab: past
        oynada hisob taxtani nuqtaga aylantirardi. */
-    --fit: max(330px, calc(100svh - var(--header-h) - 372px));
+    --fit: max(480px, calc(100svh - var(--header-h) - 372px));
     display: flex;
     flex-direction: column;
     /* `svh`, `dvh` emas. `dvh` manzil qatori yig'ilib-ochilganda
