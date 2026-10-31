@@ -14,7 +14,7 @@
  *
  *  Qoidaning o'zi `lib/adGate.ts` da — bu yerda faqat ko'rinish. */
 import { useEffect, useState } from 'react';
-import { answerGate, EVERY_GAMES, watchGate } from '../lib/adGate';
+import { answerGate, currentEvery, watchGate } from '../lib/adGate';
 import { ENTRY_DAYS, ENTRY_PRICE } from '../lib/premium';
 import { formatSum } from '../lib/support';
 import DonateModal from './DonateModal';
@@ -52,8 +52,14 @@ export default function AdGate() {
 
           {/* Va'da raqam bilan: «reklama kamroq» emas, aynan shu oyna
               boshqa chiqmaydi. */}
+          {/* Son **joriy qadamdan**: u o'yinlar soniga qarab
+              zichlashadi (`adGate.ts`). Qattiq yozilgan bo'lsa,
+              zichlashgandan keyin odam «har besh o'yin» deb o'qib,
+              aslida har uchinchisida ko'rardi. Darvoza qarori
+              chiqqandan keyin ochilgani uchun son bu yerda
+              allaqachon aniq. */}
           <p className="panel__note">
-            Premium olsangiz, har {EVERY_GAMES} o‘yindan keyin bu oyna
+            Premium olsangiz, har {currentEvery} o‘yindan keyin bu oyna
             chiqmaydi.
           </p>
 

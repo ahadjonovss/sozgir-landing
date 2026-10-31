@@ -17,14 +17,19 @@
  *  va hech narsa ochilmasdi.
  *
  *  **Uch chegara birga ishlaydi.** Ular bir-birini almashtirmaydi:
- *  yangi odamga umuman chiqmaydi, keyin har beshinchisida, va ikki
+ *  yangi odamga umuman chiqmaydi, keyin har N-o'yinda, va ikki
  *  reklama orasida eng kam tanaffus bor.
+ *
+ *  **Qadam o'zgaruvchan** va serverdan keladi: boshida siyrak, ko'p
+ *  o'ynaganidan keyin zichroq (`AdGateSteps`). Saytni endi
+ *  ko'rayotgan odam uchun reklama «bu nima ekan» degan taassurotni
+ *  buzadi, uzoq o'ynaydigan odam esa saytning narxini biladi.
  *
  *  Sanoq `localStorage` da: u brauzerda qoladi va sahifa
  *  yangilanganda ham yo'qolmaydi. Hisobga bog'lanmagan — chegara
  *  odamni emas, brauzerni o'lchaydi va serverga yana bitta yozuv
  *  qo'shishga arzimaydi. */
-import { fullscreenReady, showFullscreen } from './ads';
+import { adsConfig, DEFAULT_STEPS, fullscreenReady, showFullscreen } from './ads';
 import { isAdFree } from './donor';
 import { isVerifiedAsync } from './verified';
 
@@ -34,11 +39,17 @@ import { isVerifiedAsync } from './verified';
  *  reklamaga duch kelsa, u qaytib kelmaydi. */
 const FIRST_AFTER_GAMES = 5;
 
-/** Har nechanchi reklamasiz o'ynalgan onlayn o'yindan keyin.
+/** Hozirgi qadam — oyna shu sondan o'qiydi.
  *
- *  Son oynaning o'zida ham aytiladi — odam nimadan qutulishini
- *  biladi. */
-export const EVERY_GAMES = 5;
+ *  Oyna (`AdGate`) sozlamani o'zi so'ramaydi: u darvoza qarori
+ *  chiqqandan **keyin** ochiladi, ya'ni son allaqachon ma'lum.
+ *  Qattiq yozilgan bo'lsa, qadam zichlashgandan keyin odam «har
+ *  besh o'yin» deb o'qib, aslida har uchinchisida ko'rardi —
+ *  ilovada ham aynan shu sabab bilan `currentEvery` bor.
+ *
+ *  Boshlang'ich qiymat standart qadam: sozlama kelgunicha oyna
+ *  umuman chiqmaydi, ya'ni bu son hech kimga ko'rinmaydi. */
+export let currentEvery = DEFAULT_STEPS.everyGames;
 
 /** Ikki reklama orasidagi eng kam tanaffus.
  *
@@ -119,8 +130,19 @@ async function due(uid: string | undefined): Promise<boolean> {
   // qolardi — «Reklamani ko'rish» bosilardi-yu, hech narsa
   // ochilmasdi.
   if (!fullscreenReady()) return false;
-  if (read(KEY_TOTAL) < FIRST_AFTER_GAMES) return false;
-  if (read(KEY_GAMES) < EVERY_GAMES) return false;
+
+  const total = read(KEY_TOTAL);
+  if (total < FIRST_AFTER_GAMES) return false;
+
+  /* Qadam serverdan — ilovadagi bilan **bitta** yozuvdan
+     (`/v1/public/config/ads`). Qadamni tanlash daromad qarori va
+     uni har safar yangi yig'ish bilan chiqarish keraksiz: panelda
+     o'zgartirilsa, ikkala tomon ham o'sha zahoti o'zgaradi. */
+  const { steps } = await adsConfig();
+  currentEvery =
+    total < steps.denseAfterGames ? steps.everyGames : steps.everyGamesDense;
+
+  if (read(KEY_GAMES) < currentEvery) return false;
 
   const last = read(KEY_LAST);
   if (last > 0 && Date.now() - last < COOLDOWN_MS) return false;

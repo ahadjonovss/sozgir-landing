@@ -192,17 +192,71 @@ function flagIn(data: Section): boolean {
   return true;
 }
 
-/** Hujjatni bitta javobga aylantiradi. */
-function parseAdsSettings(data: Section): boolean {
-  if (!flagIn(data)) return false;
-  return flagIn(section(data, 'yandex'));
+/** Darvoza qadamlari — ilovadagi `AdsSettings` ning o'sha uchta
+ *  maydoni va o'sha standart qiymatlari.
+ *
+ *  Qadam **o'zgaruvchan**: boshida siyrak, ko'p o'ynaganidan keyin
+ *  zichroq. Sabab ilovada yozilgan va u bu yerda ham amal qiladi —
+ *  saytni endi ko'rayotgan odam uchun reklama «bu nima ekan» degan
+ *  taassurotni buzadi, uzoq o'ynaydigan odam esa saytning narxini
+ *  biladi va zichroq oraliqni qabul qiladi. */
+export type AdGateSteps = {
+  /** Boshida har nechanchi o'yinda. */
+  everyGames: number;
+  /** Jami shuncha o'yindan keyin qadam zichlashadi. */
+  denseAfterGames: number;
+  /** Zichlashgandan keyingi qadam. */
+  everyGamesDense: number;
+};
+
+/** Sozlama kelmaganda ishlaydigan sonlar — ilovadagining aynan o'zi. */
+export const DEFAULT_STEPS: AdGateSteps = {
+  everyGames: 5,
+  denseAfterGames: 15,
+  everyGamesDense: 3,
+};
+
+/** Hujjatdagi son — ilovadagi `adsCount` bilan bitta qoida.
+ *
+ *  Chegaradan tashqaridagi yoki noto'g'ri turdagi qiymat **jim**
+ *  standartga tushadi: paneldagi tasodifiy nol yoki bo'sh satr
+ *  reklamani cheksiz tez-tez chiqaradigan qilib qo'ymasligi kerak. */
+function count(value: unknown, fallback: number, max = 50): number {
+  const number =
+    typeof value === 'number'
+      ? Math.trunc(value)
+      : typeof value === 'string'
+        ? Number.parseInt(value, 10)
+        : Number.NaN;
+  if (!Number.isFinite(number) || number < 1 || number > max) return fallback;
+  return number;
 }
 
-let settings: Promise<boolean> | null = null;
+/** Hujjatdan o'qiladigan hamma narsa. */
+export type AdsConfig = { enabled: boolean; steps: AdGateSteps };
 
-/** Reklama hozir ko'rsatiladimi. Sahifa umrida bir marta o'qiladi. */
-export function adsEnabled(): Promise<boolean> {
-  if (!adsSupported) return Promise.resolve(false);
+/** Hujjatni bitta javobga aylantiradi. */
+function parseAdsSettings(data: Section): AdsConfig {
+  const steps: AdGateSteps = {
+    everyGames: count(data.everyGames, DEFAULT_STEPS.everyGames),
+    denseAfterGames: count(
+      data.denseAfterGames,
+      DEFAULT_STEPS.denseAfterGames,
+      1000,
+    ),
+    everyGamesDense: count(data.everyGamesDense, DEFAULT_STEPS.everyGamesDense),
+  };
+  if (!flagIn(data)) return { enabled: false, steps };
+  return { enabled: flagIn(section(data, 'yandex')), steps };
+}
+
+let settings: Promise<AdsConfig> | null = null;
+
+/** Hujjat — sahifa umrida bir marta o'qiladi. */
+export function adsConfig(): Promise<AdsConfig> {
+  if (!adsSupported) {
+    return Promise.resolve({ enabled: false, steps: DEFAULT_STEPS });
+  }
   return (settings ??= api
     .get<{ value?: unknown }>('/v1/public/config/ads', { auth: false })
     // 404 ham, tarmoq xatosi ham bir xil ma'noda: sozlama yo'q,
@@ -214,6 +268,11 @@ export function adsEnabled(): Promise<boolean> {
         value !== null && typeof value === 'object' ? (value as Section) : {},
       );
     }));
+}
+
+/** Reklama hozir ko'rsatiladimi. */
+export function adsEnabled(): Promise<boolean> {
+  return adsConfig().then((config) => config.enabled);
 }
 
 /* ── Yandex skripti ─────────────────────────────────────────────────── */
