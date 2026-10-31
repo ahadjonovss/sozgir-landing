@@ -472,7 +472,15 @@
      oshirib yuborilsa klaviatura birinchi ekrandan chiqib ketardi. */
   --reserve: 326px;
   --gap: 6px;
-  --fit: calc(100svh - var(--header-h) - var(--reserve));
+  /* Pastki chegara — `max()`. Hisobning o'zi past oynada manfiyga
+     yaqinlashadi: 520 pikselli noutbuk oynasida taxtaga 118 piksel
+     qolib, kataklar nuqtaga aylanardi va o'yin o'ynab bo'lmasdi.
+     Ekranga sig'dirishning maqsadi — o'yinni ko'rsatish, ya'ni
+     sig'maydigan joyda sig'dirishdan voz kechib surishga ruxsat
+     berish to'g'ri: kichik taxtadan ko'ra surilgan sahifa afzal.
+     390 — telefondagi odatdagi o'lcham, ya'ni eng past chegara
+     ham o'ynasa bo'ladigan taxta. */
+  --fit: max(390px, calc(100svh - var(--header-h) - var(--reserve)));
   /* So'ztop taxtasining odatdagi o'lchovi — g'uncha uchun zaxira.
      `--rows` bilan `--cols` ni `Play` o'z uslubida beradi, lekin
      g'uncha ko'ringanda `.play` umuman yo'q va hisob ularsiz
@@ -746,9 +754,23 @@
   .hero__play {
     max-width: none;
   }
+  /* Telefonda taxta **balandlikdan emas, endan** o'lchanadi.
+
+     Balandlikdan chiqarilganda u ekranga aynan sig'ardi, lekin
+     kataklar ikki yondan o'ttiz besh piksel ichkarida qolib,
+     chekkalarda bo'sh yo'lak turardi — telefonda bu xunuk va
+     barmoqqa noqulay. Endi kataklar butun enni oladi; evaziga
+     sahifa bir oz suriladi. Surilish o'zi muammo emas edi:
+     muammo `dvh` bilan birga kelgan qayta o'lchanish edi, u esa
+     `svh` bilan yopilgan. */
   .hero__board {
-    --reserve: 395px;
+    --reserve: 272px;
     min-height: calc(100svh - var(--header-h) - 150px);
+  }
+
+  .hero__board,
+  .hero__board .play {
+    --board-w: 100%;
   }
 }
 

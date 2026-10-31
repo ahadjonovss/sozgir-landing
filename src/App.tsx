@@ -150,12 +150,15 @@ export default function App() {
                 Matnning o'zi yo'qolmadi: robot va moderator
                 ko'radigan statik HTML ro'yxatlarni avvalgidek
                 yozadi (`vite/prerender.ts`, `home()`). */}
-            {/* Telefonda bularning hammasi yig'ilgan turadi: bosh
-                sahifaga kelgan odam avval **o'ynaydi**, qoidalarni
-                keyin o'qiydi. Yig'ilmaganda sahifa besh ming piksel
-                bo'lib, surish paytida manzil qatori yig'ilib taxtani
-                qayta o'lchardi. Kompyuterda hammasi avvalgidek. */}
-            <PhoneFold>
+            {/* Telefonda bularning hammasi yopiq: bosh sahifaga kelgan
+                odam **o'ynaydi**. Yig'ilmaganda sahifa besh ming
+                piksel bo'lib, surish paytida manzil qatori yig'ilib
+                taxtani qayta o'lchardi. Ochadigan tugma ham yo'q —
+                u o'yin bilan bir ekranda turib taxtadan joy yerdi,
+                qoidalar esa menyuda va `/qollanma` da bor. Matn
+                hujjatda qoladi: qidiruv uni avvalgidek ko'radi.
+                Kompyuterda hammasi o'z joyida. */}
+            <PhoneFold silent>
               <Rules />
               <Alphabet />
               <Faq />

@@ -5445,7 +5445,7 @@
      bir oz kichik chiqadi (zarari yo'q), oshirib yuborilsa ekran
      yana suriladi — shuning uchun ehtiyot tomonga. */
   .jang:has(.jang__keys) .game__board {
-    --fit: calc(100svh - var(--header-h) - 482px);
+    --fit: max(330px, calc(100svh - var(--header-h) - 482px));
     width: min(
       100%,
       calc(
@@ -5463,7 +5463,9 @@
     --gap: 6px;
     /* Ekrandan sarlavha, tepadagi qator, klaviatura va havo ayirilgani:
        taxtaning eni shundan hisoblanadi (pastdagi qoidaga qarang). */
-    --fit: calc(100svh - var(--header-h) - 372px);
+    /* Pastki chegara — `landing.css` dagi bilan bitta sabab: past
+       oynada hisob taxtani nuqtaga aylantirardi. */
+    --fit: max(330px, calc(100svh - var(--header-h) - 372px));
     display: flex;
     flex-direction: column;
     /* `svh`, `dvh` emas. `dvh` manzil qatori yig'ilib-ochilganda
@@ -5530,17 +5532,19 @@
 
   /* Taxta va klaviatura bitta enda — chekkalari bir chiziqda tursin.
 
+     Telefonda bu **ekranning eni**. Ilgari u balandlikdan
+     chiqarilardi va shunda taxta ekranga aynan sig'ardi, lekin
+     kataklar ikki yondan o'ttiz besh piksel ichkarida qolib,
+     chekkalarda bo'sh yo'lak turardi — xunuk va barmoqqa noqulay.
+     Endi aksincha: kataklar butun enni oladi, sahifa esa bir oz
+     suriladi. Surilish o'zi muammo emas edi — muammo `dvh` bilan
+     kelgan qayta o'lchanish edi, u `svh` bilan yopilgan.
+
      `width` aniq berilishi shart: `auto` chekka `margin` lar bilan
      birga kataklarning **ichki** kengligiga tushib qolardi, u esa nol
      (`flex: 1 1 0`) — taxta 24 piksel bo'lib g'oyib bo'lardi. */
   .oyin__board--fit .play {
-    --board-w: min(
-      100%,
-      calc(
-        (var(--fit) - (var(--rows) - 1) * var(--gap)) / var(--rows) * var(--cols) +
-          (var(--cols) - 1) * var(--gap)
-      )
-    );
+    --board-w: 100%;
   }
 
   /* Tepadagi qator, taxta va klaviatura — bitta en, chekkalari bir
