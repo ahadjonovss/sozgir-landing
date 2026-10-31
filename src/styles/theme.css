@@ -103,10 +103,15 @@ body {
    footer ekran o'rtasida osilib qolardi va ostida yarim ekran bo'sh
    qora maydon turardi. Telefonda bu ayniqsa ko'zga tashlanadi:
    sahifa tugaganmi yoki yuklanmayaptimi — bilib bo'lmasdi. */
+/* `svh` — manzil qatori ochiq turgandagi balandlik. `dvh` bo'lsa
+   mazmuni aynan ekranga teng sahifa manzil qatori balandligicha
+   suriladigan bo'lib qolardi: barmoq tegishi bilan qator yig'ilib,
+   butun sahifa qayta o'lchanardi (o'yin taxtasi ayniqsa sezilarli
+   kattalashib-kichiklashardi). */
 #root {
   display: flex;
   flex-direction: column;
-  min-height: 100dvh;
+  min-height: 100svh;
 }
 
 #root > main {

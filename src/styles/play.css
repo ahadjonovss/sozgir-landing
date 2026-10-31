@@ -5351,7 +5351,7 @@
      bir oz kichik chiqadi (zarari yo'q), oshirib yuborilsa ekran
      yana suriladi — shuning uchun ehtiyot tomonga. */
   .jang:has(.jang__keys) .game__board {
-    --fit: calc(100dvh - var(--header-h) - 482px);
+    --fit: calc(100svh - var(--header-h) - 482px);
     width: min(
       100%,
       calc(
@@ -5369,12 +5369,23 @@
     --gap: 6px;
     /* Ekrandan sarlavha, tepadagi qator, klaviatura va havo ayirilgani:
        taxtaning eni shundan hisoblanadi (pastdagi qoidaga qarang). */
-    --fit: calc(100dvh - var(--header-h) - 250px);
+    --fit: calc(100svh - var(--header-h) - 250px);
     display: flex;
     flex-direction: column;
-    /* `dvh` — telefon brauzerining manzil qatori yig'ilganda ham
-       to'g'ri ishlaydi (`vh` unda ekrandan chiqib ketardi). */
-    min-height: calc(100dvh - var(--header-h) - 34px);
+    /* `svh`, `dvh` emas. `dvh` manzil qatori yig'ilib-ochilganda
+       o'zgaradi, ya'ni barmoq ekranni sal surishi bilan taxta
+       kattalashib-kichiklashib turardi — o'yin o'rtasida kataklar
+       barmoq ostidan siljirdi. `svh` esa manzil qatori ochiq
+       turgandagi — eng kichik — balandlik: u scrollda qimirlamaydi,
+       demak taxta ham qimirlamaydi. To'liq bo'y ishlatilmagani
+       uchun pastda bir oz havo qoladi, lekin tinch turgan taxta
+       har qanday havodan afzal. */
+    min-height: calc(100svh - var(--header-h) - 34px);
+    /* Sig'ib turgan ekranni rezinadek tortib, manzil qatorini
+       yig'ib yuborish ham shu jitterni qo'zg'atardi. */
+    overscroll-behavior: contain;
+    /* Taxta ustida ikki marta bosilsa brauzer kattalashtirmaydi. */
+    touch-action: manipulation;
   }
 
   /* Taxta o'rnida kirish kartochkasi turganda ekranni to'ldirib
