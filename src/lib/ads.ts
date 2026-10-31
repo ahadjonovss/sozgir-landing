@@ -102,22 +102,51 @@ const UNITS: Record<AdPlacement, string> = {
   profile: '',
 };
 
+/** Yandex uchun qurilma turi — `desktop` yoki `touch`.
+ *
+ *  Bu **ekranning eni emas**: toraytirilgan kompyuter oynasi baribir
+ *  kompyuter, reklamaning o'lchami esa barmoqqami yoki sichqonchagami
+ *  degan savolga qarab tanlanadi. Shuning uchun belgisi ham
+ *  boshqacha — `pointer: coarse` (barmoq) va mobil `userAgent`.
+ *
+ *  Sensorli ekranli noutbuk `coarse` bermaydi: unda asosiy
+ *  ko'rsatkich baribir sichqoncha. */
+function adPlatform(): 'desktop' | 'touch' {
+  try {
+    if (window.matchMedia('(pointer: coarse)').matches) return 'touch';
+    return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
+      ? 'touch'
+      : 'desktop';
+  } catch {
+    return 'desktop';
+  }
+}
+
 /**
- * To'liq ekranli blok (Yandex'da «Полноэкранный», sayt turida).
+ * To'liq ekranli bloklar (Yandex'da «Полноэкранный», sayt turida).
  *
  * Bannerlardan **alohida** blok: hisobot ham ajraladi, o'chirish ham.
  * Bo'sh qolsa darvoza oynasi umuman chiqmaydi — ya'ni blok
  * ochilgunicha sayt avvalgidek ishlayveradi va hech kim bo'sh
  * va'daga duch kelmaydi.
  *
+ * **Ikkita blok**: Yandex to'liq ekranli reklamani qurilma turiga
+ * qarab alohida ochadi va `render` ga ham o'sha tur yuboriladi
+ * (`platform`). Bitta blokni ikkalasiga ishlatib bo'lmaydi —
+ * panelda ular boshqa-boshqa o'lchamlar bilan yuritiladi va
+ * hisoboti ham shunday ajraladi.
+ *
  * Yandex Partner interfeysida «Sayt» → «Полноэкранный» bilan
  * ochiladi va id shu yerga yoziladi.
  */
-const FULLSCREEN_UNIT = '';
+const FULLSCREEN_UNITS: Record<'desktop' | 'touch', string> = {
+  desktop: 'R-A-20055999-3',
+  touch: 'R-A-20055999-4',
+};
 
 /** To'liq ekranli reklama shu yig'ishda bormi. */
 export const fullscreenReady = (): boolean =>
-  adsSupported ? FULLSCREEN_UNIT !== '' : true;
+  adsSupported ? FULLSCREEN_UNITS[adPlatform()] !== '' : true;
 
 /**
  * Mukofotli bloklar — har mukofotga alohida.
@@ -449,7 +478,9 @@ const FULLSCREEN_TIMEOUT = 20_000;
  */
 export function showFullscreen(): Promise<boolean> {
   if (!adsSupported) return Promise.resolve(true);
-  if (FULLSCREEN_UNIT === '') return Promise.resolve(false);
+  const platform = adPlatform();
+  const unit = FULLSCREEN_UNITS[platform];
+  if (unit === '') return Promise.resolve(false);
 
   return loadAds().then(
     (ready) =>
@@ -468,8 +499,9 @@ export function showFullscreen(): Promise<boolean> {
         window.yaContextCb?.push(() => {
           try {
             window.Ya?.Context?.AdvManager?.render({
-              blockId: FULLSCREEN_UNIT,
+              blockId: unit,
               type: 'fullscreen',
+              platform,
               darkTheme: document.documentElement.dataset.theme === 'dark',
               onError: (data?: { type?: string }) => {
                 if (data?.type !== 'warning') finish(false);
