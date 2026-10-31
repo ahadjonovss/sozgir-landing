@@ -296,9 +296,20 @@
   }
 }
 
+/* Telefonda chekka hoshiya qisqaradi. 24 piksel kompyuterda to'g'ri
+   edi, telefonda esa u ikki tomondan 48 ni oladi va ustiga
+   kartochkaning o'z hoshiyasi qo'shilardi: 375 pikselli ekranda
+   matnga 287 qolib, kartochkalar ichidagi hamma narsa siqilib
+   turardi. */
+@media (max-width: 560px) {
+  .wrap {
+    padding: 0 12px;
+  }
+}
+
 @media (max-width: 340px) {
   .wrap {
-    padding: 0 14px;
+    padding: 0 10px;
   }
 }
 

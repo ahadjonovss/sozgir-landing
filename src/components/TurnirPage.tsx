@@ -38,6 +38,7 @@ import { playerLink } from '../data/site';
 import Avatar from './Avatar';
 import CodeInput from './CodeInput';
 import PlayerName from './PlayerName';
+import { useNarrow } from '../lib/useNarrow';
 import DownloadPromo from './DownloadPromo';
 import TurnirLadder from './TurnirLadder';
 import TurnirLobby from './TurnirLobby';
@@ -547,6 +548,7 @@ function HistoryList({ turnir }: { turnir: Turnir }) {
 /* ── Yakun ───────────────────────────────────────────────────────────── */
 
 function Winner({ turnir }: { turnir: Turnir }) {
+  const narrow = useNarrow();
   const winnerUid = turnir.doc?.winnerUid ?? '';
   const name = pretty(turnir.doc?.members?.[winnerUid]?.nickname ?? 'G‘olib');
   // Turnirda qancha odam bor edi — `seeds` boshlanganda muhrlanadi,
@@ -582,13 +584,21 @@ function Winner({ turnir }: { turnir: Turnir }) {
     <div className="tnr">
       {/* Ilovaga taklif eng tepada: turnir tugagan payt — odam
           sahifada eng uzoq turadigan, keyingi turnirni kutayotgan
-          payt. Pastda, jadval ortida bo'lsa hech kim ko'rmasdi. */}
-      <DownloadPromo
-        top
-        qr
-        title="Turnirlar ilovada qulayroq"
-        text="Yangi turnir boshlanishidan xabar keladi, davra tugashini kutib o‘tirmaysiz."
-      />
+          payt. Pastda, jadval ortida bo'lsa hech kim ko'rmasdi.
+
+          Faqat kompyuterda. Telefonda o'yin tugagach `AppPopup`
+          o'zi chiqadi, ya'ni bu yerdagi kartochka o'sha gapni
+          ikkinchi marta aytib, g'olib kartochkasini ekrandan
+          surib tushirardi. QR ham aynan kompyuter uchun: ilova
+          baribir telefonga kerak. */}
+      {!narrow && (
+        <DownloadPromo
+          top
+          qr
+          title="Turnirlar ilovada qulayroq"
+          text="Yangi turnir boshlanishidan xabar keladi, davra tugashini kutib o‘tirmaysiz."
+        />
+      )}
       <div className="tnr__crown">
         <Trophy size={28} />
         <Avatar name={name} uid={winnerUid} size={78} />

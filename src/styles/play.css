@@ -1212,6 +1212,12 @@
     padding: 14px 12px;
     border-radius: var(--radius);
   }
+
+  /* Kartochkaning o'z hoshiyasi ham qisqaradi — `wrap` nikidan keyin
+     u ikkinchi qavat bo'lib qo'shilardi. */
+  .panel {
+    padding: 16px 14px;
+  }
 }
 
 /* ── Panel ────────────────────────────────────────────────────────────── */
@@ -5431,7 +5437,7 @@
     --gap: 6px;
     /* Ekrandan sarlavha, tepadagi qator, klaviatura va havo ayirilgani:
        taxtaning eni shundan hisoblanadi (pastdagi qoidaga qarang). */
-    --fit: calc(100svh - var(--header-h) - 300px);
+    --fit: calc(100svh - var(--header-h) - 372px);
     display: flex;
     flex-direction: column;
     /* `svh`, `dvh` emas. `dvh` manzil qatori yig'ilib-ochilganda
