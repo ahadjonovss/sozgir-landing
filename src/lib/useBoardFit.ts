@@ -27,11 +27,20 @@ export function useBoardFit<T extends HTMLElement>() {
     const el = ref.current;
     if (!el) return;
 
+    /* Oxirgi yozilgan qiymat — **halqadan qutqaradi**.
+       `--fit` yozilishi taxtani qayta o'lchaydi, o'lchov esa shu
+       kuzatuvchini yana uyg'otadi. Qiymat o'zgarmagan bo'lsa
+       yozilmaydi va zanjir shu yerda uziladi; brauzer aks holda
+       «ResizeObserver loop» deb ogohlantirardi. */
+    let last = 0;
+
     const sync = () => {
-      const height = el.getBoundingClientRect().height;
+      const height = Math.round(el.getBoundingClientRect().height);
       // Nol — hali chizilmagan yoki yashirilgan: o'shanda CSS dagi
       // zaxira qoladi, aks holda taxta bir lahzaga g'oyib bo'lardi.
-      if (height > 0) el.style.setProperty('--fit', `${Math.round(height)}px`);
+      if (height <= 0 || height === last) return;
+      last = height;
+      el.style.setProperty('--fit', `${height}px`);
     };
 
     sync();
@@ -61,6 +70,11 @@ export function useScreenFill<T extends HTMLElement>(min = 720) {
     const el = ref.current;
     if (!el) return;
 
+    /* Yuqoridagi bilan bir xil qo'riq: balandlik yozilishi ota
+       elementni qayta o'lchaydi, u esa shu kuzatuvchini uyg'otadi.
+       O'zgarmagan qiymat yozilmasa, zanjir uziladi. */
+    let last = 0;
+
     const sync = () => {
       const top = el.getBoundingClientRect().top + window.scrollY;
       const left = window.innerHeight - top - 16;
@@ -70,13 +84,18 @@ export function useScreenFill<T extends HTMLElement>(min = 720) {
          sig'ish muhim: ekran baribir baland va chegara faqat
          sahifani keraksiz suriladigan qilib qo'yardi. */
       const floor = window.innerWidth > 900 ? min : 0;
-      el.style.height = `${Math.round(Math.max(floor, left))}px`;
+      const height = Math.round(Math.max(floor, left));
+      if (height === last) return;
+      last = height;
+      el.style.height = `${height}px`;
     };
 
     sync();
     window.addEventListener('resize', sync);
     /* Ustidagi narsa o'zgarsa (masalan kunlik so'z qatori kelsa)
-       o'ram ham qayta o'lchanadi. */
+       o'ram ham qayta o'lchanadi. Kuzatuv **ota elementda**, lekin
+       o'lchov o'ramning o'z ustidan olinadi: shu sabab yuqoridagi
+       qo'riq shart. */
     const observer = new ResizeObserver(sync);
     if (el.parentElement) observer.observe(el.parentElement);
     return () => {

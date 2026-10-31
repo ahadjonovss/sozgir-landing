@@ -60,6 +60,7 @@ const COOLDOWN_MS = 5 * 60_000;
 const KEY_GAMES = 'sozgir.adgate.games';
 const KEY_TOTAL = 'sozgir.adgate.total';
 const KEY_LAST = 'sozgir.adgate.lastAt';
+const KEY_DEBUG = 'sozgir.adgate.debug';
 
 /** Yashirin rejimda yoki saqlash bloklangan brauzerda `localStorage`
  *  xato beradi. Bunda darvoza umuman ishlamaydi va o'yin to'xtamaydi:
@@ -77,6 +78,37 @@ function write(key: string, value: number): void {
     localStorage.setItem(key, String(value));
   } catch {
     // Saqlanmadi — sanoq shu varaq ochiq turguncha yashaydi.
+  }
+}
+
+/* ── Sinov rejimi ───────────────────────────────────────────────────── */
+
+/** Darvozani **har** o'yindan oldin chiqaradi — tekshirish uchun.
+ *
+ *  `sozgir.uz/?adgate=1` bilan yoqiladi, `?adgate=0` bilan
+ *  o'chiriladi; holat brauzerda qoladi, ya'ni bir marta yoqib
+ *  qo'yib, keyin odatdagidek yurish mumkin.
+ *
+ *  Yoqilganda uchala chegara ham chetlab o'tiladi: yangi odamga
+ *  ko'rsatmaslik qoidasi ham, qadam ham, tanaffus ham. Reklama
+ *  blokining bor-yo'qligi ham tekshirilmaydi — oyna baribir
+ *  ochiladi, «Reklamani ko'rish» bosilganda esa reklamaning o'zi
+ *  kelmasa o'yin oddiygina boshlanaveradi. Ya'ni bu **oqimni**
+ *  ko'rish uchun, reklamani emas.
+ *
+ *  Nega qo'lda emas: sonlarni kodda vaqtincha o'zgartirib qo'yish
+ *  o'sha o'zgarishning yig'ishga tushib ketish xavfini tug'diradi —
+ *  sinov rejimi esa o'zi ko'rinib turadi va o'chirilishi oson. */
+function debugOn(): boolean {
+  try {
+    const asked = new URLSearchParams(window.location.search).get('adgate');
+    if (asked === '1' || asked === '0') {
+      localStorage.setItem(KEY_DEBUG, asked);
+      return asked === '1';
+    }
+    return localStorage.getItem(KEY_DEBUG) === '1';
+  } catch {
+    return false;
   }
 }
 
@@ -126,13 +158,15 @@ function ask(): Promise<GateAnswer> {
 /* ── Qaror ──────────────────────────────────────────────────────────── */
 
 async function due(uid: string | undefined): Promise<boolean> {
+  const debug = debugOn();
+
   // Reklama yo'q bo'lsa **oyna ham yo'q**: u bo'sh va'da bo'lib
   // qolardi — «Reklamani ko'rish» bosilardi-yu, hech narsa
-  // ochilmasdi.
-  if (!fullscreenReady()) return false;
+  // ochilmasdi. Sinov rejimida aksincha: aynan oyna tekshiriladi.
+  if (!debug && !fullscreenReady()) return false;
 
   const total = read(KEY_TOTAL);
-  if (total < FIRST_AFTER_GAMES) return false;
+  if (!debug && total < FIRST_AFTER_GAMES) return false;
 
   /* Qadam serverdan — ilovadagi bilan **bitta** yozuvdan
      (`/v1/public/config/ads`). Qadamni tanlash daromad qarori va
@@ -142,10 +176,11 @@ async function due(uid: string | undefined): Promise<boolean> {
   currentEvery =
     total < steps.denseAfterGames ? steps.everyGames : steps.everyGamesDense;
 
+  if (debug) currentEvery = 1;
   if (read(KEY_GAMES) < currentEvery) return false;
 
   const last = read(KEY_LAST);
-  if (last > 0 && Date.now() - last < COOLDOWN_MS) return false;
+  if (!debug && last > 0 && Date.now() - last < COOLDOWN_MS) return false;
 
   // Qo'llagan va tasdiqlangan hisobga reklama umuman so'ralmaydi —
   // `AdBanner` dagi shartning o'zi.
