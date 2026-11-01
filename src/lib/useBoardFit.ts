@@ -63,12 +63,20 @@ export function useBoardFit<T extends HTMLElement>() {
  *
  *  `min` — juda past oyna uchun: u yerda sig'dirishdan voz kechib
  *  surishga ruxsat beriladi, aks holda kataklar nuqtaga aylanardi. */
-export function useScreenFill<T extends HTMLElement>(min = 720) {
+export function useScreenFill<T extends HTMLElement>(min = 720, active = true) {
   const ref = useRef<T>(null);
 
   useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
+
+    /* O'chirilgan paytda balandlik **tozalanadi**: bitta o'ram ham
+       o'yin ekranini, ham lobbini ushlab turishi mumkin va lobbi
+       ekranga cho'zilib turishi kerak emas. */
+    if (!active) {
+      el.style.height = '';
+      return;
+    }
 
     /* Yuqoridagi bilan bir xil qo'riq: balandlik yozilishi ota
        elementni qayta o'lchaydi, u esa shu kuzatuvchini uyg'otadi.
@@ -102,7 +110,7 @@ export function useScreenFill<T extends HTMLElement>(min = 720) {
       window.removeEventListener('resize', sync);
       observer.disconnect();
     };
-  }, [min]);
+  }, [min, active]);
 
   return ref;
 }

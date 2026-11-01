@@ -5463,18 +5463,59 @@
      Ayiriluvchi son o'lchab chiqilgan: sarlavha, taymer, raqib
      qatori, klaviatura, pastki qator va havo. Kam baholansa taxta
      bir oz kichik chiqadi (zarari yo'q), oshirib yuborilsa ekran
-     yana suriladi — shuning uchun ehtiyot tomonga. */
+     yana suriladi — shuning uchun ehtiyot tomonga.
+
+     **Endi son yo'q.** `--fit` ni `useBoardFit` o'lchab beradi:
+     o'ram ekranning qolganini oladi (`useScreenFill`), ichidagilar
+     taqsimlanadi, taxtaga esa qolgani tegadi. Qo'lda yozilgan 482
+     telefonda taxtaga atigi ikki yuz piksel qoldirardi — kataklar
+     kichkina, ekran esa baribir surilardi. */
   .jang:has(.jang__keys) .game__board {
-    --fit: max(560px, calc(100svh - var(--header-h) - 482px));
     width: min(
       100%,
       calc(
-        (var(--fit) - (var(--rows) - 1) * 6px) / var(--rows) * var(--cols) +
-          (var(--cols) - 1) * 6px
+        (var(--fit, 300px) - (var(--rows) - 1) * 6px) / var(--rows) *
+          var(--cols) + (var(--cols) - 1) * 6px
       )
     );
     margin-inline: auto;
     margin-bottom: 8px;
+  }
+
+  /* Balandlik zanjiri: o'ram → jang maydoni → taxta o'rami.
+     Har bo'g'inda `min-height: 0` shart, aks holda flex bolasi
+     o'z mazmunidan kichrayolmay, zanjir uzilardi. */
+  .jang:has(.jang__keys) .jang__wrap {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .jang:has(.jang__keys) .stage--fight {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .jang:has(.jang__keys) .fight {
+    flex: 1;
+    min-height: 0;
+    align-items: stretch;
+  }
+
+  .jang:has(.jang__keys) .fight__side {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .jang:has(.jang__keys) .fight__side .play__area {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 }
 

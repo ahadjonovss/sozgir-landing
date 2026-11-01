@@ -13,6 +13,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { battleAqchaDelta } from '../lib/aqcha';
 import { useAuth } from '../lib/auth';
+import { useBoardFit, useScreenFill } from '../lib/useBoardFit';
 import { countShare } from '../lib/badges';
 import { inviteLink, verdictsOf, type BattlePlayer } from '../lib/battle';
 import { useMeaning } from '../lib/useMeaning';
@@ -682,6 +683,9 @@ const clock = (seconds: number) =>
   `${Math.floor(seconds / 60)}:${String(Math.max(0, seconds % 60)).padStart(2, '0')}`;
 
 function Playing({ game }: { game: Sozjang }) {
+  /* Taxtaga qolgan joy shu o'ramning balandligidan o'lchanadi —
+     `/oyin` va bosh sahifadagi bilan bir xil yo'l. */
+  const fit = useBoardFit<HTMLDivElement>();
   const opponentRows = (game.opponent?.rows ?? []).map(verdictsOf);
   const lastFoe = opponentRows.length;
 
@@ -721,7 +725,7 @@ function Playing({ game }: { game: Sozjang }) {
 
       <div className="fight">
         <div className="fight__side">
-          <div className="play__area">
+          <div className="play__area" ref={fit}>
             <Board
               rows={game.rows}
               length={game.boardLength}
@@ -1311,9 +1315,24 @@ export default function BattlePage({ inHub = false }: { inHub?: boolean } = {}) 
      hisobda: u hali jangning davomi, odam undan lobbiga qaytadi. */
   useLiveStage('sozjang', phase !== 'lobby');
 
+  /* Jang ketayotganda o'ram ekranning qolganini to'ldiradi: taxta,
+     raqib qatori, klaviatura va pastki qator shu balandlikni o'zaro
+     bo'lishadi, taxtaga esa qolgani tegadi (`useBoardFit`).
+
+     Ilgari bu CSS da qo'lda o'lchangan son bilan yozilgandi
+     (`100svh − 482px`) va u telefonda taxtaga atigi ikki yuz piksel
+     qoldirardi — kataklar kichkina, ekran esa baribir surilardi.
+
+     Faqat o'ynayotganda: lobbi, qidiruv va natija ekranlari
+     ekranga cho'zilib turishi kerak emas. */
+  const fill = useScreenFill<HTMLDivElement>(
+    560,
+    game.phase === 'playing' && !intro,
+  );
+
   return (
     <section className={`oyin jang${arena ? ' jang--arena' : ''}`}>
-      <div className="wrap jang__wrap">
+      <div className="wrap jang__wrap" ref={fill}>
         {!game.account ? (
           <Gate />
         ) : (
