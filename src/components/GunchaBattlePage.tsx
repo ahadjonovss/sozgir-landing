@@ -42,6 +42,7 @@ import { turnirPath } from '../lib/turnir';
 import { useSeries } from '../lib/useSeries';
 import { TurnirGroups, TurnirNext, TurnirStageBar, TurnirWaiting } from './TurnirSide';
 import { useTurnirHop } from '../lib/useTurnir';
+import { useBoardFit, useScreenFill } from '../lib/useBoardFit';
 import AdBanner from './AdBanner';
 import { useLiveStage } from '../lib/stage';
 import { trackOnce } from '../lib/track';
@@ -429,6 +430,12 @@ function TurnirStage({
 /* ── Jang ────────────────────────────────────────────────────────────── */
 
 function Playing({ game }: { game: GunchaJang }) {
+  /* Ekran bitta varaqqa sig'adi: o'ram qolgan balandlikni oladi,
+     gul esa uning ichidagi bo'sh joyni. Ilgari gulning eni faqat
+     ekran **enidan** chiqarilardi (`min(340px, 84vw)`) va past
+     ekranda pastki qator chetdan chiqib ketardi. */
+  const fill = useScreenFill<HTMLDivElement>(520);
+  const fit = useBoardFit<HTMLDivElement>();
   const [confirm, setConfirm] = useState(false);
   const urgent = game.left <= URGENT_AT;
   const share = Math.max(0, Math.min(1, game.left / GUNCHA_SECONDS));
@@ -445,7 +452,7 @@ function Playing({ game }: { game: GunchaJang }) {
   }, [game.left]);
 
   return (
-    <div className="guncha guncha--battle">
+    <div className="guncha guncha--battle" ref={fill}>
       <div className={`gbar${urgent ? ' gbar--urgent' : ''}`}>
         <div className="gbar__time">
           <strong>{clock(game.left)}</strong>
@@ -516,14 +523,20 @@ function Playing({ game }: { game: GunchaJang }) {
         <ReactionBurst event={game.incoming} />
       </div>
 
-      {game.center && (
-        <GunchaFlower
-          center={game.center}
-          petals={game.order}
-          onPress={game.press}
-          disabled={game.phase !== 'playing'}
-        />
-      )}
+      {/* Gul qolgan joyni oladi. O'ram kerak: o'lchov `flex: 1` bilan
+          cho'ziladigan elementning balandligidan olinadi, gulning
+          o'zi esa kvadrat — u balandlikka qarab kichrayishi kerak,
+          aksincha emas. */}
+      <div className="guncha__bloom" ref={fit}>
+        {game.center && (
+          <GunchaFlower
+            center={game.center}
+            petals={game.order}
+            onPress={game.press}
+            disabled={game.phase !== 'playing'}
+          />
+        )}
+      </div>
 
       <div className="guncha__controls">
         <DeleteButton

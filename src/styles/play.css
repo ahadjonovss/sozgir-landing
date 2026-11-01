@@ -5427,14 +5427,29 @@
    chiziladi. Lobbi, qidiruv va natija ekranlariga tegmaydi: u
    yerda surish me'yor, ularda o'qiladigan matn bor. */
 @media (max-width: 900px) {
-  /* Jang ketayotganda ekran butunlay o'yinniki. */
-  body:has(.jang__keys) .footer--slim {
+  /* Jang ketayotganda ekran butunlay o'yinniki.
+
+     G'uncha jangi ham shu yerda: unda klaviatura yo'q (harflar
+     gulning o'zida) va shart `.jang__keys` ga qarab yozilgani
+     uchun footer o'sha ekranda qolib ketardi — uch daqiqalik
+     jang davomida ekranning yuz sakson pikseli havolalar bilan
+     band turardi. */
+  body:has(.jang__keys) .footer--slim,
+  body:has(.guncha--battle) .footer--slim {
     display: none;
   }
 
   .jang:has(.jang__keys) {
     padding-top: 10px;
     padding-bottom: 10px;
+  }
+
+  /* G'uncha jangida ham: bo'limning pastki hoshiyasi keyingi blokni
+     ajratish uchun edi, jang ekranida esa ajratadigan narsa yo'q
+     (footer ham yopilgan) — u faqat gulni kichraytirardi. */
+  .oyin:has(.guncha--battle) {
+    padding-top: 8px;
+    padding-bottom: 0;
   }
 
   /* Qatorlar orasidagi havo qisqaradi. Butunlay olib tashlanmaydi:
