@@ -5452,6 +5452,23 @@
     padding-bottom: 0;
   }
 
+  /* Yashirilgan so'z sahifasi (`/soztop/{kod}`) ham o'yin ekrani:
+     taxta chizilgan ekan, ostida ajratadigan narsa yo'q. Shart
+     taxtaning o'z sinfidan o'qiladi — u faqat o'ynash paytida
+     qo'yiladi, xato va natija ekranlarida esa yo'q va u yerda
+     footer ham, hoshiya ham joyida qoladi.
+
+     `/oyin` bu yerga ham tushadi, lekin u yerda ikkala qoida
+     allaqachon bor — takrorlanishi zarar qilmaydi. */
+  .oyin:has(.oyin__board--fit) {
+    padding-top: 8px;
+    padding-bottom: 0;
+  }
+
+  #root > main:has(.oyin__board--fit) + .footer {
+    display: none;
+  }
+
   /* Qatorlar orasidagi havo qisqaradi. Butunlay olib tashlanmaydi:
      taymer, taxta va klaviatura bir-biriga yopishib qolsa, ekran
      to'liq bo'lsa ham o'qib bo'lmaydigan bo'lardi. */
