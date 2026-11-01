@@ -2631,22 +2631,6 @@
     grid-auto-flow: column;
   }
 
-  /* Raqibning ismi jang paytida **takrorlanadi**: u taxtalar
-     ustidagi hisob qatorida allaqachon turibdi (`board-head`),
-     o'sha yerda urinish nuqtalari ham bor. Bu yerdagi nusxa
-     qirq piksel yeb, mening taxtamni shuncha kichraytirardi.
-     Jang tugagach qaytadi — natija ekranida hisob qatori yo'q. */
-  .jang:has(.jang__keys) .fight__side--foe .fight__who {
-    display: none;
-  }
-
-  /* Raqib yo'lining kataklari ham kichrayadi: ular o'qish uchun
-     emas, «qancha qoldi» ni bir qarashda ko'rsatish uchun. */
-  .jang:has(.jang__keys) .mini__tile {
-    width: 10px;
-    height: 10px;
-    border-radius: 3px;
-  }
   .fight__side--foe .mini__row {
     flex-direction: column;
   }
@@ -8949,4 +8933,32 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
+}
+
+/* ── Jangda raqib taxtasi: telefonda chizilmaydi ──────────────────────
+
+   Ekranda to'rt narsa joy talashardi — taymer, hisob qatori, raqib
+   yo'li va klaviatura — va yutqazadigani mening taxtam bo'lardi:
+   kataklar barmoqdan kichik chiqardi.
+
+   Yo'qoladigani kam: raqibning qancha urinish qilgani taxtalar
+   ustidagi hisob qatorida nuqtalar bilan turibdi (`board-head`) va
+   o'sha yerda uning ismi ham bor. Faqat kataklarining **ranglari**
+   ko'rinmaydi. Maydonda (uch kishidan boshlab) bu allaqachon
+   shunday: sakkizta taxta ekranga sig'maydi.
+
+   `fight__side--foe`, `fight__foe` emas: ikkinchisining ichida
+   raqibning reaksiyasi uchib chiqadi va u qolishi kerak — jonli
+   efirning o'zi shu.
+
+   Jang tugagach taxta qaytadi: natija ekranida klaviatura yo'q,
+   joy bor va o'sha yerda raqib qanday o'ynagani qiziq.
+
+   Qoida faylning **oxirida**: `.jang:has(.jang__keys) .fight__side`
+   bilan og'irligi teng (ikkalasi ham uchta sinf) va u yuqorida
+   turgani uchun o'zidan oldingisini bosib ketardi. */
+@media (max-width: 560px) {
+  .jang:has(.jang__keys) .fight__side--foe {
+    display: none;
+  }
 }
