@@ -2599,6 +2599,18 @@
   .fight {
     grid-template-columns: minmax(0, 1fr);
   }
+
+  /* Tor ekranda ikkala taxta ustma-ust turadi va qatorlarning
+     **o'lchami aniq aytilishi** kerak: birinchisi — meniki — qolgan
+     hamma joyni oladi, ikkinchisi — raqibniki — o'z bo'yicha.
+
+     Aks holda ikkala qator ham «mazmun bo'yicha» o'lchanadi va joy
+     yetmaganda ikkalasi birga qisqaradi: raqibning ixcham yo'li
+     o'z o'lchamida qolib, mening taxtam nuqtaga aylanardi —
+     o'ynab bo'lmaydigan ekran. */
+  .jang:has(.jang__keys) .fight {
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
   .fight__side--foe {
     order: -1;
     display: flex;
@@ -2617,6 +2629,23 @@
      bitta ingichka chiziqqa sig'adi. */
   .fight__side--foe .mini {
     grid-auto-flow: column;
+  }
+
+  /* Raqibning ismi jang paytida **takrorlanadi**: u taxtalar
+     ustidagi hisob qatorida allaqachon turibdi (`board-head`),
+     o'sha yerda urinish nuqtalari ham bor. Bu yerdagi nusxa
+     qirq piksel yeb, mening taxtamni shuncha kichraytirardi.
+     Jang tugagach qaytadi — natija ekranida hisob qatori yo'q. */
+  .jang:has(.jang__keys) .fight__side--foe .fight__who {
+    display: none;
+  }
+
+  /* Raqib yo'lining kataklari ham kichrayadi: ular o'qish uchun
+     emas, «qancha qoldi» ni bir qarashda ko'rsatish uchun. */
+  .jang:has(.jang__keys) .mini__tile {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
   }
   .fight__side--foe .mini__row {
     flex-direction: column;
@@ -5546,6 +5575,9 @@
     flex: 1;
     min-height: 0;
     align-items: stretch;
+    /* Keng ekranda ikkala taxta yonma-yon — bitta qator, u butun
+       balandlikni oladi. */
+    grid-auto-rows: minmax(0, 1fr);
   }
 
   .jang:has(.jang__keys) .fight__side {
