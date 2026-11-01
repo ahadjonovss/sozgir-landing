@@ -5506,6 +5506,18 @@
     min-height: 0;
   }
 
+  /* Turnir jangida zanjirga yana ikkita bo'g'in qo'shiladi: taxta
+     `tnr-stage` ichida, bosqich nomi bilan birga turadi. Ular
+     tushib qolsa balandlik taxtaga yetib bormay, o'lchov nolga
+     tushardi — turnir jangi oddiy jangdan boshqacha ko'rinardi. */
+  .jang:has(.jang__keys) .tnr-stage,
+  .jang:has(.jang__keys) .tnr-stage__main {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+
   .jang:has(.jang__keys) .stage--fight {
     display: flex;
     flex-direction: column;
