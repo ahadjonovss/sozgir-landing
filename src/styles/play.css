@@ -8372,9 +8372,17 @@
    `stage.tsx` dagi bitta bayroqdan boshqariladi. */
 
 /* Tanlov (`O'ynash` sahifasidagi to'rtta nom) jang paytida yo'qoladi.
-   `display: none` emas, chunki qolgan o'yinlar soni (`PlaysLeft`) shu
-   bo'limda va u jang paytida ham kerak — faqat nomlar olinadi. */
-.hub__top--off .hub__tabs {
+   Butun bo'lim emas, chunki qolgan o'yinlar soni (`PlaysLeft`) shu
+   yerda va u jang paytida ham kerak.
+
+   Aqcha kartochkasi ham yo'qoladi. U sahifaning sarlavhasi bo'lib
+   turadi va tanlovdan oldin javob beradi — «qancha aqcham bor,
+   nechta jang o'ynadim». Jang ketayotganda esa bu savolning o'rni
+   yo'q: javob jang tugagach o'zgaradi va natija ekranida aytiladi.
+   Telefonda u ustiga uch yuz piksel yerdi — taxta klaviatura bilan
+   birga ekrandan chiqib ketardi. */
+.hub__top--off .hub__tabs,
+.hub__top--off .rating {
   display: none;
 }
 
